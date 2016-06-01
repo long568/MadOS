@@ -81,3 +81,10 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# MDK
+# =====================
+
+MadOS.uvguix.*
+Output/
+List/
