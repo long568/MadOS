@@ -85,6 +85,8 @@ $RECYCLE.BIN/
 # MDK
 # =====================
 
-MadOS.uvguix.*
 Output/
 List/
+MadOS.uvguix.*
+MadOS.uvoptx
+unused.txt
