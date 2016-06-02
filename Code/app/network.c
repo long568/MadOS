@@ -4,9 +4,9 @@
 
 extern err_t ethernetif_init(struct netif *netif);
 
-MadStatic FATFS *fat_MicroSD;
-MadStatic int tcp_client;
-MadStatic struct netif *enc28j60;
+static FATFS *fat_MicroSD;
+static int tcp_client;
+static struct netif *enc28j60;
 
 static void Enc28j60Callback_LinkChanged(struct netif *netif)
 {

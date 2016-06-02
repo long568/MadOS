@@ -3,15 +3,8 @@
 
 #include "stm32f10x.h"
 
-#define KEIL_MDK
+#define MAD_KEIL_MDK
 #define MAD_OS_DEBUG
-
-#ifdef MAD_OS_DEBUG
-#define MadStatic
-#else
-#define MadStatic static
-#endif
-#define MadConst  const
 
 typedef void* 			MadVptr;
 typedef unsigned char   MadU8;
@@ -24,10 +17,11 @@ typedef MadU32          MadUint;
 typedef MadS32          MadInt;
 typedef MadU8           MadBool;
 
+typedef MadU32          MadSize_t;
 typedef MadU32          MadCpsr_t;
 typedef MadU32          MadStk_t;
-typedef MadU8           MadFlag_t;
 typedef MadU32          MadTim_t;
+typedef MadU8           MadFlag_t;
 
 #define MAD_UINT_MAX    (0xFFFFFFFF)
 #define MAD_U16_MAX     (0xFFFF)

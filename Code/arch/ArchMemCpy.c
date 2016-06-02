@@ -1,11 +1,11 @@
 #include "ArchMemCpy.h"
 #include "UserConfig.h"
 
-#ifdef USE_ARCH_MEM_ACT
+#ifdef MAD_USE_ARCH_MEM_ACT
 
-MadStatic MadSemCB_t      mad_archm_locker, *mad_archm_plocker;
-MadStatic MadSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;
-MadStatic DMA_InitTypeDef mad_archm_dma;
+static MadSemCB_t      mad_archm_locker, *mad_archm_plocker;
+static MadSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;
+static DMA_InitTypeDef mad_archm_dma;
 
 void madArchMemInit(void)
 {
@@ -46,7 +46,7 @@ void ARCHM_DMA_TX_IRQ(void)
     }
 }
 
-void madArchMemCpy(MadVptr dst, const void * src, MadU32 size)
+void madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
 {
     madSemWait(&mad_archm_plocker, 0);
     DMA_DeInit(ARCHM_DMA_TX);
@@ -62,7 +62,7 @@ void madArchMemCpy(MadVptr dst, const void * src, MadU32 size)
     madSemRelease(&mad_archm_plocker);
 }
 
-void madArchMemSet(MadVptr dst, MadU8 value, MadU32 size)
+void madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
 {
     madSemWait(&mad_archm_plocker, 0);
     DMA_DeInit(ARCHM_DMA_TX);

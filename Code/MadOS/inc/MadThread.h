@@ -18,31 +18,31 @@ typedef struct _MadRdyG_t {
 } MadRdyG_t;
 
 typedef struct _MadTCB_t {
-    MadStk_t  *pStk;      // Pointer of the thread's stack
-    MadU8     prio;       // Thread's priority
-    MadU8     state;      // Thread's state
-    MadTim_t  timeCnt;    // Count of waiting
+    MadStk_t  *pStk;
+    MadU8     prio;
+    MadU8     state;
+    MadTim_t  timeCnt;
     MadTim_t  timeCntRemain;
     MadU8     *msg;
     MadU16    rdyg_bit;
     MadU16    rdy_bit;
-    MadRdyG_t  *xCB;
-	MadU16    mask;
+    MadRdyG_t *xCB;
+	MadUint   mask;
     MadU8     err;
 } MadTCB_t;
 
 typedef void (*MadThread_t)(MadVptr);
 
-extern             MadBool  MadOSRunning;
-extern             MadTCB_t    *MadCurTCB;
-extern             MadTCB_t    *MadHighRdyTCB;
-extern             MadTCB_t    *MadTCBGrp[MAD_THREAD_NUM_MAX];
-extern             MadU16     MadThreadRdyGrp;
-extern             MadU16     MadThreadRdy[MAD_THREAD_RDY_NUM];
-extern  MadConst   MadU16     MadRdyMap[16];
+extern         MadBool    MadOSRunning;
+extern         MadTCB_t   *MadCurTCB;
+extern         MadTCB_t   *MadHighRdyTCB;
+extern         MadTCB_t   *MadTCBGrp[MAD_THREAD_NUM_MAX];
+extern         MadU16     MadThreadRdyGrp;
+extern         MadU16     MadThreadRdy[MAD_THREAD_RDY_NUM];
+extern  const  MadU16     MadRdyMap[16];
 
 extern  MadStk_t*   madThreadStkInit          (MadVptr pStk, MadThread_t act, MadVptr exData);
-extern  MadTCB_t*   madThreadCreateCarefully  (MadThread_t act, MadVptr exData, MadU32 size, MadVptr stk, MadU8 prio);
+extern  MadTCB_t*   madThreadCreateCarefully  (MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio);
 extern  void        madThreadResume           (MadU8 threadPrio);
 extern  void        madThreadPend             (MadU8 threadPrio);
 extern  void        madThreadDelete           (MadU8 threadPrio);

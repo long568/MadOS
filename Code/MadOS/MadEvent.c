@@ -1,9 +1,9 @@
 #include "MadOS.h"
 
-MadEventCB_t* madEventCreate(MadU16 mask)
+MadEventCB_t* madEventCreate(MadUint mask)
 {
-    MadUint i;
-    MadVptr p;
+    MadUint      i;
+    MadVptr      p;
     MadEventCB_t *ecb;
     
     if(!mask) return 0;
@@ -23,10 +23,11 @@ MadEventCB_t* madEventCreate(MadU16 mask)
     return ecb;
 }
 
-MadU8 madDoEventWait(MadEventCB_t **pEvent, MadU16 mask, MadTim_t to, MadBool reset)
+MadU8 madDoEventWait(MadEventCB_t **pEvent, MadUint mask, MadTim_t to, MadBool reset)
 {
-	MadCpsr_t cpsr;
-    MadU8 prioh, res;
+    MadU8        res;
+    MadU8        prioh;
+	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
 	
 	madEnterCritical(cpsr);
@@ -68,10 +69,10 @@ MadU8 madDoEventWait(MadEventCB_t **pEvent, MadU16 mask, MadTim_t to, MadBool re
     return res;
 }
 
-MadU8 madEventCheck(MadEventCB_t **pEvent, MadU16 *mask)
+MadU8 madEventCheck(MadEventCB_t **pEvent, MadUint *mask)
 {
-	MadCpsr_t cpsr;
-    MadU16 res;
+    MadU8        res;
+	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
     madEnterCritical(cpsr);
 	event = *pEvent;
@@ -85,14 +86,16 @@ MadU8 madEventCheck(MadEventCB_t **pEvent, MadU16 *mask)
     return res;
 }
 
-void madDoEventTrigger(MadEventCB_t **pEvent, MadU16 mask, MadU8 err)
+void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
 {
-	MadCpsr_t cpsr;
-	MadTCB_t *tcb;
+	MadCpsr_t    cpsr;
+	MadTCB_t     *tcb;
 	MadEventCB_t *event;
-    MadU8 prioh, priol, prio;
-    MadBool flagSched = MFALSE;
-	MadU16 cnt;
+    MadU8        prioh;
+    MadU8        priol;
+    MadU8        prio;
+    MadUint      cnt;
+    MadBool      flagSched = MFALSE;
 	
 	madEnterCritical(cpsr);
 	event = *pEvent;
@@ -137,7 +140,7 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadU16 mask, MadU8 err)
 
 void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
 {
-	MadCpsr_t cpsr;
+	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
     madMemWait(cpsr);
 	event = *pEvent;

@@ -7,12 +7,12 @@ extern void madOSStartUp(void);
 #define MAD_REAL_STATIST_STK_SIZE ((MAD_STATIST_STK_SIZE + sizeof(MadTCB_t)) / MAD_MEM_ALIGN + 1)
 #endif
 
-MadStatic MadU32  mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
+static MadU32  mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
 #if MAD_STATIST_STK_SIZE
-MadStatic MadU32  mad_statist_stk[MAD_REAL_STATIST_STK_SIZE];
-MadStatic MadUint mad_sys_cnt;
-MadStatic MadUint mad_sys_cnt_res;
-MadStatic MadUint mad_sys_cnt_max;
+static MadU32  mad_statist_stk[MAD_REAL_STATIST_STK_SIZE];
+static MadUint mad_sys_cnt;
+static MadUint mad_sys_cnt_res;
+static MadUint mad_sys_cnt_max;
 #endif
 
 static void madActIdle(MadVptr exData);
@@ -20,7 +20,7 @@ static void madActIdle(MadVptr exData);
 static void madActStatist(MadVptr exData);
 #endif
 
-void madOSInit(MadVptr heap_head, MadUint heap_size)
+void madOSInit(MadVptr heap_head, MadSize_t heap_size)
 {
     MadUint i;
     
@@ -74,7 +74,13 @@ static void madActIdle(MadVptr exData)
 void madInitStatist(void)
 {
     MadCpsr_t cpsr;
-    mad_sys_cnt = mad_sys_cnt_max = 0;
+    madEnterCritical(cpsr);
+    mad_sys_cnt_res = mad_sys_cnt_res;  // Prevent warning
+    mad_sys_cnt_max = mad_sys_cnt_max;  // Prevent warning
+    mad_sys_cnt = 0;
+    mad_sys_cnt_res = 0;
+    mad_sys_cnt_max = 0;
+    madExitCritical(cpsr);
     madTimeDly(1000);
     madEnterCritical(cpsr);
     mad_sys_cnt_res = mad_sys_cnt;

@@ -3,20 +3,20 @@
 
 #include "inc/MadGlobal.h"
 
-#define MAD_EVENT_TRIGALL  ((MadU16)0xFFFF)
+#define MAD_EVENT_TRIGALL  (~((MadUint)0))
 
 typedef struct _MadEventCB_t {
     MadU16  rdyg;
     MadU16  rdy[MAD_THREAD_RDY_NUM];
-    MadU16  maskWait;
-    MadU16  maskGot;
-	MadU16  cnt;
+    MadUint maskWait;
+    MadUint maskGot;
+	MadUint cnt;
 } MadEventCB_t;
 
-extern  MadEventCB_t*  madEventCreate     (MadU16 mask);
-extern  MadU8          madDoEventWait	  (MadEventCB_t **pEvent, MadU16 mask, MadTim_t to, MadBool reset);
-extern  MadU8          madEventCheck      (MadEventCB_t **pEvent, MadU16 *mask);
-extern  void           madDoEventTrigger  (MadEventCB_t **pEvent, MadU16 mask, MadU8 err);
+extern  MadEventCB_t*  madEventCreate     (MadUint mask);
+extern  MadU8          madDoEventWait	  (MadEventCB_t **pEvent, MadUint mask, MadTim_t to, MadBool reset);
+extern  MadU8          madEventCheck      (MadEventCB_t **pEvent, MadUint *mask);
+extern  void           madDoEventTrigger  (MadEventCB_t **pEvent, MadUint mask, MadU8 err);
 extern  void           madDoEventDelete   (MadEventCB_t **pEvent, MadBool opt);
 
 #define madEventWait(pEvent, mask, to)    madDoEventWait(pEvent, mask, to, MFALSE)

@@ -3,8 +3,9 @@
 void madTimeDly(MadTim_t timeCnt)
 {
     MadCpsr_t cpsr;
-    MadU8 prio_h;    
-    if(!timeCnt) return;    
+    MadU8     prio_h;    
+    if(!timeCnt) 
+        return;    
     madEnterCritical(cpsr);    
     MadCurTCB->timeCnt = timeCnt;
     MadCurTCB->state |= MAD_THREAD_TIMEDLY;
@@ -19,10 +20,10 @@ void madTimeDly(MadTim_t timeCnt)
 MadUint madSysTick(void)
 {
     MadCpsr_t cpsr;
-    MadUint i;
-    MadTCB_t *pTCB;
-    MadU8 prio_h;
-    MadUint res = 0;
+    MadUint   i;
+    MadTCB_t  *pTCB;
+    MadU8     prio_h;
+    MadUint   res = 0;
     
     madEnterCritical(cpsr);
     for(i=0; i<MAD_THREAD_NUM_MAX; i++) {

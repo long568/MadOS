@@ -7,21 +7,23 @@ MadTCB_t *MadTCBGrp[MAD_THREAD_NUM_MAX];
 MadU16   MadThreadRdyGrp;
 MadU16   MadThreadRdy[MAD_THREAD_RDY_NUM];
 
-MadConst MadU16 MadRdyMap[16] = {0x0001, 0x0002, 0x0004, 0x0008,
-                                 0x0010, 0x0020, 0x0040, 0x0080,
-                                 0x0100, 0x0200, 0x0400, 0x0800,
-                                 0x1000, 0x2000, 0x4000, 0x8000};
+const MadU16 MadRdyMap[16] = {0x0001, 0x0002, 0x0004, 0x0008,
+                              0x0010, 0x0020, 0x0040, 0x0080,
+                              0x0100, 0x0200, 0x0400, 0x0800,
+                              0x1000, 0x2000, 0x4000, 0x8000};
 
-MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadU32 size, MadVptr stk, MadU8 prio)
+MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio)
 {
     MadCpsr_t cpsr;
-    MadTCB_t *pTCB;
-    MadU32 nReal;
-    MadU8 prio_h, prio_l;
-    MadU16 rdy_grp, rdy;
-    MadU8 curThread;
-    MadU32 size_all;
-    MadU8 flagSched = MFALSE;
+    MadTCB_t  *pTCB;
+    MadSize_t nReal;
+    MadSize_t size_all;
+    MadU16    rdy_grp;
+    MadU16    rdy;
+    MadU8     prio_h;
+    MadU8     prio_l;
+    MadU8     curThread;
+    MadU8     flagSched = MFALSE;
     
     madEnterCritical(cpsr);
     if(MadTCBGrp[prio]) {
@@ -45,27 +47,27 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadU32 size
     }
     
     
-    prio_h = (MadU8)(prio >> 4);
-    prio_l = (MadU8)(prio & 0x0F);
+    prio_h  = (MadU8)(prio >> 4);
+    prio_l  = (MadU8)(prio & 0x0F);
     rdy_grp = MadRdyMap[prio_h];
-    rdy = MadRdyMap[prio_l];
+    rdy     = MadRdyMap[prio_l];
     
-    pTCB = (MadTCB_t *)stk;
-    pTCB->pStk = madThreadStkInit((MadU8*)stk + nReal - sizeof(MadStk_t), act, exData);
-    pTCB->prio = prio;
-    pTCB->state = MAD_THREAD_READY;
-    pTCB->timeCnt = 0;
+    pTCB                = (MadTCB_t *)stk;
+    pTCB->pStk          = madThreadStkInit((MadU8*)stk + nReal - sizeof(MadStk_t), act, exData);
+    pTCB->prio          = prio;
+    pTCB->state         = MAD_THREAD_READY;
+    pTCB->timeCnt       = 0;
 	pTCB->timeCntRemain = 0;
-    pTCB->rdyg_bit = rdy_grp;
-    pTCB->rdy_bit = rdy;
-    pTCB->xCB = 0;
-	pTCB->mask = MAD_EVENT_TRIGALL;
-    pTCB->err = MAD_ERR_OK;
+    pTCB->rdyg_bit      = rdy_grp;
+    pTCB->rdy_bit       = rdy;
+    pTCB->xCB           = 0;
+	pTCB->mask          = MAD_EVENT_TRIGALL;
+    pTCB->err           = MAD_ERR_OK;
     
     madEnterCritical(cpsr);
     
-    MadTCBGrp[prio] = pTCB;
-    MadThreadRdyGrp |= rdy_grp;
+    MadTCBGrp[prio]       = pTCB;
+    MadThreadRdyGrp      |= rdy_grp;
     MadThreadRdy[prio_h] |= rdy;
     
     if(MadOSRunning) {
@@ -84,9 +86,9 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadU32 size
 void madThreadResume(MadU8 threadPrio)
 {
     MadCpsr_t cpsr;
-    MadTCB_t *pTCB;
-    MadU8 prio_h;
-    MadU8 flagSched = MFALSE;
+    MadTCB_t  *pTCB;
+    MadU8     prio_h;
+    MadU8     flagSched = MFALSE;
     
     madEnterCritical(cpsr);
     
@@ -113,9 +115,9 @@ void madThreadResume(MadU8 threadPrio)
 void madThreadPend(MadU8 threadPrio)
 {
     MadCpsr_t cpsr;
-    MadTCB_t *pTCB;
-    MadU8 prio_h;
-    MadU8 flagSched = MFALSE;
+    MadTCB_t  *pTCB;
+    MadU8     prio_h;
+    MadU8     flagSched = MFALSE;
     
     madEnterCritical(cpsr);
     
@@ -143,9 +145,9 @@ void madThreadPend(MadU8 threadPrio)
 void madThreadDelete(MadU8 threadPrio)
 {
     MadCpsr_t cpsr;
-    MadTCB_t *pTCB;
-    MadU8 prio_h;
-    MadU8 flagSched = MFALSE;
+    MadTCB_t  *pTCB;
+    MadU8     prio_h;
+    MadU8     flagSched = MFALSE;
     
     madMemWait(cpsr);
     
@@ -187,8 +189,9 @@ void madThreadDelete(MadU8 threadPrio)
 
 MadUint madThreadCheckReady(void)
 {
-    MadU32 prio_h, prio_l;
-    MadU8 prio;
+    MadUint prio_h;
+    MadUint prio_l;
+    MadU8   prio;
     
     if(!MadOSRunning) 
         return 0;

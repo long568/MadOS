@@ -92,8 +92,9 @@ void madDoSemRelease(MadSemCB_t **pSem, MadU8 err)
 
 MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
 {
-    MadU8 prioh, res;
-	MadCpsr_t cpsr;
+    MadU8      res;
+    MadU8      prioh;
+	MadCpsr_t  cpsr;
 	MadSemCB_t *sem;
 	
 	madEnterCritical(cpsr);
@@ -133,8 +134,8 @@ MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
 
 MadBool madSemCheck(MadSemCB_t **pSem)
 {
-	MadCpsr_t cpsr;
-    MadBool res;
+	MadCpsr_t  cpsr;
+    MadBool    res;
 	MadSemCB_t *sem;
     
     res = MFALSE;
@@ -150,7 +151,7 @@ MadBool madSemCheck(MadSemCB_t **pSem)
 
 void madDoSemDelete(MadSemCB_t **pSem, MadBool opt)
 {
-	MadCpsr_t cpsr;
+	MadCpsr_t  cpsr;
 	MadSemCB_t *sem;
 	
     madMemWait(cpsr);

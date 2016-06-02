@@ -2,7 +2,7 @@
 #define __ARCH_MEM_CPY__H__
 
 #include "MadOS.h"
-#ifdef USE_ARCH_MEM_ACT
+#ifdef MAD_USE_ARCH_MEM_ACT
 
 #define ARCHM_DMA_DIR_M2P  DMA_DIR_PeripheralDST
 #define ARCHM_DMA_TX       DMA1_Channel1
@@ -16,8 +16,8 @@
 
 extern  void  madArchMemInit    (void);
 extern  void  ARCHM_DMA_TX_IRQ  (void);
-extern  void  madArchMemCpy     (MadVptr dst, const void * src, MadU32 size);
-extern  void  madArchMemSet     (MadVptr dst, MadU8 value, MadU32 size);
+extern  void  madArchMemCpy     (MadVptr dst, const MadVptr src, MadSize_t size);
+extern  void  madArchMemSet     (MadVptr dst, MadU8 value, MadSize_t size);
 
 #endif
 #endif

@@ -10,12 +10,12 @@ typedef struct _MadMsgQCB_t {
     MadU8      **bottom;
     MadU8      **head;
     MadU8      **tail;
-    MadSemCB_t  *sem;
+    MadSemCB_t *sem;
     MadU16     cnt;
     MadU16     size;
 } MadMsgQCB_t;
 
-extern  MadConst  MadU8  MAD_MSG_EMPTY[];
+extern  const  MadU8  MAD_MSG_EMPTY[];
 
 extern  MadMsgQCB_t*  madMsgQCreateCarefully  (MadU16 size, MadBool sendBlock);
 extern 	MadU8 		  madMsgCheck             (MadMsgQCB_t **pMsgQ);

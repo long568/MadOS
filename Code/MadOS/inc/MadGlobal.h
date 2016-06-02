@@ -24,7 +24,7 @@ enum {
     #define MAD_THREAD_RDY_NUM (MAD_THREAD_NUM_MAX / 16)
 #endif
 
-extern  void  madOSInit (MadVptr heap_head, MadUint heap_size);
+extern  void  madOSInit (MadVptr heap_head, MadSize_t heap_size);
 extern  void  madOSRun  (void);
 #if MAD_STATIST_STK_SIZE
 extern  void  madInitStatist(void);

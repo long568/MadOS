@@ -1,6 +1,6 @@
 #include "MadOS.h"
 
-MadConst MadU8 MAD_MSG_EMPTY[] = "";
+const MadU8 MAD_MSG_EMPTY[] = "";
 
 #define MSGQ_RELEASE_SEM()          \
 do {                                \
@@ -25,10 +25,10 @@ do {                                            \
 
 MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
 {
-    MadUint i;
-    MadU8 *p;
+    MadUint     i;
+    MadU8       *p;
     MadMsgQCB_t *msgQ;
-    MadUint nReal;
+    MadSize_t   nReal;
 	
 	if(0 == size) 
 		return MNULL;
@@ -58,9 +58,9 @@ MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
 
 MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ)
 {
-	MadCpsr_t cpsr;
+	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
-    MadU8 res = MAD_ERR_MSGQ_EMPTY;
+    MadU8       res = MAD_ERR_MSGQ_EMPTY;
 	
 	madEnterCritical(cpsr);
 	msgQ = *pMsgQ;
@@ -81,9 +81,10 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ)
 
 MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
 {
-	MadCpsr_t cpsr;
+	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
-    MadU8 prioh, res = MAD_ERR_MSGQ_EMPTY;
+    MadU8       prioh;
+    MadU8       res = MAD_ERR_MSGQ_EMPTY;
 	
 	madEnterCritical(cpsr);
 	msgQ = *pMsgQ;
@@ -128,11 +129,13 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
 
 MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err)
 {
-	MadCpsr_t cpsr;
-	MadTCB_t *tcb;
+	MadCpsr_t   cpsr;
+	MadTCB_t    *tcb;
 	MadMsgQCB_t *msgQ;
-    MadU8 prioh, priol, prio;
-    MadBool flagSched = MFALSE;
+    MadU8       prioh;
+    MadU8       priol;
+    MadU8       prio;
+    MadBool     flagSched = MFALSE;
 	
 	madEnterCritical(cpsr);
 	msgQ = *pMsgQ;
@@ -188,7 +191,7 @@ MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to,
 
 void madDoMsgQDelete(MadMsgQCB_t **pMsgQ, MadBool opt)
 {
-	MadCpsr_t cpsr;
+	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
 	
     madMemWait(cpsr);
