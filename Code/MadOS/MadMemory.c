@@ -3,33 +3,33 @@
 struct _madMemHead_t;
 typedef struct _madMemHead_t
 {
-    mad_uint_t             size;
-    struct _madMemHead_t * next;
+    MadUint              size;
+    struct _madMemHead_t *next;
 } madMemHead_t; // 4 + 4 = 8 Bytes
 
-mad_static madMemHead_t *mad_used_head;
-mad_static mad_u8       *mad_heap_head;
-mad_static mad_u8       *mad_heap_tail;
-mad_static mad_uint_t   mad_unused_size;
-
+MadStatic madMemHead_t *mad_used_head;
+MadStatic MadU8        *mad_heap_head;
+MadStatic MadU8        *mad_heap_tail;
+MadStatic MadUint      mad_unused_size;
 #ifdef USE_SEM_2_LOCK_MEM
-mad_static madSemCB_t mad_mem_sem, *mad_mem_psem;
-mad_static mad_u32    mad_isWait;
+MadStatic MadSemCB_t   mad_mem_sem;
+MadStatic MadSemCB_t   *mad_mem_pSem;
+MadStatic MadU32       mad_isWait;
 #endif
 
-static mad_u8* findSpace(mad_uint_t size);
-static void    doMemFree(madMemHead_t *target);
+static MadU8* findSpace(MadUint size);
+static void   doMemFree(madMemHead_t *target);
 
-void madMemInit(mad_vptr heap_head, mad_uint_t heap_size)
+void madMemInit(MadVptr heap_head, MadUint heap_size)
 {
     mad_used_head = MNULL;
     mad_heap_head = heap_head;
-    mad_heap_tail = (mad_u8*)heap_head + heap_size;
+    mad_heap_tail = (MadU8*)heap_head + heap_size;
     mad_unused_size = heap_size;
 #ifdef USE_SEM_2_LOCK_MEM
     mad_isWait = 0;
-	mad_mem_psem = &mad_mem_sem;
-    madSemInit(mad_mem_psem, 1);
+	mad_mem_pSem = &mad_mem_sem;
+    madSemInit(mad_mem_pSem, 1);
 #endif
 #ifdef USE_ARCH_MEM_ACT
     madArchMemInit();
@@ -39,35 +39,37 @@ void madMemInit(mad_vptr heap_head, mad_uint_t heap_size)
 #ifdef USE_SEM_2_LOCK_MEM
 void madDoMemWait(void)
 {
-    if(0 == mad_isWait) madSemWait(&mad_mem_psem, 0);
+    if(0 == mad_isWait) 
+        madSemWait(&mad_mem_pSem, 0);
     mad_isWait++;
 }
 
 void madDoMemRelease(void)
 {
     mad_isWait--;
-    if(0 == mad_isWait) madSemRelease(&mad_mem_psem);
+    if(0 == mad_isWait) 
+        madSemRelease(&mad_mem_pSem);
 }
 
-void madMemFreeCritical(mad_vptr p)
+void madMemFreeCritical(MadVptr p)
 {
     madMemHead_t * target;  
     if(MNULL == p)
         return;
-    target = (madMemHead_t *)((mad_u8*)p - sizeof(madMemHead_t));
+    target = (madMemHead_t *)((MadU8*)p - sizeof(madMemHead_t));
     doMemFree(target);
 }
 #endif
 
-mad_vptr madMemMallocCarefully(mad_uint_t n, mad_uint_t *nReal)
+MadVptr madMemMallocCarefully(MadUint n, MadUint *nReal)
 {
 #ifndef USE_SEM_2_LOCK_MEM
-    mad_cpsr_t cpsr;
+    MadCpsr_t cpsr;
 #endif
-    mad_vptr res;
-    mad_uint_t real_n;
-    mad_uint_t align_ofs;
-    mad_u8* cur;
+    MadVptr res;
+    MadUint real_n;
+    MadUint align_ofs;
+    MadU8* cur;
     
     res = MNULL;
     if(MNULL != nReal)
@@ -80,15 +82,14 @@ mad_vptr madMemMallocCarefully(mad_uint_t n, mad_uint_t *nReal)
         real_n += MAD_MEM_ALIGN - align_ofs;
 
 #ifdef USE_SEM_2_LOCK_MEM
-    madSemWait(&mad_mem_psem, 0);
+    madSemWait(&mad_mem_pSem, 0);
 #else
     madEnterCritical(cpsr);
 #endif
     
-    if (real_n > mad_unused_size)
-    {
+    if (real_n > mad_unused_size) {
     #ifdef USE_SEM_2_LOCK_MEM
-        madSemRelease(&mad_mem_psem);
+        madSemRelease(&mad_mem_pSem);
     #else
         madExitCritical(cpsr);
     #endif
@@ -97,7 +98,7 @@ mad_vptr madMemMallocCarefully(mad_uint_t n, mad_uint_t *nReal)
     cur = findSpace(real_n);
 
 #ifdef USE_SEM_2_LOCK_MEM
-    madSemRelease(&mad_mem_psem);
+    madSemRelease(&mad_mem_pSem);
 #else
     madExitCritical(cpsr);
 #endif
@@ -105,35 +106,35 @@ mad_vptr madMemMallocCarefully(mad_uint_t n, mad_uint_t *nReal)
     if(MNULL == cur)
         return MNULL;
     
-    res = (mad_u8*)cur + sizeof(madMemHead_t);
+    res = (MadU8*)cur + sizeof(madMemHead_t);
     if(MNULL != nReal)
         *nReal = real_n - sizeof(madMemHead_t);
     
     return res;
 }
 
-mad_vptr madMemCalloc(mad_uint_t n, mad_uint_t size)
+MadVptr madMemCalloc(MadUint n, MadUint size)
 {
-    mad_uint_t real_size = n * size;
+    MadUint real_size = n * size;
     void *p = madMemMalloc(real_size);
     if(p)
         madMemSetDMA(p, 0, size);
     return p;
 }
 
-void madMemFree(mad_vptr p)
+void madMemFree(MadVptr p)
 {
 #ifndef USE_SEM_2_LOCK_MEM
-    mad_cpsr_t cpsr;
+    MadCpsr_t cpsr;
 #endif
     madMemHead_t * target;
     
     if(MNULL == p)
         return;
-    target = (madMemHead_t *)((mad_u8*)p - sizeof(madMemHead_t));
+    target = (madMemHead_t *)((MadU8*)p - sizeof(madMemHead_t));
     
 #ifdef USE_SEM_2_LOCK_MEM
-    madSemWait(&mad_mem_psem, 0);
+    madSemWait(&mad_mem_pSem, 0);
 #else
     madEnterCritical(cpsr);
 #endif
@@ -141,21 +142,20 @@ void madMemFree(mad_vptr p)
     doMemFree(target);
     
 #ifdef USE_SEM_2_LOCK_MEM
-    madSemRelease(&mad_mem_psem);
+    madSemRelease(&mad_mem_pSem);
 #else
     madExitCritical(cpsr);
 #endif
 }
 
-static mad_u8* findSpace(mad_uint_t size)
+static MadU8* findSpace(MadUint size)
 {
-    mad_uint_t ofs;
-    mad_u8 *res;
+    MadUint ofs;
+    MadU8 *res;
     madMemHead_t * tmp;
     madMemHead_t * head = mad_used_head;
     
-    if(MNULL == head)
-    {
+    if(MNULL == head) {
         mad_used_head = (madMemHead_t *)mad_heap_head;
         mad_used_head->size = size;
         mad_used_head->next = MNULL;
@@ -163,12 +163,10 @@ static mad_u8* findSpace(mad_uint_t size)
         return mad_heap_head;
     }
     
-    if(mad_used_head > (madMemHead_t *)mad_heap_head)
-    {
+    if(mad_used_head > (madMemHead_t *)mad_heap_head) {
         res = mad_heap_head;
-        ofs = (mad_uint_t)((mad_u8*)head - res);
-        if(ofs >= size)
-        {
+        ofs = (MadUint)((MadU8*)head - res);
+        if(ofs >= size) {
             mad_used_head = (madMemHead_t *)res;
             mad_used_head->size = size;
             mad_used_head->next = head;
@@ -177,12 +175,10 @@ static mad_u8* findSpace(mad_uint_t size)
         }
     }
     
-    while(MNULL != head->next)
-    {
-        res = (mad_u8*)head + head->size;
-        ofs = (mad_uint_t)((mad_u8*)(head->next) - res);
-        if(ofs >= size)
-        {
+    while(MNULL != head->next) {
+        res = (MadU8*)head + head->size;
+        ofs = (MadUint)((MadU8*)(head->next) - res);
+        if(ofs >= size) {
             tmp = head->next;
             head->next = (madMemHead_t *)res;
             ((madMemHead_t *)res)->size = size;
@@ -193,18 +189,15 @@ static mad_u8* findSpace(mad_uint_t size)
         head = head->next;
     }
     
-    res = (mad_u8*)head + head->size;
-    ofs = (mad_uint_t)(mad_heap_tail - res);
-    if(ofs >= size)
-    {
+    res = (MadU8*)head + head->size;
+    ofs = (MadUint)(mad_heap_tail - res);
+    if(ofs >= size) {
         head->next = (madMemHead_t *)res;
         ((madMemHead_t *)res)->size = size;
         ((madMemHead_t *)res)->next = MNULL;
         mad_unused_size -= size;
         return res;
-    }
-    else
-    {
+    } else {
         return MNULL;
     }
 }
@@ -216,10 +209,8 @@ static void doMemFree(madMemHead_t *target)
 
     prio = MNULL;
     head = mad_used_head;
-    while(head)
-    {
-        if(head == target)
-        {
+    while(head) {
+        if(head == target) {
             if(MNULL == prio)
                 mad_used_head = head->next;
             else
@@ -232,20 +223,20 @@ static void doMemFree(madMemHead_t *target)
     }
 }
 
-void madMemCopy(mad_vptr dst, const void *src, mad_u32 len)
+void madMemCopy(MadVptr dst, const void *src, MadU32 len)
 {
-    mad_u32 i;
-    mad_u8 *d = dst;
-    mad_u8 *s = (mad_u8*)src;
+    MadU32 i;
+    MadU8 *d = dst;
+    MadU8 *s = (MadU8*)src;
     for(i=0; i<len; i++) {
         d[i] = s[i];
     }
 }
 
-void madMemSet(mad_vptr dst, mad_u8 value, mad_u32 len)
+void madMemSet(MadVptr dst, MadU8 value, MadU32 len)
 {
-    mad_u32 i;
-    mad_u8 *d = dst;
+    MadU32 i;
+    MadU8 *d = dst;
     for(i=0; i<len; i++) {
         d[i] = value;
     }

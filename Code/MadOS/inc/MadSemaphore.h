@@ -3,24 +3,23 @@
 
 #include "inc/MadGlobal.h"
 
-typedef struct _madSemCB_t
-{
-    mad_u16    rdyg;
-    mad_u16    rdy[MAD_THREAD_RDY_NUM];
-    mad_u16    cnt;
-    mad_u16    max;
-} madSemCB_t;
+typedef struct _MadSemCB_t {
+    MadU16    rdyg;
+    MadU16    rdy[MAD_THREAD_RDY_NUM];
+    MadU16    cnt;
+    MadU16    max;
+} MadSemCB_t;
 
-extern  madSemCB_t*  madSemCreate           (mad_u16 cnt);
-extern  madSemCB_t*  madSemCreateCarefully  (mad_u16 cnt, mad_u16 max);
-extern  mad_bool_t   madSemInit             (madSemCB_t *sem, mad_u16 cnt);
-extern  mad_bool_t   madSemInitCarefully    (madSemCB_t *sem, mad_u16 cnt, mad_u16 max);
-extern  void         madDoSemRelease  		(madSemCB_t **psem, mad_u8 err);
-extern  mad_u8       madSemWait	     		(madSemCB_t **psem, mad_tim_t timOut);
-extern  mad_bool_t   madSemCheck      		(madSemCB_t **psem);
-extern  void         madDoSemDelete   		(madSemCB_t **psem, mad_bool_t opt);
+extern  MadSemCB_t*  madSemCreate           (MadU16 cnt);
+extern  MadSemCB_t*  madSemCreateCarefully  (MadU16 cnt, MadU16 max);
+extern  MadBool      madSemInit             (MadSemCB_t *sem, MadU16 cnt);
+extern  MadBool      madSemInitCarefully    (MadSemCB_t *sem, MadU16 cnt, MadU16 max);
+extern  void         madDoSemRelease  		(MadSemCB_t **pSem, MadU8 err);
+extern  MadU8        madSemWait	     		(MadSemCB_t **pSem, MadTim_t timOut);
+extern  MadBool      madSemCheck      		(MadSemCB_t **pSem);
+extern  void         madDoSemDelete   		(MadSemCB_t **pSem, MadBool opt);
 
-#define madSemRelease(psem)  madDoSemRelease(psem, MAD_ERR_OK)
-#define madSemDelete(psem)   madDoSemDelete(psem, MTRUE)
+#define madSemRelease(pSem)  madDoSemRelease(pSem, MAD_ERR_OK)
+#define madSemDelete(pSem)   madDoSemDelete(pSem, MTRUE)
 
 #endif

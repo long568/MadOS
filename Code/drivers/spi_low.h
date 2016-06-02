@@ -4,7 +4,7 @@
 #include "MadMiscTools.h"
 
 #define SPI_RETRY_MAX_CNT   (1000)
-#define SPI_VALID_DATA      ((mad_u8)0xFF)
+#define SPI_VALID_DATA      ((MadU8)0xFF)
 #define SPI_DMA_DIR_P2M     DMA_DIR_PeripheralSRC
 #define SPI_DMA_DIR_M2P     DMA_DIR_PeripheralDST
 
@@ -34,12 +34,12 @@ struct __SPI_IO{
 typedef struct __InitSPIPortData {
     struct __SPI_IO      io;
     SPI_TypeDef          *spi;
-    mad_uint_t           irqPrio;
+    MadUint           irqPrio;
     uint8_t              spiIRQn;
     uint8_t              dmaIRQn;
     DMA_Channel_TypeDef* dmaTx;
     DMA_Channel_TypeDef* dmaRx;
-    mad_u32              retry;
+    MadU32              retry;
     SPIDataWidth         dataWidth;
 } InitSPIPortData;
 
@@ -50,16 +50,16 @@ typedef struct __SPIPort {
     DMA_InitTypeDef      dma;
     DMA_Channel_TypeDef  *dmaTx;
     DMA_Channel_TypeDef  *dmaRx;
-    mad_u16              spiRead;
-    madSemCB_t           *spiLock;
-    madSemCB_t           *dmaLock;
-    mad_bool_t           dmaError;
-    mad_u32              retry;
+    MadU16              spiRead;
+    MadSemCB_t           *spiLock;
+    MadSemCB_t           *dmaLock;
+    MadBool           dmaError;
+    MadU32              retry;
 } SPIPort;
 
-mad_bool_t  spiInit         (SPIPort* port, InitSPIPortData* initData);
-mad_bool_t  spiTry2Send8Bit (SPIPort* port, mad_u8 send, mad_u8 *read, mad_uint_t retry);
-mad_bool_t  spiSwitchBuffer (SPIPort* port, mad_u8 *buffer, mad_uint_t len, mad_bool_t is_read, mad_uint_t to);
+MadBool  spiInit         (SPIPort* port, InitSPIPortData* initData);
+MadBool  spiTry2Send8Bit (SPIPort* port, MadU8 send, MadU8 *read, MadUint retry);
+MadBool  spiSwitchBuffer (SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to);
 
 #define spiSwitch8Bit(port, send, read)  spiTry2Send8Bit  (port, send, read, (port)->retry)
 #define spiSend8Bit(port, data)          spiSwitch8Bit    (port, data, MNULL)

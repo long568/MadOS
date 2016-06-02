@@ -1,6 +1,6 @@
 #include "spi_low.h"
 
-mad_bool_t spiInit(SPIPort* port, InitSPIPortData* initData)
+MadBool spiInit(SPIPort* port, InitSPIPortData* initData)
 {
     SPI_InitTypeDef spi;
     GPIO_InitTypeDef pin;
@@ -8,8 +8,7 @@ mad_bool_t spiInit(SPIPort* port, InitSPIPortData* initData)
     uint16_t spi_data_width;
     uint32_t dma_p_data_width, dma_m_data_width;
     
-    switch (initData->dataWidth)
-    {
+    switch (initData->dataWidth) {
         case SPI_DW_8Bit:
             spi_data_width = SPI_DataSize_8b;
             dma_p_data_width = DMA_PeripheralDataSize_Byte;
@@ -27,8 +26,7 @@ mad_bool_t spiInit(SPIPort* port, InitSPIPortData* initData)
     if(MNULL == port->spiLock)
         return MFALSE;
     port->dmaLock = madSemCreateCarefully(0, 1);
-    if(MNULL == port->dmaLock)
-    {
+    if(MNULL == port->dmaLock) {
         madSemDelete(&port->spiLock);
         return MFALSE;
     }
@@ -70,7 +68,7 @@ mad_bool_t spiInit(SPIPort* port, InitSPIPortData* initData)
     NVIC_Init(&nvic);
     SPI_I2S_ITConfig(port->spi, SPI_I2S_IT_RXNE, ENABLE);
     
-    port->dma.DMA_PeripheralBaseAddr = (mad_u32)(&port->spi->DR);
+    port->dma.DMA_PeripheralBaseAddr = (MadU32)(&port->spi->DR);
     port->dma.DMA_MemoryBaseAddr     = 0;  // Configured by app.
     port->dma.DMA_DIR                = 0;  // Configured by app.
     port->dma.DMA_BufferSize         = 0;  // Configured by app.
@@ -94,13 +92,11 @@ mad_bool_t spiInit(SPIPort* port, InitSPIPortData* initData)
     return MTRUE;
 }
 
-mad_bool_t spiTry2Send8Bit(SPIPort* port, mad_u8 send, mad_u8 *read, mad_uint_t retry)
+MadBool spiTry2Send8Bit(SPIPort* port, MadU8 send, MadU8 *read, MadUint retry)
 {
-    mad_cpsr_t cpsr;
-    while(retry--)
-    {
-        if(MTRUE == SPI_IS_TXBUFFER_EMPTY(port))
-        {
+    MadCpsr_t cpsr;
+    while(retry--) {
+        if(MTRUE == SPI_IS_TXBUFFER_EMPTY(port)) {
             SPI_SEND(port, send);
             break;
         }
@@ -108,8 +104,7 @@ mad_bool_t spiTry2Send8Bit(SPIPort* port, mad_u8 send, mad_u8 *read, mad_uint_t 
     retry++;
     if(MAD_ERR_OK != madSemWait(&port->spiLock, retry))
         return MFALSE;
-    if(MNULL != read)
-    {
+    if(MNULL != read) {
         madEnterCritical(cpsr);
         *read = port->spiRead;
         madExitCritical(cpsr);
@@ -117,18 +112,16 @@ mad_bool_t spiTry2Send8Bit(SPIPort* port, mad_u8 send, mad_u8 *read, mad_uint_t 
     return MTRUE;
 }
 
-mad_bool_t spiSwitchBuffer(SPIPort* port, mad_u8 *buffer, mad_uint_t len, mad_bool_t is_read, mad_uint_t to)
+MadBool spiSwitchBuffer(SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to)
 {
-    mad_u8 res;
-    mad_bool_t isr_res;
-    mad_cpsr_t cpsr;
-    mad_u8 valid = SPI_VALID_DATA;
+    MadU8 res;
+    MadBool isr_res;
+    MadCpsr_t cpsr;
+    MadU8 valid = SPI_VALID_DATA;
     
-    if(4 >= len)
-    {
-        mad_uint_t i;
-        for(i=0; i<len; i++)
-        {
+    if(4 >= len) {
+        MadUint i;
+        for(i=0; i<len; i++) {
             if(MTRUE == is_read) {
                 MAD_TRY(spiRead8Bit(port, buffer + i));
             } else {
@@ -144,14 +137,11 @@ mad_bool_t spiSwitchBuffer(SPIPort* port, mad_u8 *buffer, mad_uint_t len, mad_bo
     
     port->dma.DMA_DIR        = SPI_DMA_DIR_P2M;
     port->dma.DMA_BufferSize = len;
-    if(MTRUE == is_read)
-    {
-        port->dma.DMA_MemoryBaseAddr = (mad_u32)buffer;
+    if(MTRUE == is_read) {
+        port->dma.DMA_MemoryBaseAddr = (MadU32)buffer;
         port->dma.DMA_MemoryInc      = DMA_MemoryInc_Enable;
-    }
-    else
-    {
-        port->dma.DMA_MemoryBaseAddr = (mad_u32)(&valid);
+    } else {
+        port->dma.DMA_MemoryBaseAddr = (MadU32)(&valid);
         port->dma.DMA_MemoryInc      = DMA_MemoryInc_Disable;
     }
     DMA_Init(port->dmaRx, &port->dma);
@@ -159,14 +149,11 @@ mad_bool_t spiSwitchBuffer(SPIPort* port, mad_u8 *buffer, mad_uint_t len, mad_bo
     
     
     port->dma.DMA_DIR = SPI_DMA_DIR_M2P;
-    if(MTRUE == is_read)
-    {
-        port->dma.DMA_MemoryBaseAddr = (mad_u32)(&valid);
+    if(MTRUE == is_read) {
+        port->dma.DMA_MemoryBaseAddr = (MadU32)(&valid);
         port->dma.DMA_MemoryInc      = DMA_MemoryInc_Disable;
-    }
-    else
-    {
-        port->dma.DMA_MemoryBaseAddr = (mad_u32)buffer;
+    } else {
+        port->dma.DMA_MemoryBaseAddr = (MadU32)buffer;
         port->dma.DMA_MemoryInc      = DMA_MemoryInc_Enable;
     }
     DMA_Init(port->dmaTx, &port->dma);

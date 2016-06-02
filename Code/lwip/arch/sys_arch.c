@@ -58,14 +58,14 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 
 void sys_mbox_free(sys_mbox_t *mbox)
 {
-    mad_cpsr_t cpsr;
+    MadCpsr_t cpsr;
     sys_mbox_t mb;
     struct tcpip_msg *msg;
     madEnterCritical(cpsr);
     mb = *mbox;
     while(mb->cnt) {
         madMsgCheck(mbox);
-        msg = (struct tcpip_msg *)(madCurTCB->msg);
+        msg = (struct tcpip_msg *)(MadCurTCB->msg);
         if(msg)
             memp_free((memp_t)(msg->type), msg);
     }
@@ -95,15 +95,15 @@ void sys_mbox_free(sys_mbox_t *mbox)
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 {
-    mad_u8 wait;
-    mad_u32 time, res;
-    mad_cpsr_t cpsr;
+    MadU8 wait;
+    MadU32 time, res;
+    MadCpsr_t cpsr;
     time = timeout;
     wait = madMsgWait(mbox, time);
     madEnterCritical(cpsr);
-    time -= madCurTCB->timeCntRemain;
+    time -= MadCurTCB->timeCntRemain;
     if(MAD_ERR_OK == wait) {
-        *msg = madCurTCB->msg;
+        *msg = MadCurTCB->msg;
         res = time;
     } else {
         *msg = 0;
@@ -115,11 +115,11 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
-	mad_cpsr_t cpsr;
+	MadCpsr_t cpsr;
     if(MAD_ERR_OK == madMsgCheck(mbox))
     {
 		madEnterCritical(cpsr);
-        *msg = madCurTCB->msg;
+        *msg = MadCurTCB->msg;
 		madExitCritical(cpsr);
         return 0;
     }
@@ -166,12 +166,12 @@ err_t sys_mutex_new(sys_sem_t *sem)
 */
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
-    mad_u32 time;
-    mad_cpsr_t cpsr;
-    time = (mad_u16)timeout;
+    MadU32 time;
+    MadCpsr_t cpsr;
+    time = (MadU16)timeout;
     madSemWait(sem, time);
     madEnterCritical(cpsr);
-    time -= madCurTCB->timeCntRemain;
+    time -= MadCurTCB->timeCntRemain;
     madExitCritical(cpsr);
     return time;
 }

@@ -12,12 +12,12 @@ SPIPort      *ejSpiPort;
 #define ejSpiSendValid(dev)       spiSend8BitValid(&(dev)->spi_port)
 #define EJ_SPI_TRY(dev, x)        SPI_TRY(&(dev)->spi_port, x)
 
-static  mad_bool_t  switchAddrBank   (DevENC28J60 *dev, mad_u8 addr_h);
-static  mad_bool_t  writeCmd2Reg     (DevENC28J60 *dev, mad_u8 cmd, mad_u8 addr, mad_u8 data);
+static  MadBool  switchAddrBank   (DevENC28J60 *dev, MadU8 addr_h);
+static  MadBool  writeCmd2Reg     (DevENC28J60 *dev, MadU8 cmd, MadU8 addr, MadU8 data);
 
 SPI_CREATE_IRQ_HANDLER(ejSpiPort, 1, 1, 2)
 
-mad_bool_t enc28j60Init(DevENC28J60 *dev)
+MadBool enc28j60Init(DevENC28J60 *dev)
 {
     GPIO_InitTypeDef pin;
 	EXTI_InitTypeDef exit;
@@ -38,7 +38,8 @@ mad_bool_t enc28j60Init(DevENC28J60 *dev)
     initData.retry     = SPI_RETRY_MAX_CNT;
     initData.dataWidth = SPI_DW_8Bit;
     ejSpiPort = &dev->spi_port;
-    if(MFALSE == spiInit(ejSpiPort, &initData)) return MFALSE;
+    if(MFALSE == spiInit(ejSpiPort, &initData)) 
+        return MFALSE;
     
     dev->regs_bank = 0;
     dev->gpio_ctrl = EJ_CTRL_GPIO;
@@ -82,10 +83,10 @@ void EJ_INT_IRQ(void)
     }
 }
 
-mad_bool_t enc28j60ConfigDev(DevENC28J60 *dev)
+MadBool enc28j60ConfigDev(DevENC28J60 *dev)
 {
-	mad_u8 res;
-//    mad_u16 phy;
+	MadU8 res;
+//    MadU16 phy;
 	
 	MAD_TRY(enc28j60ReadRegETH(dev, EJ_ADDR_EREVID, &dev->rev_id));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ETXSTL, 0));
@@ -103,8 +104,7 @@ mad_bool_t enc28j60ConfigDev(DevENC28J60 *dev)
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)));
 	
-	do
-	{
+	do {
 		MAD_TRY(enc28j60ReadRegETH(dev, EJ_ADDR_ESTAT, &res));
 	} while(!(res & PHY_CLOCK_READY));
 	
@@ -143,7 +143,7 @@ void enc28j60HardReset(DevENC28J60 *dev)
     madTimeDly(10);
 }
 
-mad_bool_t enc28j60SoftReset(DevENC28J60 *dev)
+MadBool enc28j60SoftReset(DevENC28J60 *dev)
 {
     EJ_SPI_NSS_ENABLE(dev);
     EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, EJ_CMD_SC));
@@ -151,9 +151,9 @@ mad_bool_t enc28j60SoftReset(DevENC28J60 *dev)
     return MTRUE;
 }
 
-static mad_bool_t writeCmd2Reg(DevENC28J60 *dev, mad_u8 cmd, mad_u8 addr, mad_u8 data)
+static MadBool writeCmd2Reg(DevENC28J60 *dev, MadU8 cmd, MadU8 addr, MadU8 data)
 {
-    mad_u8 cmd_data = (cmd & EJ_CMD_MASK) | (addr & EJ_ADDR_MASK);
+    MadU8 cmd_data = (cmd & EJ_CMD_MASK) | (addr & EJ_ADDR_MASK);
     EJ_SPI_NSS_ENABLE(dev);
     EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, cmd_data));
     EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, data));
@@ -161,26 +161,26 @@ static mad_bool_t writeCmd2Reg(DevENC28J60 *dev, mad_u8 cmd, mad_u8 addr, mad_u8
     return MTRUE;
 }
 
-static mad_bool_t switchAddrBank(DevENC28J60 *dev, mad_u8 addr_h)
+static MadBool switchAddrBank(DevENC28J60 *dev, MadU8 addr_h)
 {
     switch(addr_h)
     {
         case 0x00: 
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (mad_u8)EJ_ADDR_ECON1, 0x03)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (MadU8)EJ_ADDR_ECON1, 0x03)) return MFALSE;
             break;
         
         case 0x01:
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (mad_u8)EJ_ADDR_ECON1, 0x02)) return MFALSE;
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (mad_u8)EJ_ADDR_ECON1, 0x01)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (MadU8)EJ_ADDR_ECON1, 0x02)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (MadU8)EJ_ADDR_ECON1, 0x01)) return MFALSE;
             break;
         
         case 0x02:
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (mad_u8)EJ_ADDR_ECON1, 0x02)) return MFALSE;
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (mad_u8)EJ_ADDR_ECON1, 0x01)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (MadU8)EJ_ADDR_ECON1, 0x02)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFC, (MadU8)EJ_ADDR_ECON1, 0x01)) return MFALSE;
             break;
         
         case 0x03:
-            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (mad_u8)EJ_ADDR_ECON1, 0x03)) return MFALSE;
+            if(MFALSE == writeCmd2Reg(dev, EJ_CMD_BFS, (MadU8)EJ_ADDR_ECON1, 0x03)) return MFALSE;
             break;
         
         default:
@@ -190,16 +190,14 @@ static mad_bool_t switchAddrBank(DevENC28J60 *dev, mad_u8 addr_h)
     return MTRUE;
 }
 
-mad_bool_t enc28j60ReadRegETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 *read)
+MadBool enc28j60ReadRegETH(DevENC28J60 *dev, MadU16 addr, MadU8 *read)
 {
-    mad_u8 addr_h, addr_l;
+    MadU8 addr_h, addr_l;
     addr_l = addr & 0x00FF;
     addr_h = (addr >> 8) & 0x00FF;
     
-    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h))
-    {
-        if(MFALSE == switchAddrBank(dev, addr_h))
-        {
+    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h)) {
+        if(MFALSE == switchAddrBank(dev, addr_h)) {
             dev->regs_bank = SPI_VALID_DATA;
             return MFALSE;
         }
@@ -213,16 +211,14 @@ mad_bool_t enc28j60ReadRegETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 *read)
     return MTRUE;
 }
 
-mad_bool_t enc28j60ReadRegMx(DevENC28J60 *dev, mad_u16 addr, mad_u8 *read)
+MadBool enc28j60ReadRegMx(DevENC28J60 *dev, MadU16 addr, MadU8 *read)
 {
-    mad_u8 addr_h, addr_l;
+    MadU8 addr_h, addr_l;
     addr_l = addr & 0x00FF;
     addr_h = (addr >> 8) & 0x00FF;
     
-    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h))
-    {
-        if(MFALSE == switchAddrBank(dev, addr_h))
-        {
+    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h)) {
+        if(MFALSE == switchAddrBank(dev, addr_h)) {
             dev->regs_bank = SPI_VALID_DATA;
             return MFALSE;
         }
@@ -237,16 +233,14 @@ mad_bool_t enc28j60ReadRegMx(DevENC28J60 *dev, mad_u16 addr, mad_u8 *read)
     return MTRUE;
 }
 
-mad_bool_t enc28j60WriteReg(DevENC28J60 *dev, mad_u16 addr, mad_u8 write)
+MadBool enc28j60WriteReg(DevENC28J60 *dev, MadU16 addr, MadU8 write)
 {
-    mad_u8 addr_h, addr_l;
+    MadU8 addr_h, addr_l;
     addr_l = addr & 0x00FF;
     addr_h = (addr >> 8) & 0x00FF;
     
-    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h))
-    {
-        if(MFALSE == switchAddrBank(dev, addr_h))
-        {
+    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h)) {
+        if(MFALSE == switchAddrBank(dev, addr_h)) {
             dev->regs_bank = SPI_VALID_DATA;
             return MFALSE;
         }
@@ -260,47 +254,43 @@ mad_bool_t enc28j60WriteReg(DevENC28J60 *dev, mad_u16 addr, mad_u8 write)
     return MTRUE;
 }
 
-mad_bool_t enc28j60ReadRegPHY(DevENC28J60 *dev, mad_u8 addr, mad_u16 *read)
+MadBool enc28j60ReadRegPHY(DevENC28J60 *dev, MadU8 addr, MadU16 *read)
 {
-	mad_u8 res;
+	MadU8 res;
 	*read = 0;
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIREGADR, addr));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MICMD, MII_START_RD));
-	do
-	{
+	do {
 		MAD_TRY(enc28j60ReadRegMx(dev, EJ_ADDR_MISTAT, &res));
 	} while(res & MII_BUSY);
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MICMD, 0));
 	MAD_TRY(enc28j60ReadRegMx(dev, EJ_ADDR_MIRDL, &res));
 	*read |= res;
 	MAD_TRY(enc28j60ReadRegMx(dev, EJ_ADDR_MIRDH, &res));
-	*read |= ((mad_u16)res) << 8;
+	*read |= ((MadU16)res) << 8;
 	return MTRUE;
 }
 
-mad_bool_t enc28j60WriteRegPHY(DevENC28J60 *dev, mad_u8 addr, mad_u16 write)
+MadBool enc28j60WriteRegPHY(DevENC28J60 *dev, MadU8 addr, MadU16 write)
 {
-	mad_u8 res;
+	MadU8 res;
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIREGADR, addr));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRL, GET_L8BIT(write)));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRH, GET_H8BIT(write)));
-	do
-	{
+	do {
 		MAD_TRY(enc28j60ReadRegMx(dev, EJ_ADDR_MISTAT, &res));
 	} while(res & MII_BUSY);
 	return MTRUE;
 }
 
-mad_bool_t enc28j60BitSetETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 mask)
+MadBool enc28j60BitSetETH(DevENC28J60 *dev, MadU16 addr, MadU8 mask)
 {
-	mad_u8 addr_h, addr_l;
+	MadU8 addr_h, addr_l;
     addr_l = addr & 0x00FF;
     addr_h = (addr >> 8) & 0x00FF;
     
-    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h))
-    {
-        if(MFALSE == switchAddrBank(dev, addr_h))
-        {
+    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h)) {
+        if(MFALSE == switchAddrBank(dev, addr_h)) {
             dev->regs_bank = SPI_VALID_DATA;
             return MFALSE;
         }
@@ -309,16 +299,14 @@ mad_bool_t enc28j60BitSetETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 mask)
 	return MTRUE;
 }
 
-mad_bool_t enc28j60BitClearETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 mask)
+MadBool enc28j60BitClearETH(DevENC28J60 *dev, MadU16 addr, MadU8 mask)
 {
-	mad_u8 addr_h, addr_l;
+	MadU8 addr_h, addr_l;
     addr_l = addr & 0x00FF;
     addr_h = (addr >> 8) & 0x00FF;
     
-    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h))
-    {
-        if(MFALSE == switchAddrBank(dev, addr_h))
-        {
+    if((EJ_ADDR_RETAIN > addr_l) && (dev->regs_bank != addr_h)) {
+        if(MFALSE == switchAddrBank(dev, addr_h)) {
             dev->regs_bank = SPI_VALID_DATA;
             return MFALSE;
         }
@@ -327,25 +315,24 @@ mad_bool_t enc28j60BitClearETH(DevENC28J60 *dev, mad_u16 addr, mad_u8 mask)
 	return MTRUE;
 }
 
-mad_bool_t enc28j60WriteTxSt(DevENC28J60 *dev)
+MadBool enc28j60WriteTxSt(DevENC28J60 *dev)
 {
 	MAD_TRY(ejSpiSend8Bit(dev, EJ_CMD_WBM));
 	MAD_TRY(ejSpiSend8Bit(dev, 0));
 	return MTRUE;
 }
 
-mad_bool_t enc28j60ReadRxSt(DevENC28J60 *dev, mad_u8* res)
+MadBool enc28j60ReadRxSt(DevENC28J60 *dev, MadU8* res)
 {
-	mad_uint_t i;
+	MadUint i;
 	MAD_TRY(ejSpiSend8Bit(dev, EJ_CMD_RBM));
-	for(i=0; i<6; i++)
-	{
+	for(i=0; i<6; i++) {
 		MAD_TRY(ejSpiRead8Bit(dev, res + i));
 	}
 	return MTRUE;
 }
 
-mad_bool_t enc28j60WrBufU16(DevENC28J60 *dev, mad_u16 addr, mad_u16 data)
+MadBool enc28j60WrBufU16(DevENC28J60 *dev, MadU16 addr, MadU16 data)
 {
     MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTL, GET_L8BIT(addr)));
     MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTH, GET_H8BIT(addr)));
@@ -357,9 +344,9 @@ mad_bool_t enc28j60WrBufU16(DevENC28J60 *dev, mad_u16 addr, mad_u16 data)
     return MTRUE;
 }
 
-mad_bool_t enc28j60RdBufU16(DevENC28J60 *dev, mad_u16 addr, mad_u16 *data)
+MadBool enc28j60RdBufU16(DevENC28J60 *dev, MadU16 addr, MadU16 *data)
 {
-    mad_u8 tmp;
+    MadU8 tmp;
     MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, GET_L8BIT(addr)));
     MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, GET_H8BIT(addr)));
     EJ_SPI_NSS_ENABLE(dev);
@@ -367,7 +354,7 @@ mad_bool_t enc28j60RdBufU16(DevENC28J60 *dev, mad_u16 addr, mad_u16 *data)
     EJ_SPI_TRY(dev, ejSpiRead8Bit(dev, &tmp));
     *data = tmp;
     EJ_SPI_TRY(dev, ejSpiRead8Bit(dev, &tmp));
-    *data |= ((mad_u16)tmp) << 8;
+    *data |= ((MadU16)tmp) << 8;
     EJ_SPI_NSS_DISABLE(dev);
     return MTRUE;
 }

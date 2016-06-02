@@ -7,12 +7,12 @@
 #include "ArchMemCpy.h"
 #endif
 
-extern  void     madMemInit             (mad_vptr heap_head, mad_uint_t heap_size);
-extern  mad_vptr madMemMallocCarefully  (mad_uint_t n, mad_uint_t *nReal);
-extern  mad_vptr madMemCalloc           (mad_uint_t n, mad_uint_t size);
-extern  void     madMemFree             (mad_vptr p);
-extern  void     madMemCopy             (mad_vptr dst, const void *src, mad_u32 len);
-extern  void     madMemSet              (mad_vptr dst, mad_u8 value, mad_u32 len);
+extern  void     madMemInit             (MadVptr heap_head, MadUint heap_size);
+extern  MadVptr  madMemMallocCarefully  (MadUint n, MadUint *nReal);
+extern  MadVptr  madMemCalloc           (MadUint n, MadUint size);
+extern  void     madMemFree             (MadVptr p);
+extern  void     madMemCopy             (MadVptr dst, const void *src, MadU32 len);
+extern  void     madMemSet              (MadVptr dst, MadU8 value, MadU32 len);
 
 #define          madMemMalloc(n)        madMemMallocCarefully(n, MNULL)
 #define          madMemFreeNull(p)      do{madMemFree(p);p=0;}while(0)
@@ -26,11 +26,11 @@ extern  void     madMemSet              (mad_vptr dst, mad_u8 value, mad_u32 len
 #endif
 
 #ifdef USE_SEM_2_LOCK_MEM
-    extern  void     madDoMemWait       (void);
-    extern  void     madDoMemRelease    (void);
+    extern  void  madDoMemWait     (void);
+    extern  void  madDoMemRelease  (void);
     #define madMemWait(cpsr)    do{ madDoMemWait(); madEnterCritical(cpsr); }while(0)
     #define madMemRelease(cpsr) do{ madDoMemRelease(); madExitCritical(cpsr); }while(0)
-    extern  void     madMemFreeCritical (mad_vptr p);
+    extern  void  madMemFreeCritical (MadVptr p);
 #else
     #define madMemWait(cpsr)        madEnterCritical(cpsr);
     #define madMemRelease(cpsr)     madExitCritical(cpsr);
@@ -38,8 +38,8 @@ extern  void     madMemSet              (mad_vptr dst, mad_u8 value, mad_u32 len
 #endif
     
 #define madMemSafeFree(p)       \
-    do{                         \
-        mad_cpsr_t cpsr;        \
+    do {                        \
+        MadCpsr_t cpsr;         \
         madMemWait(cpsr);       \
         madMemFreeCritical(p);  \
         p = 0;                  \

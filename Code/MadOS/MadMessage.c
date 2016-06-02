@@ -1,6 +1,6 @@
 #include "MadOS.h"
 
-mad_const mad_u8 MAD_MSG_EMPTY[] = "";
+MadConst MadU8 MAD_MSG_EMPTY[] = "";
 
 #define MSGQ_RELEASE_SEM()          \
 do {                                \
@@ -12,7 +12,7 @@ do {                                \
 #define MSGQ_WAIT_SEM(to)                       \
 do {                                            \
     if(MNULL != msgQ->sem) {                    \
-        mad_u8 wait_res;                        \
+        MadU8 wait_res;                         \
 		madExitCritical(cpsr);					\
         wait_res = madSemWait(&msgQ->sem, to); 	\
         if(MAD_ERR_SEM_INVALID == wait_res)     \
@@ -23,23 +23,22 @@ do {                                            \
     }                                           \
 } while(0);
 
-madMsgQCB_t* madMsgQCreateCarefully(mad_u16 size, mad_bool_t sendBlock)
+MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
 {
-    mad_uint_t i;
-    mad_u8 *p;
-    madMsgQCB_t *msgQ;
-    mad_uint_t nReal;
+    MadUint i;
+    MadU8 *p;
+    MadMsgQCB_t *msgQ;
+    MadUint nReal;
 	
 	if(0 == size) 
 		return MNULL;
     
-    p = (mad_u8*)madMemMallocCarefully(sizeof(madMsgQCB_t) + size * sizeof(mad_u8*), &nReal);
-    msgQ = (madMsgQCB_t *)p;
+    p = (MadU8*)madMemMallocCarefully(sizeof(MadMsgQCB_t) + size * sizeof(MadU8*), &nReal);
+    msgQ = (MadMsgQCB_t *)p;
     
-    if(p)
-    {
-        msgQ->bottom = (mad_u8**)(p + nReal);
-        msgQ->top    = (mad_u8**)(p + nReal - size * sizeof(mad_u8*));
+    if(p) {
+        msgQ->bottom = (MadU8**)(p + nReal);
+        msgQ->top    = (MadU8**)(p + nReal - size * sizeof(MadU8*));
         msgQ->head   = msgQ->top;
         msgQ->tail   = msgQ->top;
         if(sendBlock) {
@@ -57,18 +56,17 @@ madMsgQCB_t* madMsgQCreateCarefully(mad_u16 size, mad_bool_t sendBlock)
     return msgQ;
 }
 
-mad_u8 madMsgCheck(madMsgQCB_t **pmsgQ)
+MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ)
 {
-	mad_cpsr_t cpsr;
-	madMsgQCB_t *msgQ;
-    mad_u8 res = MAD_ERR_MSGQ_EMPTY;
+	MadCpsr_t cpsr;
+	MadMsgQCB_t *msgQ;
+    MadU8 res = MAD_ERR_MSGQ_EMPTY;
 	
 	madEnterCritical(cpsr);
-	msgQ = *pmsgQ;
+	msgQ = *pMsgQ;
     
-    if(msgQ && (msgQ->cnt > 0))
-    {
-        madCurTCB->msg = *msgQ->head;
+    if(msgQ && (msgQ->cnt > 0)) {
+        MadCurTCB->msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
@@ -81,102 +79,91 @@ mad_u8 madMsgCheck(madMsgQCB_t **pmsgQ)
     return res;
 }
 
-mad_u8 madMsgWait(madMsgQCB_t **pmsgQ, mad_tim_t to)
+MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
 {
-	mad_cpsr_t cpsr;
-	madMsgQCB_t *msgQ;
-    mad_u8 prioh, res = MAD_ERR_MSGQ_EMPTY;
+	MadCpsr_t cpsr;
+	MadMsgQCB_t *msgQ;
+    MadU8 prioh, res = MAD_ERR_MSGQ_EMPTY;
 	
 	madEnterCritical(cpsr);
-	msgQ = *pmsgQ;
+	msgQ = *pMsgQ;
     
-    if(!msgQ) 
-    {
+    if(!msgQ) {
         madExitCritical(cpsr);
         return MAD_ERR_MSGQ_INVALID;
     }
     
-    if(msgQ->cnt)
-    {
-        madCurTCB->msg = *msgQ->head;
+    if(msgQ->cnt) {
+        MadCurTCB->msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
         msgQ->cnt--;
         MSGQ_RELEASE_SEM();
         res = MAD_ERR_OK;
-    }
-    else
-    {
-        msgQ->rdyg |= madCurTCB->rdyg_bit;
-        prioh = madCurTCB->prio >> 4;
-        msgQ->rdy[prioh] |= madCurTCB->rdy_bit;
-        madCurTCB->state |= MAD_THREAD_WAITMSG;
-        madCurTCB->xCB = (madRdyG_t *)msgQ;
-        madCurTCB->msg = 0;
-        madCurTCB->timeCnt = to;
-        madCurTCB->timeCntRemain = 0;
+    } else {
+        msgQ->rdyg |= MadCurTCB->rdyg_bit;
+        prioh = MadCurTCB->prio >> 4;
+        msgQ->rdy[prioh] |= MadCurTCB->rdy_bit;
+        MadCurTCB->state |= MAD_THREAD_WAITMSG;
+        MadCurTCB->xCB = (MadRdyG_t *)msgQ;
+        MadCurTCB->msg = 0;
+        MadCurTCB->timeCnt = to;
+        MadCurTCB->timeCntRemain = 0;
         
-        madThreadRdy[prioh] &= ~madCurTCB->rdy_bit;
-        if(!madThreadRdy[prioh])
-            madThreadRdyGrp &= ~madCurTCB->rdyg_bit;
+        MadThreadRdy[prioh] &= ~MadCurTCB->rdy_bit;
+        if(!MadThreadRdy[prioh])
+            MadThreadRdyGrp &= ~MadCurTCB->rdyg_bit;
         
         madExitCritical(cpsr);
         madSched();
         madEnterCritical(cpsr);
-        res = madCurTCB->err;
-        madCurTCB->err = MAD_ERR_OK;
+        res = MadCurTCB->err;
+        MadCurTCB->err = MAD_ERR_OK;
     }
     
     madExitCritical(cpsr);
     return res;
 }
 
-mad_u8 madDoMsgSend(madMsgQCB_t **pmsgQ, mad_vptr msg, mad_bool_t block, mad_tim_t to, mad_u8 err)
+MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err)
 {
-	mad_cpsr_t cpsr;
-	madTCB_t *tcb;
-	madMsgQCB_t *msgQ;
-    mad_u8 prioh, priol, prio;
-    mad_bool_t flagSched = MFALSE;
+	MadCpsr_t cpsr;
+	MadTCB_t *tcb;
+	MadMsgQCB_t *msgQ;
+    MadU8 prioh, priol, prio;
+    MadBool flagSched = MFALSE;
 	
 	madEnterCritical(cpsr);
-	msgQ = *pmsgQ;
+	msgQ = *pMsgQ;
 	
-	if(!msgQ)
-	{
+	if(!msgQ) {
 		madExitCritical(cpsr);
 		return MAD_ERR_MSGQ_INVALID;
-	}
-    else if(msgQ->cnt == msgQ->size)
-    {
+	} else if(msgQ->cnt == msgQ->size) {
         if((MFALSE == block) || (!msgQ->sem)) {
             madExitCritical(cpsr);
 			return MAD_ERR_MSGQ_FULL;
         }
     }
     
-    if(!msgQ->rdyg)
-    {
+    if(!msgQ->rdyg) {
 		MSGQ_WAIT_SEM(to);
         *msgQ->tail = msg;
         msgQ->tail++;
         if(msgQ->tail == msgQ->bottom)
             msgQ->tail = msgQ->top;
         msgQ->cnt++;
-    }
-    else
-    {
+    } else {
         madUnRdyMap(prioh, msgQ->rdyg);
         madUnRdyMap(priol, msgQ->rdy[prioh]);
-        msgQ->rdy[prioh] &= ~madRdyMap[priol];
+        msgQ->rdy[prioh] &= ~MadRdyMap[priol];
         if(!msgQ->rdy[prioh])
-            msgQ->rdyg &= ~madRdyMap[prioh];
+            msgQ->rdyg &= ~MadRdyMap[prioh];
         
         prio = (prioh << 4) + priol;
-        tcb = madTCBs[prio];
-        if(tcb)
-        {
+        tcb = MadTCBGrp[prio];
+        if(tcb) {
             tcb->msg = msg;
             tcb->timeCntRemain = tcb->timeCnt;
             tcb->timeCnt = 0;
@@ -184,11 +171,10 @@ mad_u8 madDoMsgSend(madMsgQCB_t **pmsgQ, mad_vptr msg, mad_bool_t block, mad_tim
             tcb->state &= ~MAD_THREAD_WAITMSG;
             tcb->err = err;
             
-            if(!tcb->state)
-            {
-                madThreadRdyGrp |= tcb->rdyg_bit;
-                madThreadRdy[prioh] |= tcb->rdy_bit;
-                if(prio < madCurTCB->prio)
+            if(!tcb->state) {
+                MadThreadRdyGrp |= tcb->rdyg_bit;
+                MadThreadRdy[prioh] |= tcb->rdy_bit;
+                if(prio < MadCurTCB->prio)
                     flagSched = MTRUE;
             }
         }
@@ -200,16 +186,15 @@ mad_u8 madDoMsgSend(madMsgQCB_t **pmsgQ, mad_vptr msg, mad_bool_t block, mad_tim
     return MAD_ERR_OK;
 }
 
-void madDoMsgQDelete(madMsgQCB_t **pmsgQ, mad_bool_t opt)
+void madDoMsgQDelete(MadMsgQCB_t **pMsgQ, MadBool opt)
 {
-	mad_cpsr_t cpsr;
-	madMsgQCB_t *msgQ;
+	MadCpsr_t cpsr;
+	MadMsgQCB_t *msgQ;
 	
     madMemWait(cpsr);
-	msgQ = *pmsgQ;
+	msgQ = *pMsgQ;
     
-    if(!msgQ)
-    {
+    if(!msgQ) {
         madMemRelease(cpsr);
         return;
     }
@@ -220,11 +205,11 @@ void madDoMsgQDelete(madMsgQCB_t **pmsgQ, mad_bool_t opt)
     
     if(opt) {
         while(msgQ->rdyg) {
-            madDoMsgSend(pmsgQ, (mad_vptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
+            madDoMsgSend(pMsgQ, (MadVptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
         }
     }
 
-	*pmsgQ = MNULL;
-    madMemFreeCritical((mad_vptr)msgQ);
+	*pMsgQ = MNULL;
+    madMemFreeCritical((MadVptr)msgQ);
     madMemRelease(cpsr);
 }

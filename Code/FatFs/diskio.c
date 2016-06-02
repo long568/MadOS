@@ -77,7 +77,7 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-    mad_uint_t error;
+    MadUint error;
 	switch (pdrv) {
         case MicroSDHC0:
             if(1 == count) {
@@ -113,7 +113,7 @@ DRESULT disk_write (
 	UINT count			/* Number of sectors to write */
 )
 {
-    mad_uint_t error;
+    MadUint error;
 	switch (pdrv) {
         case MicroSDHC0:
             if(1 == count) {
@@ -164,17 +164,17 @@ DRESULT disk_ioctl (
                     *(uint8_t*)buff = card_info.CardType;
                     return RES_OK;
                 case MMC_GET_CSD: {
-                    mad_u32 i;
-                    mad_u8 *b = (mad_u8*)buff;
-                    mad_u8 *p = (mad_u8*)&card_info.SD_csd;
+                    MadU32 i;
+                    MadU8 *b = (MadU8*)buff;
+                    MadU8 *p = (MadU8*)&card_info.SD_csd;
                     for(i=0; i<SD_CSD_SIZE; i++)
                         *b++ = *p++;
                     return RES_OK;
                 }
                 case MMC_GET_CID:{
-                    mad_u32 i;
-                    mad_u8 *b = (mad_u8*)buff;
-                    mad_u8 *p = (mad_u8*)&card_info.SD_cid;
+                    MadU32 i;
+                    MadU8 *b = (MadU8*)buff;
+                    MadU8 *p = (MadU8*)&card_info.SD_cid;
                     for(i=0; i<SD_CID_SIZE; i++)
                         *b++ = *p++;
                     return RES_OK;
@@ -184,9 +184,9 @@ DRESULT disk_ioctl (
                 }
                 case MMC_GET_SDSTAT: {
                     SD_CardStatus sd_status;
-                    mad_u32 i;
-                    mad_u8 *b = (mad_u8*)buff;
-                    mad_u8 *p = (mad_u8*)&sd_status;
+                    MadU32 i;
+                    MadU8 *b = (MadU8*)buff;
+                    MadU8 *p = (MadU8*)&sd_status;
                     card_error = SD_GetCardStatus(&sd_status);
                     if(SD_OK != card_error) return RES_PARERR;
                     for(i=0; i<SDSTAT_SIZE; i++)

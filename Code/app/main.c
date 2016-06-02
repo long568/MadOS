@@ -1,21 +1,21 @@
 #include "network.h"
 
-extern mad_u8 __heap_base;
-extern mad_u8 __heap_limit;
+extern MadU8 __heap_base;
+extern MadU8 __heap_limit;
 
-static void madStartup(mad_vptr exData);
-static void madSysRunning(mad_vptr exData);
+static void madStartup(MadVptr exData);
+static void madSysRunning(MadVptr exData);
 
 int main()
 {
-    mad_u32 heap_size = (mad_u32)(&__heap_limit - &__heap_base);
+    MadU32 heap_size = (MadU32)(&__heap_limit - &__heap_base);
     madOSInit(&__heap_base, heap_size);
     madThreadCreate(madStartup, 0, heap_size / 2, 0);
     madOSRun();
 	while(1);
 }
 
-static void madStartup(mad_vptr exData)
+static void madStartup(MadVptr exData)
 {
 	exData = exData;
     
@@ -27,7 +27,7 @@ static void madStartup(mad_vptr exData)
     
     madInitSysTick(SYSTICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE
-    madDoSysStatist();
+    madInitStatist();
 #endif
     
     initLwIP();
@@ -37,10 +37,10 @@ static void madStartup(mad_vptr exData)
     madThreadDelete(MAD_THREAD_SELF);
 }
 
-static void madSysRunning(mad_vptr exData)
+static void madSysRunning(MadVptr exData)
 {
     GPIO_InitTypeDef pin;
-    mad_bool_t flag = MFALSE;
+    MadBool flag = MFALSE;
     int tmrSysRunning = 0;
 
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
@@ -48,8 +48,7 @@ static void madSysRunning(mad_vptr exData)
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &pin);
     
-	while(1)
-	{
+	while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
         tmrSysRunning++;
         if(tmrSysRunning >= 500 / SYS_RUNNING_INTERVAL_MSECS) {

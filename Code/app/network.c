@@ -4,9 +4,9 @@
 
 extern err_t ethernetif_init(struct netif *netif);
 
-mad_static FATFS *fatMicroSD;
-mad_static int tcp_client;
-mad_static struct netif *enc28j60;
+MadStatic FATFS *fat_MicroSD;
+MadStatic int tcp_client;
+MadStatic struct netif *enc28j60;
 
 static void Enc28j60Callback_LinkChanged(struct netif *netif)
 {
@@ -22,9 +22,9 @@ static void initMicroSD(void)
 {
     FIL fil;
     UINT bw;
-    fatMicroSD = madMemMalloc(sizeof(FATFS));
-    if(fatMicroSD) {
-        if(FR_OK == f_mount(fatMicroSD, "", 0)) {
+    fat_MicroSD = madMemMalloc(sizeof(FATFS));
+    if(fat_MicroSD) {
+        if(FR_OK == f_mount(fat_MicroSD, "", 0)) {
             if(FR_OK == f_open(&fil, "long", FA_CREATE_ALWAYS | FA_WRITE)) {
                 if(FR_OK == f_write(&fil, TEST_STR, sizeof(TEST_STR), &bw)) {
                     GPIO_ResetBits(GPIOA, GPIO_Pin_3);
@@ -32,7 +32,7 @@ static void initMicroSD(void)
                 f_close(&fil);
             }
         } else {
-            madMemSafeFree(fatMicroSD);
+            madMemSafeFree(fat_MicroSD);
         }
     }
 }
@@ -79,13 +79,13 @@ void initLwIP(void)
 #endif
 }
 
-void testTcpSocket(mad_vptr exData)
+void testTcpSocket(MadVptr exData)
 {
     int cnt;
     struct sockaddr_in local, remote;
-    mad_u8 *sd_buff;
-    mad_u8 *lwip_buffer;
-//    mad_u8 lwip_buffer[LWIP_BUFFER_SIZE];
+    MadU8 *sd_buff;
+    MadU8 *lwip_buffer;
+//    MadU8 lwip_buffer[LWIP_BUFFER_SIZE];
     
     sd_buff = 0;
     

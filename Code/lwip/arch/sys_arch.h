@@ -38,9 +38,9 @@
 #define SYS_MBOX_NULL  MNULL
 #define SYS_SEM_NULL   MNULL
 
-typedef madSemCB_t*  sys_sem_t;
-typedef madMsgQCB_t* sys_mbox_t;
-typedef madTCB_t*    sys_thread_t;
+typedef MadSemCB_t*  sys_sem_t;
+typedef MadMsgQCB_t* sys_mbox_t;
+typedef MadTCB_t*    sys_thread_t;
 
 #endif /* __SYS_RTXC_H__ */
 

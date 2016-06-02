@@ -463,7 +463,7 @@ SDIO_InitTypeDef SDIO_InitStructure;
 SDIO_CmdInitTypeDef SDIO_CmdInitStructure;
 SDIO_DataInitTypeDef SDIO_DataInitStructure;
 
-madSemCB_t *TransferLocker;
+MadSemCB_t *TransferLocker;
 uint32_t CmdStatus;
 /**
   * @}			     
@@ -515,7 +515,7 @@ SD_Error SD_Init(void)
     
     // Add by long ---------------------------------------
     do {
-        mad_cpsr_t cpsr;
+        MadCpsr_t cpsr;
         NVIC_InitTypeDef NVIC_InitStructure;
         TransferLocker = madSemCreateCarefully(0, 1);
         if(0 == TransferLocker)
@@ -2049,7 +2049,7 @@ static SD_Error CmdError(void)
 //  SDIO_ClearFlag(SDIO_STATIC_FLAGS);
 //  return(errorstatus);
     
-    mad_u8 error;    
+    MadU8 error;    
     SDIO_ITConfig(SDIO_IT_CMDSENT, ENABLE);
     error = madSemWait(&TransferLocker, SDIO_CMD0TIMEOUT);
     if(MAD_ERR_TIMEOUT == error)
@@ -2074,7 +2074,7 @@ static SD_Error CmdResp7Error(void)
 //    status = SDIO->STA;
 //  }
     
-    mad_u8 error;    
+    MadU8 error;    
     SDIO_ITConfig(SDIO_IT_CCRCFAIL | SDIO_IT_CMDREND | SDIO_IT_CTIMEOUT, ENABLE);
     error = madSemWait(&TransferLocker, SDIO_CMD0TIMEOUT);
 

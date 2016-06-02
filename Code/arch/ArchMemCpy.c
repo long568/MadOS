@@ -3,9 +3,9 @@
 
 #ifdef USE_ARCH_MEM_ACT
 
-mad_static madSemCB_t      mad_archm_locker, *mad_archm_plocker;
-mad_static madSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;
-mad_static DMA_InitTypeDef mad_archm_dma;
+MadStatic MadSemCB_t      mad_archm_locker, *mad_archm_plocker;
+MadStatic MadSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;
+MadStatic DMA_InitTypeDef mad_archm_dma;
 
 void madArchMemInit(void)
 {
@@ -46,12 +46,12 @@ void ARCHM_DMA_TX_IRQ(void)
     }
 }
 
-void madArchMemCpy(mad_vptr dst, const void * src, mad_u32 size)
+void madArchMemCpy(MadVptr dst, const void * src, MadU32 size)
 {
     madSemWait(&mad_archm_plocker, 0);
     DMA_DeInit(ARCHM_DMA_TX);
-    mad_archm_dma.DMA_PeripheralBaseAddr = (mad_u32)dst;
-    mad_archm_dma.DMA_MemoryBaseAddr     = (mad_u32)src;
+    mad_archm_dma.DMA_PeripheralBaseAddr = (MadU32)dst;
+    mad_archm_dma.DMA_MemoryBaseAddr     = (MadU32)src;
     mad_archm_dma.DMA_BufferSize         = size;
     mad_archm_dma.DMA_MemoryInc          = DMA_MemoryInc_Enable;
     DMA_Init(ARCHM_DMA_TX, &mad_archm_dma);
@@ -62,12 +62,12 @@ void madArchMemCpy(mad_vptr dst, const void * src, mad_u32 size)
     madSemRelease(&mad_archm_plocker);
 }
 
-void madArchMemSet(mad_vptr dst, mad_u8 value, mad_u32 size)
+void madArchMemSet(MadVptr dst, MadU8 value, MadU32 size)
 {
     madSemWait(&mad_archm_plocker, 0);
     DMA_DeInit(ARCHM_DMA_TX);
-    mad_archm_dma.DMA_PeripheralBaseAddr = (mad_u32)dst;
-    mad_archm_dma.DMA_MemoryBaseAddr     = (mad_u32)(&value);
+    mad_archm_dma.DMA_PeripheralBaseAddr = (MadU32)dst;
+    mad_archm_dma.DMA_MemoryBaseAddr     = (MadU32)(&value);
     mad_archm_dma.DMA_BufferSize         = size;
     mad_archm_dma.DMA_MemoryInc          = DMA_MemoryInc_Disable;
     DMA_Init(ARCHM_DMA_TX, &mad_archm_dma);

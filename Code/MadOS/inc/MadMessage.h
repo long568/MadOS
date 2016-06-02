@@ -3,30 +3,29 @@
 
 #include "inc/MadSemaphore.h"
 
-typedef struct _madMsgQCB_t
-{
-    mad_u16     rdyg;
-    mad_u16     rdy[MAD_THREAD_RDY_NUM];
-    mad_u8      **top;
-    mad_u8      **bottom;
-    mad_u8      **head;
-    mad_u8      **tail;
-    madSemCB_t  *sem;
-    mad_u16     cnt;
-    mad_u16     size;
-} madMsgQCB_t;
+typedef struct _MadMsgQCB_t {
+    MadU16     rdyg;
+    MadU16     rdy[MAD_THREAD_RDY_NUM];
+    MadU8      **top;
+    MadU8      **bottom;
+    MadU8      **head;
+    MadU8      **tail;
+    MadSemCB_t  *sem;
+    MadU16     cnt;
+    MadU16     size;
+} MadMsgQCB_t;
 
-extern  mad_const  mad_u8 MAD_MSG_EMPTY[];
+extern  MadConst  MadU8  MAD_MSG_EMPTY[];
 
-extern  madMsgQCB_t*  madMsgQCreateCarefully  (mad_u16 size, mad_bool_t sendBlock);
-extern 	mad_u8 		  madMsgCheck             (madMsgQCB_t **pmsgQ);
-extern  mad_u8        madMsgWait              (madMsgQCB_t **pmsgQ, mad_tim_t to);
-extern  mad_u8        madDoMsgSend            (madMsgQCB_t **pmsgQ, mad_vptr msg, mad_bool_t block, mad_tim_t to, mad_u8 err);
-extern  void 		  madDoMsgQDelete	      (madMsgQCB_t **pmsgQ, mad_bool_t opt);
+extern  MadMsgQCB_t*  madMsgQCreateCarefully  (MadU16 size, MadBool sendBlock);
+extern 	MadU8 		  madMsgCheck             (MadMsgQCB_t **pMsgQ);
+extern  MadU8         madMsgWait              (MadMsgQCB_t **pMsgQ, MadTim_t to);
+extern  MadU8         madDoMsgSend            (MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err);
+extern  void 		  madDoMsgQDelete	      (MadMsgQCB_t **pMsgQ, MadBool opt);
 
 #define madMsgQCreate(size)              madMsgQCreateCarefully(size, MFALSE);
-#define madMsgSend(pmsgQ, msg)           madDoMsgSend(pmsgQ, msg, MFALSE, 0, MAD_ERR_OK)
-#define madMsgSendBlock(pmsgQ, msg, to)  madDoMsgSend(pmsgQ, msg, MTRUE, to, MAD_ERR_OK)
-#define madMsgQDelete(pmsgQ)			 madDoMsgQDelete(pmsgQ, MTRUE)
+#define madMsgSend(pMsgQ, msg)           madDoMsgSend(pMsgQ, msg, MFALSE, 0, MAD_ERR_OK)
+#define madMsgSendBlock(pMsgQ, msg, to)  madDoMsgSend(pMsgQ, msg, MTRUE, to, MAD_ERR_OK)
+#define madMsgQDelete(pMsgQ)			 madDoMsgQDelete(pMsgQ, MTRUE)
 
 #endif

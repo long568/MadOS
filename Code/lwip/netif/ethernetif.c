@@ -71,10 +71,10 @@
  */
 
 /* Forward declarations. */
-static void  ethernetif_input(struct netif *netif);
-static void  eth_isr_thread(void *data);
-static mad_bool_t resetRxLogic(struct ethernetif *ethif);
-static mad_bool_t resetTxLogic(struct ethernetif *ethif);
+static void    ethernetif_input(struct netif *netif);
+static void    eth_isr_thread(void *data);
+static MadBool resetRxLogic(struct ethernetif *ethif);
+static MadBool resetTxLogic(struct ethernetif *ethif);
 
 /**
  * In this function, the hardware should be initialized.
@@ -92,7 +92,7 @@ static mad_bool_t resetTxLogic(struct ethernetif *ethif);
 static void
 low_level_init(struct netif *netif)
 {
-    mad_u8 res;
+    MadU8 res;
 	struct ethernetif *ethif = netif->state;
 
 	/* set MAC hardware address length */
@@ -155,14 +155,14 @@ low_level_output(struct netif *netif, struct pbuf *p)
 {
 	struct ethernetif *ethif = netif->state;
 #ifdef EJ_DEV_DEBUG
-    mad_u8 tmp;
+    MadU8 tmp;
 #endif
-    mad_cpsr_t cpsr;
-    mad_bool_t is_linked;
+    MadCpsr_t cpsr;
+    MadBool is_linked;
 	struct pbuf *q;
-    mad_bool_t is_buf_return;
-    mad_u16 pkg_st, buf_return;
-	mad_u16 tot_len;
+    MadBool is_buf_return;
+    MadU16 pkg_st, buf_return;
+	MadU16 tot_len;
     
     madEnterCritical(cpsr);
     is_linked = ethif->is_linked;
@@ -180,28 +180,19 @@ low_level_output(struct netif *netif, struct pbuf *p)
     is_buf_return = MFALSE;
     tot_len += 10;
     
-    if(!ethif->txbuf_cnt)
-    {
+    if(!ethif->txbuf_cnt) {
         ethif->txbuf_st = 0;
         ethif->txbuf_wr = 0;
         ethif->txbuf_loop = EJ_RX_BUFFER_HEAD;
-    }
-    else
-    {
-        if(ethif->txbuf_wr < ethif->txbuf_st)
-        {
-            if(ethif->txbuf_wr + tot_len > ethif->txbuf_st)
-            {
+    } else {
+        if(ethif->txbuf_wr < ethif->txbuf_st) {
+            if(ethif->txbuf_wr + tot_len > ethif->txbuf_st) {
                 madSemRelease(&ethif->dev_locker);
                 return ERR_MEM;
             }
-        }
-        else if(ethif->txbuf_wr > ethif->txbuf_st)
-        {
-            if(tot_len > EJ_RX_BUFFER_HEAD - ethif->txbuf_wr)
-            {
-                if(tot_len > ethif->txbuf_st)
-                {
+        } else if(ethif->txbuf_wr > ethif->txbuf_st) {
+            if(tot_len > EJ_RX_BUFFER_HEAD - ethif->txbuf_wr) {
+                if(tot_len > ethif->txbuf_st) {
                     madSemRelease(&ethif->dev_locker);
                     return ERR_MEM;
                 }
@@ -209,9 +200,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
                 buf_return = ethif->txbuf_wr;
                 ethif->txbuf_wr = 0;
             }
-        }
-        else
-        {
+        } else {
             madSemRelease(&ethif->dev_locker);
             return ERR_MEM;
         }
@@ -227,8 +216,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
 		EJ_DEV_SPI(enc28j60WriteTx(ethif, q->payload, q->len), tmp);
     }
 	enc28j60SpiNssDisable(ethif);
-    if(!ethif->txbuf_cnt)
-    {
+    if(!ethif->txbuf_cnt) {
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
         EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
         EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_EIR, 0x0A), tmp);
@@ -238,9 +226,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
         EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDH, GET_H8BIT(tot_len - 8)), tmp);
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x08), tmp);
         ethif->tx_pkg_len = tot_len;
-    }
-    else
-    {
+    } else {
         EJ_DEV_TRY(enc28j60WrBufU16(ethif, ethif->txbuf_wr, tot_len), tmp);
     }
     ethif->txbuf_wr += tot_len;
@@ -279,21 +265,20 @@ low_level_input(struct netif *netif)
 {
 	struct ethernetif *ethif = netif->state;
 #ifdef EJ_DEV_DEBUG
-    mad_u8 tmp;
+    MadU8 tmp;
 #endif
 	struct pbuf *p, *q;
 	u16_t len;
-	mad_u8 head[6];
+	MadU8 head[6];
 	
     EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, GET_L8BIT(ethif->rxbuf_next)), tmp);
 	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, GET_H8BIT(ethif->rxbuf_next)), tmp);
 	enc28j60SpiNssEnable(ethif);
 	EJ_DEV_SPI(enc28j60ReadRxSt(ethif, head), tmp);
 	
-    ethif->rxbuf_next = head[0] | ((mad_u16)head[1] << 8);
-	len = head[2] | ((mad_u16)head[3] << 8);
-    if((!(head[4] & 0x80)) || (EJ_FRAME_MAX_LEN < len) || (EJ_RX_BUFFER_TAIL < ethif->rxbuf_next))
-    {
+    ethif->rxbuf_next = head[0] | ((MadU16)head[1] << 8);
+	len = head[2] | ((MadU16)head[3] << 8);
+    if((!(head[4] & 0x80)) || (EJ_FRAME_MAX_LEN < len) || (EJ_RX_BUFFER_TAIL < ethif->rxbuf_next)) {
         enc28j60SpiNssDisable(ethif);
         resetRxLogic(ethif);
         return 0;
@@ -308,9 +293,7 @@ low_level_input(struct netif *netif)
 		pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
 		for(q = p; q != NULL; q = q->next) {
-
-            if(MFALSE == enc28j60ReadRx(ethif, q->payload, q->len))
-            {
+            if(MFALSE == enc28j60ReadRx(ethif, q->payload, q->len)) {
                 pbuf_free(p); 
                 p = 0; 
                 break;
@@ -392,16 +375,15 @@ ethernetif_input(struct netif *netif)
 static void eth_isr_thread(void *data)
 {
 #ifdef EJ_DEV_DEBUG
-    mad_u8 tmp;
+    MadU8 tmp;
 #endif
-    mad_u16 phir, txbuf_nd;
-	mad_u8 reg, pkg_cnt;
-	mad_uint_t bug_cnt = 0;
+    MadU16 phir, txbuf_nd;
+	MadU8 reg, pkg_cnt;
+	MadUint bug_cnt = 0;
 	struct netif *netif = (struct netif *)data;
     struct ethernetif *ethif = netif->state;
     
-	while(1)
-	{
+	while(1) {
 		if(SET == GPIO_ReadInputDataBit(ethif->gpio_int, ethif->pin_int))
 			madSemWait(&ethif->isr_locker, 300);
 		
@@ -485,12 +467,12 @@ static void eth_isr_thread(void *data)
 #else
     #define EJ_DEV_TRY(x, res) x
 #endif
-static mad_bool_t resetRxLogic(struct ethernetif *ethif)
+static MadBool resetRxLogic(struct ethernetif *ethif)
 {
 #ifdef EJ_DEV_DEBUG
-    mad_u8 tmp;
+    MadU8 tmp;
 #endif
-    mad_u8 pkg_cnt;
+    MadU8 pkg_cnt;
     
 //    EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x04), tmp);
     EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x40), tmp);
@@ -504,8 +486,7 @@ static mad_bool_t resetRxLogic(struct ethernetif *ethif)
     EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
     EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
     EJ_DEV_TRY(enc28j60ReadRegETH(ethif, EJ_ADDR_EPKTCNT, &pkg_cnt), tmp);
-    while(pkg_cnt)
-    {
+    while(pkg_cnt) {
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON2, 0x40), tmp);
         EJ_DEV_TRY(enc28j60ReadRegETH(ethif, EJ_ADDR_EPKTCNT, &pkg_cnt), tmp);
     }
@@ -515,10 +496,10 @@ static mad_bool_t resetRxLogic(struct ethernetif *ethif)
     return MTRUE;
 }
 
-static mad_bool_t resetTxLogic(struct ethernetif *ethif)
+static MadBool resetTxLogic(struct ethernetif *ethif)
 {
 #ifdef EJ_DEV_DEBUG
-    mad_u8 tmp;
+    MadU8 tmp;
 #endif
     EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
     EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
@@ -554,7 +535,7 @@ err_t
 ethernetif_init(struct netif *netif)
 {
 #ifdef EJ_DEV_DEBUG
-    madTCB_t *tmp;
+    MadTCB_t *tmp;
 #endif
 	LWIP_ASSERT("netif != NULL", (netif != NULL));
 

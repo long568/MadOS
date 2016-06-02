@@ -1,5 +1,5 @@
-        IMPORT madCurTCB
-        IMPORT madHighRdyTCB
+        IMPORT MadCurTCB
+        IMPORT MadHighRdyTCB
         IMPORT __initial_sp
             
         IMPORT madThreadCheckReady
@@ -21,9 +21,9 @@ PendSV_Mask  EQU  (0x00000001<<28)
 ;*****************************************
 madOSStartUp PROC
     
-    LDR 	R0, =madCurTCB		    ; R0  = Addr{madCurTCB}
-    LDR		R0, [R0]				; R0  = madCurTCB
-    LDR		SP, [R0]				; MSP = madCurTCB->pStk
+    LDR 	R0, =MadCurTCB		    ; R0  = Addr{MadCurTCB}
+    LDR		R0, [R0]				; R0  = MadCurTCB
+    LDR		SP, [R0]				; MSP = MadCurTCB->pStk
 
     POP 	{R4-R11, R14}			; POP R4-R11, EXC_RETURN
     POP 	{R0-R3, R12, LR}		; POP R0-R3, R12, LR
@@ -60,15 +60,15 @@ PendSV_Handler	PROC
     MRS		R0, PSP					; R0 <==> PSP
     STMDB	R0!, {R4-R11, LR}		; There is no need to save MSP.
                                     
-    LDR		R1, =madCurTCB			; R1 = Addr{madCurTCB}
-    LDR		R2, [R1]				; R2 = madCurTCB
-    STR		R0,	[R2]				; madCurTCB->pStk = R0(PSP)
+    LDR		R1, =MadCurTCB			; R1 = Addr{MadCurTCB}
+    LDR		R2, [R1]				; R2 = MadCurTCB
+    STR		R0,	[R2]				; MadCurTCB->pStk = R0(PSP)
     
-    ;LDR		R1, =madCurTCB		; R1 = Addr{madCurTCB}
-    LDR		R2, =madHighRdyTCB		; R2 = Addr{madHighRdyTCB}
-    LDR		R2, [R2]				; R2 = madHighRdyTCB
-    STR		R2, [R1]				; madCurTCB = madHighRdyTCB			
-    LDR		R0, [R2]				; R0(PSP) = madHighRdyTCB->pStk
+    ;LDR		R1, =MadCurTCB		; R1 = Addr{MadCurTCB}
+    LDR		R2, =MadHighRdyTCB		; R2 = Addr{MadHighRdyTCB}
+    LDR		R2, [R2]				; R2 = MadHighRdyTCB
+    STR		R2, [R1]				; MadCurTCB = MadHighRdyTCB			
+    LDR		R0, [R2]				; R0(PSP) = MadHighRdyTCB->pStk
     
     LDMIA	R0!, {R4-R11, LR}		; Pop R4-R11, EXC_RETURN by hand.
     MSR		PSP, R0					; Recover PSP

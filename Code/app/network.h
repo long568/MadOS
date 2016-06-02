@@ -14,6 +14,6 @@
 #include "ff.h"
 
 extern void initLwIP(void);
-extern void testTcpSocket(mad_vptr exData);
+extern void testTcpSocket(MadVptr exData);
 
 #endif

@@ -1,50 +1,57 @@
 #include "MadOS.h"
 
-madTCB_t * madThreadCreateCarefully(madThread_fn act, mad_vptr exData, mad_u32 size, mad_vptr stk, mad_u8 prio)
+MadBool  MadOSRunning;
+MadTCB_t *MadCurTCB;
+MadTCB_t *MadHighRdyTCB;
+MadTCB_t *MadTCBGrp[MAD_THREAD_NUM_MAX];
+MadU16   MadThreadRdyGrp;
+MadU16   MadThreadRdy[MAD_THREAD_RDY_NUM];
+
+MadConst MadU16 MadRdyMap[16] = {0x0001, 0x0002, 0x0004, 0x0008,
+                                 0x0010, 0x0020, 0x0040, 0x0080,
+                                 0x0100, 0x0200, 0x0400, 0x0800,
+                                 0x1000, 0x2000, 0x4000, 0x8000};
+
+MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadU32 size, MadVptr stk, MadU8 prio)
 {
-    mad_cpsr_t cpsr;
-    madTCB_t *pTCB;
-    mad_u32 nReal;
-    mad_u8 prio_h, prio_l;
-    mad_u16 rdy_grp, rdy;
-    mad_u8 curThread;
-    mad_u32 size_all;
-    mad_u8 flagSched = MFALSE;
+    MadCpsr_t cpsr;
+    MadTCB_t *pTCB;
+    MadU32 nReal;
+    MadU8 prio_h, prio_l;
+    MadU16 rdy_grp, rdy;
+    MadU8 curThread;
+    MadU32 size_all;
+    MadU8 flagSched = MFALSE;
     
     madEnterCritical(cpsr);
-    if(madTCBs[prio])
-    {
+    if(MadTCBGrp[prio]) {
         madExitCritical(cpsr);
         return 0;
     }
-    madTCBs[prio] = (madTCB_t *)1;
+    MadTCBGrp[prio] = (MadTCB_t *)1;
     madExitCritical(cpsr);
 
-    if(!stk)
-    {
-        size_all = (sizeof(madTCB_t) & MAD_MEM_ALIGN_MASK) + MAD_MEM_ALIGN + size;
+    if(!stk) {
+        size_all = (sizeof(MadTCB_t) & MAD_MEM_ALIGN_MASK) + MAD_MEM_ALIGN + size;
         stk = madMemMallocCarefully(size_all, &nReal);
-        if(!stk)
-        {
+        if(!stk) {
             madEnterCritical(cpsr);
-            madTCBs[prio] = 0;
+            MadTCBGrp[prio] = 0;
             madExitCritical(cpsr);
             return 0;
         }
-    }
-    else
-    {
+    } else {
         nReal = size;
     }
     
     
-    prio_h = (mad_u8)(prio >> 4);
-    prio_l = (mad_u8)(prio & 0x0F);
-    rdy_grp = madRdyMap[prio_h];
-    rdy = madRdyMap[prio_l];
+    prio_h = (MadU8)(prio >> 4);
+    prio_l = (MadU8)(prio & 0x0F);
+    rdy_grp = MadRdyMap[prio_h];
+    rdy = MadRdyMap[prio_l];
     
-    pTCB = (madTCB_t *)stk;
-    pTCB->pStk = madThreadStkInit((mad_u8*)stk + nReal - sizeof(mad_stk_t), act, exData);
+    pTCB = (MadTCB_t *)stk;
+    pTCB->pStk = madThreadStkInit((MadU8*)stk + nReal - sizeof(MadStk_t), act, exData);
     pTCB->prio = prio;
     pTCB->state = MAD_THREAD_READY;
     pTCB->timeCnt = 0;
@@ -57,47 +64,45 @@ madTCB_t * madThreadCreateCarefully(madThread_fn act, mad_vptr exData, mad_u32 s
     
     madEnterCritical(cpsr);
     
-    madTCBs[prio] = pTCB;
-    madThreadRdyGrp |= rdy_grp;
-    madThreadRdy[prio_h] |= rdy;
+    MadTCBGrp[prio] = pTCB;
+    MadThreadRdyGrp |= rdy_grp;
+    MadThreadRdy[prio_h] |= rdy;
     
-    if(madOSRunning)
-    {
-        curThread = madCurTCB->prio;
+    if(MadOSRunning) {
+        curThread = MadCurTCB->prio;
         if(curThread > prio)
             flagSched = MTRUE;
     }
     
     madExitCritical(cpsr);
-    if(flagSched) madSched();
+    if(flagSched) 
+        madSched();
     
     return pTCB;
 }
 
-void madThreadResume(mad_u8 threadPrio)
+void madThreadResume(MadU8 threadPrio)
 {
-    mad_cpsr_t cpsr;
-    madTCB_t *pTCB;
-    mad_u8 prio_h;
-    mad_u8 flagSched = MFALSE;
+    MadCpsr_t cpsr;
+    MadTCB_t *pTCB;
+    MadU8 prio_h;
+    MadU8 flagSched = MFALSE;
     
     madEnterCritical(cpsr);
     
-    pTCB = madTCBs[threadPrio];
-    if(!pTCB)
-    {
+    pTCB = MadTCBGrp[threadPrio];
+    if(!pTCB) {
         madExitCritical(cpsr);
         return;
     }
     
     pTCB->state &= ~MAD_THREAD_PEND;
-    if(!pTCB->state)
-    {
-        prio_h = (mad_u8)(pTCB->prio >> 4);
-        madThreadRdyGrp |= pTCB->rdyg_bit;
-        madThreadRdy[prio_h] |= pTCB->rdy_bit;
+    if(!pTCB->state) {
+        prio_h = (MadU8)(pTCB->prio >> 4);
+        MadThreadRdyGrp |= pTCB->rdyg_bit;
+        MadThreadRdy[prio_h] |= pTCB->rdy_bit;
         
-        if(threadPrio < madCurTCB->prio)
+        if(threadPrio < MadCurTCB->prio)
             flagSched = MTRUE;
     }
     
@@ -105,66 +110,63 @@ void madThreadResume(mad_u8 threadPrio)
     if(flagSched) madSched();
 }
 
-void madThreadPend(mad_u8 threadPrio)
+void madThreadPend(MadU8 threadPrio)
 {
-    mad_cpsr_t cpsr;
-    madTCB_t *pTCB;
-    mad_u8 prio_h;
-    mad_u8 flagSched = MFALSE;
+    MadCpsr_t cpsr;
+    MadTCB_t *pTCB;
+    MadU8 prio_h;
+    MadU8 flagSched = MFALSE;
     
     madEnterCritical(cpsr);
     
     if(MAD_THREAD_SELF == threadPrio)
-        threadPrio = madCurTCB->prio;
-    if(threadPrio == madCurTCB->prio)
+        threadPrio = MadCurTCB->prio;
+    if(threadPrio == MadCurTCB->prio)
         flagSched = MTRUE;
     
-    pTCB = madTCBs[threadPrio];
-    if(!pTCB)
-    {
+    pTCB = MadTCBGrp[threadPrio];
+    if(!pTCB) {
         madExitCritical(cpsr);
         return;
     }
     
     pTCB->state |= MAD_THREAD_PEND;
-    prio_h = (mad_u8)(pTCB->prio >> 4);
-    madThreadRdy[prio_h] &= ~pTCB->rdy_bit;
-    if(!madThreadRdy[prio_h])
-        madThreadRdyGrp &= ~pTCB->rdyg_bit;
+    prio_h = (MadU8)(pTCB->prio >> 4);
+    MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
+    if(!MadThreadRdy[prio_h])
+        MadThreadRdyGrp &= ~pTCB->rdyg_bit;
     
     madExitCritical(cpsr);
     if(flagSched) madSched();
 }
                             
-void madThreadDelete(mad_u8 threadPrio)
+void madThreadDelete(MadU8 threadPrio)
 {
-    mad_cpsr_t cpsr;
-    madTCB_t *pTCB;
-    mad_u8 prio_h;
-    mad_u8 flagSched = MFALSE;
+    MadCpsr_t cpsr;
+    MadTCB_t *pTCB;
+    MadU8 prio_h;
+    MadU8 flagSched = MFALSE;
     
     madMemWait(cpsr);
     
     if(MAD_THREAD_SELF == threadPrio)
-        threadPrio = madCurTCB->prio;
-    if(threadPrio == madCurTCB->prio)
+        threadPrio = MadCurTCB->prio;
+    if(threadPrio == MadCurTCB->prio)
         flagSched = MTRUE;
     
-    pTCB = madTCBs[threadPrio];
-    if(!pTCB)
-    {
+    pTCB = MadTCBGrp[threadPrio];
+    if(!pTCB) {
         madMemRelease(cpsr);
         return;
     }
     
-    madTCBs[threadPrio] = 0;
-    prio_h = (mad_u8)(pTCB->prio >> 4);
-    madThreadRdy[prio_h] &= ~pTCB->rdy_bit;
-    if(!madThreadRdy[prio_h])
-        madThreadRdyGrp &= ~pTCB->rdyg_bit;
+    MadTCBGrp[threadPrio] = 0;
+    prio_h = (MadU8)(pTCB->prio >> 4);
+    MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
+    if(!MadThreadRdy[prio_h])
+        MadThreadRdyGrp &= ~pTCB->rdyg_bit;
     
-    if(pTCB->xCB)
-    {
+    if(pTCB->xCB) {
         pTCB->xCB->rdy[prio_h] &= ~pTCB->rdy_bit;
         if(!pTCB->xCB->rdy[prio_h])
             pTCB->xCB->rdyg &= ~pTCB->rdyg_bit;
@@ -173,7 +175,7 @@ void madThreadDelete(mad_u8 threadPrio)
     
     if(pTCB->msg)
         madMemFreeCritical(pTCB->msg);
-    madMemFreeCritical((mad_vptr)pTCB);
+    madMemFreeCritical((MadVptr)pTCB);
 
     madMemRelease(cpsr);
 
@@ -183,20 +185,20 @@ void madThreadDelete(mad_u8 threadPrio)
     }
 }
 
-mad_uint_t madThreadCheckReady(void)
+MadUint madThreadCheckReady(void)
 {
-    mad_u32 prio_h, prio_l;
-    mad_u8 prio;
+    MadU32 prio_h, prio_l;
+    MadU8 prio;
     
-    if(!madOSRunning) return 0;
+    if(!MadOSRunning) 
+        return 0;
     
-    madUnRdyMap(prio_h, madThreadRdyGrp);
-    madUnRdyMap(prio_l, madThreadRdy[prio_h]);
-    prio = (mad_u8)((prio_h << 4) + prio_l);
+    madUnRdyMap(prio_h, MadThreadRdyGrp);
+    madUnRdyMap(prio_l, MadThreadRdy[prio_h]);
+    prio = (MadU8)((prio_h << 4) + prio_l);
     
-    if(madCurTCB->prio != prio)
-    {
-        madHighRdyTCB = madTCBs[prio];
+    if(MadCurTCB->prio != prio) {
+        MadHighRdyTCB = MadTCBGrp[prio];
         return 1;
     }
     

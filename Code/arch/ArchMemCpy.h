@@ -16,8 +16,8 @@
 
 extern  void  madArchMemInit    (void);
 extern  void  ARCHM_DMA_TX_IRQ  (void);
-extern  void  madArchMemCpy     (mad_vptr dst, const void * src, mad_u32 size);
-extern  void  madArchMemSet     (mad_vptr dst, mad_u8 value, mad_u32 size);
+extern  void  madArchMemCpy     (MadVptr dst, const void * src, MadU32 size);
+extern  void  madArchMemSet     (MadVptr dst, MadU8 value, MadU32 size);
 
 #endif
 #endif
