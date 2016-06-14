@@ -141,8 +141,12 @@ void madThreadPend(MadU8 threadPrio)
     madExitCritical(cpsr);
     if(flagSched) madSched();
 }
-                            
+
+#ifdef MAD_AUTO_RECYCLE_RES
+void madThreadDoDelete(MadU8 threadPrio, MadBool autoClear)
+#else
 void madThreadDelete(MadU8 threadPrio)
+#endif
 {
     MadCpsr_t cpsr;
     MadTCB_t  *pTCB;
@@ -178,6 +182,11 @@ void madThreadDelete(MadU8 threadPrio)
     if(pTCB->msg)
         madMemFreeCritical(pTCB->msg);
     madMemFreeCritical((MadVptr)pTCB);
+    
+#ifdef MAD_AUTO_RECYCLE_RES
+    if(MTRUE == autoClear)
+        madMemClearRes(threadPrio);
+#endif
 
     madMemRelease(cpsr);
 

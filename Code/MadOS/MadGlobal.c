@@ -36,7 +36,7 @@ void madOSInit(MadVptr heap_head, MadSize_t heap_size)
     
     madMemInit(heap_head, heap_size);
     
-    MadCurTCB = madThreadCreateCarefully(madActIdle, 0, MAD_REAL_IDLE_STK_SIZE * MAD_MEM_ALIGN, (MadVptr)mad_idle_stk, MAD_THREAD_NUM_MAX - 1);
+    MadCurTCB = madThreadCreateCarefully(madActIdle, 0, MAD_REAL_IDLE_STK_SIZE * MAD_MEM_ALIGN, (MadVptr)mad_idle_stk, MAD_ACT_IDLE_PRIO);
     if(!MadCurTCB) 
         while(1);
 }
@@ -87,7 +87,7 @@ void madInitStatist(void)
     mad_sys_cnt_max = mad_sys_cnt;
     mad_sys_cnt = 0;
     madExitCritical(cpsr);
-    madThreadCreateCarefully(madActStatist, 0, MAD_REAL_STATIST_STK_SIZE * MAD_MEM_ALIGN, (MadVptr)mad_statist_stk, MAD_THREAD_NUM_MAX - 2);
+    madThreadCreateCarefully(madActStatist, 0, MAD_REAL_STATIST_STK_SIZE * MAD_MEM_ALIGN, (MadVptr)mad_statist_stk, MAD_ACT_IDLE_PRIO - 1);
     madTimeDly(1);
 }
 

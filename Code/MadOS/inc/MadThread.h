@@ -11,6 +11,7 @@
 #define MAD_THREAD_WAITEVENT ((MadU8)0x10)
 
 #define MAD_THREAD_SELF      ((MadU8)0xFF)
+#define MAD_THREAD_RESERVED  MAD_ACT_IDLE_PRIO
 
 typedef struct _MadRdyG_t {
     MadU16  rdyg;
@@ -45,7 +46,14 @@ extern  MadStk_t*   madThreadStkInit          (MadVptr pStk, MadThread_t act, Ma
 extern  MadTCB_t*   madThreadCreateCarefully  (MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio);
 extern  void        madThreadResume           (MadU8 threadPrio);
 extern  void        madThreadPend             (MadU8 threadPrio);
-extern  void        madThreadDelete           (MadU8 threadPrio);
+
+#ifdef MAD_AUTO_RECYCLE_RES
+    extern  void    madThreadDoDelete         (MadU8 threadPrio, MadBool autoClear);
+    #define madThreadDelete(prio)             madThreadDoDelete(prio, MFALSE);
+    #define madThreadDeleteAndClear(prio)     madThreadDoDelete(prio, MTRUE);
+#else
+    extern  void    madThreadDelete           (MadU8 threadPrio);
+#endif
 
 #define madThreadCreate(act, ed, sz, prio)    madThreadCreateCarefully(act, ed, sz, MNULL, prio)
 

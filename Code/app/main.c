@@ -31,9 +31,11 @@ static void madStartup(MadVptr exData)
 #endif
     
     initLwIP();
-    madThreadCreate(testTcpSocket, 0, 1024, THREAD_PRIO_TCPSOCKET_TEST);
     
+    madThreadCreate(testTcpSocket, 0, 1024, THREAD_PRIO_TCPSOCKET_TEST);   
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);
+    
+    madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
 }
 

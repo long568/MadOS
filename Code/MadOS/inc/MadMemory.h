@@ -26,15 +26,15 @@ extern  void     madMemSet              (MadVptr dst, MadU8 value, MadSize_t len
 #endif
 
 #ifdef MAD_USE_SEM_2_LOCK_MEM
-    extern  void  madDoMemWait     (void);
-    extern  void  madDoMemRelease  (void);
-    #define madMemWait(cpsr)    do{ madDoMemWait(); madEnterCritical(cpsr); }while(0)
-    #define madMemRelease(cpsr) do{ madDoMemRelease(); madExitCritical(cpsr); }while(0)
+    extern  void  madMemDoWait       (void);
+    extern  void  madMemDoRelease    (void);
+    #define madMemWait(cpsr)         do{ madMemDoWait(); madEnterCritical(cpsr); }while(0)
+    #define madMemRelease(cpsr)      do{ madMemDoRelease(); madExitCritical(cpsr); }while(0)
     extern  void  madMemFreeCritical (MadVptr p);
 #else
-    #define madMemWait(cpsr)        madEnterCritical(cpsr);
-    #define madMemRelease(cpsr)     madExitCritical(cpsr);
-    #define madMemFreeCritical(p)   madMemFree(p)
+    #define madMemWait(cpsr)         madEnterCritical(cpsr);
+    #define madMemRelease(cpsr)      madExitCritical(cpsr);
+    #define madMemFreeCritical(p)    madMemFree(p)
 #endif
     
 #define madMemSafeFree(p)       \
@@ -45,5 +45,10 @@ extern  void     madMemSet              (MadVptr dst, MadU8 value, MadSize_t len
         p = 0;                  \
         madMemRelease(cpsr);    \
     } while(0)
+    
+#ifdef MAD_AUTO_RECYCLE_RES
+    extern  void  madMemChangeOwner  (const MadU8 oldOwner, const MadU8 newOwner);
+    extern  void  madMemClearRes     (const MadU8 owner); /* Do NOT call this function manually. */
+#endif
 
 #endif

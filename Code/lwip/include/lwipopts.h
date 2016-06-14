@@ -177,6 +177,7 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_NETIF_LINK_CALLBACK        1
 #define LWIP_NETIF_HOSTNAME             1
 #define MEM_ALIGNMENT                   4
+//#define LWIP_DNS                        1
 
 //#define MEMCPY(dst,src,len)             madMemCopyDMA(dst,src,len)
 //#define SMEMCPY(dst,src,len)            madMemCopy(dst,src,len)

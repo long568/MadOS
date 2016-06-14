@@ -32,7 +32,7 @@ static void initMicroSD(void)
                 f_close(&fil);
             }
         } else {
-            madMemSafeFree(fat_MicroSD);
+            madMemFreeNull(fat_MicroSD);
         }
     }
 }
@@ -104,6 +104,8 @@ void testTcpSocket(MadVptr exData)
 //	remote.sin_addr.s_addr = inet_addr("121.42.9.78");
 	remote.sin_addr.s_addr = inet_addr("192.168.0.100");
 	remote.sin_port = htons(5685U);
+    
+    
     
     while(1) {
         do {

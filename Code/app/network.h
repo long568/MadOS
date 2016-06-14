@@ -8,6 +8,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/tcpip.h"
 #include "lwip/sockets.h"
+#include "lwip/api.h"
 
 #include "UserConfig.h"
 #include "ENC28J60.h"
