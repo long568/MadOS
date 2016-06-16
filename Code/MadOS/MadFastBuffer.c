@@ -24,7 +24,7 @@ MadFBuffer_t* madFBufferCreate(MadSize_t n, MadSize_t size)
     for(i=1; i<n; i++) {
         data += step;
         node->next = (MadFBNode_t*)data;
-        node = node->next;   
+        node = node->next;
     }
     node->next = MNULL;
     return fb;

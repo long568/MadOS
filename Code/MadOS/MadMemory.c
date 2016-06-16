@@ -177,7 +177,7 @@ static MadU8* findSpace(MadSize_t size)
     
     if(mad_used_head > (MadMemHead_t *)mad_heap_head) {
         res = mad_heap_head;
-        ofs = (MadUint)((MadU8*)head - res);
+        ofs = (MadSize_t)((MadU8*)head - res);
         if(ofs >= size) {
             mad_used_head = (MadMemHead_t *)res;
             mad_used_head->size = size;
@@ -189,7 +189,7 @@ static MadU8* findSpace(MadSize_t size)
     
     while(MNULL != head->next) {
         res = (MadU8*)head + head->size;
-        ofs = (MadUint)((MadU8*)(head->next) - res);
+        ofs = (MadSize_t)((MadU8*)(head->next) - res);
         if(ofs >= size) {
             tmp = head->next;
             head->next = (MadMemHead_t *)res;
@@ -202,7 +202,7 @@ static MadU8* findSpace(MadSize_t size)
     }
     
     res = (MadU8*)head + head->size;
-    ofs = (MadUint)(mad_heap_tail - res);
+    ofs = (MadSize_t)(mad_heap_tail - res);
     if(ofs >= size) {
         head->next = (MadMemHead_t *)res;
         ((MadMemHead_t *)res)->size = size;
