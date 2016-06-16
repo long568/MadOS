@@ -48,7 +48,7 @@ void  madFBufferPut(MadFBuffer_t *fb, MadVptr buf)
     if((MNULL == fb) || (MNULL == buf)) {
         return;
     }
-    node = (MadFBNode_t*)buf;
+    node = (MadFBNode_t*)((MadU8*)buf - sizeof(MadFBNode_t));
     node->next = fb->head;
     fb->head = node;
 }
