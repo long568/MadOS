@@ -465,6 +465,11 @@
               <FileType>5</FileType>
               <FilePath>.\Code\MadOS\inc\MadEvent.h</FilePath>
             </File>
+            <File>
+              <FileName>MadFastBuffer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Code\MadOS\inc\MadFastBuffer.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -514,6 +519,11 @@
               <FileName>MadEvent.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Code\MadOS\MadEvent.c</FilePath>
+            </File>
+            <File>
+              <FileName>MadFastBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\MadOS\MadFastBuffer.c</FilePath>
             </File>
           </Files>
         </Group>

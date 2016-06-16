@@ -8,5 +8,6 @@
 #include "inc/MadSemaphore.h"
 #include "inc/MadMessage.h"
 #include "inc/MadEvent.h"
+#include "inc/MadFastBuffer.h"
 
 #endif
