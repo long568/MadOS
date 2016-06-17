@@ -3,7 +3,7 @@
 
 #include "inc/MadGlobal.h"
 
-#ifdef MAD_USE_ARCH_MEM_ACT
+#ifdef MAD_CPY_MEM_BY_DMA
 #include "ArchMemCpy.h"
 #endif
 
@@ -17,7 +17,7 @@ extern  void     madMemSet              (MadVptr dst, MadU8 value, MadSize_t len
 #define          madMemMalloc(n)        madMemMallocCarefully(n, MNULL)
 #define          madMemFreeNull(p)      do{madMemFree(p);p=0;}while(0)
 
-#ifdef MAD_USE_ARCH_MEM_ACT
+#ifdef MAD_CPY_MEM_BY_DMA
     #define madMemCopyDMA(dst, src, len)  madArchMemCpy(dst, src, len)
     #define madMemSetDMA(dst, val, len)   madArchMemSet(dst, val, len)
 #else
@@ -25,7 +25,7 @@ extern  void     madMemSet              (MadVptr dst, MadU8 value, MadSize_t len
     #define madMemSetDMA(dst, val, len)   madMemSet(dst, val, len)
 #endif
 
-#ifdef MAD_USE_SEM_2_LOCK_MEM
+#ifdef MAD_LOCK_MEM_BY_SEM
     extern  void  madMemDoWait       (void);
     extern  void  madMemDoRelease    (void);
     #define madMemWait(cpsr)         do{ madMemDoWait(); madEnterCritical(cpsr); }while(0)

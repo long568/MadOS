@@ -17,10 +17,9 @@
 #define MAD_STATIST_STK_SIZE (96)   // byte
 
 /*
- * When I use critical api to lock mem_heap, a fantastic error occured in tcpip_thread of lwip.
- * So, do NOT block the flowing #define.
+ * Lock Memory-Heap by semaphore.
  */
-#define MAD_USE_SEM_2_LOCK_MEM
+#define MAD_LOCK_MEM_BY_SEM
 
 /*
  * Automatically recycle the resources of a specified thread.
@@ -30,6 +29,6 @@
 /*
  * madArchMemCpy, madArchMemSet based on DMA of hardward;
  */
-#define MAD_USE_ARCH_MEM_ACT
+#define MAD_CPY_MEM_BY_DMA
 
 #endif

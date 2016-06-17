@@ -14,7 +14,7 @@ static MadMemHead_t *mad_used_head;
 static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
 static MadSize_t    mad_unused_size;
-#ifdef MAD_USE_SEM_2_LOCK_MEM
+#ifdef MAD_LOCK_MEM_BY_SEM
 static MadSemCB_t   mad_mem_sem;
 static MadSemCB_t   *mad_mem_pSem;
 static MadUint      mad_isWait;
@@ -22,7 +22,7 @@ static MadUint      mad_isWait;
 
 static MadU8* findSpace(MadUint size);
 static void   doMemFree(MadMemHead_t *target);
-#ifdef MAD_USE_SEM_2_LOCK_MEM
+#ifdef MAD_LOCK_MEM_BY_SEM
     #define MEM_LOCK()    madSemWait(&mad_mem_pSem, 0);
     #define MEM_UNLOCK()  madSemRelease(&mad_mem_pSem);
 #else
@@ -36,17 +36,17 @@ void madMemInit(MadVptr heap_head, MadSize_t heap_size)
     mad_heap_head   = heap_head;
     mad_heap_tail   = (MadU8*)heap_head + heap_size;
     mad_unused_size = heap_size;
-#ifdef MAD_USE_SEM_2_LOCK_MEM
+#ifdef MAD_LOCK_MEM_BY_SEM
     mad_isWait      = 0;
 	mad_mem_pSem    = &mad_mem_sem;
     madSemInit(mad_mem_pSem, 1);
 #endif
-#ifdef MAD_USE_ARCH_MEM_ACT
+#ifdef MAD_CPY_MEM_BY_DMA
     madArchMemInit();
 #endif
 }
 
-#ifdef MAD_USE_SEM_2_LOCK_MEM
+#ifdef MAD_LOCK_MEM_BY_SEM
 void madMemDoWait(void)
 {
     MadCpsr_t cpsr;

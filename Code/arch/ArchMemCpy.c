@@ -1,7 +1,7 @@
 #include "ArchMemCpy.h"
 #include "UserConfig.h"
 
-#ifdef MAD_USE_ARCH_MEM_ACT
+#ifdef MAD_CPY_MEM_BY_DMA
 
 static MadSemCB_t      mad_archm_locker, *mad_archm_plocker;
 static MadSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;

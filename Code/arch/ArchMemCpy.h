@@ -2,7 +2,7 @@
 #define __ARCH_MEM_CPY__H__
 
 #include "MadOS.h"
-#ifdef MAD_USE_ARCH_MEM_ACT
+#ifdef MAD_CPY_MEM_BY_DMA
 
 #define ARCHM_DMA_DIR_M2P  DMA_DIR_PeripheralDST
 #define ARCHM_DMA_TX       DMA1_Channel1
