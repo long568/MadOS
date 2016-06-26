@@ -1,4 +1,5 @@
 #include "network.h"
+#include "fatfs.h"
 
 extern MadU8 __heap_base;
 extern MadU8 __heap_limit;
@@ -30,11 +31,10 @@ static void madStartup(MadVptr exData)
     madInitStatist();
 #endif
     
+    initMicroSD();
     initLwIP();
-    
-    madThreadCreate(testTcpSocket, 0, 1024, THREAD_PRIO_TCPSOCKET_TEST);   
-    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);
-    
+           
+    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
 }
@@ -43,7 +43,7 @@ static void madSysRunning(MadVptr exData)
 {
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
-    int tmrSysRunning = 0;
+    MadUint tmrSysRunning = 0;
 
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Pin   = GPIO_Pin_1;
@@ -57,9 +57,9 @@ static void madSysRunning(MadVptr exData)
             tmrSysRunning = 0;
             flag = !flag;
             if(flag)
-                GPIO_SetBits(GPIOA, GPIO_Pin_1);
-            else
                 GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+            else
+                GPIO_SetBits(GPIOA, GPIO_Pin_1);
         }
 	}
 }

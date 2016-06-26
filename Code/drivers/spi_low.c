@@ -1,6 +1,6 @@
 #include "spi_low.h"
 
-MadBool spiInit(SPIPort* port, InitSPIPortData* initData)
+MadBool spiInit(SPIPort* port, SPIPortInitData* initData)
 {
     SPI_InitTypeDef spi;
     GPIO_InitTypeDef pin;

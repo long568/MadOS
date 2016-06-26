@@ -99,12 +99,12 @@ low_level_init(struct netif *netif)
 	netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
 	/* set MAC hardware address */
-	netif->hwaddr[0] = EJ_MAC_ADDR1;
-	netif->hwaddr[1] = EJ_MAC_ADDR2;
-	netif->hwaddr[2] = EJ_MAC_ADDR3;
-	netif->hwaddr[3] = EJ_MAC_ADDR4;
-	netif->hwaddr[4] = EJ_MAC_ADDR5;
-	netif->hwaddr[5] = EJ_MAC_ADDR6;
+	netif->hwaddr[0] = ethif->initData.mac[0];
+	netif->hwaddr[1] = ethif->initData.mac[1];
+	netif->hwaddr[2] = ethif->initData.mac[2];
+	netif->hwaddr[3] = ethif->initData.mac[3];
+	netif->hwaddr[4] = ethif->initData.mac[4];
+	netif->hwaddr[5] = ethif->initData.mac[5];
 
 	/* maximum transfer unit */
 	netif->mtu = 1500;
@@ -208,8 +208,8 @@ low_level_output(struct netif *netif, struct pbuf *p)
 
     pkg_st = ethif->txbuf_wr + 2;
     
-	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_EWRPTL, GET_L8BIT(pkg_st)), tmp);
-	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_EWRPTH, GET_H8BIT(pkg_st)), tmp);
+	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_EWRPTL, MAD_GET_L8BIT(pkg_st)), tmp);
+	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_EWRPTH, MAD_GET_H8BIT(pkg_st)), tmp);
 	enc28j60SpiNssEnable(ethif);
 	EJ_DEV_SPI(enc28j60WriteTxSt(ethif), tmp);
 	for(q = p; q != NULL; q = q->next) {
@@ -220,10 +220,10 @@ low_level_output(struct netif *netif, struct pbuf *p)
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
         EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x80), tmp);
         EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_EIR, 0x0A), tmp);
-        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTL, GET_L8BIT(ethif->txbuf_st + 2)), tmp);
-        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTH, GET_H8BIT(ethif->txbuf_st + 2)), tmp);
-        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDL, GET_L8BIT(tot_len - 8)), tmp);
-        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDH, GET_H8BIT(tot_len - 8)), tmp);
+        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTL, MAD_GET_L8BIT(ethif->txbuf_st + 2)), tmp);
+        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTH, MAD_GET_H8BIT(ethif->txbuf_st + 2)), tmp);
+        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDL, MAD_GET_L8BIT(tot_len - 8)), tmp);
+        EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDH, MAD_GET_H8BIT(tot_len - 8)), tmp);
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x08), tmp);
         ethif->tx_pkg_len = tot_len;
     } else {
@@ -271,8 +271,8 @@ low_level_input(struct netif *netif)
 	u16_t len;
 	MadU8 head[6];
 	
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, GET_L8BIT(ethif->rxbuf_next)), tmp);
-	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, GET_H8BIT(ethif->rxbuf_next)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, MAD_GET_L8BIT(ethif->rxbuf_next)), tmp);
+	EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, MAD_GET_H8BIT(ethif->rxbuf_next)), tmp);
 	enc28j60SpiNssEnable(ethif);
 	EJ_DEV_SPI(enc28j60ReadRxSt(ethif, head), tmp);
 	
@@ -428,10 +428,10 @@ static void eth_isr_thread(void *data)
                     }
                     EJ_DEV_TRY(enc28j60RdBufU16(ethif, ethif->txbuf_st, &ethif->tx_pkg_len), tmp);
                     txbuf_nd = ethif->txbuf_st + ethif->tx_pkg_len - 8;
-                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTL, GET_L8BIT(ethif->txbuf_st + 2)), tmp);
-                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTH, GET_H8BIT(ethif->txbuf_st + 2)), tmp);
-                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDL, GET_L8BIT(txbuf_nd)), tmp);
-                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDH, GET_H8BIT(txbuf_nd)), tmp);
+                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTL, MAD_GET_L8BIT(ethif->txbuf_st + 2)), tmp);
+                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXSTH, MAD_GET_H8BIT(ethif->txbuf_st + 2)), tmp);
+                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDL, MAD_GET_L8BIT(txbuf_nd)), tmp);
+                    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ETXNDH, MAD_GET_H8BIT(txbuf_nd)), tmp);
                     EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x08), tmp);
                 }
             }
@@ -477,14 +477,14 @@ static MadBool resetRxLogic(struct ethernetif *ethif)
 //    EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x04), tmp);
     EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON1, 0x40), tmp);
     EJ_DEV_TRY(enc28j60BitClearETH(ethif, EJ_ADDR_ECON1, 0x40), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXSTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXSTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXNDL, GET_L8BIT(EJ_RX_BUFFER_TAIL)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXNDH, GET_H8BIT(EJ_RX_BUFFER_TAIL)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXRDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXRDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
-    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXSTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXSTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXNDL, MAD_GET_L8BIT(EJ_RX_BUFFER_TAIL)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXNDH, MAD_GET_H8BIT(EJ_RX_BUFFER_TAIL)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXRDPTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERXRDPTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)), tmp);
+    EJ_DEV_TRY(enc28j60WriteReg(ethif, EJ_ADDR_ERDPTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)), tmp);
     EJ_DEV_TRY(enc28j60ReadRegETH(ethif, EJ_ADDR_EPKTCNT, &pkg_cnt), tmp);
     while(pkg_cnt) {
         EJ_DEV_TRY(enc28j60BitSetETH(ethif, EJ_ADDR_ECON2, 0x40), tmp);

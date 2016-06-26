@@ -2,6 +2,7 @@
 #define __ENC28J60_DEV__H__
 
 #include "MadOS.h"
+#include "MadMiscTools.h"
 
 #define EJ_CMD_MASK   ((MadU8)0xE0)
 #define EJ_ADDR_MASK  ((MadU8)0x1F)

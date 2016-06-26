@@ -1,9 +1,6 @@
 #include "ENC28J60.h"
 #include "UserConfig.h"
 
-DevENC28J60  *EthENC28J60;
-SPIPort      *ejSpiPort;
-
 #define EJ_SPI_NSS_ENABLE(dev)    SPI_NSS_ENABLE(&(dev)->spi_port)
 #define EJ_SPI_NSS_DISABLE(dev)   SPI_NSS_DISABLE(&(dev)->spi_port)
 
@@ -15,56 +12,38 @@ SPIPort      *ejSpiPort;
 static  MadBool  switchAddrBank   (DevENC28J60 *dev, MadU8 addr_h);
 static  MadBool  writeCmd2Reg     (DevENC28J60 *dev, MadU8 cmd, MadU8 addr, MadU8 data);
 
-SPI_CREATE_IRQ_HANDLER(ejSpiPort, 1, 1, 2)
-
 MadBool enc28j60Init(DevENC28J60 *dev)
 {
     GPIO_InitTypeDef pin;
-	EXTI_InitTypeDef exit;
+    EXTI_InitTypeDef exti;
     NVIC_InitTypeDef nvic;
-    InitSPIPortData initData;
     
-    initData.io.gpio   = EJ_SPI_GPIO;
-    initData.io.nss    = EJ_SPI_NSS;
-    initData.io.sck    = EJ_SPI_SCK;
-    initData.io.miso   = EJ_SPI_MISO;
-    initData.io.mosi   = EJ_SPI_MOSI;
-    initData.spi       = EJ_SPI_PORT;
-    initData.irqPrio   = ISR_PRIO_ENC28J60;
-    initData.spiIRQn   = EJ_SPI_IRQn;
-    initData.dmaIRQn   = EJ_SPI_DMA_RX_IRQn;
-    initData.dmaTx     = EJ_SPI_DMA_TX;
-    initData.dmaRx     = EJ_SPI_DMA_RX;
-    initData.retry     = SPI_RETRY_MAX_CNT;
-    initData.dataWidth = SPI_DW_8Bit;
-    ejSpiPort = &dev->spi_port;
-    if(MFALSE == spiInit(ejSpiPort, &initData)) 
-        return MFALSE;
-    
+    dev->initData.spi.irqPrio   = ISR_PRIO_ENC28J60;
+    dev->initData.spi.retry     = SPI_RETRY_MAX_CNT;
+    dev->initData.spi.dataWidth = SPI_DW_8Bit;    
     dev->regs_bank = 0;
-    dev->gpio_ctrl = EJ_CTRL_GPIO;
-    dev->gpio_int  = EJ_IT_GPIO;
-    dev->pin_rst   = EJ_CTRL_RST_PIN;
-    dev->pin_int   = EJ_IT_INT;
-    dev->it_line   = EJ_INT_LINE;
-    
+
+    if(MFALSE == spiInit(&dev->spi_port, &dev->initData.spi)) 
+        return MFALSE;
+
     pin.GPIO_Mode  = GPIO_Mode_IPU;
-    pin.GPIO_Pin   = EJ_IT_INT;// | EJ_IT_WOL;
+    pin.GPIO_Pin   = dev->pin_int;
     pin.GPIO_Speed = GPIO_Speed_10MHz;
-    GPIO_Init(EJ_IT_GPIO, &pin);
+    GPIO_Init(dev->gpio_int, &pin);
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
-    pin.GPIO_Pin   = EJ_CTRL_RST_PIN;
+    pin.GPIO_Pin   = dev->pin_rst;
     pin.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_Init(EJ_CTRL_GPIO, &pin);
+    GPIO_Init(dev->gpio_ctrl, &pin);
 	enc28j60HardReset(dev);
 
-	GPIO_EXTILineConfig(EJ_INT_GPIOS_PORT, EJ_INT_GPIOS_PIN);
-	exit.EXTI_Line    = EJ_INT_LINE;
-	exit.EXTI_Mode    = EXTI_Mode_Interrupt;
-	exit.EXTI_Trigger = EXTI_Trigger_Falling;
-	exit.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&exit);
-	nvic.NVIC_IRQChannel 				   = EJ_INT_IRQn;
+	GPIO_EXTILineConfig(dev->initData.extiGpio, dev->initData.extiItPin);
+	exti.EXTI_Line    = dev->it_line;
+	exti.EXTI_Mode    = EXTI_Mode_Interrupt;
+	exti.EXTI_Trigger = EXTI_Trigger_Falling;
+	exti.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&exti);
+    
+	nvic.NVIC_IRQChannel 				   = dev->initData.nvicItIRQn;
 	nvic.NVIC_IRQChannelPreemptionPriority = ISR_PRIO_ENC28J60;
 	nvic.NVIC_IRQChannelSubPriority        = 0;
 	nvic.NVIC_IRQChannelCmd                = ENABLE;
@@ -73,14 +52,6 @@ MadBool enc28j60Init(DevENC28J60 *dev)
 	MAD_TRY(enc28j60ConfigDev(dev));
 	
     return MTRUE;
-}
-
-void EJ_INT_IRQ(void)
-{
-    if(SET == EXTI_GetITStatus(EthENC28J60->it_line)) {
-        madSemRelease(&EthENC28J60->isr_locker);
-        EXTI_ClearITPendingBit(EthENC28J60->it_line);
-    }
 }
 
 MadBool enc28j60ConfigDev(DevENC28J60 *dev)
@@ -94,15 +65,15 @@ MadBool enc28j60ConfigDev(DevENC28J60 *dev)
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTL, 0));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTH, 0));
 	
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXSTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXSTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXNDL, GET_L8BIT(EJ_RX_BUFFER_TAIL)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXNDH, GET_H8BIT(EJ_RX_BUFFER_TAIL)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXSTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXSTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXNDL, MAD_GET_L8BIT(EJ_RX_BUFFER_TAIL)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXNDH, MAD_GET_H8BIT(EJ_RX_BUFFER_TAIL)));
 	
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXRDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXRDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, GET_L8BIT(EJ_RX_BUFFER_HEAD)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, GET_H8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXRDPTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERXRDPTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, MAD_GET_L8BIT(EJ_RX_BUFFER_HEAD)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, MAD_GET_H8BIT(EJ_RX_BUFFER_HEAD)));
 	
 	do {
 		MAD_TRY(enc28j60ReadRegETH(dev, EJ_ADDR_ESTAT, &res));
@@ -111,17 +82,17 @@ MadBool enc28j60ConfigDev(DevENC28J60 *dev)
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MACON1, 0x05));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MACON3, 0x30));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MACON4, 0x40));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAMXFLL, GET_L8BIT(EJ_FRAME_MAX_LEN)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAMXFLH, GET_H8BIT(EJ_FRAME_MAX_LEN)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAMXFLL, MAD_GET_L8BIT(EJ_FRAME_MAX_LEN)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAMXFLH, MAD_GET_H8BIT(EJ_FRAME_MAX_LEN)));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MABBIPG, 0x12));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAIPGL, 0x12));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAIPGH, 0x0C));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR1, EJ_MAC_ADDR1));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR2, EJ_MAC_ADDR2));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR3, EJ_MAC_ADDR3));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR4, EJ_MAC_ADDR4));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR5, EJ_MAC_ADDR5));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR6, EJ_MAC_ADDR6));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR1, dev->initData.mac[0]));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR2, dev->initData.mac[1]));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR3, dev->initData.mac[2]));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR4, dev->initData.mac[3]));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR5, dev->initData.mac[4]));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MAADR6, dev->initData.mac[5]));
     
     MAD_TRY(enc28j60WriteRegPHY(dev, EJ_ADDR_PHIE, 0x0012));
 	
@@ -275,8 +246,8 @@ MadBool enc28j60WriteRegPHY(DevENC28J60 *dev, MadU8 addr, MadU16 write)
 {
 	MadU8 res;
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIREGADR, addr));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRL, GET_L8BIT(write)));
-	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRH, GET_H8BIT(write)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRL, MAD_GET_L8BIT(write)));
+	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_MIWRH, MAD_GET_H8BIT(write)));
 	do {
 		MAD_TRY(enc28j60ReadRegMx(dev, EJ_ADDR_MISTAT, &res));
 	} while(res & MII_BUSY);
@@ -334,12 +305,12 @@ MadBool enc28j60ReadRxSt(DevENC28J60 *dev, MadU8* res)
 
 MadBool enc28j60WrBufU16(DevENC28J60 *dev, MadU16 addr, MadU16 data)
 {
-    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTL, GET_L8BIT(addr)));
-    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTH, GET_H8BIT(addr)));
+    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTL, MAD_GET_L8BIT(addr)));
+    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_EWRPTH, MAD_GET_H8BIT(addr)));
     EJ_SPI_NSS_ENABLE(dev);
     EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, EJ_CMD_WBM));
-    EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, GET_L8BIT(data)));
-    EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, GET_H8BIT(data)));
+    EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, MAD_GET_L8BIT(data)));
+    EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, MAD_GET_H8BIT(data)));
     EJ_SPI_NSS_DISABLE(dev);
     return MTRUE;
 }
@@ -347,8 +318,8 @@ MadBool enc28j60WrBufU16(DevENC28J60 *dev, MadU16 addr, MadU16 data)
 MadBool enc28j60RdBufU16(DevENC28J60 *dev, MadU16 addr, MadU16 *data)
 {
     MadU8 tmp;
-    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, GET_L8BIT(addr)));
-    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, GET_H8BIT(addr)));
+    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTL, MAD_GET_L8BIT(addr)));
+    MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ERDPTH, MAD_GET_H8BIT(addr)));
     EJ_SPI_NSS_ENABLE(dev);
     EJ_SPI_TRY(dev, ejSpiSend8Bit(dev, EJ_CMD_RBM));
     EJ_SPI_TRY(dev, ejSpiRead8Bit(dev, &tmp));

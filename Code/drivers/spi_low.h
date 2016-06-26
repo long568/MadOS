@@ -31,17 +31,17 @@ struct __SPI_IO{
     uint16_t      mosi;
 };
 
-typedef struct __InitSPIPortData {
+typedef struct __SPIPortInitData {
     struct __SPI_IO      io;
     SPI_TypeDef          *spi;
-    MadUint           irqPrio;
+    MadUint              irqPrio;
     uint8_t              spiIRQn;
     uint8_t              dmaIRQn;
     DMA_Channel_TypeDef* dmaTx;
     DMA_Channel_TypeDef* dmaRx;
-    MadU32              retry;
+    MadU32               retry;
     SPIDataWidth         dataWidth;
-} InitSPIPortData;
+} SPIPortInitData;
 
 typedef struct __SPIPort {
     GPIO_TypeDef         *gpio;
@@ -50,14 +50,14 @@ typedef struct __SPIPort {
     DMA_InitTypeDef      dma;
     DMA_Channel_TypeDef  *dmaTx;
     DMA_Channel_TypeDef  *dmaRx;
-    MadU16              spiRead;
+    MadU16               spiRead;
     MadSemCB_t           *spiLock;
     MadSemCB_t           *dmaLock;
-    MadBool           dmaError;
-    MadU32              retry;
+    MadBool              dmaError;
+    MadU32               retry;
 } SPIPort;
 
-MadBool  spiInit         (SPIPort* port, InitSPIPortData* initData);
+MadBool  spiInit         (SPIPort* port, SPIPortInitData* initData);
 MadBool  spiTry2Send8Bit (SPIPort* port, MadU8 send, MadU8 *read, MadUint retry);
 MadBool  spiSwitchBuffer (SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to);
 
@@ -67,22 +67,22 @@ MadBool  spiSwitchBuffer (SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_
 #define spiSend8BitValid(port)           spiSwitch8Bit    (port, SPI_VALID_DATA, MNULL)
 #define SPI_TRY(port, x)                 {if(MFALSE == x) {SPI_NSS_DISABLE(port); return MFALSE;}}
 
-#define SPI_CREATE_IRQ_HANDLER(port, spi, dma, chl) \
-extern void SPI##spi##_IRQHandler(void); \
-extern void port##_DMA_IRQHandler(void); \
-void SPI##spi##_IRQHandler(void) { \
+#define SPI_CREATE_IRQ_HANDLER(port, spi, dma, chl)             \
+extern void SPI##spi##_IRQHandler(void);                        \
+extern void port##_DMA_IRQHandler(void);                        \
+void SPI##spi##_IRQHandler(void) {                              \
     if(SET == SPI_I2S_GetITStatus(SPI##spi, SPI_I2S_IT_RXNE)) { \
-        port->spiRead = SPI_READ(port); \
-        madSemRelease(&port->spiLock); \
-        SPI_I2S_ClearITPendingBit(SPI##spi, SPI_I2S_IT_RXNE); \
-    } \
-} \
-void port##_DMA_IRQHandler(void) { \
-    if(SET == DMA_GetITStatus(DMA##dma##_IT_TC##chl)) { \
-        port->dmaError = MTRUE; \
-        madSemRelease(&port->dmaLock); \
-        DMA_ClearITPendingBit(DMA##dma##_IT_TC##chl); \
-    } \
+        port->spiRead = SPI_READ(port);                         \
+        madSemRelease(&port->spiLock);                          \
+        SPI_I2S_ClearITPendingBit(SPI##spi, SPI_I2S_IT_RXNE);   \
+    }                                                           \
+}                                                               \
+void port##_DMA_IRQHandler(void) {                              \
+    if(SET == DMA_GetITStatus(DMA##dma##_IT_TC##chl)) {         \
+        port->dmaError = MTRUE;                                 \
+        madSemRelease(&port->dmaLock);                          \
+        DMA_ClearITPendingBit(DMA##dma##_IT_TC##chl);           \
+    }                                                           \
 }
 
 #endif

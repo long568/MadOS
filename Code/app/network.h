@@ -9,12 +9,11 @@
 #include "lwip/tcpip.h"
 #include "lwip/sockets.h"
 #include "lwip/api.h"
+#include "lwip/dns.h"
+#include "ENC28J60_Port.h"
 
-#include "UserConfig.h"
-#include "ENC28J60.h"
-#include "ff.h"
+#define LWIP_BUFFER_SIZE 128
 
 extern void initLwIP(void);
-extern void testTcpSocket(MadVptr exData);
 
 #endif
