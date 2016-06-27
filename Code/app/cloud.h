@@ -4,7 +4,7 @@
 #include "network.h"
 #include "fatfs.h"
 
-#define CLOUD_BUFFER_SIZE   64
+#define CLOUD_BUFFER_SIZE   LWIP_BUFFER_SIZE
 #define CMD_HEAD_LEN        (8)
 #define CMD_HEAD_HEAD       ((char)0xA5)
 #define CMD_HEAD_TAIL       ((char)0x5A)

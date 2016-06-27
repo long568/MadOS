@@ -29,6 +29,9 @@ void cloudLinkDown(void)
 
 void cloud(MadVptr exData)
 {
+    FIL       fil;
+    UINT      bw;
+    UINT      total;
     MadU8     *buffer;
     MadUint   cnt;
     MadTim_t  time;
@@ -73,22 +76,19 @@ void cloud(MadVptr exData)
             remote.sin_addr.s_addr = ip.addr;
             setBlink(500);
             tcp_client = socket(AF_INET, SOCK_STREAM, 0);
-            if(0 > tcp_client) {
-                break;
-            }
-            if(0 > bind(tcp_client, (struct sockaddr *)&local, sizeof(struct sockaddr))) {
-                break;
-            }
-            if(0 > connect(tcp_client, (struct sockaddr *)&remote, sizeof(struct sockaddr))) {
-                break;
-            }
+            if(0 > tcp_client) break;
+            if(0 > bind(tcp_client, (struct sockaddr *)&local, sizeof(struct sockaddr))) break;
+            if(0 > connect(tcp_client, (struct sockaddr *)&remote, sizeof(struct sockaddr))) break;
+            if(FR_OK != f_open(&fil, "cloud", FA_OPEN_ALWAYS | FA_WRITE)) break;
             write(tcp_client, idWorker, CMD_HEAD_LEN);
             madThreadPend(THREAD_PRIO_CLOUD_BLINK);
             madThreadResume(THREAD_PRIO_CLOUD_HEARTBEAT);
             GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+            total = 0;
             while(1) {
                 cnt = read(tcp_client, buffer, CLOUD_BUFFER_SIZE);
                 if(0 >= cnt) {
+                    f_close(&fil);
                     madThreadPend(THREAD_PRIO_CLOUD_HEARTBEAT);
                     madThreadResume(THREAD_PRIO_CLOUD_BLINK);
                     break;
@@ -99,6 +99,18 @@ void cloud(MadVptr exData)
                         GPIO_ResetBits(GPIOA, GPIO_Pin_3);
                     else
                         GPIO_SetBits(GPIOA, GPIO_Pin_3);
+                    total += cnt;
+                    if(total > 512) {
+                        if(FR_OK != f_sync(&fil)) {
+                            f_close(&fil);
+                            break;
+                        }
+                        total = cnt;
+                    }
+                    if(FR_OK != f_write(&fil, buffer, cnt, &bw)) {
+                        f_close(&fil);
+                        break;
+                    }
                 }
             }
         } while(0);
