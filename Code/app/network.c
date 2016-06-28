@@ -8,8 +8,8 @@ extern err_t ethernetif_init(struct netif *netif);
 static void Enc28j60Callback_LinkChanged(struct netif *netif);
 static void testTcpC(MadVptr exData);
 
-static int tcp_client;
-static struct netif *enc28j60;
+static int          tcp_client = -1;
+static struct netif *enc28j60  = 0;
 
 void initLwIP(void)
 {
@@ -100,7 +100,7 @@ static void testTcpC(MadVptr exData)
             if(0 > connect(tcp_client, (struct sockaddr *)&remote, sizeof(struct sockaddr))) break;
             
             do {
-                FIL fil;
+                FIL  *fil;
                 UINT bw;
                 UINT br;
                 ip_addr_t addr_trg;
@@ -109,40 +109,43 @@ static void testTcpC(MadVptr exData)
                 MadSize_t dns_size;
                 MadU8 *sd_buff;
                 dns_size = 0;
-                if(FR_OK == f_open(&fil, "dns", FA_CREATE_ALWAYS | FA_WRITE)) {
+                fil = (FIL*)madMemMalloc(sizeof(FIL));
+                if(0 == fil) break;
+                if(FR_OK == f_open(fil, "dns", FA_CREATE_ALWAYS | FA_WRITE)) {
                     str_baidu[0] = 0;
                     str_wowstart[0] = 0;
                     netconn_gethostbyname("www.baidu.com", &addr_trg);
                     strcpy(str_baidu, (const char *)ipaddr_ntoa(&addr_trg));
                     netconn_gethostbyname("www.wowstart.org", &addr_trg);
                     strcpy(str_wowstart, (const char *)ipaddr_ntoa(&addr_trg));
-                    f_write(&fil, "www.baidu.com     ", strlen("www.baidu.com     "), &bw);
+                    f_write(fil, "www.baidu.com     ", strlen("www.baidu.com     "), &bw);
                     dns_size += bw;
-                    f_write(&fil, str_baidu, strlen(str_baidu), &bw);
+                    f_write(fil, str_baidu, strlen(str_baidu), &bw);
                     dns_size += bw;
-                    f_write(&fil, "\r\n", strlen("\r\n"), &bw);
+                    f_write(fil, "\r\n", strlen("\r\n"), &bw);
                     dns_size += bw;
-                    f_write(&fil, "www.wowstart.org  ", strlen("www.wowstart.org  "), &bw);
+                    f_write(fil, "www.wowstart.org  ", strlen("www.wowstart.org  "), &bw);
                     dns_size += bw;
-                    f_write(&fil, str_wowstart, strlen(str_wowstart), &bw);
+                    f_write(fil, str_wowstart, strlen(str_wowstart), &bw);
                     dns_size += bw;
-                    f_write(&fil, "\r\n", strlen("\r\n"), &bw);
+                    f_write(fil, "\r\n", strlen("\r\n"), &bw);
                     dns_size += bw;
-                    f_close(&fil);
+                    f_close(fil);
                 }
                 sd_buff = madMemMalloc(strlen(TEST_STR) + dns_size);
                 if(sd_buff) {
-                    if(FR_OK == f_open(&fil, "long", FA_OPEN_EXISTING | FA_READ)) {
-                        f_read(&fil, sd_buff, strlen(TEST_STR), &br);
-                        f_close(&fil);
+                    if(FR_OK == f_open(fil, "long", FA_OPEN_EXISTING | FA_READ)) {
+                        f_read(fil, sd_buff, strlen(TEST_STR), &br);
+                        f_close(fil);
                     }
-                    if(FR_OK == f_open(&fil, "dns", FA_OPEN_EXISTING | FA_READ)) {
-                        f_read(&fil, sd_buff + strlen(TEST_STR), dns_size, &br);
-                        f_close(&fil);
+                    if(FR_OK == f_open(fil, "dns", FA_OPEN_EXISTING | FA_READ)) {
+                        f_read(fil, sd_buff + strlen(TEST_STR), dns_size, &br);
+                        f_close(fil);
                     }
                     write(tcp_client, sd_buff, strlen(TEST_STR) + dns_size);
                     madMemFree(sd_buff);
                 }
+                madMemFree(fil);
             } while(0);
             
             while(1) {
@@ -155,6 +158,7 @@ static void testTcpC(MadVptr exData)
             }
         } while(0);
         close(tcp_client);
+        tcp_client = -1;
         madTimeDly(1000);
     }
 }

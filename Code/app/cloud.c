@@ -1,35 +1,46 @@
 #include "cloud.h"
 
-#define setBlink(t)  MAD_OPT_IN_CRITICAL(time = t;)
-#define getBlink(t)  MAD_OPT_IN_CRITICAL(t = *(MadTim_t*)time;)
-#define setLink()    MAD_OPT_IN_CRITICAL(tcp_linked = MTRUE;)
-#define resetLink()  MAD_OPT_IN_CRITICAL(tcp_linked = MFALSE;)
-#define checkLink()  MAD_OPT_IN_CRITICAL(if(MFALSE == tcp_linked) { madThreadPend(MAD_THREAD_SELF); })
+#define setBlink(t)      MAD_OPT_IN_CRITICAL(time = t;)
+#define getBlink(t)      MAD_OPT_IN_CRITICAL(t = *(MadTim_t*)time;)
+#define setLink()        MAD_OPT_IN_CRITICAL(cloud_linked = MTRUE;)
+#define resetLink()      MAD_OPT_IN_CRITICAL(cloud_linked = MFALSE;)
+#define checkLink()      MAD_OPT_IN_CRITICAL(if(MFALSE == cloud_linked) { madThreadPend(MAD_THREAD_SELF); })
+#define setRunning()     MAD_OPT_IN_CRITICAL(cloud_running = MTRUE;)
+#define getRunning(x)    MAD_OPT_IN_CRITICAL(x = cloud_running;)
 
 static void blinkLed(MadVptr time);
+#if CLOUD_USE_HEARTBEAT
 static void heartBeat(MadVptr data);
+#endif
 
-static int     tcp_client;
-static MadBool tcp_linked;
+static int     cloud_client  = -1;
+static MadBool cloud_linked  = MFALSE;
+static MadBool cloud_running = MFALSE;
 
 const char beatData[] = {0, 1, 2};
 const char idWorker[] = {CMD_HEAD_HEAD, CMD_HEAD_HEAD, CMD_HEAD_ACT_ID, CMD_HEAD_ID_WORKER, 0, 0, CMD_HEAD_TAIL, CMD_HEAD_TAIL};
 
 void cloudLinkUp(void)
 {
+    MadBool running;
     setLink();
-    madThreadResume(THREAD_PRIO_CLOUD);
+    getRunning(running);
+    if(MTRUE == running)
+        madThreadResume(THREAD_PRIO_CLOUD);
 }
 
 void cloudLinkDown(void)
 {
+    MadBool running;
     resetLink();
-    shutdown(tcp_client, SHUT_RDWR);
+    getRunning(running);
+    if(MTRUE == running)
+        shutdown(cloud_client, SHUT_RDWR);
 }
 
 void cloud(MadVptr exData)
 {
-    FIL       fil;
+    FIL       *fil;
     UINT      bw;
     MadU8     *buffer;
     MadUint   cnt;
@@ -47,8 +58,11 @@ void cloud(MadVptr exData)
         GPIO_SetBits(GPIOA, pin.GPIO_Pin);
     } while(0);
     
+    fil = (FIL*)madMemMalloc(sizeof(FIL));
     buffer = madMemMalloc(CLOUD_BUFFER_SIZE);
-    if(!buffer) {
+    if((0 == buffer) || (0 == fil)) {
+        madMemFree(fil);
+        madMemFree(buffer);
         madThreadDelete(MAD_THREAD_SELF);
     }
     
@@ -64,9 +78,12 @@ void cloud(MadVptr exData)
     
     time = 100;
     madThreadCreate(blinkLed, &time, 128, THREAD_PRIO_CLOUD_BLINK);
+#if CLOUD_USE_HEARTBEAT
     madThreadCreate(heartBeat, 0, 256, THREAD_PRIO_CLOUD_HEARTBEAT);
     madThreadPend(THREAD_PRIO_CLOUD_HEARTBEAT);
+#endif
     
+    setRunning();
     while(1) {
         do {
             if(ERR_OK != netconn_gethostbyname("www.wowstart.org", &ip)) {
@@ -74,20 +91,24 @@ void cloud(MadVptr exData)
             }
             remote.sin_addr.s_addr = ip.addr;
             setBlink(500);
-            tcp_client = socket(AF_INET, SOCK_STREAM, 0);
-            if(0 > tcp_client) break;
-            if(0 > bind(tcp_client, (struct sockaddr *)&local, sizeof(struct sockaddr))) break;
-            if(0 > connect(tcp_client, (struct sockaddr *)&remote, sizeof(struct sockaddr))) break;
-            if(FR_OK != f_open(&fil, "cloud", FA_OPEN_ALWAYS | FA_WRITE)) break;
-            write(tcp_client, idWorker, CMD_HEAD_LEN);
+            cloud_client = socket(AF_INET, SOCK_STREAM, 0);
+            if(0 > cloud_client) break;
+            if(0 > bind(cloud_client, (struct sockaddr *)&local, sizeof(struct sockaddr))) break;
+            if(0 > connect(cloud_client, (struct sockaddr *)&remote, sizeof(struct sockaddr))) break;
+            if(FR_OK != f_open(fil, "cloud", FA_OPEN_ALWAYS | FA_WRITE)) break;
+            write(cloud_client, idWorker, CMD_HEAD_LEN);
             madThreadPend(THREAD_PRIO_CLOUD_BLINK);
+#if CLOUD_USE_HEARTBEAT
             madThreadResume(THREAD_PRIO_CLOUD_HEARTBEAT);
+#endif
             GPIO_ResetBits(GPIOA, GPIO_Pin_3);
             while(1) {
-                cnt = read(tcp_client, buffer, CLOUD_BUFFER_SIZE);
+                cnt = read(cloud_client, buffer, CLOUD_BUFFER_SIZE);
                 if(0 >= cnt) {
-                    f_close(&fil);
+                    f_close(fil);
+#if CLOUD_USE_HEARTBEAT
                     madThreadPend(THREAD_PRIO_CLOUD_HEARTBEAT);
+#endif
                     madThreadResume(THREAD_PRIO_CLOUD_BLINK);
                     break;
                 } else {
@@ -97,15 +118,16 @@ void cloud(MadVptr exData)
                         GPIO_ResetBits(GPIOA, GPIO_Pin_3);
                     else
                         GPIO_SetBits(GPIOA, GPIO_Pin_3);
-                    if(FR_OK != f_write(&fil, buffer, cnt, &bw)) {
-                        f_close(&fil);
+                    if(FR_OK != f_write(fil, buffer, cnt, &bw)) {
+                        f_close(fil);
                         break;
                     }
                 }
             }
         } while(0);
         setBlink(100);
-        close(tcp_client);
+        close(cloud_client);
+        cloud_client = -1;
         checkLink();
         madTimeDly(6000);
     }
@@ -126,10 +148,12 @@ static void blinkLed(MadVptr time)
     }
 }
 
+#if CLOUD_USE_HEARTBEAT
 static void heartBeat(MadVptr data)
 {
     while(1) {
         madTimeDly(30 * 1000);
-        write(tcp_client, beatData, 3);
+        write(cloud_client, beatData, 3);
     }
 }
+#endif
