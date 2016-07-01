@@ -63,14 +63,14 @@ void sys_mbox_free(sys_mbox_t *mbox)
     struct tcpip_msg *msg;
     madEnterCritical(cpsr);
     mb = *mbox;
+    *mbox = MNULL;
+    madExitCritical(cpsr);
     while(mb->cnt) {
-        madMsgCheck(mbox);
-        msg = (struct tcpip_msg *)(MadCurTCB->msg);
+        madMsgCheck(&mb, (MadVptr*)(&msg));
         if(msg)
             memp_free((memp_t)(msg->type), msg);
     }
-    madMsgQDelete(mbox);
-    madExitCritical(cpsr);
+    madMsgQDelete(&mb);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -95,32 +95,33 @@ void sys_mbox_free(sys_mbox_t *mbox)
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 {
-    MadU8 wait;
-    MadU32 time, res;
+    MadU8     wait;
+    MadU32    time;
+    MadU32    res;
+    MadVptr   massage;
     MadCpsr_t cpsr;
+    
     time = timeout;
-    wait = madMsgWait(mbox, time);
+    wait = madMsgWait(mbox, &massage, time);
     madEnterCritical(cpsr);
     time -= MadCurTCB->timeCntRemain;
+    madExitCritical(cpsr);
     if(MAD_ERR_OK == wait) {
-        *msg = MadCurTCB->msg;
+        *msg = massage;
         res = time;
     } else {
         *msg = 0;
         res = SYS_MBOX_EMPTY;
     }
-    madExitCritical(cpsr);
     return res;
 }
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
-	MadCpsr_t cpsr;
-    if(MAD_ERR_OK == madMsgCheck(mbox))
+    MadVptr massage;
+    if(MAD_ERR_OK == madMsgCheck(mbox, &massage))
     {
-		madEnterCritical(cpsr);
-        *msg = MadCurTCB->msg;
-		madExitCritical(cpsr);
+        *msg = massage;
         return 0;
     }
     *msg = 0;

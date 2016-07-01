@@ -77,6 +77,8 @@ static void testTcpC(MadVptr exData)
     struct sockaddr_in local;
     struct sockaddr_in remote;
     
+    (void)exData;
+    
     lwip_buffer = madMemMalloc(LWIP_BUFFER_SIZE);
     if(!lwip_buffer) {
         madThreadDelete(MAD_THREAD_SELF);

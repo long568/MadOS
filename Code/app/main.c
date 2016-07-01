@@ -45,6 +45,8 @@ static void madSysRunning(MadVptr exData)
     MadBool flag = MFALSE;
     MadUint tmrSysRunning = 0;
 
+    (void)exData;
+    
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;

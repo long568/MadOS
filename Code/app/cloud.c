@@ -49,6 +49,8 @@ void cloud(MadVptr exData)
     struct sockaddr_in local;
     struct sockaddr_in remote;
     
+    (void)exData;
+    
     do {
         GPIO_InitTypeDef pin;
         pin.GPIO_Mode  = GPIO_Mode_Out_PP;

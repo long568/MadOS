@@ -58,6 +58,7 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
     pTCB->state         = MAD_THREAD_READY;
     pTCB->timeCnt       = 0;
 	pTCB->timeCntRemain = 0;
+    pTCB->msg           = 0;
     pTCB->rdyg_bit      = rdy_grp;
     pTCB->rdy_bit       = rdy;
     pTCB->xCB           = 0;
@@ -143,13 +144,14 @@ void madThreadPend(MadU8 threadPrio)
 }
 
 #ifdef MAD_AUTO_RECYCLE_RES
-void madThreadDoDelete(MadU8 threadPrio, MadBool autoClear)
+MadVptr madThreadDoDelete(MadU8 threadPrio, MadBool autoClear)
 #else
-void madThreadDelete(MadU8 threadPrio)
+MadVptr madThreadDelete(MadU8 threadPrio)
 #endif
 {
     MadCpsr_t cpsr;
     MadTCB_t  *pTCB;
+    MadVptr   msg;
     MadU8     prio_h;
     MadU8     flagSched = MFALSE;
     
@@ -163,7 +165,7 @@ void madThreadDelete(MadU8 threadPrio)
     pTCB = MadTCBGrp[threadPrio];
     if(!pTCB) {
         madMemRelease(cpsr);
-        return;
+        return MNULL;
     }
     
     MadTCBGrp[threadPrio] = 0;
@@ -179,8 +181,9 @@ void madThreadDelete(MadU8 threadPrio)
         pTCB->xCB = 0;
     }
     
-    if(pTCB->msg)
-        madMemFreeCritical(pTCB->msg);
+    msg = pTCB->msg;
+    pTCB->msg = 0;
+    
     madMemFreeCritical((MadVptr)pTCB);
     
 #ifdef MAD_AUTO_RECYCLE_RES
@@ -194,6 +197,7 @@ void madThreadDelete(MadU8 threadPrio)
         madSched();
         while(1);
     }
+    return msg;
 }
 
 MadUint madThreadCheckReady(void)

@@ -56,17 +56,19 @@ MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
     return msgQ;
 }
 
-MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ)
+MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
 {
 	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
     MadU8       res = MAD_ERR_MSGQ_EMPTY;
 	
-	madEnterCritical(cpsr);
+    (void)msg;
+    
+	madEnterCritical(cpsr);   
 	msgQ = *pMsgQ;
     
     if(msgQ && (msgQ->cnt > 0)) {
-        MadCurTCB->msg = *msgQ->head;
+        *msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
@@ -79,13 +81,15 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ)
     return res;
 }
 
-MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
+MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
 {
 	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
     MadU8       prioh;
     MadU8       res = MAD_ERR_MSGQ_EMPTY;
 	
+    (void)msg;
+    
 	madEnterCritical(cpsr);
 	msgQ = *pMsgQ;
     
@@ -95,7 +99,7 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
     }
     
     if(msgQ->cnt) {
-        MadCurTCB->msg = *msgQ->head;
+        *msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
@@ -119,6 +123,8 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadTim_t to)
         madExitCritical(cpsr);
         madSched();
         madEnterCritical(cpsr);
+        *msg = MadCurTCB->msg;
+        MadCurTCB->msg = 0;
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
@@ -194,25 +200,22 @@ void madDoMsgQDelete(MadMsgQCB_t **pMsgQ, MadBool opt)
 	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
 	
-    madMemWait(cpsr);
-	msgQ = *pMsgQ;
-    
+    madEnterCritical(cpsr);
+	msgQ = *pMsgQ;   
     if(!msgQ) {
-        madMemRelease(cpsr);
+        madExitCritical(cpsr);
         return;
     }
+    *pMsgQ = MNULL;
+    madExitCritical(cpsr);
     
     if(msgQ->sem) {
         madDoSemDelete(&msgQ->sem, opt);
-    }
-    
+    }    
     if(opt) {
         while(msgQ->rdyg) {
-            madDoMsgSend(pMsgQ, (MadVptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
+            madDoMsgSend(&msgQ, (MadVptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
         }
     }
-
-	*pMsgQ = MNULL;
-    madMemFreeCritical((MadVptr)msgQ);
-    madMemRelease(cpsr);
+    madMemFreeNull(msgQ);
 }

@@ -142,16 +142,18 @@ void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
 {
 	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
-    madMemWait(cpsr);
+    
+    madEnterCritical(cpsr);
 	event = *pEvent;
 	if(!event) {
-        madMemRelease(cpsr);
+        madExitCritical(cpsr);
 		return;
 	}
+    *pEvent = MNULL;
+    madExitCritical(cpsr);
+    
     if(opt) {
-        madDoEventTrigger(pEvent, MAD_EVENT_TRIGALL, MAD_ERR_EVENT_INVALID);
+        madDoEventTrigger(&event, MAD_EVENT_TRIGALL, MAD_ERR_EVENT_INVALID);
     }
-	*pEvent = MNULL;
-    madMemFreeCritical((MadVptr)event);
-    madMemRelease(cpsr);
+	madMemFreeNull(event);
 }

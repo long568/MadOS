@@ -24,7 +24,7 @@ typedef struct _MadTCB_t {
     MadU8     state;
     MadTim_t  timeCnt;
     MadTim_t  timeCntRemain;
-    MadU8     *msg;
+    MadVptr   msg;
     MadU16    rdyg_bit;
     MadU16    rdy_bit;
     MadRdyG_t *xCB;
@@ -48,11 +48,11 @@ extern  void        madThreadResume           (MadU8 threadPrio);
 extern  void        madThreadPend             (MadU8 threadPrio);
 
 #ifdef MAD_AUTO_RECYCLE_RES
-    extern  void    madThreadDoDelete         (MadU8 threadPrio, MadBool autoClear);
+    extern  MadVptr  madThreadDoDelete        (MadU8 threadPrio, MadBool autoClear);
     #define madThreadDelete(prio)             madThreadDoDelete(prio, MFALSE);
     #define madThreadDeleteAndClear(prio)     madThreadDoDelete(prio, MTRUE);
 #else
-    extern  void    madThreadDelete           (MadU8 threadPrio);
+    extern  MadVptr  madThreadDelete          (MadU8 threadPrio);
 #endif
 
 #define madThreadCreate(act, ed, sz, prio)    madThreadCreateCarefully(act, ed, sz, MNULL, prio)

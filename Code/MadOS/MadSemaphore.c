@@ -154,21 +154,19 @@ void madDoSemDelete(MadSemCB_t **pSem, MadBool opt)
 	MadCpsr_t  cpsr;
 	MadSemCB_t *sem;
 	
-    madMemWait(cpsr);
+    madEnterCritical(cpsr);
 	sem = *pSem;
-	
     if(!sem) {
-        madMemRelease(cpsr);
+        madExitCritical(cpsr);
         return;
     }
+    *pSem = MNULL;
+    madExitCritical(cpsr);
     
     if(opt) {
         while(sem->rdyg) {
-            madDoSemRelease(pSem, MAD_ERR_SEM_INVALID);
+            madDoSemRelease(&sem, MAD_ERR_SEM_INVALID);
         }
     }
-    
-	*pSem = MNULL;
-    madMemFreeCritical((MadVptr)sem);
-    madMemRelease(cpsr);
+    madMemFreeNull(sem);
 }

@@ -18,8 +18,8 @@ typedef struct _MadMsgQCB_t {
 extern  const  MadU8  MAD_MSG_EMPTY[];
 
 extern  MadMsgQCB_t*  madMsgQCreateCarefully  (MadU16 size, MadBool sendBlock);
-extern 	MadU8 		  madMsgCheck             (MadMsgQCB_t **pMsgQ);
-extern  MadU8         madMsgWait              (MadMsgQCB_t **pMsgQ, MadTim_t to);
+extern 	MadU8 		  madMsgCheck             (MadMsgQCB_t **pMsgQ, MadVptr *msg);
+extern  MadU8         madMsgWait              (MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to);
 extern  MadU8         madDoMsgSend            (MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err);
 extern  void 		  madDoMsgQDelete	      (MadMsgQCB_t **pMsgQ, MadBool opt);
 
