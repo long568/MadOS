@@ -87,6 +87,6 @@ $RECYCLE.BIN/
 
 Output/
 List/
-MadOS.uvguix.*
+*.uvguix.*
 MadOS_Prjs.uvmpw.uvgui.*
 unused.txt

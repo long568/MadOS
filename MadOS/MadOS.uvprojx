@@ -88,7 +88,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -332,7 +332,7 @@
               <MiscControls>--feedback=unused.txt</MiscControls>
               <Define>USE_STDPERIPH_DRIVER, USE_STM3210E_EVAL</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Code\app;.\Code\arch;.\Code\MadOS;.\Code\drivers;.\Code\drivers\ENC28J60;.\Code\lwip;.\Code\lwip\include;.\Code\FatFs</IncludePath>
+              <IncludePath>.\Code\app;.\Code\arch;.\Code\MadOS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
