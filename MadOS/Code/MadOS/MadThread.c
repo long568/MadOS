@@ -190,12 +190,9 @@ MadVptr madThreadDelete(MadU8 threadPrio)
         madMemClearRes(threadPrio);
 #endif
 
+    if(flagSched) madSched();
     madMemUnlock(cpsr);
-
-    if(flagSched) {
-        madSched();
-        while(1);
-    }
+    
     return msg;
 }
 

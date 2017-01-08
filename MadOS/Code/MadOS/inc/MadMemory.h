@@ -8,8 +8,9 @@
 #endif /* MAD_CPY_MEM_BY_DMA */
 
 extern  void       madMemInit                    (MadVptr heap_head, MadSize_t heap_size);
-extern  MadVptr    madMemMallocCarefully         (MadSize_t n, MadSize_t *nReal);
-extern  MadVptr    madMemCalloc                  (MadSize_t n, MadSize_t size);
+extern  MadVptr    madMemMallocCarefully         (MadSize_t size, MadSize_t *nReal);
+extern  MadVptr    madMemCalloc                  (MadSize_t size, MadSize_t n);
+extern  MadVptr    madMemRealloc                 (MadVptr p, MadSize_t size);
 extern  void       madMemFree                    (MadVptr p);
 extern  void       madMemCopy                    (MadVptr dst, const MadVptr src, MadSize_t len);
 extern  void       madMemSet                     (MadVptr dst, MadU8 value, MadSize_t len);

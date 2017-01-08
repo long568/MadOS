@@ -21,7 +21,6 @@ extern  void         madDoSemDelete   		(MadSemCB_t **pSem, MadBool opt);
 #define              madSemRelease(pSem)    madDoSemRelease(pSem, MAD_ERR_OK)
 #define              madSemDelete(pSem)     madDoSemDelete(pSem, MTRUE)
 
-#define              madSemReleaseEx1(sem)  do{ if((sem) && ((sem)->rdyg)) { madSemRelease(&(sem)); } }while(0)
 extern  MadU8        madSemWaitEx1  	    (MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr);
 
 #endif

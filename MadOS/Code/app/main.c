@@ -33,13 +33,14 @@ static void madStartup(MadVptr exData)
 #endif
     
     //initTestMemory();
-    //initTestMsgQ();
+    initTestMsgQ();
     //initTestEvent();
-    initTestFB();
+    //initTestFB();
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDeleteAndClear(MAD_THREAD_SELF);
+    while(1);
 }
 
 static void madSysRunning(MadVptr exData)

@@ -6,6 +6,7 @@ typedef struct {
     MadSize_t s;
     MadUint   c;
     MadUint   mask;
+    MadVptr   p;
 } t_data_t;
 
 extern const MadU8  haha[];

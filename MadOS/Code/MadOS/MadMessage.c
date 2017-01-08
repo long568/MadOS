@@ -65,7 +65,7 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
         msgQ->cnt--;
-        madSemReleaseEx1(msgQ->sem);
+        madSemRelease(&msgQ->sem);
         res = MAD_ERR_OK;
     }
     
@@ -99,7 +99,7 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
         msgQ->cnt--;
-        madSemReleaseEx1(msgQ->sem);
+        madSemRelease(&msgQ->sem);
         res = MAD_ERR_OK;
     } else {
         msgQ->rdyg |= MadCurTCB->rdyg_bit;

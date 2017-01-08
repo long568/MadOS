@@ -42,8 +42,9 @@ void testMem_t(MadVptr exData)
 
 void testMem_t0(MadVptr exData)
 {
-    MadBool    flag;
+    MadU8      flag;
     MadVptr    p;
+    MadVptr    *pp;
     MadTim_t   t;
     MadSize_t  s;
     MadUint    *pc;
@@ -51,16 +52,43 @@ void testMem_t0(MadVptr exData)
     t = ((t_data_t*)exData)->t;
     s = ((t_data_t*)exData)->s;
     pc = &((t_data_t*)exData)->c;
+    pp = &((t_data_t*)exData)->p;
     sem = madSemCreate(1);
     madSemWait(&sem, 0);
-    flag = MFALSE;
+    flag = 0;
 	while(1) {
-        flag = !flag;
-        if(flag)
-            p = madMemMalloc(s);
-        else
-            madMemFree(p);
-        (*pc)++;
+        switch (flag)
+        {
+            case 0:
+                p = madMemMalloc(s);
+                if(MNULL == p)
+                    flag = 0;
+                else
+                    flag = 1;
+                break;
+            case 1:
+                p = madMemRealloc(p, s + 137);
+                if(MNULL == p)
+                    flag = 0;
+                else
+                    flag = 2;
+                break;
+            case 2:
+                p = madMemRealloc(p, s - 73);
+                if(MNULL == p)
+                    flag = 0;
+                else
+                    flag = 3;
+                break;
+            case 3:
+                madMemFree(p);
+                flag = 0;
+                (*pc)++;
+                break;
+            default:
+                break;
+        }
+        *pp = p;
         madSemWait(&sem, t);
 	}
 }
