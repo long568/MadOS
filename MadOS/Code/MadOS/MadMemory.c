@@ -221,6 +221,15 @@ void madMemFree(MadVptr p)
     MAD_MEM_UNLOCK()
 }
 
+MadSize_t madMemUnusedSize(void)
+{
+    MadSize_t size;
+    MAD_MEM_LOCK()
+    size = mad_unused_size;
+    MAD_MEM_UNLOCK()
+    return size;
+}
+
 static MadU8* findSpace(MadSize_t size)
 {
     MadU8        *res;
@@ -316,15 +325,6 @@ void madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
     for(i=0; i<len; i++) {
         *d++ = value;
     }
-}
-
-MadSize_t madMemUnusedSize(void)
-{
-    MadSize_t size;
-    MAD_MEM_LOCK()
-    size = mad_unused_size;
-    MAD_MEM_UNLOCK()
-    return size;
 }
 
 #ifdef MAD_AUTO_RECYCLE_RES

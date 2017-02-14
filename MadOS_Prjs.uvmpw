@@ -9,6 +9,7 @@
 
   <project>
     <PathAndName>.\MadOS\MadOS.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -17,8 +18,6 @@
 
   <project>
     <PathAndName>.\MadOS_Lua\MadOS_Lua.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
 </ProjectWorkspace>

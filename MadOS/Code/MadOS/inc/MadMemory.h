@@ -12,9 +12,9 @@ extern  MadVptr    madMemMallocCarefully         (MadSize_t size, MadSize_t *nRe
 extern  MadVptr    madMemCalloc                  (MadSize_t size, MadSize_t n);
 extern  MadVptr    madMemRealloc                 (MadVptr p, MadSize_t size);
 extern  void       madMemFree                    (MadVptr p);
+extern  MadSize_t  madMemUnusedSize              (void);
 extern  void       madMemCopy                    (MadVptr dst, const MadVptr src, MadSize_t len);
 extern  void       madMemSet                     (MadVptr dst, MadU8 value, MadSize_t len);
-extern  MadSize_t  madMemUnusedSize              (void);
 #define            madMemMalloc(n)               madMemMallocCarefully(n, MNULL)
 #define            madMemFreeNull(p)             do{ madMemFree(p); p=0; }while(0)
 #ifdef MAD_CPY_MEM_BY_DMA
