@@ -18,6 +18,7 @@ enum {
     ISR_PRIO_ARCH_MEM,
 	ISR_PRIO_ENC28J60,
     ISR_PRIO_MicroSD,
+    ISR_PRIO_TTY_USART,
     ISR_PRIO_PENDSV     = 15
 };
 

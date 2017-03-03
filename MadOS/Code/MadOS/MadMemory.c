@@ -14,6 +14,7 @@ static MadMemHead_t *mad_used_head;
 static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
 static MadSize_t    mad_unused_size;
+static MadSize_t    mad_max_size;
 #ifdef MAD_LOCK_MEM_BY_SEM
 static MadSemCB_t   mad_mem_sem;
 static MadSemCB_t   *mad_mem_pSem;
@@ -39,6 +40,7 @@ void madMemInit(MadVptr heap_head, MadSize_t heap_size)
     mad_heap_head   = heap_head;
     mad_heap_tail   = (MadU8*)heap_head + heap_size;
     mad_unused_size = heap_size;
+    mad_max_size    = heap_size;
 #ifdef MAD_LOCK_MEM_BY_SEM
 	mad_mem_pSem    = &mad_mem_sem;
     madSemInit(mad_mem_pSem, 1);
@@ -228,6 +230,11 @@ MadSize_t madMemUnusedSize(void)
     size = mad_unused_size;
     MAD_MEM_UNLOCK()
     return size;
+}
+
+MadSize_t madMemMaxSize(void)
+{
+    return mad_max_size;
 }
 
 static MadU8* findSpace(MadSize_t size)

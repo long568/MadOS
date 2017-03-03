@@ -3,6 +3,9 @@
 
 #include "MadConfig.h"
 
+#define MAD_VER_MAJOR  (2)
+#define MAD_VER_SUB    (21)
+
 #define MTRUE  (1)
 #define MFALSE (0)
 #define MNULL  (0)
@@ -25,10 +28,11 @@ enum {
 #endif /* (MAD_THREAD_NUM_MAX % 16 != 0) */
 #define MAD_ACT_IDLE_PRIO (MAD_THREAD_NUM_MAX - 1)
 
-extern  void  madOSInit      (MadVptr heap_head, MadSize_t heap_size);
-extern  void  madOSRun       (void);
+extern  void    madOSInit      (MadVptr heap_head, MadSize_t heap_size);
+extern  void    madOSRun       (void);
 #if MAD_STATIST_STK_SIZE
-extern  void  madInitStatist (void);
+extern  void    madInitStatist (void);
+extern  MadInt  madIdleRate    (void);
 #endif
 
 #endif

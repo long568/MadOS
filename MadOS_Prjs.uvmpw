@@ -9,11 +9,11 @@
 
   <project>
     <PathAndName>.\MadOS\MadOS.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
     <PathAndName>.\MadOS_Example\MadOS_Example.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>

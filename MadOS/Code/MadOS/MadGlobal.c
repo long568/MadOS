@@ -10,9 +10,9 @@ extern void madOSStartUp(void);
 static MadU32  mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
 #if MAD_STATIST_STK_SIZE
 static MadU32  mad_statist_stk[MAD_REAL_STATIST_STK_SIZE];
-static MadUint mad_sys_cnt;
-static MadUint mad_sys_cnt_res;
-static MadUint mad_sys_cnt_max;
+static MadU32  mad_sys_cnt;
+static MadU32  mad_sys_cnt_res;
+static MadU32  mad_sys_cnt_max;
 #endif /* MAD_STATIST_STK_SIZE */
 
 static void madActIdle(MadVptr exData);
@@ -61,7 +61,7 @@ static void madActIdle(MadVptr exData)
 #if MAD_STATIST_STK_SIZE
     MadCpsr_t cpsr;
 #endif
-    exData = exData;
+    (void)exData;
     while(1) {
 #if MAD_STATIST_STK_SIZE
         madEnterCritical(cpsr);
@@ -75,12 +75,10 @@ static void madActIdle(MadVptr exData)
 void madInitStatist(void)
 {
     MadCpsr_t cpsr;
+    (void)mad_sys_cnt_res;  // Prevent warning
+    (void)mad_sys_cnt_max;  // Prevent warning
     madEnterCritical(cpsr);
-    mad_sys_cnt_res = mad_sys_cnt_res;  // Prevent warning
-    mad_sys_cnt_max = mad_sys_cnt_max;  // Prevent warning
     mad_sys_cnt = 0;
-    mad_sys_cnt_res = 0;
-    mad_sys_cnt_max = 0;
     madExitCritical(cpsr);
     madTimeDly(1000);
     madEnterCritical(cpsr);
@@ -102,5 +100,17 @@ static void madActStatist(MadVptr exData)
         mad_sys_cnt = 0;
         madExitCritical(cpsr);
     }
+}
+
+MadInt madIdleRate(void)
+{
+    MadCpsr_t cpsr;
+    MadFloat cnt;
+    MadFloat max;
+    madEnterCritical(cpsr);
+    cnt = (MadFloat)mad_sys_cnt_res;
+    max = (MadFloat)mad_sys_cnt_max;
+    madExitCritical(cpsr);
+    return cnt / max * 100;
 }
 #endif /* MAD_STATIST_STK_SIZE */

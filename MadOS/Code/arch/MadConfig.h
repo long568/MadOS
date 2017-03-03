@@ -31,4 +31,9 @@
  */
 #define MAD_CPY_MEM_BY_DMA
 
+/*
+ * Print debug information
+ */
+#define MAD_LOG(...)  ttyUsart_Print(__VA_ARGS__)
+
 #endif

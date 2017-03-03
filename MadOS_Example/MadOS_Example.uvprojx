@@ -477,6 +477,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>LibAnsiC</GroupName>
+          <Files>
+            <File>
+              <FileName>libAnsiC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\LibAnsiC\libAnsiC.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Drivers</GroupName>
           <Files>
             <File>
@@ -488,6 +498,16 @@
               <FileName>spi_low.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Code\drivers\spi_low.h</FilePath>
+            </File>
+            <File>
+              <FileName>stm32_ttyUSART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\drivers\stm32_ttyUSART.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32_ttyUSART.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Code\drivers\stm32_ttyUSART.h</FilePath>
             </File>
             <File>
               <FileName>stm32_eval_sdio_sd.c</FileName>

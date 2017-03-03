@@ -7,25 +7,32 @@
 #define MAD_KEIL_MDK
 #define MAD_OS_DEBUG
 
-#define MadVptr         void*
-typedef unsigned char   MadU8;
-typedef unsigned short  MadU16;
-typedef unsigned int    MadU32;
-typedef char            MadS8;
-typedef short           MadS16;
-typedef int             MadS32;
-typedef MadU32          MadUint;
-typedef MadS32          MadInt;
-typedef MadU8           MadBool;
+#define MadVptr            void*
 
-typedef MadU32          MadSize_t;
-typedef MadU32          MadCpsr_t;
-typedef MadU32          MadStk_t;
-typedef MadU32          MadTim_t;
-typedef MadU8           MadFlag_t;
+typedef char               MadS8;
+typedef short              MadS16;
+typedef int                MadS32;
+typedef long long          MadS64;
 
-#define MAD_UINT_MAX    (0xFFFFFFFF)
-#define MAD_U16_MAX     (0xFFFF)
+typedef unsigned char      MadU8;
+typedef unsigned short     MadU16;
+typedef unsigned int       MadU32;
+typedef unsigned long long MadU64;
+
+typedef float              MadFloat;
+typedef double             MadDouble;
+typedef MadS32             MadInt;
+typedef MadU32             MadUint;
+typedef MadU8              MadBool;
+
+typedef MadU32             MadSize_t;
+typedef MadU32             MadCpsr_t;
+typedef MadU32             MadStk_t;
+typedef MadU32             MadTim_t;
+typedef MadU8              MadFlag_t;
+
+#define MAD_UINT_MAX       (0xFFFFFFFF)
+#define MAD_U16_MAX        (0xFFFF)
 
 #define ARM_SYSTICK_CLK        (9000000)
 #define SYSTICKS_PER_SEC       (1000)

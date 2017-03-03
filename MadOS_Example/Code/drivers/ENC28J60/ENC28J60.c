@@ -57,7 +57,7 @@ MadBool enc28j60Init(DevENC28J60 *dev)
 MadBool enc28j60ConfigDev(DevENC28J60 *dev)
 {
 	MadU8 res;
-//    MadU16 phy;
+    MadU16 phy;
 	
 	MAD_TRY(enc28j60ReadRegETH(dev, EJ_ADDR_EREVID, &dev->rev_id));
 	MAD_TRY(enc28j60WriteReg(dev, EJ_ADDR_ETXSTL, 0));
@@ -96,9 +96,9 @@ MadBool enc28j60ConfigDev(DevENC28J60 *dev)
     
     MAD_TRY(enc28j60WriteRegPHY(dev, EJ_ADDR_PHIE, 0x0012));
 	
-//	MAD_TRY(enc28j60ReadRegPHY(EJ_ADDR_PHCON1, &phy));
-//	phy |= PHY_PDPXMD;
-//	MAD_TRY(enc28j60WriteRegPHY(dev, EJ_ADDR_PHCON1, phy));
+	MAD_TRY(enc28j60ReadRegPHY(dev, EJ_ADDR_PHCON1, &phy));
+	phy |= PHY_PDPXMD;
+	MAD_TRY(enc28j60WriteRegPHY(dev, EJ_ADDR_PHCON1, phy));
 	
 	MAD_TRY(enc28j60BitSetETH(dev, EJ_ADDR_EIE, ETH_ISR_MASK));
 	MAD_TRY(enc28j60BitSetETH(dev, EJ_ADDR_ECON1, 0x04));

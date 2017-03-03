@@ -18,7 +18,7 @@ int main()
 
 static void madStartup(MadVptr exData)
 {
-    MadBool res;
+    volatile MadBool res;
 	(void)exData;
     
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
