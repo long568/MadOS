@@ -35,7 +35,7 @@
 ** same configuration.
 */
 /* #define LUA_32BITS */
-
+#define LUA_32BITS
 
 /*
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
@@ -107,14 +107,14 @@
 */
 
 /* predefined options for LUA_INT_TYPE */
-#define LUA_INT_INT		1
+#define LUA_INT_INT		    1
 #define LUA_INT_LONG		2
 #define LUA_INT_LONGLONG	3
 
 /* predefined options for LUA_FLOAT_TYPE */
-#define LUA_FLOAT_FLOAT		1
-#define LUA_FLOAT_DOUBLE	2
-#define LUA_FLOAT_LONGDOUBLE	3
+#define LUA_FLOAT_FLOAT		    1
+#define LUA_FLOAT_DOUBLE	    2
+//#define LUA_FLOAT_LONGDOUBLE	3
 
 #if defined(LUA_32BITS)		/* { */
 /*

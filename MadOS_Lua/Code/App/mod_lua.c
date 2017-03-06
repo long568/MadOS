@@ -7,9 +7,12 @@ const int  lua_argc = sizeof(lua_argv) / sizeof(int) - 1;
 extern int  madLuaMain (int argc, char **argv);
 static void threadLua  (MadVptr exData);
 
+static long long mad_lua_stk[1024];
+
 void initLua(void)
 {
-    madThreadCreate(threadLua, 0, 8 * 1024, THREAD_PRIO_LUA);
+//    madThreadCreate(threadLua, 0, 8 * 1024, THREAD_PRIO_LUA);
+    madThreadCreateCarefully(threadLua, 0, 8192, (void*)mad_lua_stk, THREAD_PRIO_LUA);
 }
 
 static void threadLua(MadVptr exData)

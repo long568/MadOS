@@ -13,7 +13,7 @@ typedef struct _MadMemHead_t
 static MadMemHead_t *mad_used_head;
 static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
-static MadSize_t    mad_unused_size;
+/*static*/ MadSize_t    mad_unused_size;
 static MadSize_t    mad_max_size;
 #ifdef MAD_LOCK_MEM_BY_SEM
 static MadSemCB_t   mad_mem_sem;

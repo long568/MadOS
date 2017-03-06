@@ -21,6 +21,7 @@ int main()
 
 static void madStartup(MadVptr exData)
 {
+    volatile float aa = 1.1;
 	exData = exData;
     
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -48,11 +49,11 @@ static void madStartup(MadVptr exData)
             "    long long -> %d Bytes\n"
             "    float     -> %d Bytes\n"
             "    double    -> %d Bytes\n"
-            "================================\n",
+            "================================%f\n",
             MAD_VER_MAJOR, MAD_VER_SUB,
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
-            sizeof(float), sizeof(double));
+            sizeof(float), sizeof(double), aa);
 
     initMicroSD();
     initLwIP();
