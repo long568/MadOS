@@ -13,11 +13,11 @@
 
   <project>
     <PathAndName>.\MadOS_Example\MadOS_Example.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
     <PathAndName>.\MadOS_Lua\MadOS_Lua.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
 </ProjectWorkspace>

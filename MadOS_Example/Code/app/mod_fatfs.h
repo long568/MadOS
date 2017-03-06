@@ -1,5 +1,5 @@
-#ifndef __FAT_FS__H__
-#define __FAT_FS__H__
+#ifndef __MOD_FATFS__H__
+#define __MOD_FATFS__H__
 
 #include "string.h"
 #include "ff.h"

@@ -93,6 +93,7 @@ void madInitStatist(void)
 static void madActStatist(MadVptr exData)
 {
     MadCpsr_t cpsr;
+    (void)exData;
     while(1) {
         madTimeDly(1000);
         madEnterCritical(cpsr);

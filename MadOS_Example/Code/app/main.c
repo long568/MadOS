@@ -1,7 +1,7 @@
 #include "MadOS.h"
 #include "stm32_ttyUSART.h"
-#include "network.h"
-#include "fatfs.h"
+#include "mod_lwip.h"
+#include "mod_fatfs.h"
 
 extern MadU8 __heap_base;
 extern MadU8 __heap_limit;
@@ -35,13 +35,12 @@ static void madStartup(MadVptr exData)
     
     ttyUsart_Init();
     initMicroSD();
-    initLwIP(); 
-    madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
+    initLwIP();
     
     MAD_LOG("========  MadOS v%d.%d  ========\n"
-            "* CPU     : STM32F103RCT6\n"
-            "* Network : ENC28J60 + LwIP v1.41\n"
-            "* FileSys : MicroSD  + FatFS vR0.11a\n"
+            "* MCU     : STM32F103RCT6\n"
+            "* Network : ENC28J60 + LwIP(v1.41)\n"
+            "* FileSys : MicroSD  + FatFS(vR0.11a)\n"
             "* Platform dependent data types :\n"
             "    char      -> %d Bytes\n"
             "    short     -> %d Bytes\n"
@@ -55,6 +54,7 @@ static void madStartup(MadVptr exData)
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
             sizeof(float), sizeof(double));
+    madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
     while(1);
@@ -93,7 +93,7 @@ static void madSysRunning(MadVptr exData)
         tmrSysReport ++;
         if(tmrSysReport >= 1000 / SYS_RUNNING_INTERVAL_MSECS) {
             tmrSysReport = 0;
-            MAD_LOG("Idle Rate : %d%% | Remaining size of Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
+            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
         }
 #endif
 	}

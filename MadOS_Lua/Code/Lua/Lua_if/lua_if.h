@@ -13,8 +13,6 @@ extern FIL * mos_stdin;
 extern FIL * mos_stdout;
 extern FIL * mos_stderr;
 
-extern  int     std_ungetc    (int c);
-
 extern  int     mos_getc      (FIL * fp);
 extern  int     mos_ungetc    (int c, FIL * fp);
 extern  char*   mos_fgets     (char * buf, int bufsize, FIL * fp);

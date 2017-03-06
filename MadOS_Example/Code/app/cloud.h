@@ -2,7 +2,6 @@
 #define __CLOUD__H__
 
 #include "network.h"
-#include "fatfs.h"
 
 #define CLOUD_USE_HEARTBEAT 1
 #define CLOUD_BUFFER_SIZE   LWIP_BUFFER_SIZE

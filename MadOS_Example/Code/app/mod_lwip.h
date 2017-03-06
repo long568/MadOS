@@ -1,5 +1,5 @@
-#ifndef __NETWORK__H__
-#define __NETWORK__H__
+#ifndef __MOD_LWIP__H__
+#define __MOD_LWIP__H__
 
 #include "lwip/memp.h"
 #include "lwip/tcp_impl.h"

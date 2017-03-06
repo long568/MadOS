@@ -31,7 +31,7 @@ int mos_ungetc(int c, FIL * fp)
     MadUint n;
     unsigned char tmp = (unsigned char)c;
     IS_STD_STREAM(fp) {
-        return std_ungetc(c);
+        return ungetc(c, (FILE*)fp);
     } else {
         if(FR_OK == f_write(fp, &tmp, 1, &n)) {
             return c;
