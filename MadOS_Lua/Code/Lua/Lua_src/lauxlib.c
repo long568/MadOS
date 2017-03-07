@@ -815,12 +815,7 @@ LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
         if (lua_isinteger(L, idx))
           lua_pushfstring(L, "%I", lua_tointeger(L, idx));
         else
-          //lua_pushfstring(L, "%f", lua_tonumber(L, idx));
-        {
-          volatile float fv = lua_tonumber(L, idx);
-          lua_pushfstring(L, "%f", fv);
-          //lua_pushfstring(L, "%f", 1.123);
-        }
+          lua_pushfstring(L, "%f", lua_tonumber(L, idx));
         break;
       }
       case LUA_TSTRING:
