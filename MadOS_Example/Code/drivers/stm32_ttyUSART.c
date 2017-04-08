@@ -8,6 +8,7 @@ static MadSemCB_t       _mad_urx_locker,   *mad_urx_locker;
 #endif
 static MadSemCB_t       _mad_utx_locker,   *mad_utx_locker;
 static MadSemCB_t       _mad_print_locker, *mad_print_locker;
+static MadSemCB_t       _mad_scan_locker,  *mad_scan_locker;
 static DMA_InitTypeDef  mad_udma_iv;
 
 static void ttyUsart_Send(void);
@@ -120,16 +121,74 @@ int ttyUsart_Print(const char * fmt, ...)
     return res;
 }
 
+int ttyUsart_Scan(const char * fmt, ...)
+{
+    int res;
+    va_list ap;
+    madSemWait(&mad_scan_locker, 0);
+    va_start(ap, fmt);
+    res = vscanf(fmt, ap);
+    va_end(ap);
+    madSemRelease(&mad_scan_locker);
+    return res;
+}
+
+int ttyUsart_SendData(const char * dat, int len)
+{
+    int i = 0;
+    madSemWait(&mad_print_locker, 0);
+    while(1) {
+        if(!MAD_FIFO_IS_FULL(ttyUsart_BufTx)) {
+            MAD_FIFO_PUT(ttyUsart_BufTx, *dat++);
+            i++;
+        }
+        if((i == len) || MAD_FIFO_IS_FULL(ttyUsart_BufTx)) {
+            ttyUsart_Send();
+            if(i == len) {
+                break;
+            }
+        }
+    }
+    madSemRelease(&mad_print_locker);
+    return i;
+}
+
+int ttyUsart_ReadData (char * dat, int len)
+{
+    MadCpsr_t cpsr;
+    int i = 0;
+    madSemWait(&mad_scan_locker, 0);
+    while(1) {
+        madEnterCritical(cpsr);
+        if(MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+            MAD_FIFO_GET(ttyUsart_BufRx, *dat++);
+            i++;
+        }
+        if(i == len) {
+            madExitCritical(cpsr);
+            break;
+        }
+        if(MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+            madSemWaitInCritical(&mad_urx_locker, 0, &cpsr);
+        }
+        madExitCritical(cpsr);
+    }
+    madSemRelease(&mad_scan_locker);
+    return i;
+}
+
 static void ttyUsart_InitOS(void)
 {
 #if USART_GETC_NOEOF
     mad_urx_locker = &_mad_urx_locker;
-    madSemInit(mad_urx_locker, 0);
+    madSemInitCarefully(mad_urx_locker, 0, 1);
 #endif
     mad_utx_locker = &_mad_utx_locker;
-    madSemInit(mad_utx_locker, 0); // When DMA going to enable, USART_IT_TC will be triggered once first of all.
+    madSemInitCarefully(mad_utx_locker, 0, 1);
     mad_print_locker = &_mad_print_locker;
     madSemInit(mad_print_locker, 1);
+    mad_scan_locker = &_mad_scan_locker;
+    madSemInit(mad_scan_locker, 1);
     
     do { // RCC
         //RCC_AHBPeriphClockCmd(USART_DMA_Clk, ENABLE);
@@ -148,7 +207,6 @@ static void ttyUsart_InitOS(void)
     
     do { // GPIO
         GPIO_InitTypeDef GPIO_InitStructure;
-        //GPIO_PinRemapConfig(USART_GPIO_Remap, ENABLE); // When this enable, USART_Pins will be not working.
         GPIO_InitStructure.GPIO_Pin   = USART_PIN_Rx;
         GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
         GPIO_Init(USART_GPIO, &GPIO_InitStructure);
@@ -190,4 +248,7 @@ static void ttyUsart_InitDev(void)
     USART_ITConfig(USART_Port, USART_IT_RXNE, ENABLE);
     USART_ITConfig(USART_Port, USART_IT_TC, ENABLE);
     USART_Cmd(USART_Port, ENABLE);
+    
+    // When DMA going to enable, USART_IT_TC will be triggered once first of all.
+    madSemWait(&mad_utx_locker, 0);
 }

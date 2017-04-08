@@ -1,6 +1,6 @@
 #include "mod_lua.h"
 
-#define MAD_LUA_STACK_SIZE (3 * 1024)
+#define MAD_LUA_STACK_SIZE (20 * 1024)
 
 const char lua_name[] = "lua";
 const char *lua_argv[2] = {lua_name, 0};

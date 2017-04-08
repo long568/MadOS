@@ -158,7 +158,7 @@ TAG_msgQ_is_valid:
             return MAD_ERR_MSGQ_FULL;
         } else {
             sem = msgQ->sem;
-            res = madSemWaitEx1(&sem, to, &cpsr);
+            res = madSemWaitInCritical(&sem, to, &cpsr);
             if(MAD_ERR_OK != res) {
                 madExitCritical(cpsr);
                 if(MAD_ERR_SEM_INVALID == res)

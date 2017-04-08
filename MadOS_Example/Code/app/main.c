@@ -2,6 +2,11 @@
 #include "stm32_ttyUSART.h"
 #include "mod_lwip.h"
 #include "mod_fatfs.h"
+#include "mod_Extruder.h"
+
+#if MAD_STATIST_STK_SIZE
+//#define MAD_SHOW_IDLERATE
+#endif
 
 extern MadU8 __heap_base;
 extern MadU8 __heap_limit;
@@ -25,6 +30,7 @@ static void madStartup(MadVptr exData)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
     
@@ -33,10 +39,7 @@ static void madStartup(MadVptr exData)
     madInitStatist();
 #endif
     
-    ttyUsart_Init();
-    initMicroSD();
-    initLwIP();
-    
+    MAD_LOG_INIT();
     MAD_LOG("========  MadOS v%d.%d  ========\n"
             "* MCU     : STM32F103RCT6\n"
             "* Network : ENC28J60 + LwIP(v1.41)\n"
@@ -54,6 +57,11 @@ static void madStartup(MadVptr exData)
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
             sizeof(float), sizeof(double));
+            
+    initExtruder();
+    initMicroSD();
+    initLwIP();
+
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
@@ -65,7 +73,7 @@ static void madSysRunning(MadVptr exData)
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
     MadUint tmrSysRunning = 0;
-#if MAD_STATIST_STK_SIZE
+#ifdef MAD_SHOW_IDLERATE
     MadUint tmrSysReport  = 0;
 #endif
 
@@ -75,6 +83,10 @@ static void madSysRunning(MadVptr exData)
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &pin);
+
+#if MAD_STATIST_STK_SIZE    
+    MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
+#endif
     
 	while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
@@ -89,7 +101,7 @@ static void madSysRunning(MadVptr exData)
                 GPIO_SetBits(GPIOA, GPIO_Pin_1);
         }
         
-#if MAD_STATIST_STK_SIZE
+#ifdef MAD_SHOW_IDLERATE
         tmrSysReport ++;
         if(tmrSysReport >= 1000 / SYS_RUNNING_INTERVAL_MSECS) {
             tmrSysReport = 0;

@@ -136,7 +136,7 @@ MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
     return res;
 }
 
-MadU8 madSemWaitEx1(MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr)
+MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr)
 {
     MadU8      res;
     MadU8      prio_h;

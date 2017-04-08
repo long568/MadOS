@@ -34,6 +34,7 @@
 /*
  * Print debug information
  */
-#define MAD_LOG(...)  ttyUsart_Print(__VA_ARGS__)
+#define MAD_LOG_INIT()  ttyUsart_Init()
+#define MAD_LOG(...)    ttyUsart_Print(__VA_ARGS__)
 
 #endif

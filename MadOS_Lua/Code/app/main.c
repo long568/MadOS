@@ -55,7 +55,7 @@ static void madStartup(MadVptr exData)
             sizeof(float), sizeof(double));
 
     initMicroSD();
-    initLwIP();
+    //initLwIP();
     initLua();
 
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);

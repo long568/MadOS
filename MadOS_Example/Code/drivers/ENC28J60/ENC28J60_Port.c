@@ -10,7 +10,7 @@ MadBool Enc28j60Port0Init(void)
     MadUint i;
     DevENC28J60 *dev;
     EthENC28J60[0] = madMemMalloc(sizeof(DevENC28J60));
-    if(MNULL == EthENC28J60)
+    if(MNULL == EthENC28J60[0])
         return MFALSE;
     
     dev = EthENC28J60[0];
