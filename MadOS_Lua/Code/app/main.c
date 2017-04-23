@@ -33,13 +33,12 @@ static void madStartup(MadVptr exData)
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
 #endif
-    
-    ttyUsart_Init();
+            
+    MAD_LOG_INIT();
     MAD_LOG("========  MadOS v%d.%d  ========\n"
             "* MCU     : STM32F103RCT6\n"
             "* Network : ENC28J60 + LwIP(v1.41)\n"
             "* FileSys : MicroSD  + FatFS(vR0.11a)\n"
-            "* Lua     : v5.3.3\n"
             "* Platform dependent data types :\n"
             "    char      -> %d Bytes\n"
             "    short     -> %d Bytes\n"
@@ -48,6 +47,7 @@ static void madStartup(MadVptr exData)
             "    long long -> %d Bytes\n"
             "    float     -> %d Bytes\n"
             "    double    -> %d Bytes\n"
+            "* Lua     : v5.3.3\n"
             "================================\n",
             MAD_VER_MAJOR, MAD_VER_SUB,
             sizeof(char), sizeof(short), sizeof(int),

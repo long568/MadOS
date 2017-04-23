@@ -151,12 +151,7 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>mad_unused_size</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mad_lua_stk</ItemText>
+          <ItemText>testbuf</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>

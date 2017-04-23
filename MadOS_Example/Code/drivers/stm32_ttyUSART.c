@@ -160,7 +160,7 @@ int ttyUsart_ReadData (char * dat, int len)
     madSemWait(&mad_scan_locker, 0);
     while(1) {
         madEnterCritical(cpsr);
-        if(MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+        if(!MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
             MAD_FIFO_GET(ttyUsart_BufRx, *dat++);
             i++;
         }
