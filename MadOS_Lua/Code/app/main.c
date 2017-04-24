@@ -58,7 +58,7 @@ static void madStartup(MadVptr exData)
     //initLwIP();
     initLua();
 
-    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);
+    madThreadCreate(madSysRunning, 0, 256, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
     while(1);

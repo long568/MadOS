@@ -324,6 +324,26 @@ void madMemCopy(MadVptr dst, const MadVptr src, MadSize_t len)
     }
 }
 
+MadInt madMemCmp(const MadVptr dst, const MadVptr src, MadSize_t len)
+{
+    MadSize_t   i;
+    const MadU8 *d;
+    const MadU8 *s;
+    d = dst;
+    s = src;
+    for(i=0; i<len; i++) {
+        if(*d < *s) {
+            return -1;
+        } else if (*d > *s) {
+            return 1;
+        } else {
+            d++;
+            s++;
+        }
+    }
+    return 0;
+}
+
 void madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
 {
     MadSize_t i;

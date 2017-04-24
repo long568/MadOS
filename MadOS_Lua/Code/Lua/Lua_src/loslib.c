@@ -263,8 +263,8 @@ static const char *checkoption (lua_State *L, const char *conv, char *buff) {
   for (option = LUA_STRFTIMEOPTIONS; *option != '\0'; option += oplen) {
     if (*option == '|')  /* next block? */
       oplen++;  /* next length */
-    else if (memcmp(conv, option, oplen) == 0) {  /* match? */
-      memcpy(buff, conv, oplen);  /* copy valid option to buffer */
+    else if (mos_memcmp(conv, option, oplen) == 0) {  /* match? */
+      mos_memcpy(buff, conv, oplen);  /* copy valid option to buffer */
       buff[oplen] = '\0';
       return conv + oplen;  /* return next item */
     }

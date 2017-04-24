@@ -42,7 +42,7 @@ int luaS_eqlngstr (TString *a, TString *b) {
   lua_assert(a->tt == LUA_TLNGSTR && b->tt == LUA_TLNGSTR);
   return (a == b) ||  /* same instance or... */
     ((len == b->u.lnglen) &&  /* equal length and ... */
-     (memcmp(getstr(a), getstr(b), len) == 0));  /* equal contents */
+     (mos_memcmp(getstr(a), getstr(b), len) == 0));  /* equal contents */
 }
 
 
@@ -172,7 +172,7 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
   lua_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
   for (ts = *list; ts != NULL; ts = ts->u.hnext) {
     if (l == ts->shrlen &&
-        (memcmp(str, getstr(ts), l * sizeof(char)) == 0)) {
+        (mos_memcmp(str, getstr(ts), l * sizeof(char)) == 0)) {
       /* found! */
       if (isdead(g, ts))  /* dead (but not collected yet)? */
         changewhite(ts);  /* resurrect it */
@@ -184,7 +184,7 @@ static TString *internshrstr (lua_State *L, const char *str, size_t l) {
     list = &g->strt.hash[lmod(h, g->strt.size)];  /* recompute with new size */
   }
   ts = createstrobj(L, l, LUA_TSHRSTR, h);
-  memcpy(getstr(ts), str, l * sizeof(char));
+  mos_memcpy(getstr(ts), str, l * sizeof(char));
   ts->shrlen = cast_byte(l);
   ts->u.hnext = *list;
   *list = ts;
@@ -204,7 +204,7 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
     if (l >= (MAX_SIZE - sizeof(TString))/sizeof(char))
       luaM_toobig(L);
     ts = luaS_createlngstrobj(L, l);
-    memcpy(getstr(ts), str, l * sizeof(char));
+    mos_memcpy(getstr(ts), str, l * sizeof(char));
     return ts;
   }
 }

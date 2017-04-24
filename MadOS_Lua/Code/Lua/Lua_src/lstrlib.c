@@ -132,13 +132,13 @@ static int str_rep (lua_State *L) {
     luaL_Buffer b;
     char *p = luaL_buffinitsize(L, &b, totallen);
     while (n-- > 1) {  /* first n-1 copies (followed by separator) */
-      memcpy(p, s, l * sizeof(char)); p += l;
+      mos_memcpy(p, s, l * sizeof(char)); p += l;
       if (lsep > 0) {  /* empty 'memcpy' is not that cheap */
-        memcpy(p, sep, lsep * sizeof(char));
+        mos_memcpy(p, sep, lsep * sizeof(char));
         p += lsep;
       }
     }
-    memcpy(p, s, l * sizeof(char));  /* last copy (not followed by separator) */
+    mos_memcpy(p, s, l * sizeof(char));  /* last copy (not followed by separator) */
     luaL_pushresultsize(&b, totallen);
   }
   return 1;
@@ -416,7 +416,7 @@ static const char *match_capture (MatchState *ms, const char *s, int l) {
   l = check_capture(ms, l);
   len = ms->capture[l].len;
   if ((size_t)(ms->src_end-s) >= len &&
-      memcmp(ms->capture[l].init, s, len) == 0)
+      mos_memcmp(ms->capture[l].init, s, len) == 0)
     return s+len;
   else return NULL;
 }
@@ -535,7 +535,7 @@ static const char *lmemfind (const char *s1, size_t l1,
     l1 = l1-l2;  /* 's2' cannot be found after that */
     while (l1 > 0 && (init = (const char *)memchr(s1, *s2, l1)) != NULL) {
       init++;   /* 1st char is already checked */
-      if (memcmp(init, s2+1, l2) == 0)
+      if (mos_memcmp(init, s2+1, l2) == 0)
         return init-1;
       else {  /* correct 'l1' and 's1' to try again */
         l1 -= init-s1;
@@ -992,7 +992,7 @@ static const char *scanformat (lua_State *L, const char *strfrmt, char *form) {
   if (isdigit(uchar(*p)))
     luaL_error(L, "invalid format (width or precision too long)");
   *(form++) = '%';
-  memcpy(form, strfrmt, ((p - strfrmt) + 1) * sizeof(char));
+  mos_memcpy(form, strfrmt, ((p - strfrmt) + 1) * sizeof(char));
   form += (p - strfrmt) + 1;
   *form = '\0';
   return p;

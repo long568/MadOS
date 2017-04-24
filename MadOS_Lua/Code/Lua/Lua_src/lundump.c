@@ -220,7 +220,7 @@ static void checkliteral (LoadState *S, const char *s, const char *msg) {
   char buff[sizeof(LUA_SIGNATURE) + sizeof(LUAC_DATA)]; /* larger than both */
   size_t len = strlen(s);
   LoadVector(S, buff, len);
-  if (memcmp(s, buff, len) != 0)
+  if (mos_memcmp(s, buff, len) != 0)
     error(S, msg);
 }
 

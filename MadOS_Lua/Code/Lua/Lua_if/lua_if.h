@@ -37,6 +37,7 @@ extern  long    mos_ftell     (FIL * fp);
 extern  int     mos_feof      (FIL * fp);
 
 #define         mos_memcpy    madMemCopy
+#define         mos_memcmp    madMemCmp
 #define         mos_free      madMemFree
 #define         mos_realloc   madMemRealloc
 

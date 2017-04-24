@@ -260,8 +260,8 @@ static unsigned int l_randomizePivot (void) {
   time_t t = time(NULL);
   unsigned int buff[sof(c) + sof(t)];
   unsigned int i, rnd = 0;
-  memcpy(buff, &c, sof(c) * sizeof(unsigned int));
-  memcpy(buff + sof(c), &t, sof(t) * sizeof(unsigned int));
+  mos_memcpy(buff, &c, sof(c) * sizeof(unsigned int));
+  mos_memcpy(buff + sof(c), &t, sof(t) * sizeof(unsigned int));
   for (i = 0; i < sof(buff); i++)
     rnd += buff[i];
   return rnd;
