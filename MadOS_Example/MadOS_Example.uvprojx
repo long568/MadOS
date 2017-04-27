@@ -484,11 +484,6 @@
               <FileType>1</FileType>
               <FilePath>.\Code\app\mod_fatfs.c</FilePath>
             </File>
-            <File>
-              <FileName>mod_Extruder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Code\app\mod_Extruder.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

@@ -2,7 +2,6 @@
 #include "stm32_ttyUSART.h"
 #include "mod_lwip.h"
 #include "mod_fatfs.h"
-#include "mod_Extruder.h"
 
 #if MAD_STATIST_STK_SIZE
 //#define MAD_SHOW_IDLERATE
