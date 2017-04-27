@@ -56,8 +56,7 @@ static void madStartup(MadVptr exData)
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
             sizeof(float), sizeof(double));
-            
-    initExtruder();
+
     initMicroSD();
     initLwIP();
 
