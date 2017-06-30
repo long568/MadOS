@@ -13,7 +13,7 @@ typedef struct _MadMemHead_t
 static MadMemHead_t *mad_used_head;
 static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
-/*static*/ MadSize_t    mad_unused_size;
+static MadSize_t    mad_unused_size;
 static MadSize_t    mad_max_size;
 #ifdef MAD_LOCK_MEM_BY_SEM
 static MadSemCB_t   mad_mem_sem;
@@ -21,15 +21,16 @@ static MadSemCB_t   *mad_mem_pSem;
 #endif /* MAD_LOCK_MEM_BY_SEM */
 
 #ifdef MAD_LOCK_MEM_BY_SEM
-#define MAD_MEM_LOCK()    madMemDoWait();
-#define MAD_MEM_UNLOCK()  madMemDoRelease();
+#define MAD_MEM_LOCK()     madMemDoWait();
+#define MAD_MEM_UNLOCK()   madMemDoRelease();
 #else  /* MAD_LOCK_MEM_BY_SEM */
-#define MAD_MEM_LOCK()    do{ MadCpsr_t cpsr; madEnterCritical(cpsr);
-#define MAD_MEM_UNLOCK()  madExitCritical(cpsr); }while(0);
+#define MAD_MEM_LOCK()     do{ MadCpsr_t cpsr; madEnterCritical(cpsr);
+#define MAD_MEM_UNLOCK()   madExitCritical(cpsr); }while(0);
 #endif /* MAD_LOCK_MEM_BY_SEM */
 
-#define MAD_MEM_TARGET(p) ((MadMemHead_t *)((MadU8*)p - sizeof(MadMemHead_t)))
-#define MAD_MEM_REAL_N(s) ((s & MAD_MEM_ALIGN_MASK) + sizeof(MadMemHead_t) + ((s & (~MAD_MEM_ALIGN_MASK)) ? MAD_MEM_ALIGN : 0))
+#define MAD_MEM_HEAD_SIZE  MAD_ALIGNED_SIZE(sizeof(MadMemHead_t))
+#define MAD_MEM_TARGET(p)  ((MadMemHead_t *)((MadU8*)p - MAD_MEM_HEAD_SIZE))
+#define MAD_MEM_REAL_N(s)  (MAD_ALIGNED_SIZE(s) + MAD_MEM_HEAD_SIZE)
 
 static MadU8* findSpace(MadUint size);
 static void   doMemFree(MadMemHead_t *target);
@@ -119,9 +120,9 @@ MadVptr madMemMallocCarefully(MadSize_t size, MadSize_t *nReal)
     ((MadMemHead_t *)res)->owner = owner;
 #endif
     
-    res += sizeof(MadMemHead_t);
+    res += MAD_MEM_HEAD_SIZE;
     if(MNULL != nReal)
-        *nReal = real_n - sizeof(MadMemHead_t);
+        *nReal = real_n - MAD_MEM_HEAD_SIZE;
     
     return res;
 }
@@ -176,9 +177,9 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
             if(ofs < real_n) {
                 res = findSpace(real_n);
                 if(MNULL != res) {
-                    MadU8     *dst = res + sizeof(MadMemHead_t);
-                    MadU8     *src = (MadU8*)head + sizeof(MadMemHead_t);
-                    MadSize_t num = ((head->size > real_n) ? real_n : head->size) - sizeof(MadMemHead_t);
+                    MadU8     *dst = res + MAD_MEM_HEAD_SIZE;
+                    MadU8     *src = (MadU8*)head + MAD_MEM_HEAD_SIZE;
+                    MadSize_t num = ((head->size > real_n) ? real_n : head->size) - MAD_MEM_HEAD_SIZE;
                     madMemCopy(dst, src, num);
 #ifdef MAD_AUTO_RECYCLE_RES
                     ((MadMemHead_t *)res)->owner = head->owner;
@@ -204,22 +205,18 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
     
     if(res == MNULL)
         return MNULL;
-    res += sizeof(MadMemHead_t);
+    res += MAD_MEM_HEAD_SIZE;
     return res;
 }
 
 void madMemFree(MadVptr p)
 {
-    MadMemHead_t *target;
-    
+    MadMemHead_t *target;    
     if(MNULL == p)
         return;
-    target = MAD_MEM_TARGET(p);
-    
-    MAD_MEM_LOCK()
-    
-    doMemFree(target);
-    
+    target = MAD_MEM_TARGET(p);    
+    MAD_MEM_LOCK()   
+    doMemFree(target);   
     MAD_MEM_UNLOCK()
 }
 

@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "dhcp.h": "c",
+        "autoip.h": "c",
+        "api.h": "c",
+        "netif.h": "c",
+        "netifapi.h": "c",
+        "snmp_msg.h": "c",
+        "fsm.h": "c"
+    }
+}

@@ -33,8 +33,8 @@ static void madStartup(MadVptr exData)
 #endif
     
     //initTestMemory();
-    initTestMsgQ();
-    //initTestEvent();
+    //initTestMsgQ();
+    initTestEvent();
     //initTestFB();
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
@@ -51,10 +51,11 @@ static void madSysRunning(MadVptr exData)
 
     (void)exData;
     
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA, &pin);
+	GPIO_Init(GPIOE, &pin);
     
 	while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
@@ -63,9 +64,9 @@ static void madSysRunning(MadVptr exData)
             tmrSysRunning = 0;
             flag = !flag;
             if(flag)
-                GPIO_ResetBits(GPIOA, GPIO_Pin_1);
+                GPIO_ResetBits(GPIOE, GPIO_Pin_1);
             else
-                GPIO_SetBits(GPIOA, GPIO_Pin_1);
+                GPIO_SetBits(GPIOE, GPIO_Pin_1);
         }
 	}
 }

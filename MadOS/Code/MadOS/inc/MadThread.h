@@ -29,6 +29,7 @@ typedef struct _MadTCB_t {
     MadTim_t  timeCnt;
     MadTim_t  timeCntRemain;
     MadVptr   msg;
+    MadUint   eventMask;
     MadU16    rdyg_bit;
     MadU16    rdy_bit;
     MadRdyG_t *xCB;

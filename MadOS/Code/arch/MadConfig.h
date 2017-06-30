@@ -3,15 +3,15 @@
 
 #include "MadArch.h"
 
-#ifdef MAD_KEIL_MDK
-#define MAD_PACKED __packed
-#endif
-
-/* MadMemory */
-#define MAD_MEM_ALIGN_MASK  (0xFFFFFFFF << 2) // 4Bytes-Align
+/*
+ * MadMemory
+ */
+#define MAD_MEM_ALIGN_MASK  ((MadU32)0xFFFFFFFF << 2) // 4Bytes-Align
 #define MAD_MEM_ALIGN       ((~MAD_MEM_ALIGN_MASK) + 1)
 
-/* MadThread */
+/*
+ * MadThread
+ */
 #define MAD_THREAD_NUM_MAX   (256)
 #define MAD_IDLE_STK_SIZE    (80)      // byte
 #define MAD_STATIST_STK_SIZE (96)      // byte
@@ -27,13 +27,19 @@
 #define MAD_AUTO_RECYCLE_RES
 
 /*
- * madArchMemCpy, madArchMemSet based on DMA of hardward;
+ * madArchMemCpy, madArchMemSet based on DMA of hardward.
  */
 #define MAD_CPY_MEM_BY_DMA
 
 /*
+ * Use MadLC to handle coroutines
+ */
+#define MAD_USE_MPT
+
+/*
  * Print debug information
  */
+#include "stm32_ttyUSART.h"
 #define MAD_LOG_INIT()  ttyUsart_Init()
 #define MAD_LOG(...)    ttyUsart_Print(__VA_ARGS__)
 

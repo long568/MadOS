@@ -1,6 +1,6 @@
 #include "MadOS.h"
 
-MadEventCB_t* madEventCreate(MadUint mask)
+MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode)
 {
     MadUint      i;
     MadVptr      p;
@@ -14,8 +14,8 @@ MadEventCB_t* madEventCreate(MadUint mask)
     if(ecb) {
         ecb->maskWait = mask;
         ecb->maskGot = 0;
-		ecb->cnt = 0;
         ecb->rdyg = 0;
+        ecb->mode = mode;
         for(i=0; i<MAD_THREAD_RDY_NUM; i++)
             ecb->rdy[i] = 0;
     }
@@ -23,7 +23,7 @@ MadEventCB_t* madEventCreate(MadUint mask)
     return ecb;
 }
 
-MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to)
+MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to, MadUint *mask)
 {
     MadU8        res;
     MadU8        prio_h;
@@ -42,18 +42,23 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to)
         return MAD_ERR_EVENT_INVALID;
     }
 	
-	if(event->maskGot == event->maskWait) {
-		res = MAD_ERR_OK;
+	if(
+        ((event->mode == MEMODE_WAIT_ALL) && (event->maskGot == event->maskWait)) ||
+        ((event->mode == MEMODE_WAIT_ONE) && (event->maskGot & event->maskWait))
+    ) {
+        MadCurTCB->eventMask = event->maskGot;
+        event->maskGot = 0;
+        res = MAD_ERR_OK;
 	} else {
         event->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
         event->rdy[prio_h] |= MadCurTCB->rdy_bit;
-		event->cnt++;
         
         MadCurTCB->xCB = (MadRdyG_t *)event;
         MadCurTCB->state |= MAD_THREAD_WAITEVENT;
         MadCurTCB->timeCnt = to;
         MadCurTCB->timeCntRemain = 0;
+        MadCurTCB->eventMask = event->maskGot;
         
         MadThreadRdy[prio_h] &= ~MadCurTCB->rdy_bit;
         if(!MadThreadRdy[prio_h])
@@ -66,6 +71,9 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to)
         MadCurTCB->err = MAD_ERR_OK;
     }
 
+    if(mask)
+        *mask = MadCurTCB->eventMask;
+    MadCurTCB->eventMask = 0;
     madExitCritical(cpsr);
     return res;
 }
@@ -86,7 +94,8 @@ MadU8 madEventCheck(MadEventCB_t **pEvent, MadUint *mask)
         res = MAD_ERR_EVENT_INVALID;
 	} else {
         res = MAD_ERR_OK;
-		*mask = event->maskGot;
+        if(mask)
+            *mask = event->maskGot;
 	}
     madExitCritical(cpsr);
     return res;
@@ -100,7 +109,6 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
     MadU8        prio_h;
     MadU8        prio_l;
     MadU8        prio;
-    MadUint      cnt;
     MadBool      flagSched = MFALSE;
     
     if(pEvent == MNULL) {
@@ -116,11 +124,16 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
     }
     
 	event->maskGot |= mask & event->maskWait;
-    if(event->maskGot == event->maskWait) {
-        cnt = event->cnt;
-        event->cnt = 0;
-        event->maskGot = 0;
-        while(cnt--) {
+    if(event->rdyg == 0) {
+        madExitCritical(cpsr);
+        return;
+    }
+    
+    if(
+        ((event->mode == MEMODE_WAIT_ALL) && (event->maskGot == event->maskWait)) ||
+        ((event->mode == MEMODE_WAIT_ONE) && (event->maskGot & event->maskWait))
+    ) {
+        while(event->rdyg) {
             madUnRdyMap(prio_h, event->rdyg);
             madUnRdyMap(prio_l, event->rdy[prio_h]);
             event->rdy[prio_h] &= ~MadRdyMap[prio_l];
@@ -135,6 +148,7 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
                 tcb->xCB = 0;
                 tcb->state &= ~MAD_THREAD_WAITEVENT;
                 tcb->err = err;
+                tcb->eventMask = event->maskGot;
                 
                 if(!tcb->state) {
                     MadThreadRdyGrp |= tcb->rdyg_bit;
@@ -144,7 +158,8 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
                 }
             }
         }
-    }
+        event->maskGot = 0;
+	}
     
     madExitCritical(cpsr);
     if(flagSched) madSched();

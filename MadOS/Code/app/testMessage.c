@@ -10,7 +10,7 @@ void initTestMsgQ(void)
     if(t_msgQ) {
         madThreadCreate(testMsgQ_t, 0, 2048, THREAD_PRIO_TEST_MEM);
         madThreadCreate(testMsgQ_t0, &t_tim[0], 1024, THREAD_PRIO_TEST_MEM_0);
-        madThreadCreate(testMsgQ_t0, &t_tim[1], 1024, THREAD_PRIO_TEST_MEM_1);
+        //madThreadCreate(testMsgQ_t0, &t_tim[1], 1024, THREAD_PRIO_TEST_MEM_1);
     }
 }
 
@@ -41,6 +41,6 @@ void testMsgQ_t0(MadVptr exData)
             (*pc)++;
         else
             (*pc)--;
-        //madSemWait(&sem, t);
+        madSemWait(&sem, t);
 	}
 }

@@ -1,5 +1,8 @@
 #include "MadOS.h"
 
+#define MAD_ALIGNED_FBNODE_SIZE    MAD_ALIGNED_SIZE(sizeof(MadFBNode_t))
+#define MAD_ALIGNED_FBBUFFER_SIZE  MAD_ALIGNED_SIZE(sizeof(MadFBuffer_t))
+
 MadFBuffer_t* madFBufferCreate(MadSize_t n, MadSize_t size)
 {
     MadSize_t    i;
@@ -12,17 +15,18 @@ MadFBuffer_t* madFBufferCreate(MadSize_t n, MadSize_t size)
     MadFBNode_t  *node;   
     if((0 == n) || (0 == size))
         return MNULL;
-    s_real = ((size % MAD_MEM_ALIGN) ? MAD_MEM_ALIGN : 0) + (size & MAD_MEM_ALIGN_MASK);
-    step = sizeof(MadFBNode_t) + s_real;
-    n_real = sizeof(MadFBuffer_t) + n * step;
+    s_real = MAD_ALIGNED_SIZE(size);
+    step   = MAD_ALIGNED_FBNODE_SIZE + s_real;
+    n_real = MAD_ALIGNED_FBBUFFER_SIZE + n * step;
     res = madMemMalloc(n_real);
     if(MNULL == res)
         return MNULL;
-    fb = (MadFBuffer_t*)res;
-    data = (MadU8*)res + sizeof(MadFBuffer_t);
-    fb->n = n;
+    fb       = (MadFBuffer_t*)res;
+    data     = (MadU8*)res + MAD_ALIGNED_FBBUFFER_SIZE;
+    fb->n    = n;
+    fb->max  = n;
     fb->head = (MadFBNode_t*)data;
-    node = fb->head;
+    node     = fb->head;
     for(i=1; i<n; i++) {
         data += step;
         node->next = (MadFBNode_t*)data;
@@ -44,7 +48,7 @@ MadVptr madFBufferGet(MadFBuffer_t *fb)
     res = (MadU8*)fb->head;
     fb->head = fb->head->next;
     fb->n--;
-    res += sizeof(MadFBNode_t);
+    res += MAD_ALIGNED_FBNODE_SIZE;
     madExitCritical(cpsr);
     return res;
 }
@@ -58,7 +62,7 @@ void madFBufferPut(MadFBuffer_t *fb, MadVptr buf)
         madExitCritical(cpsr);
         return;
     }
-    node = (MadFBNode_t*)((MadU8*)buf - sizeof(MadFBNode_t));
+    node = (MadFBNode_t*)((MadU8*)buf - MAD_ALIGNED_FBNODE_SIZE);
     node->next = fb->head;
     fb->head = node;
     fb->n++;

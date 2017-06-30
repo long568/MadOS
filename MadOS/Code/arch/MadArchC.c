@@ -4,7 +4,7 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
 {
     MadStk_t *stk = (MadStk_t *)pStk;
     *stk-- = (MadStk_t)0x01000000;	// xPSR (High memory)
-	*stk-- = (MadStk_t)act;		// PC
+	*stk-- = (MadStk_t)act;		    // PC
 	*stk-- = (MadStk_t)0xA5A5000E;	// LR
 	*stk-- = (MadStk_t)0xA5A5000C;	// R12
 	*stk-- = (MadStk_t)0xA5A50003;	// R3
@@ -17,8 +17,8 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
     *stk-- = (MadStk_t)0xA5A50009;	// R9
     *stk-- = (MadStk_t)0xA5A50008;	// R8
     *stk-- = (MadStk_t)0xA5A50007;	// R7
-    *stk-- = (MadStk_t)0xA5A50006; // R6
-    *stk-- = (MadStk_t)0xA5A50005; // R5
+    *stk-- = (MadStk_t)0xA5A50006;  // R6
+    *stk-- = (MadStk_t)0xA5A50005;  // R5
 	*stk   = (MadStk_t)0xA5A50004;	// R4   (Low memory)
     return stk;
 }

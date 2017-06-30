@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'MadOS_Example' 
- * Target:  'MadOS_Example' 
+ * Target:  'MadOS_EgSTM32F107' 
  */
 
 #ifndef RTE_COMPONENTS_H

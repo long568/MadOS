@@ -43,4 +43,8 @@ typedef MadU8              MadFlag_t;
 #define madExitCritical(cpsr)  do{ __set_BASEPRI(cpsr); }while(0)
 #define madUnRdyMap(res, src)  do{ MadU32 tmp = src; __asm{ rbit tmp, tmp; clz tmp, tmp; }; res = (MadU8)(tmp & 0x000000FF); }while(0)
 
+#ifdef MAD_KEIL_MDK
+#define MAD_PACKED __packed
+#endif
+
 #endif

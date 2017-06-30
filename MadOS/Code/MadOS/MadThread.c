@@ -59,6 +59,7 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
     pTCB->timeCnt       = 0;
 	pTCB->timeCntRemain = 0;
     pTCB->msg           = 0;
+    pTCB->eventMask     = 0;
     pTCB->rdyg_bit      = rdy_grp;
     pTCB->rdy_bit       = rdy;
     pTCB->xCB           = 0;
