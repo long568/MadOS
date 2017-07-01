@@ -110,7 +110,7 @@ do {                                    \
 #define APPCONN_CALL(x) \
 do {                                        \
     if(x && x->appstate.app_call)           \
-        x->appstate.app_call((MadVptr)0);   \
+        x->appstate.app_call((MadVptr)x);   \
 } while(0)
 
 void uIP_linked_on(void)   { APPLIST_LOOP((MadVptr)uIP_LINKED_ON); }
