@@ -107,25 +107,16 @@ do {                                    \
     }                                   \
 } while(0)
 
-void uIP_linked_on(void)
-{
-    APPLIST_LOOP((MadVptr)uIP_LINKED_ON);
-}
+#define APPCONN_CALL(x) \
+do {                                        \
+    if(x && x->appstate.app_call)           \
+        x->appstate.app_call((MadVptr)0);   \
+} while(0)
 
-void uIP_linked_off(void)
-{
-    APPLIST_LOOP((MadVptr)uIP_LINKED_OFF);
-}
-
-void uIP_tcp_appcall(void)
-{
-    uip_conn->appstate.app_call((MadVptr)0);
-}
-
-void uIP_udp_appcall(void)
-{
-    uip_udp_conn->appstate.app_call((MadVptr)0);
-}
+void uIP_linked_on(void)   { APPLIST_LOOP((MadVptr)uIP_LINKED_ON); }
+void uIP_linked_off(void)  { APPLIST_LOOP((MadVptr)uIP_LINKED_OFF); }
+void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
+void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
 
 /*****************************************************
  *
