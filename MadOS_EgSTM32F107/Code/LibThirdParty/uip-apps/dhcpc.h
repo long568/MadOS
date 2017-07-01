@@ -36,6 +36,7 @@
 #include "MadOS.h"
 #include "timer.h"
 #include "pt.h"
+#include "mod_uIP.h"
 
 #define DHCP_SHOW_RESULT     1
 #define DHCP_RESTART_DIV     (6 * CLOCK_SECOND / 10)
@@ -49,7 +50,6 @@ struct dhcpc_state {
   u16_t ticks;
   const void *mac_addr;
   int mac_len;
-  u8_t data_ok;
   
   u8_t serverid[4];
 
@@ -58,16 +58,12 @@ struct dhcpc_state {
   u16_t netmask[2];
   u16_t dnsaddr[2];
   u16_t default_router[2];
+    
+  u8_t data_ok; //Added by long
+  uIP_App app;  //Added by long
 };
 
-void dhcpc_init(const void *mac_addr, int mac_len);
-void dhcpc_deinit(void);
-void dhcpc_request(void);
-void dhcpc_appcall(void);
+void dhcpc_init(void);
 void dhcpc_configured(const struct dhcpc_state *s);
-
-//typedef struct dhcpc_state uip_udp_appstate_t;
-//#define UIP_UDP_APPCALL dhcpc_appcall
-
 
 #endif /* __DHCPC_H__ */

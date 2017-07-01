@@ -3,7 +3,17 @@
 #include "dhcpc.h"
 #endif
 
-StmPIN eth_led; // For test
+clocker  uIP_Clocker;
+
+timer   uIP_periodic_timer;
+timer   uIP_arp_timer;
+uIP_App *uIP_app_list;
+u8_t    *uip_buf;
+    
+static void uIP_dev_send(mETH_t *eth);
+static void uIP_dev_read(mETH_t *eth);
+static MadBool uIP_preinit(mETH_t *eth);
+static MadBool uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt);
 
 /*****************************************************
  *
@@ -23,7 +33,54 @@ void tcpip_output(void)
 
 /*****************************************************
  *
- *  uIP-Apps
+ *  uIP Core Function
+ *
+ *****************************************************/
+void uIP_Init(void)
+{
+    mEth_Init(uIP_preinit, uIP_handler);
+}
+
+void uIP_AppRegister(uIP_App *app) 
+{
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    app->next = uIP_app_list;
+    uIP_app_list = app;
+    madExitCritical(cpsr);
+}
+
+void uIP_AppUnregister(uIP_App *app)
+{
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    uIP_App *pre_app = 0;
+    uIP_App *cur_app = uIP_app_list;
+    while(cur_app) {
+        if(app == cur_app) {
+            if(pre_app) pre_app->next = cur_app->next;
+            else        uIP_app_list  = cur_app->next;
+            break;
+        }
+        pre_app = cur_app;
+        cur_app = cur_app->next;
+    }
+    madExitCritical(cpsr);
+}
+
+void uIP_SetTcpConn(struct uip_conn *conn, uIP_Callback app_call)
+{
+    conn->appstate.app_call = app_call;
+}
+
+void uIP_SetUdpConn(struct uip_udp_conn *conn, uIP_Callback app_call)
+{
+    conn->appstate.app_call = app_call;
+}
+
+/*****************************************************
+ *
+ *  uIP Core Apps Callback
  *
  *****************************************************/
 #if UIP_CORE_APP_DHCP
@@ -37,66 +94,45 @@ void dhcpc_configured(const struct dhcpc_state *s)
 
 /*****************************************************
  *
- *  uIP-Function
+ *  uIP Core Callback
  *
  *****************************************************/
-//void uIP_Send(const void *data, int len)
-//{
-//}
+#define APPLIST_LOOP(x) \
+do {                                    \
+    uIP_App *app_list = uIP_app_list;   \
+    while(app_list) {                   \
+        if(app_list->link_changed)      \
+            app_list->link_changed(x);  \
+        app_list = app_list->next;      \
+    }                                   \
+} while(0)
+
+void uIP_linked_on(void)
+{
+    APPLIST_LOOP((MadVptr)uIP_LINKED_ON);
+}
+
+void uIP_linked_off(void)
+{
+    APPLIST_LOOP((MadVptr)uIP_LINKED_OFF);
+}
+
+void uIP_tcp_appcall(void)
+{
+    uip_conn->appstate.app_call((MadVptr)0);
+}
+
+void uIP_udp_appcall(void)
+{
+    uip_udp_conn->appstate.app_call((MadVptr)0);
+}
 
 /*****************************************************
  *
  *  uIP-Core
  *
  *****************************************************/
-clocker uIP_clocker;
-timer   uIP_periodic_timer;
-timer   uIP_arp_timer;
-
-u8_t *uip_buf;
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
-
-static void uIP_dev_send(mETH_t *eth);
-static void uIP_dev_read(mETH_t *eth);
-static MadBool uIP_preinit(mETH_t *eth);
-static MadBool uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt);
-
-void uIP_Init(void)
-{
-    do { // For test
-        StmPIN_SetIO(&eth_led, GPIOE, GPIO_Pin_0);
-        StmPIN_DefInitOPP(&eth_led);
-        StmPIN_SetHigh(&eth_led);
-    } while(0);
-    mEth_Init(uIP_preinit, uIP_handler);
-}
-
-void uIP_tcp_appcall(void)
-{
-}
-
-void uIP_udp_appcall(void)
-{
-#if UIP_CORE_APP_DHCP
-    dhcpc_appcall();
-#endif
-}
-
-void uIP_linked_on(void)
-{
-    StmPIN_SetLow(&eth_led);
-#if UIP_CORE_APP_DHCP    
-    dhcpc_init(uip_ethaddr.addr, 6);
-#endif
-}
-
-void uIP_linked_off(void)
-{
-    StmPIN_SetHigh(&eth_led);
-#if UIP_CORE_APP_DHCP  
-    dhcpc_deinit();
-#endif
-}
 
 void uIP_dev_send(mETH_t *eth)
 {
@@ -124,17 +160,17 @@ void uIP_dev_read(mETH_t *eth)
 MadBool uIP_preinit(mETH_t *eth)
 {
     MadUint i;
+    uIP_app_list = 0;
     uip_buf = (u8_t*)madMemMalloc(UIP_CONF_BUFFER_SIZE);
     if(!uip_buf) return MFALSE;
-    clocker_init(&uIP_clocker);
+    clocker_init(&uIP_Clocker);
     timer_init(&uIP_arp_timer);
     timer_init(&uIP_periodic_timer);
-    timer_add(&uIP_arp_timer, &uIP_clocker);
-    timer_add(&uIP_periodic_timer, &uIP_clocker);
+    timer_add(&uIP_arp_timer, &uIP_Clocker);
+    timer_add(&uIP_periodic_timer, &uIP_Clocker);
     timer_set(&uIP_arp_timer, CLOCK_SECOND * 10);
     timer_set(&uIP_periodic_timer, CLOCK_SECOND / 2);
     uip_init();
-
     do {
         uip_ipaddr_t ipaddr;
 #if !UIP_CORE_APP_DHCP
@@ -149,6 +185,7 @@ MadBool uIP_preinit(mETH_t *eth)
         uip_sethostaddr(ipaddr);
         uip_setdraddr(ipaddr);
         uip_setnetmask(ipaddr);
+        dhcpc_init();
 #endif
     } while(0);
     for(i=0; i<6; i++) {
@@ -159,7 +196,7 @@ MadBool uIP_preinit(mETH_t *eth)
 
 MadBool uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt)
 {
-    clocker_dt(&uIP_clocker, dt);
+    clocker_dt(&uIP_Clocker, dt);
     
     if(event & EPE_STATUS_CHANGED) {
         if(eth->isLinked) uIP_linked_on();

@@ -34,11 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "uip.h"
 #include "dhcpc.h"
-#include "timer.h"
-#include "pt.h"
-#include "mod_uIP.h"
 
 #define STATE_INITIAL         0
 #define STATE_SENDING         1
@@ -287,7 +283,10 @@ PT_THREAD(handle_dhcp(void))
     s.state = STATE_SENDING;
     s.ticks = CLOCK_SECOND;
     s.data_ok = 0;
+#if DHCP_SHOW_RESULT
     MAD_LOG("DHCP-Client is starting up ... OK\n");
+#endif
+    
     do {
         send_discover();
         timer_set(&s.timer, s.ticks);
@@ -342,30 +341,22 @@ PT_THREAD(handle_dhcp(void))
     PT_END(&s.pt);
 }
 /*---------------------------------------------------------------------------*/
+static void dhcpc_request(void);
+static void dhcpc_linked_on(const void *mac_addr, int mac_len);
+static void dhcpc_linked_off(void);
+static void dhcpc_link_changed(MadVptr ep);
+static void dhcpc_appcall(MadVptr ep);
 void
-dhcpc_init(const void *mac_addr, int mac_len)
+dhcpc_init()
 {
-    uip_ipaddr_t addr;
-    s.mac_addr = mac_addr;
-    s.mac_len  = mac_len;
-    s.state = STATE_INITIAL;
-    uip_ipaddr(addr, 255,255,255,255);
-    s.conn = uip_udp_new(&addr, HTONS(DHCPC_SERVER_PORT));
-    if(s.conn != NULL) {
-        uip_udp_bind(s.conn, HTONS(DHCPC_CLIENT_PORT));
-        timer_init(&s.timer);
-        timer_add(&s.timer, &uIP_clocker);
-        dhcpc_request();
-        MAD_LOG("DHCP-Client is initializing ... OK\n");
-    } else {
-        MAD_LOG("DHCP-Client is initializing ... Failed\n");
-    }
-    PT_INIT(&s.pt);
+    s.app.link_changed = dhcpc_link_changed;
+    uIP_AppRegister(&s.app);
 }
 /*---------------------------------------------------------------------------*/
 void
-dhcpc_appcall(void)
+dhcpc_appcall(MadVptr ep)
 {
+    (void)ep;
     handle_dhcp();
 }
 /*---------------------------------------------------------------------------*/
@@ -378,10 +369,44 @@ dhcpc_request(void)
         uip_sethostaddr(ipaddr);
     }
 }
-/*---------------------------------------------------------------------------*/
-// Added by long
-void dhcpc_deinit(void)
+/* Added by long -----------------------------------------------------------*/
+void dhcpc_linked_on(const void *mac_addr, int mac_len)
+{
+    uip_ipaddr_t addr;
+    s.mac_addr = mac_addr;
+    s.mac_len  = mac_len;
+    s.state = STATE_INITIAL;
+    uip_ipaddr(addr, 255,255,255,255);
+    s.conn = uip_udp_new(&addr, HTONS(DHCPC_SERVER_PORT));
+    if(s.conn != NULL) {
+        uip_udp_bind(s.conn, HTONS(DHCPC_CLIENT_PORT));
+        uIP_SetUdpConn(s.conn, dhcpc_appcall);
+        timer_init(&s.timer);
+        timer_add(&s.timer, &uIP_Clocker);
+        dhcpc_request();
+        PT_INIT(&s.pt);
+    }
+#if DHCP_SHOW_RESULT
+    if(s.conn != NULL) {
+        MAD_LOG("DHCP-Client is initializing ... OK\n");
+    } else {
+        MAD_LOG("DHCP-Client is initializing ... Failed\n");
+    }
+#endif
+}
+
+void dhcpc_linked_off(void)
 {
     uip_udp_remove(s.conn);
     timer_remove(&s.timer);
+}
+
+void dhcpc_link_changed(MadVptr ep)
+{
+    MadU32 flag = (MadU32)ep;
+    if(flag == uIP_LINKED_OFF) {
+        dhcpc_linked_off();
+    } else {
+        dhcpc_linked_on(uip_ethaddr.addr, 6);
+    }
 }

@@ -173,6 +173,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>s</ItemText>
         </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>uIP_app_list</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
