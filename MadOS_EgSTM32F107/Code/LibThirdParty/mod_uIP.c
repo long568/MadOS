@@ -98,13 +98,13 @@ void dhcpc_configured(const struct dhcpc_state *s)
  *
  *****************************************************/
 #define APPLIST_LOOP(x) \
-do {                                    \
-    uIP_App *app_list = uIP_app_list;   \
-    while(app_list) {                   \
-        if(app_list->link_changed)      \
-            app_list->link_changed(x);  \
-        app_list = app_list->next;      \
-    }                                   \
+do {                                            \
+    uIP_App *app_list = uIP_app_list;           \
+    while(app_list) {                           \
+        if(app_list->link_changed)              \
+            app_list->link_changed((MadVptr)x); \
+        app_list = app_list->next;              \
+    }                                           \
 } while(0)
 
 #define APPCONN_CALL(x) \
@@ -113,8 +113,8 @@ do {                                        \
         x->appstate.app_call((MadVptr)x);   \
 } while(0)
 
-void uIP_linked_on(void)   { APPLIST_LOOP((MadVptr)uIP_LINKED_ON); }
-void uIP_linked_off(void)  { APPLIST_LOOP((MadVptr)uIP_LINKED_OFF); }
+void uIP_linked_on(void)   { APPLIST_LOOP(uIP_LINKED_ON); }
+void uIP_linked_off(void)  { APPLIST_LOOP(uIP_LINKED_OFF); }
 void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
 void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
 
