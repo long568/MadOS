@@ -53,6 +53,7 @@ void tcp_start_up(void)
 
 void tcp_shut_down(void)
 {
+    uIP_SetTcpConn(conn_tcp, MNULL); 
     uip_remove(conn_tcp);
     timer_remove(&timer_tcp);
 }
@@ -83,33 +84,40 @@ static MadU8 check_if_connected(void) {
     return flag;
 }
 
+#define CHECK_IF_CONNECTED() \
+do {                                        \
+    if(TCP_FLAG_OK == flag) {               \
+        MAD_LOG("Connected[0x%08X]\n", ep); \
+    }                                       \
+} while(0)
+
 #define CHECK_IF_RESTART() \
-do {                            \
-    if(TCP_FLAG_ERR == flag) {  \
-        if(uip_closed())        \
-            PT_YIELD(&pt_tcp);  \
-        tcp_start_up();         \
-        return 0;               \
-    }                           \
+do {                                        \
+    if(TCP_FLAG_ERR == flag) {              \
+        uIP_SetTcpConn(conn_tcp, MNULL);    \
+        tcp_start_up();                     \
+        return PT_EXITED;                   \
+    }                                       \
 } while(0)
 
 PT_THREAD(tcp_pt(MadVptr ep))
 {
-    static MadUint cnt_acked  = 0;
-    static MadUint cnt_rexmit = 0;
+    static MadUint    cnt_acked  = 0;
+    static MadUint    cnt_rexmit = 0;
+    static struct pt  *pt        = &pt_tcp;
     
-    PT_BEGIN(&pt_tcp);
+    PT_BEGIN(pt);
 
-    MAD_LOG("Connecting[0x%08X]...\n", ep);
     uip_ipaddr_t ipaddr;
     uip_ipaddr(&ipaddr, 192,168,1,108);
     uip_connect(&ipaddr, HTONS(5685));
-    PT_WAIT_UNTIL(&pt_tcp, check_if_connected());
+    MAD_LOG("Connecting[0x%08X]...\n", ep);
+    PT_WAIT_UNTIL(pt, check_if_connected());
     CHECK_IF_RESTART();
-    MAD_LOG("Connected[0x%08X]\n", ep);
+    CHECK_IF_CONNECTED();
 
     do {
-        PT_YIELD(&pt_tcp);
+        PT_YIELD(pt);
         MadU8 wait_send;
         flag = check_if_err();
         CHECK_IF_RESTART();
@@ -138,7 +146,7 @@ PT_THREAD(tcp_pt(MadVptr ep))
         }
     } while(1);
     
-    PT_END(&pt_tcp);
+    PT_END(pt);
 }
 
 void tcp_appcall(MadVptr ep) { tcp_pt(ep); }
