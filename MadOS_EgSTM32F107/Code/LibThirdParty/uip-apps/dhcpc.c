@@ -349,6 +349,7 @@ static void dhcpc_appcall(MadVptr ep);
 void
 dhcpc_init()
 {
+    timer_init(&s.timer);
     s.app.link_changed = dhcpc_link_changed;
     uIP_AppRegister(&s.app);
 }
@@ -381,7 +382,6 @@ void dhcpc_linked_on(const void *mac_addr, int mac_len)
     if(s.conn != NULL) {
         uip_udp_bind(s.conn, HTONS(DHCPC_CLIENT_PORT));
         uIP_SetUdpConn(s.conn, dhcpc_appcall);
-        timer_init(&s.timer);
         timer_add(&s.timer, &uIP_Clocker);
         dhcpc_request();
         PT_INIT(&s.pt);
@@ -409,4 +409,11 @@ void dhcpc_link_changed(MadVptr ep)
     } else {
         dhcpc_linked_on(uip_ethaddr.addr, 6);
     }
+}
+
+void dhcpc_configured(const struct dhcpc_state *s)
+{
+    uip_sethostaddr(s->ipaddr);
+    uip_setdraddr(s->default_router);
+    uip_setnetmask(s->netmask);
 }

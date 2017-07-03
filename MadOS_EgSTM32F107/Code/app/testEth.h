@@ -3,6 +3,6 @@
 
 #include "MadOS.h"
 
-extern void initEth(void);
+extern void Init_TestUIP(void);
 
 #endif

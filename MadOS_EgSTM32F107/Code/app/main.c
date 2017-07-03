@@ -1,6 +1,6 @@
 #include "MadOS.h"
+#include "mod_uIP.h"
 
-#include "testPT.h"
 #include "testSpiFlash.h"
 #include "testEth.h"
 
@@ -53,6 +53,9 @@ static void madStartup(MadVptr exData)
     madInitStatist();
 #endif
     
+/********************************************
+ * Core-Modules
+ ********************************************/
     MAD_LOG_INIT();
     MAD_LOG("    \n"
             "========  MadOS v%d.%d  ========\n"
@@ -72,9 +75,14 @@ static void madStartup(MadVptr exData)
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
             sizeof(float), sizeof(double));
-
+            
+    uIP_Init();
+            
+/********************************************
+ * User-Apps
+ ********************************************/
     //initSpiFlash();
-    initEth();
+    Init_TestUIP();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

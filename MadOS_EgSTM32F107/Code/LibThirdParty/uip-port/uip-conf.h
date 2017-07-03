@@ -13,16 +13,18 @@ typedef MadU16 uip_stats_t;
 
 typedef void (*uIP_Callback)(MadVptr dp);
 
-typedef struct _uIP_App     uIP_App;
-typedef struct _uIP_AppConn uIP_TcpConn;
-typedef struct _uIP_AppConn uIP_UdpConn;
+typedef struct _uIP_App       uIP_App;
+typedef struct _uIP_ConnState uIP_TcpState;
+typedef struct _uIP_ConnState uIP_UdpState;
+typedef struct uip_conn       uIP_TcpConn;
+typedef struct uip_udp_conn   uIP_UdpConn;
 
 struct _uIP_App {
     uIP_Callback link_changed;  // NULL means ignored
     uIP_App      *next;         // Used by uIP-Core
 };
 
-struct _uIP_AppConn {
+struct _uIP_ConnState {
     uIP_Callback app_call; // NULL means ignored
 };
 
@@ -38,10 +40,10 @@ extern u8_t *uip_buf;
 /*
  * Configure uIP-TCP
  */
-#define UIP_CONF_MAX_CONNECTIONS  5
-#define UIP_CONF_MAX_LISTENPORTS  2
+#define UIP_CONF_MAX_CONNECTIONS  3
+#define UIP_CONF_MAX_LISTENPORTS  1
 
-typedef uIP_TcpConn uip_tcp_appstate_t;
+typedef uIP_TcpState uip_tcp_appstate_t;
 void uIP_tcp_appcall(void);
 #define UIP_APPCALL  uIP_tcp_appcall
 
@@ -49,11 +51,11 @@ void uIP_tcp_appcall(void);
  * Configure uIP-UDP
  */
 #define UIP_CONF_UDP        1
-#define UIP_CONF_UDP_CONNS  5
+#define UIP_CONF_UDP_CONNS  3
 #define UIP_CONF_BROADCAST  1
 #define UIP_CONF_UDP_CHECKSUMS  (!UIP_CHECKSUM_BY_HARDWARE)
 
-typedef uIP_UdpConn uip_udp_appstate_t;
+typedef uIP_UdpState uip_udp_appstate_t;
 void uIP_udp_appcall(void);
 #define UIP_UDP_APPCALL uIP_udp_appcall
 

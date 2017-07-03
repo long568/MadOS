@@ -337,6 +337,9 @@ void uip_setipid(u16_t id);
 #define uip_poll_conn(conn) do { uip_conn = conn; \
                                  uip_process(UIP_POLL_REQUEST); } while (0)
 
+#define uip_poll_index(conn) do { uip_conn = &uip_conns[conn]; \
+                                  uip_process(UIP_POLL_REQUEST); } while (0)
+
 
 #if UIP_UDP
 /**
@@ -497,8 +500,10 @@ void uip_unlisten(u16_t port);
  * or NULL if no connection could be allocated.
  *
  */
-struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
-
+//struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
+struct uip_conn *uip_new(void);
+void uip_remove(struct uip_conn * conn);
+void uip_connect(uip_ipaddr_t *ripaddr, u16_t rport);
 
 
 /**
@@ -1381,8 +1386,8 @@ void uip_process(u8_t flag);
 #define UIP_TIME_WAIT   7
 #define UIP_LAST_ACK    8
 #define UIP_TS_MASK     15
-  
-#define UIP_STOPPED      16
+#define UIP_STOPPED     16
+#define UIP_START_UP    100  // Added by long
 
 /* The TCP and IP headers. */
 struct uip_tcpip_hdr {

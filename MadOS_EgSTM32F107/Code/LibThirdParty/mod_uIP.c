@@ -68,12 +68,12 @@ void uIP_AppUnregister(uIP_App *app)
     madExitCritical(cpsr);
 }
 
-void uIP_SetTcpConn(struct uip_conn *conn, uIP_Callback app_call)
+void uIP_SetTcpConn(uIP_TcpConn *conn, uIP_Callback app_call)
 {
     conn->appstate.app_call = app_call;
 }
 
-void uIP_SetUdpConn(struct uip_udp_conn *conn, uIP_Callback app_call)
+void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_Callback app_call)
 {
     conn->appstate.app_call = app_call;
 }
@@ -83,14 +83,6 @@ void uIP_SetUdpConn(struct uip_udp_conn *conn, uIP_Callback app_call)
  *  uIP Core Apps Callback
  *
  *****************************************************/
-#if UIP_CORE_APP_DHCP
-void dhcpc_configured(const struct dhcpc_state *s)
-{
-    uip_sethostaddr(s->ipaddr);
-    uip_setdraddr(s->default_router);
-    uip_setnetmask(s->netmask);
-}
-#endif
 
 /*****************************************************
  *

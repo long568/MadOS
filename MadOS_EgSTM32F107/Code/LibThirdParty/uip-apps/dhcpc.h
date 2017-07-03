@@ -38,14 +38,14 @@
 #include "pt.h"
 #include "mod_uIP.h"
 
-#define DHCP_SHOW_RESULT     1
+#define DHCP_SHOW_RESULT     0
 #define DHCP_RESTART_DIV     (6 * CLOCK_SECOND / 10)
 #define DHCP_HOST_NAMES(buf) sprintf(buf, "MadOS v%d.%d", MAD_VER_MAJOR, MAD_VER_SUB)
 
 struct dhcpc_state {
   struct pt pt;
   char state;
-  struct uip_udp_conn *conn;
+  uIP_UdpConn *conn;
   timer timer;
   u16_t ticks;
   const void *mac_addr;
