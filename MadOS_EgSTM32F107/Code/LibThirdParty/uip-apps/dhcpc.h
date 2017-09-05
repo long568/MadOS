@@ -39,7 +39,7 @@
 #include "mod_uIP.h"
 
 #define DHCP_SHOW_RESULT     0
-#define DHCP_RESTART_DIV     (6 * CLOCK_SECOND / 10)
+#define DHCP_RESTART_DIV     (5 * CLOCK_SECOND / 10)
 #define DHCP_HOST_NAMES(buf) sprintf(buf, "MadOS v%d.%d", MAD_VER_MAJOR, MAD_VER_SUB)
 
 struct dhcpc_state {

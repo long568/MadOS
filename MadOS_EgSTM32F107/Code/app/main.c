@@ -102,9 +102,11 @@ static void madSysRunning(MadVptr exData)
     (void)exData;
     
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
-	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
+    pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
 	GPIO_Init(GPIOE, &pin);
+    pin.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;
+    GPIO_Init(GPIOB, &pin);
 
 #if MAD_STATIST_STK_SIZE    
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
@@ -117,10 +119,13 @@ static void madSysRunning(MadVptr exData)
         if(tmrSysRunning >= 500 / SYS_RUNNING_INTERVAL_MSECS) {
             tmrSysRunning = 0;
             flag = !flag;
-            if(flag)
-                GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-            else
-                GPIO_SetBits(GPIOE, GPIO_Pin_1);
+            if(flag) {
+                GPIO_ResetBits(GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
+                GPIO_SetBits  (GPIOB, GPIO_Pin_8 | GPIO_Pin_9);
+            } else {
+                GPIO_SetBits  (GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
+                GPIO_ResetBits(GPIOB, GPIO_Pin_8 | GPIO_Pin_9);
+            }
         }
         
 #ifdef MAD_SHOW_IDLERATE
