@@ -5,7 +5,13 @@
 #include "uip_arp.h"
 #include "timer.h"
 
-#define UIP_CORE_APP_DHCP 1
+#if UIP_CORE_APP_DHCP
+#include "dhcpc.h"
+#endif
+
+#if UIP_CORE_APP_DNS
+#include "resolv.h"
+#endif
 
 typedef enum {
     uIP_LINKED_OFF = 0,

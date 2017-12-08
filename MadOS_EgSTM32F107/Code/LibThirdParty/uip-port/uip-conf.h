@@ -6,12 +6,18 @@
 /*
  * Configure uIP
  */
+#define UIP_CORE_APP_DHCP 1
+#define UIP_CORE_APP_DNS  1
+
 typedef MadU32 u32_t;
 typedef MadU16 u16_t; 
 typedef MadU8  u8_t;
 typedef MadU16 uip_stats_t;
 
 typedef void (*uIP_Callback)(MadVptr dp);
+#if UIP_CORE_APP_DNS
+typedef void (*Dns_Callback)(char *name, u16_t *ipaddr);
+#endif
 
 typedef struct _uIP_App       uIP_App;
 typedef struct _uIP_ConnState uIP_TcpState;
@@ -20,8 +26,11 @@ typedef struct uip_conn       uIP_TcpConn;
 typedef struct uip_udp_conn   uIP_UdpConn;
 
 struct _uIP_App {
-    uIP_Callback link_changed;  // NULL means ignored
     uIP_App      *next;         // Used by uIP-Core
+    uIP_Callback link_changed;  // NULL means ignored
+#if UIP_CORE_APP_DNS
+    Dns_Callback resolv_found;  // NULL means ignored
+#endif
 };
 
 struct _uIP_ConnState {

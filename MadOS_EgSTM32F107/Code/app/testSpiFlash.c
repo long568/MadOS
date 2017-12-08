@@ -25,7 +25,7 @@ TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength
 
 void threadTestSpiFlash(MadVptr exData);
 
-void initSpiFlash(void)
+void Init_SpiFlash(void)
 {
     sFLASH_Init();
     madThreadCreate(threadTestSpiFlash, 0, 2048, THREAD_PRIO_TEST_SPI_FLASH);

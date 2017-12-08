@@ -5,12 +5,14 @@
 
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
+    THREAD_PRIO_MAD_ARM         = 12,
     THREAD_PRIO_DRIVER_ETH      = 20,
     THREAD_PRIO_TEST_SPI_FLASH  = 50,
 };
 
 enum {
     ISR_PRIO_SYSTICK    = 1,
+    ISR_PRIO_TIM6,
     ISR_PRIO_ARCH_MEM,
 	ISR_PRIO_IP101A,
     ISR_PRIO_W25Q32,

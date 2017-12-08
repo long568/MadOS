@@ -1,7 +1,4 @@
 #include "mod_uIP.h"
-#if UIP_CORE_APP_DHCP
-#include "dhcpc.h"
-#endif
 
 clocker  uIP_Clocker;
 
@@ -14,6 +11,22 @@ static void uIP_dev_send(mETH_t *eth);
 static void uIP_dev_read(mETH_t *eth);
 static MadBool uIP_preinit(mETH_t *eth);
 static MadBool uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt);
+
+#define APPLIST_LOOP(fun, ...) \
+do {                                    \
+    uIP_App *app_list = uIP_app_list;   \
+    while(app_list) {                   \
+        if(app_list->fun)               \
+            app_list->fun(__VA_ARGS__); \
+        app_list = app_list->next;      \
+    }                                   \
+} while(0)
+
+#define APPCONN_CALL(x) \
+do {                                        \
+    if(x && x->appstate.app_call)           \
+        x->appstate.app_call((MadVptr)x);   \
+} while(0)
 
 /*****************************************************
  *
@@ -83,30 +96,18 @@ void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_Callback app_call)
  *  uIP Core Apps Callback
  *
  *****************************************************/
+#if UIP_CORE_APP_DNS
+void resolv_found(char *name, u16_t *ipaddr) { APPLIST_LOOP(resolv_found, name, ipaddr); }
+#endif /* UIP_CORE_APP_DNS */
 
 /*****************************************************
  *
  *  uIP Core Callback
  *
  *****************************************************/
-#define APPLIST_LOOP(x) \
-do {                                            \
-    uIP_App *app_list = uIP_app_list;           \
-    while(app_list) {                           \
-        if(app_list->link_changed)              \
-            app_list->link_changed((MadVptr)x); \
-        app_list = app_list->next;              \
-    }                                           \
-} while(0)
-
-#define APPCONN_CALL(x) \
-do {                                        \
-    if(x && x->appstate.app_call)           \
-        x->appstate.app_call((MadVptr)x);   \
-} while(0)
-
-void uIP_linked_on(void)   { APPLIST_LOOP(uIP_LINKED_ON); }
-void uIP_linked_off(void)  { APPLIST_LOOP(uIP_LINKED_OFF); }
+#define APPLIST_LOOP_LINKCHANGED(x) APPLIST_LOOP(link_changed, (MadVptr)x)
+void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
+void uIP_linked_off(void)  { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_OFF); }
 void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
 void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
 
@@ -156,19 +157,22 @@ MadBool uIP_preinit(mETH_t *eth)
     uip_init();
     do {
         uip_ipaddr_t ipaddr;
-#if !UIP_CORE_APP_DHCP
+#if UIP_CORE_APP_DHCP
+        uip_ipaddr(ipaddr, 0,0,0,0);
+        uip_sethostaddr(ipaddr);
+        uip_setdraddr(ipaddr);
+        uip_setnetmask(ipaddr);
+        dhcpc_init();
+#else
         uip_ipaddr(ipaddr, 192,168,1,156);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 192,168,1,1);
         uip_setdraddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
-#else
-        uip_ipaddr(ipaddr, 0,0,0,0);
-        uip_sethostaddr(ipaddr);
-        uip_setdraddr(ipaddr);
-        uip_setnetmask(ipaddr);
-        dhcpc_init();
+#endif
+#if UIP_CORE_APP_DNS
+        resolv_init();
 #endif
     } while(0);
     for(i=0; i<6; i++) {

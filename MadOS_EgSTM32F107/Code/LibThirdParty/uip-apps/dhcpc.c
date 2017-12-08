@@ -351,6 +351,9 @@ dhcpc_init()
 {
     timer_init(&s.timer);
     s.app.link_changed = dhcpc_link_changed;
+#if UIP_CORE_APP_DNS
+    s.app.resolv_found = NULL;
+#endif
     uIP_AppRegister(&s.app);
 }
 /*---------------------------------------------------------------------------*/

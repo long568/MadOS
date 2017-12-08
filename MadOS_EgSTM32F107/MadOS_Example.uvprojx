@@ -534,6 +534,21 @@
               <FileType>1</FileType>
               <FilePath>.\Code\app\testEth.c</FilePath>
             </File>
+            <File>
+              <FileName>MadArm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\app\MadArm.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv8825.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\app\drv8825.c</FilePath>
+            </File>
+            <File>
+              <FileName>uln2803a.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\app\uln2803a.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -733,6 +748,26 @@
               <FileName>dhcpc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Code\LibThirdParty\uip-apps\dhcpc.c</FilePath>
+            </File>
+            <File>
+              <FileName>resolv.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Code\LibThirdParty\uip-apps\resolv.h</FilePath>
+            </File>
+            <File>
+              <FileName>resolv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\LibThirdParty\uip-apps\resolv.c</FilePath>
+            </File>
+            <File>
+              <FileName>uTcp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Code\LibThirdParty\uip-apps\uTcp.h</FilePath>
+            </File>
+            <File>
+              <FileName>uTcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Code\LibThirdParty\uip-apps\uTcp.c</FilePath>
             </File>
           </Files>
         </Group>

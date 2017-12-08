@@ -1,25 +1,32 @@
-#include "testEth.h"
-#include "mod_uIP.h"
-#include "pt.h"
 #include <stdio.h>
 #include <string.h>
+#include "testEth.h"
+#include "uTcp.h"
 
-#define TCP_TIME_OUT (10000)
+#define RESOLV_NUM   (11)
 
-typedef enum {
-    TCP_FLAG_UND = 0,
-    TCP_FLAG_OK,
-    TCP_FLAG_ERR
-} TCP_FLAG_TYPE;
+const char * const resolv_names[] = {
+    "------",
+    "www.baidu.com",
+    "www.taobao.com",
+    "www.jd.com",
+    "www.youku.com",
+    "www.firefoxchina.cn",
+    "msdn.itellyou.cn",
+    "www.pudn.com",
+    "github.com",
+    "www.lua.org",
+    "www.ti.com.cn"
+};
 
 static uIP_App     TestUIP;
 static timer       timer_tcp;
 static struct pt   pt_tcp;
 static uIP_TcpConn *conn_tcp;
 static MadU8       linked;
-static MadU8       flag;
 
-static void link_changed(MadVptr ep);
+static void tcp_link_changed(MadVptr ep);
+static void tcp_resolv_found(char *name, u16_t *ipaddr);
 static void tcp_start_up(void);
 static void tcp_shut_down(void);
 static void tcp_appcall(MadVptr ep);
@@ -27,11 +34,12 @@ static void tcp_appcall(MadVptr ep);
 void Init_TestUIP(void)
 {
     timer_init(&timer_tcp);
-    TestUIP.link_changed = link_changed;
+    TestUIP.link_changed = tcp_link_changed;
+    TestUIP.resolv_found = tcp_resolv_found;
     uIP_AppRegister(&TestUIP);
 }
 
-void link_changed(MadVptr ep)
+void tcp_link_changed(MadVptr ep)
 {
     linked = (MadU32)ep;
     if(uIP_LINKED_OFF == linked) {
@@ -39,6 +47,15 @@ void link_changed(MadVptr ep)
     } else {
         tcp_start_up();
     }
+}
+
+void tcp_resolv_found(char *name, u16_t *ipaddr)
+{
+    MAD_LOG("%s -> %d.%d.%d.%d\n", name,
+            uip_ipaddr1(ipaddr),
+            uip_ipaddr2(ipaddr),
+            uip_ipaddr3(ipaddr),
+            uip_ipaddr4(ipaddr));
 }
 
 void tcp_start_up(void)
@@ -61,46 +78,16 @@ void tcp_shut_down(void)
 /*********************************************
  * tcp_appcall
  *********************************************/
-static MadU8 check_if_err(void) {
-    if(uip_closed()   || 
-       uip_aborted()  || 
-       uip_timedout()
-    ) {
-        MAD_LOG("Connection -> ERROR[0x%02X]\n", uip_flags);
-        return TCP_FLAG_ERR;
-    } else {
-        return TCP_FLAG_UND;
-    }
-}
-
-static MadU8 check_if_connected(void) {
-    if(uip_connected()) {
-        flag = TCP_FLAG_OK;
-    } else if(check_if_err()) {
-        flag = TCP_FLAG_ERR;
-    } else {
-        flag = TCP_FLAG_UND;
-    }
-    return flag;
-}
-
-#define CHECK_IF_CONNECTED() \
-do {                                        \
-    if(TCP_FLAG_OK == flag) {               \
-        MAD_LOG("Connected[0x%08X]\n", ep); \
-    }                                       \
-} while(0)
-
 #define CHECK_IF_RESTART() \
 do {                                        \
-    if(TCP_FLAG_ERR == flag) {              \
+    if(TCP_FLAG_ERR == tcp_is_err()) {      \
         uIP_SetTcpConn(conn_tcp, MNULL);    \
         tcp_start_up();                     \
         return PT_EXITED;                   \
     }                                       \
 } while(0)
 
-PT_THREAD(tcp_pt(MadVptr ep))
+static PT_THREAD(tcp_pt(MadVptr ep))
 {
     static MadUint    cnt_acked  = 0;
     static MadUint    cnt_rexmit = 0;
@@ -109,17 +96,14 @@ PT_THREAD(tcp_pt(MadVptr ep))
     PT_BEGIN(pt);
 
     uip_ipaddr_t ipaddr;
-    uip_ipaddr(&ipaddr, 192,168,1,108);
+    SET_TARGET_IP(ipaddr);
     uip_connect(&ipaddr, HTONS(5685));
-    MAD_LOG("Connecting[0x%08X]...\n", ep);
-    PT_WAIT_UNTIL(pt, check_if_connected());
+    PT_WAIT_UNTIL(pt, tcp_is_connected());
     CHECK_IF_RESTART();
-    CHECK_IF_CONNECTED();
 
     do {
         PT_YIELD(pt);
         MadU8 wait_send;
-        flag = check_if_err();
         CHECK_IF_RESTART();
         
         wait_send = 0;
@@ -143,6 +127,13 @@ PT_THREAD(tcp_pt(MadVptr ep))
             MadU8  *ack_str = (MadU8*)uip_appdata;
             MadU32 len = sprintf((char*)ack_str, "uIP -> Acked[%d], Rexmit[%d]", cnt_acked, cnt_rexmit);
             uip_send(uip_appdata, len);
+            do {
+                static MadInt resolv_i = 0;
+                if(resolv_i < RESOLV_NUM) {
+                    resolv_query((char*)resolv_names[resolv_i]);
+                    resolv_i++;
+                }
+            } while(0);
         }
     } while(1);
     

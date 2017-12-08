@@ -3,6 +3,7 @@
 
 #include "testSpiFlash.h"
 #include "testEth.h"
+#include "MadARM.h"
 
 #if MAD_STATIST_STK_SIZE
 //#define MAD_SHOW_IDLERATE
@@ -48,6 +49,15 @@ static void madStartup(MadVptr exData)
         RCC_MCOConfig(RCC_MCO_HSE);
     } while(0);
     
+//    do { // For test FPGA
+//        GPIO_InitTypeDef gpio;
+//        gpio.GPIO_Mode = GPIO_Mode_Out_PP;
+//        gpio.GPIO_Speed = GPIO_Speed_50MHz;
+//        gpio.GPIO_Pin = GPIO_Pin_3;
+//        GPIO_Init(GPIOD, &gpio);
+//        GPIO_SetBits(GPIOD, GPIO_Pin_3);
+//    } while(0);
+    
     madInitSysTick(SYSTICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
@@ -75,14 +85,14 @@ static void madStartup(MadVptr exData)
             sizeof(char), sizeof(short), sizeof(int),
             sizeof(long), sizeof(long long),
             sizeof(float), sizeof(double));
-            
     uIP_Init();
-            
+
 /********************************************
  * User-Apps
  ********************************************/
-    //initSpiFlash();
+    //Init_SpiFlash();
     Init_TestUIP();
+    Init_MadArm();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -103,10 +113,8 @@ static void madSysRunning(MadVptr exData)
     
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
-    pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
+    pin.GPIO_Pin   = GPIO_Pin_1;
 	GPIO_Init(GPIOE, &pin);
-    pin.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;
-    GPIO_Init(GPIOB, &pin);
 
 #if MAD_STATIST_STK_SIZE    
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
@@ -120,11 +128,9 @@ static void madSysRunning(MadVptr exData)
             tmrSysRunning = 0;
             flag = !flag;
             if(flag) {
-                GPIO_ResetBits(GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
-                GPIO_SetBits  (GPIOB, GPIO_Pin_8 | GPIO_Pin_9);
+                GPIO_ResetBits(GPIOE, GPIO_Pin_1);
             } else {
-                GPIO_SetBits  (GPIOE, GPIO_Pin_1 | GPIO_Pin_0);
-                GPIO_ResetBits(GPIOB, GPIO_Pin_8 | GPIO_Pin_9);
+                GPIO_SetBits  (GPIOE, GPIO_Pin_1);
             }
         }
         

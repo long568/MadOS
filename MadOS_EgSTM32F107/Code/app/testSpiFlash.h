@@ -3,6 +3,6 @@
 
 #include "stm32_spiFlash.h"
 
-extern void initSpiFlash(void);
+extern void Init_SpiFlash(void);
 
 #endif
