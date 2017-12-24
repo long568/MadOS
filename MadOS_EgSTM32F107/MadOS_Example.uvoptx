@@ -101,7 +101,7 @@
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
         <bEvRecOn>1</bEvRecOn>
-        <nTsel>11</nTsel>
+        <nTsel>5</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -240,6 +240,10 @@
       <pszMrule></pszMrule>
       <pSingCmds></pSingCmds>
       <pMultCmds></pMultCmds>
+      <pMisraNamep></pMisraNamep>
+      <pszMrulep></pszMrulep>
+      <pSingCmdsp></pSingCmdsp>
+      <pMultCmdsp></pMultCmdsp>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -559,7 +563,7 @@
 
   <Group>
     <GroupName>App</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -594,8 +598,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Code\app\testSpiFlash.c</PathWithFileName>
-      <FilenameWithoutPath>testSpiFlash.c</FilenameWithoutPath>
+      <PathWithFileName>.\Code\app\testEth.c</PathWithFileName>
+      <FilenameWithoutPath>testEth.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -606,8 +610,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Code\app\testEth.c</PathWithFileName>
-      <FilenameWithoutPath>testEth.c</FilenameWithoutPath>
+      <PathWithFileName>.\Code\app\testSpiFlash.c</PathWithFileName>
+      <FilenameWithoutPath>testSpiFlash.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -618,7 +622,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Code\app\MadArm.c</PathWithFileName>
+      <PathWithFileName>.\Code\app\MadArm\MadArm.c</PathWithFileName>
       <FilenameWithoutPath>MadArm.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -630,7 +634,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Code\app\drv8825.c</PathWithFileName>
+      <PathWithFileName>.\Code\app\MadArm\drv8825.c</PathWithFileName>
       <FilenameWithoutPath>drv8825.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -642,7 +646,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Code\app\uln2803a.c</PathWithFileName>
+      <PathWithFileName>.\Code\app\MadArm\uln2803a.c</PathWithFileName>
       <FilenameWithoutPath>uln2803a.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

@@ -65,12 +65,12 @@ MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn)
     
     initData.Enable         = ENABLE;
     initData.PHY_ADDRESS    = 0x00;
-    initData.MAC_ADDRESS[0] = 0x4C;
-    initData.MAC_ADDRESS[1] = 0x6F;
-    initData.MAC_ADDRESS[2] = 0x6E;
-    initData.MAC_ADDRESS[3] = 0x67;
-    initData.MAC_ADDRESS[4] = 0x56;
-    initData.MAC_ADDRESS[5] = 0x91;
+    initData.MAC_ADDRESS[0] = 0x4D;
+    initData.MAC_ADDRESS[1] = 0x61;
+    initData.MAC_ADDRESS[2] = 0x64;
+    initData.MAC_ADDRESS[3] = 0x43;
+    initData.MAC_ADDRESS[4] = 0x13;
+    initData.MAC_ADDRESS[5] = 0x00;
     initData.Priority       = ISR_PRIO_IP101A;
     initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
     initData.ThreadStkSize  = ETH_THREAD_STKSIZE;

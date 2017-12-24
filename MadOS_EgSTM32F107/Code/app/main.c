@@ -90,9 +90,9 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    //Init_SpiFlash();
     Init_TestUIP();
-    Init_MadArm();
+    //Init_SpiFlash();
+    //Init_MadArm();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
