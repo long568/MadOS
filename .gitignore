@@ -82,13 +82,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# MDK
-# =====================
-
-Output/
-List/
-*.uvguix.*
-MadOS_Prjs.uvmpw.uvgui.*
-unused.txt
-*.code-workspace
 build/

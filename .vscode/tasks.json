@@ -8,18 +8,27 @@
             "type": "shell",
             "command": "make all",
             "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "clean",
             "type": "shell",
             "command": "make clean",
             "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "rebuild",
             "type": "shell",
             "command": "make clean && make all",
             "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

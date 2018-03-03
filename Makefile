@@ -7,7 +7,6 @@ export TOOLCHAIN = arm-none-eabi
 export BUILD_VER = debug
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
-export PREBUILD  = $(BUILD_DIR)/$(APP)_PREBUILD
 
 export DEFS = -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
