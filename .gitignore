@@ -91,3 +91,4 @@ List/
 MadOS_Prjs.uvmpw.uvgui.*
 unused.txt
 *.code-workspace
+build/

@@ -1,0 +1,12 @@
+# $(ROOT)/app/$(APP)
+export TEMP = $(BUILD_DIR)/app
+
+ASMS =
+SRCS = $(wildcard *.c)
+
+include $(ROOT)/rules.mk
+
+after_all:
+	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) -luip $(LDFLAGS) -o $(TARGET)
+	$(OCPY) -O ihex $(TARGET) $(TARGET).hex
+	$(ECHO) 'Building ... Done.'
