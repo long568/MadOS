@@ -10,21 +10,27 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/uip-test",
             "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
             "environment": [],
+            "stopAtEntry": true,
             "externalConsole": false,
+            "cwd": "${workspaceFolder}",
             "MIMode": "gdb",
-            "targetArchitecture": "arm",
-            "launchCompleteCommand": "None",
-            "miDebuggerPath": "arm-none-eabi-gdb.exe",
             "preLaunchTask": "build",
-            "sourceFileMap": {
-                "/cygdrive/d": "D:\\"
+            "targetArchitecture": "arm",
+            "miDebuggerServerAddress": "localhost:3333",
+            
+            "osx": {
+                "miDebuggerPath": "arm-none-eabi-gdb"
             },
+            "windows": {
+                "sourceFileMap": {
+                    "/cygdrive/d": "D:\\"
+                },
+                "miDebuggerPath": "arm-none-eabi-gdb.exe"
+            },
+
             "setupCommands": [
-                { "text": "file /cygdrive/d/Projects/prjMadOS/MadOS/build/uip-test" },
-                { "text": "target extended-remote localhost:3333"},
+                { "text": "file build/uip-test" },
                 { "text": "monitor reset init" },
                 { "text": "load" },
                 { "text": "monitor reset halt" }
@@ -33,5 +39,9 @@
     ]
 }
 
-// "debugServerPath": ""
+// { "text": "target extended-remote localhost:3333"},
+// "launchCompleteCommand": "None",
+// "debugServerPath": "openocd.exe",
+// "debugServerArgs": "-f scripts/STM32F107VCTx_OpenOCD.cfg"
+// "miDebuggerServerAddress": "localhost:3333"
 // openocd -f scripts/STM32F107VCTx_OpenOCD.cfg
