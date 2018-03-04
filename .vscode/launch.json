@@ -17,7 +17,6 @@
             "MIMode": "gdb",
             "preLaunchTask": "build",
             "targetArchitecture": "arm",
-            "miDebuggerServerAddress": "localhost:3333",
             
             "osx": {
                 "miDebuggerPath": "arm-none-eabi-gdb"
@@ -30,7 +29,8 @@
             },
 
             "setupCommands": [
-                { "text": "file build/uip-test" },
+                { "text": "file ${workspaceFolder}/build/uip-test" },
+                { "text": "target extended-remote localhost:3333"},
                 { "text": "monitor reset init" },
                 { "text": "load" },
                 { "text": "monitor reset halt" }
@@ -39,7 +39,6 @@
     ]
 }
 
-// { "text": "target extended-remote localhost:3333"},
 // "launchCompleteCommand": "None",
 // "debugServerPath": "openocd.exe",
 // "debugServerArgs": "-f scripts/STM32F107VCTx_OpenOCD.cfg"
