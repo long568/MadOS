@@ -2,7 +2,7 @@
 #define __MAD_ARCH_H__
 
 #include "UserConfig.h"
-#include "../StdPeriph/stm32f10x.h"
+#include "stm32f10x.h"
 
 #define MAD_KEIL_MDK
 #define MAD_OS_DEBUG

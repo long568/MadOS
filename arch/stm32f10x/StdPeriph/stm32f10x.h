@@ -475,7 +475,7 @@ typedef enum IRQn
   * @}
   */
 
-#include "../StdPeriph/core_cm3.h"
+#include "core_cm3.h"
 #include "system_stm32f10x.h"
 #include <stdint.h>
 
@@ -8294,7 +8294,7 @@ typedef struct
   */ 
 
 #ifdef USE_STDPERIPH_DRIVER
-  #include "../StdPeriph/stm32f10x_conf.h"
+  #include "stm32f10x_conf.h"
 #endif
 
 /** @addtogroup Exported_macro

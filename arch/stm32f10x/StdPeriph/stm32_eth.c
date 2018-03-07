@@ -19,9 +19,9 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "../StdPeriph/stm32_eth.h"
+#include "stm32_eth.h"
 
-#include "../StdPeriph/inc/stm32f10x_rcc.h"
+#include "inc/stm32f10x_rcc.h"
 
 /** @addtogroup STM32_ETH_Driver
   * @brief ETH driver modules

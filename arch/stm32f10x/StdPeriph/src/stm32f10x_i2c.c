@@ -20,9 +20,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "../../StdPeriph/inc/stm32f10x_i2c.h"
+#include "../inc/stm32f10x_i2c.h"
 
-#include "../../StdPeriph/inc/stm32f10x_rcc.h"
+#include "../inc/stm32f10x_rcc.h"
 
 
 /** @addtogroup STM32F10x_StdPeriph_Driver

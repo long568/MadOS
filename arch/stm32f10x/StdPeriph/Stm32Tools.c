@@ -1,4 +1,4 @@
-#include "../StdPeriph/Stm32Tools.h"
+#include "Stm32Tools.h"
 
 void StmPIN_Init(StmPIN *p, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {

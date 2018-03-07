@@ -58,7 +58,7 @@
 
 /*------------------ GNU Compiler ----------------------*/
 #elif defined ( __GNUC__ )
-  #include "../StdPeriph/cmsis_gcc.h"
+  #include "cmsis_gcc.h"
 
 /*------------------ ICC Compiler ----------------------*/
 #elif defined ( __ICCARM__ )
