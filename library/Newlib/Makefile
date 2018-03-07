@@ -1,4 +1,4 @@
-# $(ROOT)/kernel/lib/timer
+# $(ROOT)/library/Newlib
 ASMS =
 SRCS = $(wildcard *.c)
 

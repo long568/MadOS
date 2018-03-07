@@ -31,8 +31,8 @@
  * @(#)$Id: dhcpc.c,v 1.2 2006/06/11 21:46:37 adam Exp $
  */
 
-// #include <stdio.h>
-// #include <string.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "dhcpc.h"
 

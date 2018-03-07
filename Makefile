@@ -1,11 +1,15 @@
-export APP  = uip-test
-# export ROOT = $(patsubst %/, %, $(shell pwd))
-export ROOT = D:/Projects/playRTOS/MadOS
+export APP        = uip-test
+export ARCH       = v7-m
 export MCU_PREFIX = stm32f10x
 export MCU_SUFFIX = cl
+export TOOLCHAIN  = arm-none-eabi
+export BUILD_VER  = debug
 
-export TOOLCHAIN = arm-none-eabi
-export BUILD_VER = debug
+# export ROOT      = D:/Projects/playRTOS/MadOS
+# export LIBC_PATH = /Users/long/Desktop/DreamOn/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/lib
+export ROOT      = $(patsubst %/, %, $(shell pwd))
+export LIBC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/$(TOOLCHAIN)/lib
+export LGCC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
 export RULES     = $(ROOT)/rules.mk
@@ -26,7 +30,9 @@ export INCS = -I$(ROOT)/app/$(APP) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
-export LIBS = -L$(BUILD_DIR) -ldrv -lkernel -larch
+export LIBS = -L$(BUILD_DIR) -ldrv -lkernel -larch \
+              -L$(LIBC_PATH) -lg -lm -lc \
+			  -L$(LGCC_PATH) -lgcc
 
 export MAKE  = make
 export AR    = $(TOOLCHAIN)-ar
@@ -47,7 +53,7 @@ DCMFLAGS = -g3
 DLDFLAGS =
 endif
 CMFLAGS  = $(DEFS) $(INCS) $(DCMFLAGS) -std=c99 -Wall \
-	       -march=armv7-m -mtune=cortex-m3 -mthumb-interwork \
+	       -march=arm$(ARCH) -mtune=cortex-m3 -mthumb-interwork \
 	       -nostdlib -O2
 export LDFLAGS  += $(LIBS) $(DLDFLAGS) -nostdlib -Bstatic \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld

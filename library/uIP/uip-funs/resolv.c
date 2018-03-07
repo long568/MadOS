@@ -63,7 +63,7 @@
 #include "resolv.h"
 #include "uip.h"
 
-// #include <string.h>
+#include <string.h>
 
 #ifndef NULL
 #define NULL (void *)0

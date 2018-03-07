@@ -42,7 +42,7 @@
 #include "uip-neighbor.h"
 #include "uipopt.h" // Added by long
 
-// #include <string.h>
+#include <string.h>
 
 #define MAX_TIME 128
 

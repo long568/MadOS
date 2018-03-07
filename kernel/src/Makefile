@@ -1,5 +1,5 @@
 # $(ROOT)/kernel/src
 ASMS =
-SRCS = $(wildcard *.c) $(wildcard *.cpp)
+SRCS = $(wildcard *.c)
 
 include $(RULES)

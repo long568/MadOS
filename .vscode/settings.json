@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "mod_uip.h": "c"
+        "mod_uip.h": "c",
+        "utcp.h": "c",
+        "testeth.h": "c"
     }
 }

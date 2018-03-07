@@ -57,7 +57,7 @@
 #include "uip_arch.h"
 #include "uip-fw.h"
 
-// #include <string.h> /* for memcpy() */
+#include <string.h> /* for memcpy() */
 
 /*
  * The list of registered network interfaces.

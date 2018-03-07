@@ -33,7 +33,7 @@
  * $Id: uip-split.c,v 1.2 2006/06/12 08:00:30 adam Exp $
  */
 
-// #include <string.h>
+#include <string.h>
 
 #include "uip-split.h"
 #include "uip.h"
