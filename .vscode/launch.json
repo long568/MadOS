@@ -5,39 +5,53 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
-            "type": "cppdbg",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/uip-test",
+            "name": "Debug Microcontroller",
             "request": "launch",
-            "program": "${workspaceFolder}/build/uip-test",
-            "args": [],
-            "environment": [],
-            "stopAtEntry": true,
-            "externalConsole": false,
-            "cwd": "${workspaceFolder}",
-            "MIMode": "gdb",
-            "preLaunchTask": "build",
-            "targetArchitecture": "arm",
-            
-            "osx": {
-                "miDebuggerPath": "arm-none-eabi-gdb"
-            },
-            "windows": {
-                "sourceFileMap": {
-                    "/cygdrive/d": "D:\\"
-                },
-                "miDebuggerPath": "arm-none-eabi-gdb.exe"
-            },
-
-            "setupCommands": [
-                { "text": "file ${workspaceFolder}/build/uip-test" },
-                { "text": "target extended-remote localhost:3333"},
-                { "text": "monitor reset init" },
-                { "text": "load" },
-                { "text": "monitor reset halt" }
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "interface": "swd",
+            "configFiles": [
+                "interface/stlink-v2.cfg",
+                "target/stm32f1x.cfg"
             ]
         }
     ]
 }
+
+// {
+//     "name": "(lldb) Launch",
+//     "type": "cppdbg",
+//     "request": "launch",
+//     "program": "${workspaceFolder}/build/uip-test",
+//     "args": [],
+//     "environment": [],
+//     "stopAtEntry": true,
+//     "externalConsole": false,
+//     "cwd": "${workspaceFolder}",
+//     "MIMode": "gdb",
+//     "preLaunchTask": "build",
+//     "targetArchitecture": "arm",
+    
+//     "osx": {
+//         "miDebuggerPath": "arm-none-eabi-gdb"
+//     },
+//     "windows": {
+//         "sourceFileMap": {
+//             "/cygdrive/d": "D:\\"
+//         },
+//         "miDebuggerPath": "arm-none-eabi-gdb.exe"
+//     },
+
+//     "setupCommands": [
+//         { "text": "file ${workspaceFolder}/build/uip-test" },
+//         { "text": "target extended-remote localhost:3333"},
+//         { "text": "monitor reset init" },
+//         { "text": "load" },
+//         { "text": "monitor reset halt" }
+//     ]
+// }
 
 // "launchCompleteCommand": "None",
 // "debugServerPath": "openocd.exe",

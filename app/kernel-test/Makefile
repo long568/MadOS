@@ -4,7 +4,7 @@ export TEMP = $(BUILD_DIR)/app
 ASMS =
 SRCS = $(wildcard *.c)
 
-include $(ROOT)/rules.mk
+include $(RULES)
 
 after_all:
 	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) $(LDFLAGS) -o $(TARGET)

@@ -1,5 +1,6 @@
 export APP  = uip-test
-export ROOT = $(patsubst %/, %, $(shell pwd))
+# export ROOT = $(patsubst %/, %, $(shell pwd))
+export ROOT = D:/Projects/playRTOS/MadOS
 export MCU_PREFIX = stm32f10x
 export MCU_SUFFIX = cl
 
@@ -7,6 +8,7 @@ export TOOLCHAIN = arm-none-eabi
 export BUILD_VER = debug
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
+export RULES     = $(ROOT)/rules.mk
 
 export DEFS = -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
@@ -41,7 +43,7 @@ ifeq ($(BUILD_VER), release)
 DCMFLAGS =
 DLDFLAGS = -s -x
 else
-DCMFLAGS = -g
+DCMFLAGS = -g3
 DLDFLAGS =
 endif
 CMFLAGS  = $(DEFS) $(INCS) $(DCMFLAGS) -std=c99 -Wall \
@@ -62,3 +64,5 @@ all :
 clean :
 	$(RM) -r $(BUILD_DIR)
 	$(ECHO) 'Cleaning ... Done.'
+
+rebuild: clean all

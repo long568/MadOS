@@ -24,7 +24,7 @@
         {
             "label": "rebuild",
             "type": "shell",
-            "command": "make clean && make all",
+            "command": "make rebuild",
             "group": "build",
             "problemMatcher": [
                 "$gcc"

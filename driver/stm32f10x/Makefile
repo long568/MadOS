@@ -5,7 +5,7 @@ SRCS = $(wildcard *.c)
 
 export TEMP = $(BUILD_DIR)/drv
 
-include $(ROOT)/rules.mk
+include $(RULES)
 
 after_all:
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)

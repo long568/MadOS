@@ -4,4 +4,4 @@ SRCS = $(wildcard *.c)
 
 export TEMP = $(BUILD_DIR)/app
 
-include $(ROOT)/rules.mk
+include $(RULES)

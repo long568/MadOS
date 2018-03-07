@@ -2,4 +2,4 @@
 ASMS =
 SRCS = $(wildcard *.c)
 
-include $(ROOT)/rules.mk
+include $(RULES)

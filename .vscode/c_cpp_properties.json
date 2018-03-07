@@ -1,0 +1,55 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include",
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1",
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/thumb/v7-m",
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/backward",
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include",
+                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include-fixed",
+                "${workspaceRoot}/arch/stm32f10x/Arch",
+                "${workspaceRoot}/arch/stm32f10x/Startup",
+                "${workspaceRoot}/arch/stm32f10x/StdPeriph",
+                "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
+                "${workspaceRoot}/driver/stm32f10x",
+                "${workspaceRoot}/kernel/inc",
+                "${workspaceRoot}/kernel/lib/pt",
+                "${workspaceRoot}/kernel/lib/timer",
+                "${workspaceRoot}/library/uIP/uip",
+                "${workspaceRoot}/library/uIP/uip-funs",
+                "${workspaceRoot}/uip-test"
+            ],
+            "defines": [
+                "USE_STDPERIPH_DRIVER",
+                "STM32F10X_CL"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include",
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1",
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/thumb/v7-m",
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/backward",
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include",
+                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include-fixed",
+                    "${workspaceRoot}/arch/stm32f10x/Arch",
+                    "${workspaceRoot}/arch/stm32f10x/Startup",
+                    "${workspaceRoot}/arch/stm32f10x/StdPeriph",
+                    "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
+                    "${workspaceRoot}/driver/stm32f10x",
+                    "${workspaceRoot}/kernel/inc",
+                    "${workspaceRoot}/kernel/lib/pt",
+                    "${workspaceRoot}/kernel/lib/timer",
+                    "${workspaceRoot}/library/uIP/uip",
+                    "${workspaceRoot}/library/uIP/uip-funs",
+                    "${workspaceRoot}/uip-test"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 3
+}
