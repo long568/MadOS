@@ -40,7 +40,7 @@ export INCS = -I$(ROOT)/app/$(APP) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
 export LIBS = -L$(LIBC_PATH) -L$(LGCC_PATH) -L$(BUILD_DIR)  \
-              -ldrv -lkernel -larch -lm -lc -lgcc -lnewlib
+              -ldrv -lkernel -larch -lm -lc -lgcc
 
 ifeq ($(BUILD_VER), release)
 DCMFLAGS =
