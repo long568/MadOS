@@ -160,10 +160,10 @@ static PT_THREAD(tcp_pt(MadVptr ep))
         }
         
         if(wait_send) {
-            int i;
-            const MadU8 d_head[] = "uIP -> Acked["; // 13
-            const MadU8 d_midd[] = "], Rexmit[";    // 10
-            const MadU8 d_tail[] = "]";             // 1
+            // int i;
+            // const MadU8 d_head[] = "uIP -> Acked["; // 13
+            // const MadU8 d_midd[] = "], Rexmit[";    // 10
+            // const MadU8 d_tail[] = "]";             // 1
             MadU8  *ack_str = (MadU8*)uip_appdata;
             MadU32 len = sprintf((char*)ack_str, 
                                  "uIP -> Acked[%d], Rexmit[%d]",

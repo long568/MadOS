@@ -5,8 +5,17 @@ export MCU_SUFFIX = cl
 export TOOLCHAIN  = arm-none-eabi
 export BUILD_VER  = debug
 
-# export ROOT      = D:/Projects/playRTOS/MadOS
-# export LIBC_PATH = /Users/long/Desktop/DreamOn/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/lib
+export AR    = $(TOOLCHAIN)-ar
+export CC    = $(TOOLCHAIN)-gcc
+export CPP   = $(TOOLCHAIN)-g++
+export LD    = $(TOOLCHAIN)-ld
+export OCPY  = $(TOOLCHAIN)-objcopy
+export MAKE  = make
+export ECHO  = @echo
+export SET   = @set -e
+export MKDIR = @mkdir -p
+export RM    = @rm -f
+
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export LIBC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/$(TOOLCHAIN)/lib
 export LGCC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
@@ -30,20 +39,8 @@ export INCS = -I$(ROOT)/app/$(APP) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
-export LIBS = -L$(BUILD_DIR) -ldrv -lkernel -larch \
-              -L$(LIBC_PATH) -lg -lm -lc \
-			  -L$(LGCC_PATH) -lgcc
-
-export MAKE  = make
-export AR    = $(TOOLCHAIN)-ar
-export CC    = $(TOOLCHAIN)-gcc
-export CPP   = $(TOOLCHAIN)-g++
-export LD    = $(TOOLCHAIN)-ld
-export OCPY  = $(TOOLCHAIN)-objcopy
-export ECHO  = @echo
-export SET   = @set -e
-export MKDIR = @mkdir -p
-export RM    = @rm -f
+export LIBS = -L$(LIBC_PATH) -L$(LGCC_PATH) -L$(BUILD_DIR)  \
+              -ldrv -lkernel -larch -lm -lc -lgcc -lnewlib
 
 ifeq ($(BUILD_VER), release)
 DCMFLAGS =
@@ -72,3 +69,6 @@ clean :
 	$(ECHO) 'Cleaning ... Done.'
 
 rebuild: clean all
+
+test:
+	$(ECHO) $(shell dirname $(shell dirname $(shell which $(CC))))
