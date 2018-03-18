@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "MadOS.h"
 #include "mod_uIP.h"
 
@@ -17,6 +19,13 @@ static void madSysRunning(MadVptr exData);
 void HardFault_Handler(void)
 {
 	volatile int a = 0;
+	while(1) {
+		a++;
+	}
+}
+
+void *malloc(size_t __size) {
+    volatile int a = 0;
 	while(1) {
 		a++;
 	}
