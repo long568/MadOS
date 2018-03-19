@@ -1,4 +1,4 @@
-export APP        = uip-test
+export APP        = test_uip
 export ARCH       = v7-m
 export MCU_PREFIX = stm32f10x
 export MCU_SUFFIX = cl
@@ -17,11 +17,13 @@ export MKDIR = @mkdir -p
 export RM    = @rm -f
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
-export LIBC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/$(TOOLCHAIN)/lib
-export LGCC_PATH = $(shell dirname $(shell dirname $(shell which $(CC))))/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
+export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
+export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib
+export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
 export RULES     = $(ROOT)/rules.mk
+export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
 export DEFS = -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
@@ -69,6 +71,3 @@ clean :
 	$(ECHO) 'Cleaning ... Done.'
 
 rebuild: clean all
-
-test:
-	$(ECHO) $(shell dirname $(shell dirname $(shell which $(CC))))

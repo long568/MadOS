@@ -1,8 +1,6 @@
 #ifndef __USER_CONFIG_H__
 #define __USER_CONFIG_H__
 
-#define TEST_STR "long, 哈哈, we will we will fuck you !\r\n"
-
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
     THREAD_PRIO_MAD_ARM         = 12,
