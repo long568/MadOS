@@ -82,4 +82,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# MadOS
+# =========================
 build/
+.vscode/.cortex-debug.*.state.json
