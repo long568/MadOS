@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "MadOS.h"
@@ -24,15 +25,8 @@ void HardFault_Handler(void)
 	}
 }
 
-void *malloc(size_t __size) {
-    volatile int a = 0;
-	while(1) {
-		a++;
-	}
-}
-
 int main()
-{
+{   
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
     madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
     madOSRun();

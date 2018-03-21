@@ -6,12 +6,13 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
-            "executable": "./build/uip-test",
+            "executable": "./build/test_uip",
             "name": "OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
             "interface": "swd",
+            "preLaunchTask": "build",
             "configFiles": [
                 "interface/stlink-v2.cfg",
                 "target/stm32f1x.cfg"

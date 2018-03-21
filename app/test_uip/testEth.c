@@ -125,11 +125,9 @@ static PT_THREAD(tcp_pt(MadVptr ep))
         
         if(wait_send) {
             MadU8  *ack_str = (MadU8*)uip_appdata;
-            // MadU32 len = sprintf((char*)ack_str, "uIP -> Acked[0], Rexmit[0]");
             MadU32 len = sprintf((char*)ack_str, 
                                  "uIP -> Acked[%d], Rexmit[%d]",
                                  cnt_acked, cnt_rexmit);
-
             uip_send(uip_appdata, len);
             do {
                 static MadInt resolv_i = 0;

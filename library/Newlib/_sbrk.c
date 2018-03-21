@@ -41,7 +41,7 @@ _sbrk(int incr);
 // stack definitions in the linker script.
 caddr_t _sbrk(int incr) {
     while(1);
-    return 0; 
+    return 0;
 }
 
 /*

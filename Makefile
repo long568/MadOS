@@ -18,7 +18,7 @@ export RM    = @rm -f
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
-export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib
+export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib/thumb/$(ARCH)
 export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
