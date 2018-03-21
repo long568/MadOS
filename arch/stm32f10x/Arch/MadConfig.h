@@ -39,8 +39,8 @@
 /*
  * Print debug information
  */
-// #include "stm32_ttyUSART.h"
-#define MAD_LOG_INIT()  //ttyUsart_Init()
-#define MAD_LOG(...)    //ttyUsart_Print(__VA_ARGS__)
+#include "stm32_ttyUSART.h"
+#define MAD_LOG_INIT()  ttyUsart_Init()
+#define MAD_LOG(...)    ttyUsart_Print(__VA_ARGS__)
 
 #endif

@@ -53,7 +53,7 @@ DLDFLAGS =
 endif
 CMFLAGS  = $(DEFS) $(INCS) $(DCMFLAGS) -std=c99 -Wall \
 	       -march=arm$(ARCH) -mtune=cortex-m3 -mthumb-interwork \
-	       -nostdlib -O2
+	       -nostdlib -Os
 export LDFLAGS  += $(LIBS) $(DLDFLAGS) -nostdlib -Bstatic \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 export CFLAGS   += $(CMFLAGS)

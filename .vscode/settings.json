@@ -2,7 +2,9 @@
     "files.associations": {
         "mod_uip.h": "c",
         "utcp.h": "c",
-        "testeth.h": "c"
+        "testeth.h": "c",
+        "stdlib.h": "c",
+        "mados.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
