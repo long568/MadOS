@@ -94,7 +94,7 @@ static void madStartup(MadVptr exData)
     //Init_SpiFlash();
     //Init_MadArm();
 
-    madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
+    madThreadCreate(madSysRunning, 0, 1024, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
     while(1);
@@ -104,7 +104,6 @@ static void madSysRunning(MadVptr exData)
 {
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
-    MadUint tmrSysRunning = 0;
 #ifdef MAD_SHOW_IDLERATE
     MadUint tmrSysReport  = 0;
 #endif
@@ -113,7 +112,7 @@ static void madSysRunning(MadVptr exData)
     
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
-    pin.GPIO_Pin   = GPIO_Pin_1;
+    pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
 	GPIO_Init(GPIOE, &pin);
 
 #if MAD_STATIST_STK_SIZE    
@@ -121,22 +120,20 @@ static void madSysRunning(MadVptr exData)
 #endif
     
 	while(1) {
-        madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
+        madTimeDly(500);
         
-        tmrSysRunning++;
-        if(tmrSysRunning >= 500 / SYS_RUNNING_INTERVAL_MSECS) {
-            tmrSysRunning = 0;
-            flag = !flag;
-            if(flag) {
-                GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-            } else {
-                GPIO_SetBits  (GPIOE, GPIO_Pin_1);
-            }
+        flag = !flag;
+        if(flag) {
+            GPIO_ResetBits(GPIOE, GPIO_Pin_1);
+            GPIO_SetBits  (GPIOE, GPIO_Pin_0);
+        } else {
+            GPIO_SetBits  (GPIOE, GPIO_Pin_1);
+            GPIO_ResetBits(GPIOE, GPIO_Pin_0);
         }
         
 #ifdef MAD_SHOW_IDLERATE
         tmrSysReport ++;
-        if(tmrSysReport >= 1000 / SYS_RUNNING_INTERVAL_MSECS) {
+        if(tmrSysReport >= 2) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
         }

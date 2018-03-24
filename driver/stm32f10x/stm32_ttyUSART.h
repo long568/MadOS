@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 #include "MadOS.h"
 #include "UserConfig.h"
@@ -55,12 +56,12 @@
 #define USART_DMA_Clk            _USART_DMA_Clk_1(USART_DMAPO_Tx)
 
 extern  MadBool  ttyUsart_Init     (void);
-extern  int      ttyUsart_PutChar  (int c);
-extern  int      ttyUsart_GetChar  (void);
-extern  int      ttyUsart_UngetChar(int c);
+// extern  int      ttyUsart_PutChar  (int c);
+// extern  int      ttyUsart_GetChar  (void);
+// extern  int      ttyUsart_UngetChar(int c);
 extern  int      ttyUsart_Print    (const char * fmt, ...);
-extern  int      ttyUsart_Scan     (const char * fmt, ...);
-extern  int      ttyUsart_SendData (const char * dat, int len);
-extern  int      ttyUsart_ReadData (char * dat, int len);
+// extern  int      ttyUsart_Scan     (const char * fmt, ...);
+extern  int      ttyUsart_SendData (const char * dat, size_t len);
+// extern  int      ttyUsart_ReadData (char * dat, int len);
 
 #endif

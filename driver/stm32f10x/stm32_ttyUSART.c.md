@@ -1,11 +1,17 @@
 #include "stm32_ttyUSART.h"
 
-static MadU8            print_buf[512];
+MAD_FIFO_DECLARE(ttyUsart_BufRx, MadU8, 32);
+MAD_FIFO_DECLARE(ttyUsart_BufTx, MadU8, 32);
+
+#if USART_GETC_NOEOF
+static MadSemCB_t       _mad_urx_locker,   *mad_urx_locker;
+#endif
 static MadSemCB_t       _mad_utx_locker,   *mad_utx_locker;
 static MadSemCB_t       _mad_print_locker, *mad_print_locker;
+static MadSemCB_t       _mad_scan_locker,  *mad_scan_locker;
 static DMA_InitTypeDef  mad_udma_iv;
 
-static void ttyUsart_Send(MadU32 addr, MadU32 cnt);
+static void ttyUsart_Send(void);
 static void ttyUsart_InitOS(void);
 static void ttyUsart_InitDev(void);
 
@@ -23,45 +29,166 @@ void USART_IRQ_Handler(void)
         madSemRelease(&mad_utx_locker);
         USART_ClearITPendingBit(USART_Port, USART_IT_TC);
     }
+    
+    if(USART_GetITStatus(USART_Port, USART_IT_RXNE) == SET) {
+        if(!MAD_FIFO_IS_FULL(ttyUsart_BufRx)) {
+            MAD_FIFO_PUT(ttyUsart_BufRx, USART_ReceiveData(USART_Port));
+#if USART_GETC_NOEOF
+            madSemRelease(&mad_urx_locker);
+#endif
+        }
+        USART_ClearITPendingBit(USART_Port, USART_IT_RXNE);
+    }
 }
 
-static void ttyUsart_Send(MadU32 addr, MadU32 cnt)
+static void ttyUsart_Send(void)
 {
-    mad_udma_iv.DMA_MemoryBaseAddr = addr;
-    mad_udma_iv.DMA_BufferSize     = cnt;
+    MAD_FIFO_ARRANGE(ttyUsart_BufTx, char);
+    mad_udma_iv.DMA_BufferSize = MAD_FIFO_CNT(ttyUsart_BufTx);
     DMA_Init(USART_DMA_Tx, &mad_udma_iv);
     DMA_Cmd(USART_DMA_Tx, ENABLE);
     madSemWait(&mad_utx_locker, 0);
     DMA_DeInit(USART_DMA_Tx);
+    MAD_FIFO_CLEAN(ttyUsart_BufTx);
+}
+
+int ttyUsart_PutChar(int c)
+{
+    char cc = c;
+    MAD_FIFO_PUT(ttyUsart_BufTx, cc);
+    if(MAD_FIFO_IS_FULL(ttyUsart_BufTx) || (cc == '\n'))
+        ttyUsart_Send();
+    return c;
+}
+
+#if USART_GETC_NOEOF
+int ttyUsart_GetChar(void)
+{
+    char c;
+    MadCpsr_t cpsr;
+    do {
+        madEnterCritical(cpsr);
+        if(!MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+            MAD_FIFO_GET(ttyUsart_BufRx, c);
+            madExitCritical(cpsr);
+            break;
+        }
+        madExitCritical(cpsr);
+        madSemWait(&mad_urx_locker, 0);
+    } while(1);
+    return (int)c;
+}
+#else
+int ttyUsart_GetChar(void)
+{
+    char c;
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    if(MAD_FIFO_IS_EMPTY(ttyUsart_BufRx))
+        c = EOF;
+    else
+        MAD_FIFO_GET(ttyUsart_BufRx, c);
+    madExitCritical(cpsr);
+    return (int)c;
+}
+#endif /* USART_GETC_NOEOF */
+
+int ttyUsart_UngetChar(int c)
+{
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    if(MAD_FIFO_IS_FULL(ttyUsart_BufRx)) {
+        c = EOF;
+    } else {
+        MAD_FIFO_UNGET(ttyUsart_BufRx, (char)c);
+#if USART_GETC_NOEOF
+        madSemRelease(&mad_urx_locker);
+#endif
+    }
+    madExitCritical(cpsr);
+    return c;
 }
 
 int ttyUsart_Print(const char * fmt, ...)
 {
-    int len;
+    int res;
     va_list ap;
     madSemWait(&mad_print_locker, 0);
     va_start(ap, fmt);
-    len = vsprintf((char*)print_buf, fmt, ap);
+    res = vprintf(fmt, ap);
     va_end(ap);
-    if(len > 0) ttyUsart_Send((MadU32)print_buf, len);
     madSemRelease(&mad_print_locker);
-    return len;
+    return res;
 }
 
-int ttyUsart_SendData(const char * dat, size_t len)
+int ttyUsart_Scan(const char * fmt, ...)
 {
+    int res;
+    va_list ap;
+    madSemWait(&mad_scan_locker, 0);
+    va_start(ap, fmt);
+    res = vscanf(fmt, ap);
+    va_end(ap);
+    madSemRelease(&mad_scan_locker);
+    return res;
+}
+
+int ttyUsart_SendData(const char * dat, int len)
+{
+    int i = 0;
     madSemWait(&mad_print_locker, 0);
-    ttyUsart_Send((MadU32)dat, len);
+    while(1) {
+        if(!MAD_FIFO_IS_FULL(ttyUsart_BufTx)) {
+            MAD_FIFO_PUT(ttyUsart_BufTx, *dat++);
+            i++;
+        }
+        if((i == len) || MAD_FIFO_IS_FULL(ttyUsart_BufTx)) {
+            ttyUsart_Send();
+            if(i == len) {
+                break;
+            }
+        }
+    }
     madSemRelease(&mad_print_locker);
-    return 0;
+    return i;
+}
+
+int ttyUsart_ReadData (char * dat, int len)
+{
+    MadCpsr_t cpsr;
+    int i = 0;
+    madSemWait(&mad_scan_locker, 0);
+    while(1) {
+        madEnterCritical(cpsr);
+        if(!MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+            MAD_FIFO_GET(ttyUsart_BufRx, *dat++);
+            i++;
+        }
+        if(i == len) {
+            madExitCritical(cpsr);
+            break;
+        }
+        if(MAD_FIFO_IS_EMPTY(ttyUsart_BufRx)) {
+            madSemWaitInCritical(&mad_urx_locker, 0, &cpsr);
+        }
+        madExitCritical(cpsr);
+    }
+    madSemRelease(&mad_scan_locker);
+    return i;
 }
 
 static void ttyUsart_InitOS(void)
 {
+#if USART_GETC_NOEOF
+    mad_urx_locker = &_mad_urx_locker;
+    madSemInitCarefully(mad_urx_locker, 0, 1);
+#endif
     mad_utx_locker = &_mad_utx_locker;
     madSemInitCarefully(mad_utx_locker, 0, 1);
     mad_print_locker = &_mad_print_locker;
     madSemInit(mad_print_locker, 1);
+    mad_scan_locker = &_mad_scan_locker;
+    madSemInit(mad_scan_locker, 1);
     
     do { // RCC
 //      RCC_AHBPeriphClockCmd(USART_DMA_Clk, ENABLE);
@@ -103,10 +230,10 @@ static void ttyUsart_InitDev(void)
     USART_InitStructure.USART_StopBits            = USART_StopBits_1;
     USART_InitStructure.USART_Parity              = USART_Parity_No;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode                = USART_Mode_Tx; // | USART_Mode_Rx;
+    USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
     
     mad_udma_iv.DMA_PeripheralBaseAddr  = USART_DMA_Tx_Base;
-    mad_udma_iv.DMA_MemoryBaseAddr      = 0;
+    mad_udma_iv.DMA_MemoryBaseAddr      = (uint32_t)MAD_FIFO_DATA(ttyUsart_BufTx);
     mad_udma_iv.DMA_DIR                 = DMA_DIR_PeripheralDST;
     mad_udma_iv.DMA_BufferSize          = 0;
     mad_udma_iv.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;
@@ -122,10 +249,10 @@ static void ttyUsart_InitDev(void)
     
     USART_Init(USART_Port, &USART_InitStructure);
     USART_DMACmd(USART_Port, USART_DMAReq_Tx, ENABLE);
-    // USART_ITConfig(USART_Port, USART_IT_RXNE, ENABLE);
+    USART_ITConfig(USART_Port, USART_IT_RXNE, ENABLE);
     USART_ITConfig(USART_Port, USART_IT_TC, ENABLE);
     USART_Cmd(USART_Port, ENABLE);
     
     // When DMA going to enable, USART_IT_TC will be triggered once first of all.
-    // madSemWait(&mad_utx_locker, 0);
+    madSemWait(&mad_utx_locker, 0);
 }

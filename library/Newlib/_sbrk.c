@@ -29,19 +29,21 @@
 
 #include <sys/types.h>
 #include <errno.h>
+#include "MadOS.h"
 
 // ----------------------------------------------------------------------------
 
-// caddr_t
-// _sbrk(int incr);
+caddr_t
+_sbrk(int incr);
 
 // ----------------------------------------------------------------------------
 // The definitions used here should be kept in sync with the
 // stack definitions in the linker script.
-// caddr_t _sbrk(int incr) {
-//     while(1);
-//     return 0;
-// }
+caddr_t _sbrk(int incr) {
+    // return 0;
+    // return madMemMalloc(incr);
+    while(1);
+}
 /*
 caddr_t
 _sbrk(int incr)
