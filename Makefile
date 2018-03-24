@@ -19,13 +19,16 @@ export RM    = @rm -f
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
 export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib/thumb/$(ARCH)
-export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
+export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.3.0/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
 export RULES     = $(ROOT)/rules.mk
 export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
-export DEFS = -DUSE_STDPERIPH_DRIVER \
+export DEFS = -DMALLOC_PROVIDED \
+			  -DMISSING_SYSCALL_NAME \
+			  -DREENTRANT_SYSCALL_PROVIDED \
+			  -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
 export INCS = -I$(ROOT)/app/$(APP) \
@@ -58,6 +61,9 @@ export LDFLAGS  += $(LIBS) $(DLDFLAGS) -nostdlib -Bstatic \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 export CFLAGS   += $(CMFLAGS)
 export CPPFLAGS += $(CMFLAGS)
+
+# -ffunction-sections -fdata-sections
+# -Wl,--gc-sections
 
 all :
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
