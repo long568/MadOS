@@ -127,5 +127,5 @@ static void ttyUsart_InitDev(void)
     USART_Cmd(USART_Port, ENABLE);
     
     // When DMA going to enable, USART_IT_TC will be triggered once first of all.
-    // madSemWait(&mad_utx_locker, 0);
+    madSemWait(&mad_utx_locker, 0);
 }
