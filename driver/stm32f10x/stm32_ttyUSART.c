@@ -1,6 +1,6 @@
 #include "stm32_ttyUSART.h"
 
-static MadU8            print_buf[512];
+static MadU8            print_buf[64];
 static MadSemCB_t       _mad_utx_locker,   *mad_utx_locker;
 static MadSemCB_t       _mad_print_locker, *mad_print_locker;
 static DMA_InitTypeDef  mad_udma_iv;
@@ -25,10 +25,10 @@ void USART_IRQ_Handler(void)
     }
 }
 
-static void ttyUsart_Send(MadU32 addr, MadU32 cnt)
+static void ttyUsart_Send(MadU32 addr, MadU32 len)
 {
     mad_udma_iv.DMA_MemoryBaseAddr = addr;
-    mad_udma_iv.DMA_BufferSize     = cnt;
+    mad_udma_iv.DMA_BufferSize     = len;
     DMA_Init(USART_DMA_Tx, &mad_udma_iv);
     DMA_Cmd(USART_DMA_Tx, ENABLE);
     madSemWait(&mad_utx_locker, 0);

@@ -4,7 +4,8 @@
         "utcp.h": "c",
         "testeth.h": "c",
         "stdlib.h": "c",
-        "mados.h": "c"
+        "mados.h": "c",
+        "stm32_ttyusart.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

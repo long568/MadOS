@@ -67,24 +67,20 @@ static void madStartup(MadVptr exData)
  * Core-Modules
  ********************************************/
     MAD_LOG_INIT();
-    MAD_LOG("    \n"
-            "========  MadOS v%d.%d  ========\n"
-            "* MCU     : STM32F107VCT6\n"
-            "* Network : IP101A + uIP(v1.0)\n"
-            "* FileSys : W25Q32 + ...\n"
-            "* Platform dependent data types :\n"
-            "    char      -> %d Bytes\n"
-            "    short     -> %d Bytes\n"
-            "    int       -> %d Bytes\n"
-            "    long      -> %d Bytes\n"
-            "    long long -> %d Bytes\n"
-            "    float     -> %d Bytes\n"
-            "    double    -> %d Bytes\n"
-            "================================\n",
-            MAD_VER_MAJOR, MAD_VER_SUB,
-            sizeof(char), sizeof(short), sizeof(int),
-            sizeof(long), sizeof(long long),
-            sizeof(float), sizeof(double));
+    MAD_LOG("    \n");
+    MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
+    MAD_LOG("* MCU     : STM32F107VCT6\n");
+    MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
+    MAD_LOG("* FileSys : W25Q32 + ...\n");
+    MAD_LOG("* Platform dependent data types :\n");
+    MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
+    MAD_LOG("    short     -> %d Bytes\n", sizeof(short));
+    MAD_LOG("    int       -> %d Bytes\n", sizeof(int));
+    MAD_LOG("    long      -> %d Bytes\n", sizeof(long));
+    MAD_LOG("    long long -> %d Bytes\n", sizeof(long long));
+    MAD_LOG("    float     -> %d Bytes\n", sizeof(float));
+    MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
+    MAD_LOG("================================\n");
     uIP_Init();
 
 /********************************************
