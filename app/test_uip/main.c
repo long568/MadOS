@@ -62,7 +62,7 @@ static void madStartup(MadVptr exData)
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
 #endif
-    
+
 /********************************************
  * Core-Modules
  ********************************************/

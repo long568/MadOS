@@ -8,7 +8,7 @@ export BUILD_VER  = debug
 export AR    = $(TOOLCHAIN)-ar
 export CC    = $(TOOLCHAIN)-gcc
 export CPP   = $(TOOLCHAIN)-g++
-export LD    = $(TOOLCHAIN)-ld
+export LD    = $(TOOLCHAIN)-gcc
 export OCPY  = $(TOOLCHAIN)-objcopy
 export MAKE  = make
 export ECHO  = @echo
@@ -19,7 +19,7 @@ export RM    = @rm -f
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
 export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib/thumb/$(ARCH)
-export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
+export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.3.0/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
 export RULES     = $(ROOT)/rules.mk
@@ -56,14 +56,11 @@ DLDFLAGS =
 endif
 CMFLAGS  = $(DEFS) $(INCS) $(DCMFLAGS) -std=c99 -Wall \
 	       -march=arm$(ARCH) -mtune=cortex-m3 -mthumb-interwork \
-	       -nostdlib -Os
-export LDFLAGS  += $(LIBS) $(DLDFLAGS) -nostdlib -Bstatic \
+	       -nostdlib -Os -ffunction-sections -fdata-sections
+export LDFLAGS  += $(LIBS) $(DLDFLAGS) -nostdlib -Bstatic -Wl,--gc-sections \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 export CFLAGS   += $(CMFLAGS)
 export CPPFLAGS += $(CMFLAGS)
-
-# -ffunction-sections -fdata-sections
-# -Wl,--gc-sections
 
 all :
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
