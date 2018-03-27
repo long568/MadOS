@@ -17,9 +17,9 @@ export MKDIR = @mkdir -p
 export RM    = @rm -f
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
-export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
-export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib/thumb/$(ARCH)
-export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.3.0/thumb/$(ARCH)
+# export LIB_ROOT  = $(shell dirname $(shell dirname $(shell which $(CC))))
+# export LIBC_PATH = $(LIB_ROOT)/$(TOOLCHAIN)/lib/thumb/$(ARCH)
+# export LGCC_PATH = $(LIB_ROOT)/lib/gcc/$(TOOLCHAIN)/7.2.1/thumb/$(ARCH)
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/$(APP)
 export RULES     = $(ROOT)/rules.mk
@@ -44,7 +44,10 @@ export INCS = -I$(ROOT)/app/$(APP) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
-export LIBS = -L$(LIBC_PATH) -L$(LGCC_PATH) -L$(BUILD_DIR)  \
+# export LIBS = -L$(LIBC_PATH) -L$(LGCC_PATH) -L$(BUILD_DIR)  \
+#               -ldrv -lkernel -larch -lm -lc -lgcc
+
+export LIBS = -L$(BUILD_DIR)  \
               -ldrv -lkernel -larch -lm -lc -lgcc
 
 ifeq ($(BUILD_VER), release)

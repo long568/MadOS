@@ -47,8 +47,8 @@ void madOSRun(void)
     MadU8 prio_l;
     MadU8 prio;
     
-    madUnRdyMap(prio_h, (MadU32)MadThreadRdyGrp);
-    madUnRdyMap(prio_l, (MadU32)MadThreadRdy[prio_h]);
+    madUnRdyMap(prio_h, MadThreadRdyGrp);
+    madUnRdyMap(prio_l, MadThreadRdy[prio_h]);
     prio = MAD_GET_THREAD_PRIO(prio_h, prio_l);
     MadCurTCB = MadTCBGrp[prio];
     
