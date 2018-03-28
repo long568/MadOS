@@ -80,7 +80,7 @@ void madInitStatist(void)
     madEnterCritical(cpsr);
     mad_sys_cnt = 0;
     madExitCritical(cpsr);
-    madTimeDly(1000);
+    madTimeDly(SYSTICKS_PER_SEC);
     madEnterCritical(cpsr);
     mad_sys_cnt_res = mad_sys_cnt;
     mad_sys_cnt_max = mad_sys_cnt;

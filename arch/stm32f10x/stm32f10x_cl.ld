@@ -55,7 +55,7 @@ ENTRY(Reset_Handler)
 _estack = 0x20010000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size  = 0x000;       /* required amount of heap  */
-_Min_Stack_Size = 0x800;       /* required amount of stack */
+_Min_Stack_Size = 0x400;       /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -175,12 +175,12 @@ SECTIONS
   
 
   /* Remove information from the standard libraries */
-  /*/DISCARD/ :
+  /DISCARD/ :
   {
     libc.a ( * )
     libm.a ( * )
     libgcc.a ( * )
-  }*/
+  }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }

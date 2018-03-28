@@ -15,22 +15,6 @@
     .weak    madOSStartUp
     .type    madOSStartUp, %function
 madOSStartUp:
-    @ LDR     R0,    =MadCurTCB  // R0  = Addr{MadCurTCB}
-    @ LDR     R0,    [R0]        // R0  = MadCurTCB
-    @ LDR     SP,    [R0]        // MSP = MadCurTCB->pStk
-    @ POP     {R4-R11, R14}      // POP R4-R11, EXC_RETURN
-    @ POP     {R0-R3, R12, LR}   // POP R0-R3, R12, LR
-    @ POP     {R14}              // POP PC   => LR
-    @ POP     {R12}              // POP xPSR => R12
-    @ MSR     xPSR_nzcvq, R12
-    @ MOV     R12,   SP          // Recover PSP
-    @ MSR     PSP,   R12
-    @ LDR     SP,    =_estack    // Recover MSP (__initial_sp)
-    @ MRS     R12,   CONTROL
-    @ ORR     R12, #0x00000002   // Go to Privileged-Mode using PSP.
-    @ MSR     CONTROL, R12
-    @ BX      LR                 // Jump to the task which has the highest priority value.
-
     LDR     SP,    =_estack      // Recover MSP (__initial_sp)
     MRS     R12,   CONTROL
     ORR     R12,   #0x00000002   // Go to Privileged-Mode using PSP.
