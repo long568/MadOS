@@ -12,7 +12,7 @@
 //#define MAD_SHOW_IDLERATE
 #endif
 
-static MadU8 MadStack[MAD_OS_STACK_SIZE] = { 0 };
+MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);

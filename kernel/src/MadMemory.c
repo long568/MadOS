@@ -239,28 +239,27 @@ static MadU8* findSpace(MadSize_t size)
     MadU8        *res;
     MadSize_t    ofs;
     MadMemHead_t *tmp;
-    MadMemHead_t *head = mad_used_head;
-    
-    if(MNULL == head) {
+    MadMemHead_t *head;
+#if 0    
+    if(mad_used_head == MNULL) {
         mad_used_head = (MadMemHead_t *)mad_heap_head;
         mad_used_head->size = size;
         mad_used_head->next = MNULL;
         mad_unused_size -= size;
         return mad_heap_head;
     }
-    
     if(mad_used_head > (MadMemHead_t *)mad_heap_head) {
-        res = mad_heap_head;
-        ofs = (MadSize_t)((MadU8*)head - res);
+        ofs = (MadSize_t)((MadU8*)mad_used_head - mad_heap_head);
         if(ofs >= size) {
-            mad_used_head = (MadMemHead_t *)res;
+            tmp = mad_used_head;
+            mad_used_head = (MadMemHead_t *)mad_heap_head;
             mad_used_head->size = size;
-            mad_used_head->next = head;
+            mad_used_head->next = tmp;
             mad_unused_size -= size;
-            return res;
+            return mad_heap_head;
         }
     }
-    
+    head = mad_used_head;
     while(MNULL != head->next) {
         res = (MadU8*)head + head->size;
         ofs = (MadSize_t)((MadU8*)(head->next) - res);
@@ -274,7 +273,6 @@ static MadU8* findSpace(MadSize_t size)
         }
         head = head->next;
     }
-    
     res = (MadU8*)head + head->size;
     ofs = (MadSize_t)(mad_heap_tail - res);
     if(ofs >= size) {
@@ -286,6 +284,48 @@ static MadU8* findSpace(MadSize_t size)
     } else {
         return MNULL;
     }
+#else
+    ofs = 0;
+    tmp = MNULL;
+    res = (MadU8*)mad_heap_head;
+    if(mad_used_head == MNULL) {
+        ofs = mad_unused_size;
+    } else if((MadU8*)mad_used_head > mad_heap_head) {
+        tmp = mad_used_head;
+        ofs = (MadSize_t)((MadU8*)mad_used_head - mad_heap_head);
+    }
+    if(ofs >= size) {
+        mad_used_head = (MadMemHead_t *)mad_heap_head;
+        goto RETURN_SPACE;
+    }
+
+    head = mad_used_head;
+    while(MNULL != head->next) {
+        res = (MadU8*)head + head->size;
+        ofs = (MadSize_t)((MadU8*)(head->next) - res);
+        if(ofs >= size) {
+            tmp = head->next;
+            head->next = (MadMemHead_t *)res;
+            goto RETURN_SPACE;
+        }
+        head = head->next;
+    }
+
+    res = (MadU8*)head + head->size;
+    ofs = (MadSize_t)(mad_heap_tail - res);
+    if(ofs >= size) {
+        tmp = MNULL;
+        head->next = (MadMemHead_t *)res;
+        goto RETURN_SPACE;
+    }
+
+    return MNULL;
+RETURN_SPACE:
+    ((MadMemHead_t *)res)->size = size;
+    ((MadMemHead_t *)res)->next = tmp;
+    mad_unused_size -= size;
+    return res;
+#endif /* findSpace */
 }
 
 static void doMemFree(MadMemHead_t *target)
