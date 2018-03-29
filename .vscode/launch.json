@@ -6,7 +6,7 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
-            "executable": "./build/test_uip",
+            "executable": "./build/HiMadOS",
             "name": "OpenOCD",
             "request": "launch",
             "type": "cortex-debug",

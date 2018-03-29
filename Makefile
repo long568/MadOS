@@ -19,17 +19,19 @@ export RM    = @rm -f
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build
-export TARGET    = $(BUILD_DIR)/$(APP)
+export TARGET    = $(BUILD_DIR)/HiMadOS
 export RULES     = $(ROOT)/rules.mk
 export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
-export DEFS = -DMALLOC_PROVIDED \
+export DEFS = $(DEFS_FOR_APP) \
+              -DMALLOC_PROVIDED \
 			  -DMISSING_SYSCALL_NAME \
 			  -DREENTRANT_SYSCALL_PROVIDED \
 			  -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
-export INCS = -I$(ROOT)/app/$(APP) \
+export INCS = $(INCS_FOR_APP) \
+              -I$(ROOT)/app/$(APP) \
 			  -I$(ROOT)/app/$(APP)/inc \
               -I$(ROOT)/kernel/inc \
               -I$(ROOT)/kernel/lib/pt \
@@ -46,21 +48,18 @@ export LIBS = -L$(BUILD_DIR)  \
               -ldrv -lkernel -larch -lm -lc -lgcc
 
 ifeq ($(BUILD_VER), release)
-DCMFLAGS =
-DLDFLAGS = -s -x
+CXFLAGS =
 else
-DCMFLAGS = -g3
-DLDFLAGS =
+CXFLAGS = -g3
 endif
-CMFLAGS  = $(DEFS) $(INCS) $(DCMFLAGS) -std=c99 -Wall \
+CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 -Wall \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-	       -nostdlib -Os -ffunction-sections -fdata-sections
-export LDFLAGS  += $(LIBS) $(DLDFLAGS) \
-				   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+	       -nostdlib -ffunction-sections -fdata-sections
+export CFLAGS   += $(CXFLAGS)
+export CPPFLAGS += $(CXFLAGS)
+export LDFLAGS  += $(LIBS) -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 				   --specs=nano.specs -nostdlib -Bstatic -Wl,--gc-sections \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
-export CFLAGS   += $(CMFLAGS)
-export CPPFLAGS += $(CMFLAGS)
 
 all :
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)

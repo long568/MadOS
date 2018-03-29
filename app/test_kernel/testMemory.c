@@ -36,7 +36,7 @@ void testMem_t(MadVptr exData)
             }
         }
         t_unused_size = madMemUnusedSize();
-        //madTimeDly(2);
+        madTimeDly(2);
 	}
 }
 
@@ -55,6 +55,7 @@ void testMem_t0(MadVptr exData)
     pp = &((t_data_t*)exData)->p;
     sem = madSemCreate(1);
     madSemWait(&sem, 0);
+    p = 0;
     flag = 0;
 	while(1) {
         switch (flag)

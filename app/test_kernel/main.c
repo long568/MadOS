@@ -46,10 +46,10 @@ static void madStartup(MadVptr exData)
     madInitStatist();
 #endif
     
-    //initTestMemory();
+    initTestMemory();
     //initTestMsgQ();
     //initTestEvent();
-    initTestFB();
+    //initTestFB();
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
