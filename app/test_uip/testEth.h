@@ -3,7 +3,7 @@
 
 #include "MadOS.h"
 
-#define SET_TARGET_IP(x) uip_ipaddr(&x, 192, 168, 1, 100)
+#define SET_TARGET_IP(x) uip_ipaddr(&x, 192, 168, 1, 123)
 
 extern void Init_TestUIP(void);
 
