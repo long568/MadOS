@@ -24,9 +24,6 @@ export RULES     = $(ROOT)/rules.mk
 export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
 export DEFS = $(DEFS_FOR_APP) \
-              -DMALLOC_PROVIDED \
-			  -DMISSING_SYSCALL_NAME \
-			  -DREENTRANT_SYSCALL_PROVIDED \
 			  -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
@@ -47,10 +44,10 @@ export INCS = $(INCS_FOR_APP) \
 export LIBS = -L$(BUILD_DIR)  \
               -ldrv -lkernel -larch -lm -lc -lgcc
 
-ifeq ($(BUILD_VER), release)
-CXFLAGS =
-else
+ifeq ($(BUILD_VER), debug)
 CXFLAGS = -g3
+else
+CXFLAGS =
 endif
 CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 -Wall \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \

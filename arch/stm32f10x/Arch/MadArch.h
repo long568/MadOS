@@ -34,7 +34,7 @@ typedef MadU8              MadFlag_t;
 #define ARM_SYSTICK_CLK  (9000000)
 #define SYSTICKS_PER_SEC (1000)
 
-#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); __NOP(); } while(0)
+#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 #define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); } while(0)
 #define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); } while(0)
 #if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/

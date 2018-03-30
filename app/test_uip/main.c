@@ -25,6 +25,10 @@ void HardFault_Handler(void)
 	}
 }
 
+inline void madIdleHook(void)
+{
+}
+
 int main()
 {   
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
