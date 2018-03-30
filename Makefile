@@ -64,6 +64,7 @@ all :
 	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/library
 	$(MAKE) -C $(ROOT)/app/$(APP)
+	$(ECHO) 'Building ... Done.'
 
 clean :
 	$(RM) -r $(BUILD_DIR)

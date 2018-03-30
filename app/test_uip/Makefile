@@ -7,6 +7,5 @@ SRCS = $(wildcard *.c)
 include $(RULES)
 
 after_all:
-	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) -luip $(LDFLAGS) -o $(TARGET)
-	$(OCPY) -O ihex $(TARGET) $(TARGET).hex
-	$(ECHO) 'Building ... Done.'
+	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) -luip $(LDFLAGS) -o $(TARGET).elf
+	$(OCPY) -O ihex $(TARGET).elf $(TARGET).hex
