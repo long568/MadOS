@@ -5,7 +5,9 @@
         "testeth.h": "c",
         "stdlib.h": "c",
         "mados.h": "c",
-        "stm32_ttyusart.h": "c"
+        "stm32_ttyusart.h": "c",
+        "stdio.h": "c",
+        "stdarg.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

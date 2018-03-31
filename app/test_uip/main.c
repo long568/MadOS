@@ -3,10 +3,8 @@
 
 #include "MadOS.h"
 #include "mod_uIP.h"
-
-#include "testSpiFlash.h"
 #include "testEth.h"
-// #include "MadARM.h"
+#include "testSpiFlash.h"
 
 #if MAD_STATIST_STK_SIZE
 //#define MAD_SHOW_IDLERATE
@@ -92,7 +90,6 @@ static void madStartup(MadVptr exData)
  ********************************************/
     Init_TestUIP();
     //Init_SpiFlash();
-    //Init_MadArm();
 
     madThreadCreate(madSysRunning, 0, 1024, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

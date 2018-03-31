@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include",
+                "${env.CROSS_TOOLS_HOME}/arm-none-eabi/include",
+                "${env.CROSS_TOOLS_HOME}/lib/gcc/arm-none-eabi/7.3.0/include",
                 "${workspaceRoot}/arch/stm32f10x/Arch",
                 "${workspaceRoot}/arch/stm32f10x/Startup",
                 "${workspaceRoot}/arch/stm32f10x/StdPeriph",
@@ -20,33 +21,13 @@
                 "USE_STDPERIPH_DRIVER",
                 "STM32F10X_CL"
             ],
-            "intelliSenseMode": "msvc-x64",
-            "browse": {
-                "path": [
-                    "D:/DreamOn/MadOS_SDK/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include",
-                    "${workspaceRoot}/arch/stm32f10x/Arch",
-                    "${workspaceRoot}/arch/stm32f10x/Startup",
-                    "${workspaceRoot}/arch/stm32f10x/StdPeriph",
-                    "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
-                    "${workspaceRoot}/driver/stm32f10x",
-                    "${workspaceRoot}/kernel/inc",
-                    "${workspaceRoot}/kernel/lib/pt",
-                    "${workspaceRoot}/kernel/lib/timer",
-                    "${workspaceRoot}/library/uIP/uip",
-                    "${workspaceRoot}/library/uIP/uip-funs",
-                    "${workspaceRoot}/uip-test"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            },
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c11",
-            "cppStandard": "c++17"
+            "intelliSenseMode": "msvc-x64"
         },
         {
             "name": "Mac",
             "includePath": [
-                "/Users/long/Desktop/DreamOn/cross-tools-arm/tools/arm-none-eabi-7.3.0/arm-none-eabi/include",
+                "${env.CROSS_TOOLS_HOME}/arm-none-eabi/include",
+                "${env.CROSS_TOOLS_HOME}/lib/gcc/arm-none-eabi/7.3.0/include",
                 "${workspaceRoot}/arch/stm32f10x/Arch",
                 "${workspaceRoot}/arch/stm32f10x/Startup",
                 "${workspaceRoot}/arch/stm32f10x/StdPeriph",
@@ -57,31 +38,16 @@
                 "${workspaceRoot}/kernel/lib/timer",
                 "${workspaceRoot}/library/uIP/uip",
                 "${workspaceRoot}/library/uIP/uip-funs",
-                "${workspaceRoot}/uip-test"
+                "${workspaceRoot}/test_uip"
             ],
             "defines": [
-                "USE_STDPERIPH_DRIVER",
-                "STM32F10X_CL"
+                "STM32F10X_CL",
+                "USE_STDPERIPH_DRIVER"
             ],
             "intelliSenseMode": "clang-x64",
-            "browse": {
-                "path": [
-                    "/Users/long/Desktop/DreamOn/cross-tools-arm/tools/arm-none-eabi-7.3.0/arm-none-eabi/include",
-                    "${workspaceRoot}/arch/stm32f10x/Arch",
-                    "${workspaceRoot}/arch/stm32f10x/Startup",
-                    "${workspaceRoot}/arch/stm32f10x/StdPeriph",
-                    "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
-                    "${workspaceRoot}/driver/stm32f10x",
-                    "${workspaceRoot}/kernel/inc",
-                    "${workspaceRoot}/kernel/lib/pt",
-                    "${workspaceRoot}/kernel/lib/timer",
-                    "${workspaceRoot}/library/uIP/uip",
-                    "${workspaceRoot}/library/uIP/uip-funs",
-                    "${workspaceRoot}/uip-test"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            }
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 3
