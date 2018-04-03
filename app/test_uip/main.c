@@ -15,20 +15,16 @@ MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);
 
-void HardFault_Handler(void)
-{
-	volatile int a = 0;
-	while(1) {
-		a++;
-	}
+void HardFault_Handler(void) {
+	while(1) {}
 }
 
-inline void madIdleHook(void)
-{
+inline void madIdleHook(void) {
 }
 
 int main()
-{   
+{
+    madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
     madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
     madOSRun();

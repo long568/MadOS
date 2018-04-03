@@ -80,6 +80,9 @@ MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn)
     initData.RxDscrNum      = ETH_RXBUFNB;
     initData.infn           = infn;
     initData.fn             = fn;
+
+    madInstallExIrq(mETH_ExtEvent, EXTI15_10_IRQn);
+    madInstallExIrq(mETH_PhyEvent, ETH_IRQn);
     
     if(eth_low_init(&initData, &StmEth)) { 
         if(eth_phy_init(&StmEth)) {

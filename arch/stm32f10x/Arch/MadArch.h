@@ -1,8 +1,8 @@
 #ifndef __MAD_ARCH_H__
 #define __MAD_ARCH_H__
 
-#include "UserConfig.h"
 #include "stm32f10x.h"
+#include "UserConfig.h"
 
 #define MAD_KEIL_MDK
 #define MAD_OS_DEBUG
@@ -30,6 +30,8 @@ typedef MadU32             MadCpsr_t;
 typedef MadU32             MadStk_t;
 typedef MadU32             MadTim_t;
 typedef MadU8              MadFlag_t;
+
+#include "MadISR.h"
 
 #define ARM_SYSTICK_CLK  (9000000)
 #define SYSTICKS_PER_SEC (1000)

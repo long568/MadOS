@@ -55,12 +55,13 @@ ENTRY(Reset_Handler)
 _estack = 0x20010000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size  = 0x000;       /* required amount of heap  */
-_Min_Stack_Size = 0x400;       /* required amount of stack */
+_Min_Stack_Size = 0x800;       /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 64K
+RAM0 (xrw)     : ORIGIN = 0x20000000, LENGTH = 0x01E4 /* 121 * 4 */
+RAM (xrw)      : ORIGIN = 0x200001E4, LENGTH = 0xFE1C
 FLASH (rx)     : ORIGIN = 0x8000000,  LENGTH = 256K
 }
 
@@ -171,8 +172,6 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
-
-  
 
   /* Remove information from the standard libraries */
   /DISCARD/ :
