@@ -18,8 +18,8 @@
                 "${workspaceRoot}/uip-test"
             ],
             "defines": [
-                "USE_STDPERIPH_DRIVER",
-                "STM32F10X_CL"
+                "STM32F10X_CL",
+                "USE_STDPERIPH_DRIVER"
             ],
             "intelliSenseMode": "msvc-x64",
             "compilerPath": "{env.CROSS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
