@@ -3,6 +3,8 @@
 
 #include "MadSemaphore.h"
 
+typedef void(*madMsgFree_Callback)(MadVptr p);
+
 typedef struct _MadMsgQCB_t {
     MadU16     rdyg;
     MadU16     rdy[MAD_THREAD_RDY_NUM];
@@ -18,6 +20,7 @@ typedef struct _MadMsgQCB_t {
 extern  const  MadU8  MAD_MSG_EMPTY[];
 
 extern  MadMsgQCB_t*  madMsgQCreateCarefully           (MadU16 size, MadBool sendBlock);
+extern 	void          madMsgQClear                     (MadMsgQCB_t **pMsgQ, madMsgFree_Callback msgFree);
 extern 	MadU8 		  madMsgCheck                      (MadMsgQCB_t **pMsgQ, MadVptr *msg);
 extern  MadU8         madMsgWait                       (MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to);
 extern  MadU8         madDoMsgSend                     (MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err);

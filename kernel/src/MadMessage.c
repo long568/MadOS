@@ -47,6 +47,18 @@ MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
     return msgQ;
 }
 
+void madMsgQClear(MadMsgQCB_t **pMsgQ, madMsgFree_Callback msgFree)
+{
+    if(pMsgQ != MNULL) {
+        MadVptr msg;
+        while(MAD_ERR_MSGQ_EMPTY != madMsgCheck(pMsgQ, &msg)) {
+            if(msgFree){
+                msgFree(msg);
+            }
+        }
+    }
+}
+
 MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
 {
 	MadCpsr_t   cpsr;
