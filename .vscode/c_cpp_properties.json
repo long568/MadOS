@@ -18,6 +18,10 @@
                 "${workspaceRoot}/uip-test"
             ],
             "defines": [
+                "MALLOC_PROVIDED",
+                "__DYNAMIC_REENT__",
+                "MISSING_SYSCALL_NAMES",
+                "REENTRANT_SYSCALLS_PROVIDED",
                 "STM32F10X_CL",
                 "USE_STDPERIPH_DRIVER"
             ],
@@ -44,6 +48,10 @@
                 "${workspaceRoot}/test_uip"
             ],
             "defines": [
+                "MALLOC_PROVIDED",
+                "__DYNAMIC_REENT__",
+                "MISSING_SYSCALL_NAMES",
+                "REENTRANT_SYSCALLS_PROVIDED",
                 "STM32F10X_CL",
                 "USE_STDPERIPH_DRIVER"
             ],

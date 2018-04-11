@@ -24,6 +24,10 @@ export RULES     = $(ROOT)/rules.mk
 export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
 export DEFS = $(DEFS_FOR_APP) \
+			  -DMALLOC_PROVIDED \
+			  -D__DYNAMIC_REENT__ \
+			  -DMISSING_SYSCALL_NAMES \
+			  -DREENTRANT_SYSCALLS_PROVIDED \
 			  -DUSE_STDPERIPH_DRIVER \
 			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
