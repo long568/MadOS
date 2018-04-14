@@ -9,6 +9,7 @@
 #define MAD_THREAD_WAITSEM    ((MadU8)0x04)
 #define MAD_THREAD_WAITMSG    ((MadU8)0x08)
 #define MAD_THREAD_WAITEVENT  ((MadU8)0x10)
+#define MAD_THREAD_KILLED     ((MadU8)0x80)
 
 #define MAD_THREAD_SELF       ((MadU8)0xFF)
 #define MAD_THREAD_RESERVED   (MAD_ACT_IDLE_PRIO)
@@ -16,6 +17,12 @@
 #define MAD_GET_THREAD_PRIO(ph, pl) (MadU8)((ph << 4) + pl)
 #define MAD_GET_THREAD_PRIO_H(p)    (MadU8)(p >> 4)
 #define MAD_GET_THREAD_PRIO_L(p)    (MadU8)(p & 0x0F)
+
+typedef enum _MadThreadFlag {
+    MadThreadFlag_None = 0,
+    MadThreadFlag_Take,
+    MadThreadFlag_NUM
+} MadThreadFlag;
 
 typedef struct _MadRdyG_t {
     MadU16  rdyg;

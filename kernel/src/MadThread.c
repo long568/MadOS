@@ -1,6 +1,7 @@
 #include "MadOS.h"
 
 MadBool  MadOSRunning;
+MadU8    MadThreadClear;
 MadTCB_t *MadCurTCB;
 MadTCB_t *MadHighRdyTCB;
 MadTCB_t *MadTCBGrp[MAD_THREAD_NUM_MAX];
@@ -26,11 +27,11 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
     MadU8     flagSched = MFALSE;
     
     madEnterCritical(cpsr);
-    if(MadTCBGrp[prio]) {
+    if((MadTCB_t*)MadThreadFlag_None != MadTCBGrp[prio]) {
         madExitCritical(cpsr);
         return 0;
     }
-    MadTCBGrp[prio] = (MadTCB_t *)1;
+    MadTCBGrp[prio] = (MadTCB_t*)MadThreadFlag_Take;
     madExitCritical(cpsr);
 
     if(!stk) {
@@ -38,14 +39,13 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
         stk = madMemMallocCarefully(size_all, &nReal);
         if(!stk) {
             madEnterCritical(cpsr);
-            MadTCBGrp[prio] = 0;
+            MadTCBGrp[prio] = (MadTCB_t*)MadThreadFlag_None;
             madExitCritical(cpsr);
             return 0;
         }
     } else {
         nReal = size;
     }
-    
     
     prio_h  = MAD_GET_THREAD_PRIO_H(prio);
     prio_l  = MAD_GET_THREAD_PRIO_L(prio);
@@ -94,7 +94,8 @@ void madThreadResume(MadU8 threadPrio)
     madEnterCritical(cpsr);
     
     pTCB = MadTCBGrp[threadPrio];
-    if(!pTCB) {
+    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
+       (pTCB->state & MAD_THREAD_KILLED)) {
         madExitCritical(cpsr);
         return;
     }
@@ -128,7 +129,8 @@ void madThreadPend(MadU8 threadPrio)
         flagSched = MTRUE;
     
     pTCB = MadTCBGrp[threadPrio];
-    if(!pTCB) {
+    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
+       (pTCB->state & MAD_THREAD_KILLED)) {
         madExitCritical(cpsr);
         return;
     }
@@ -155,20 +157,19 @@ MadVptr madThreadDelete(MadU8 threadPrio)
     MadU8     prio_h;
     MadU8     flagSched = MFALSE;
     
-    madMemLock(cpsr);
-    
+    madEnterCritical(cpsr);
     if(MAD_THREAD_SELF == threadPrio)
         threadPrio = MadCurTCB->prio;
     if(threadPrio == MadCurTCB->prio)
         flagSched = MTRUE;
     
     pTCB = MadTCBGrp[threadPrio];
-    if(!pTCB) {
-        madMemUnlock(cpsr);
+    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
+       (pTCB->state & MAD_THREAD_KILLED)) {
+        madExitCritical(cpsr);
         return MNULL;
     }
     
-    MadTCBGrp[threadPrio] = 0;
     prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
     MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
     if(!MadThreadRdy[prio_h])
@@ -180,24 +181,69 @@ MadVptr madThreadDelete(MadU8 threadPrio)
             pTCB->xCB->rdyg &= ~pTCB->rdyg_bit;
         pTCB->xCB = 0;
     }
-    
+
     msg = pTCB->msg;
-    pTCB->msg = 0;
-    
-    madMemFreeCritical((MadVptr)pTCB);
-    
+    pTCB->msg   = 0;
+    pTCB->state = MAD_THREAD_KILLED;
 #ifdef MAD_AUTO_RECYCLE_RES
     if(MTRUE == autoClear)
-        madMemClearRes(threadPrio);
+        pTCB->pStk = (MadStk_t*)1;
+    else 
+        pTCB->pStk = (MadStk_t*)0;
 #endif
 
+    MadThreadClear++;
+    madExitCritical(cpsr);
     if(flagSched) madSched();
-    madMemUnlock(cpsr);
-    
     return msg;
 }
 
-MadUint madThreadCheckReady(void)
+void madThreadrRecyclingResources(void) // Looped in madActIdle
+{
+    static MadU8 i = 0;
+    MadU8     n;
+    MadTCB_t *pTCB;
+    MadCpsr_t cpsr;
+
+    madEnterCritical(cpsr);
+    n = MadThreadClear;
+    MadThreadClear = 0;
+    madExitCritical(cpsr);
+
+    if(n == 0) {
+        return;
+    }
+
+    do {
+        madEnterCritical(cpsr);
+        pTCB = MadTCBGrp[i];
+        if(((MadTCB_t*)MadThreadFlag_NUM < pTCB) && (pTCB->state && MAD_THREAD_KILLED)) {
+            MadTCBGrp[i] = (MadTCB_t*)MadThreadFlag_Take;
+        } else {
+            pTCB = 0;
+        }
+        madExitCritical(cpsr);
+
+        if(pTCB) {
+#ifdef MAD_AUTO_RECYCLE_RES
+            if(pTCB->pStk)
+                madMemClearRes(pTCB->prio);
+#endif
+            madMemFreeNull(pTCB);
+
+            madEnterCritical(cpsr);
+            MadTCBGrp[i] = (MadTCB_t*)MadThreadFlag_None;
+            madExitCritical(cpsr);
+
+            n--;
+        }
+
+        if(++i == MAD_THREAD_NUM_MAX)
+            i = 0;
+    } while(n);
+}
+
+MadUint madThreadCheckReady(void) // Called by architecture related code
 {
     MadU8 prio_h;
     MadU8 prio_l;

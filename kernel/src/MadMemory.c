@@ -15,18 +15,11 @@ static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
 static MadSize_t    mad_unused_size;
 static MadSize_t    mad_max_size;
-#ifdef MAD_LOCK_MEM_BY_SEM
 static MadSemCB_t   mad_mem_sem;
 static MadSemCB_t   *mad_mem_pSem;
-#endif /* MAD_LOCK_MEM_BY_SEM */
 
-#ifdef MAD_LOCK_MEM_BY_SEM
-#define MAD_MEM_LOCK()     madMemDoWait();
-#define MAD_MEM_UNLOCK()   madMemDoRelease();
-#else  /* MAD_LOCK_MEM_BY_SEM */
-#define MAD_MEM_LOCK()     do{ MadCpsr_t cpsr; madEnterCritical(cpsr);
-#define MAD_MEM_UNLOCK()   madExitCritical(cpsr); }while(0);
-#endif /* MAD_LOCK_MEM_BY_SEM */
+#define MAD_MEM_LOCK()     madSemWait(&mad_mem_pSem, 0);
+#define MAD_MEM_UNLOCK()   madSemRelease(&mad_mem_pSem);
 
 #define MAD_MEM_HEAD_SIZE  MAD_ALIGNED_SIZE(sizeof(MadMemHead_t))
 #define MAD_MEM_TARGET(p)  ((MadMemHead_t *)((MadU8*)p - MAD_MEM_HEAD_SIZE))
@@ -42,43 +35,17 @@ void madMemInit(MadVptr heap_head, MadSize_t heap_size)
     mad_heap_tail   = (MadU8*)heap_head + heap_size;
     mad_unused_size = heap_size;
     mad_max_size    = heap_size;
-#ifdef MAD_LOCK_MEM_BY_SEM
 	mad_mem_pSem    = &mad_mem_sem;
     madSemInit(mad_mem_pSem, 1);
-#endif
 #ifdef MAD_CPY_MEM_BY_DMA
     madArchMemInit();
 #endif
 }
 
-#ifdef MAD_LOCK_MEM_BY_SEM
-void madMemDoWait(void)
-{
-    madSemWait(&mad_mem_pSem, 0);
-}
-
-void madMemDoRelease(void)
-{
-    madSemRelease(&mad_mem_pSem);
-}
-
-void madMemFreeCritical(MadVptr p)
-{
-    MadMemHead_t * target;  
-    if(MNULL == p)
-        return;
-    target = MAD_MEM_TARGET(p);
-    doMemFree(target);
-}
-#endif /* MAD_LOCK_MEM_BY_SEM */
-
 MadVptr madMemMallocCarefully(MadSize_t size, MadSize_t *nReal)
 {
     MadU8     *res;
     MadSize_t real_n;
-#ifdef MAD_LOCK_MEM_BY_SEM
-    MadCpsr_t cpsr;
-#endif
 #ifdef MAD_AUTO_RECYCLE_RES
     MadU8     owner;
 #endif
@@ -93,16 +60,15 @@ MadVptr madMemMallocCarefully(MadSize_t size, MadSize_t *nReal)
     MAD_MEM_LOCK()
     
 #ifdef MAD_AUTO_RECYCLE_RES
-#ifdef MAD_LOCK_MEM_BY_SEM
-    madEnterCritical(cpsr);
-#endif
-    if(MTRUE == MadOSRunning)
-        owner = MadCurTCB->prio;
-    else
-        owner = MAD_THREAD_RESERVED;
-#ifdef MAD_LOCK_MEM_BY_SEM
-    madExitCritical(cpsr);
-#endif
+    do {
+        MadCpsr_t cpsr;
+        madEnterCritical(cpsr);
+        if(MTRUE == MadOSRunning)
+            owner = MadCurTCB->prio;
+        else
+            owner = MAD_THREAD_RESERVED;
+        madExitCritical(cpsr);
+    } while(0);
 #endif /* MAD_AUTO_RECYCLE_RES */
     
     if (real_n > mad_unused_size) {
@@ -119,7 +85,6 @@ MadVptr madMemMallocCarefully(MadSize_t size, MadSize_t *nReal)
 #ifdef MAD_AUTO_RECYCLE_RES
     ((MadMemHead_t *)res)->owner = owner;
 #endif
-    
     res += MAD_MEM_HEAD_SIZE;
     if(MNULL != nReal)
         *nReal = real_n - MAD_MEM_HEAD_SIZE;
@@ -240,51 +205,7 @@ static MadU8* findSpace(MadSize_t size)
     MadSize_t    ofs;
     MadMemHead_t *tmp;
     MadMemHead_t *head;
-#if 0    
-    if(mad_used_head == MNULL) {
-        mad_used_head = (MadMemHead_t *)mad_heap_head;
-        mad_used_head->size = size;
-        mad_used_head->next = MNULL;
-        mad_unused_size -= size;
-        return mad_heap_head;
-    }
-    if(mad_used_head > (MadMemHead_t *)mad_heap_head) {
-        ofs = (MadSize_t)((MadU8*)mad_used_head - mad_heap_head);
-        if(ofs >= size) {
-            tmp = mad_used_head;
-            mad_used_head = (MadMemHead_t *)mad_heap_head;
-            mad_used_head->size = size;
-            mad_used_head->next = tmp;
-            mad_unused_size -= size;
-            return mad_heap_head;
-        }
-    }
-    head = mad_used_head;
-    while(MNULL != head->next) {
-        res = (MadU8*)head + head->size;
-        ofs = (MadSize_t)((MadU8*)(head->next) - res);
-        if(ofs >= size) {
-            tmp = head->next;
-            head->next = (MadMemHead_t *)res;
-            ((MadMemHead_t *)res)->size = size;
-            ((MadMemHead_t *)res)->next = tmp;
-            mad_unused_size -= size;
-            return res;
-        }
-        head = head->next;
-    }
-    res = (MadU8*)head + head->size;
-    ofs = (MadSize_t)(mad_heap_tail - res);
-    if(ofs >= size) {
-        head->next = (MadMemHead_t *)res;
-        ((MadMemHead_t *)res)->size = size;
-        ((MadMemHead_t *)res)->next = MNULL;
-        mad_unused_size -= size;
-        return res;
-    } else {
-        return MNULL;
-    }
-#else
+
     ofs = 0;
     tmp = MNULL;
     res = (MadU8*)mad_heap_head;
@@ -320,12 +241,12 @@ static MadU8* findSpace(MadSize_t size)
     }
 
     return MNULL;
+    
 RETURN_SPACE:
     ((MadMemHead_t *)res)->size = size;
     ((MadMemHead_t *)res)->next = tmp;
     mad_unused_size -= size;
     return res;
-#endif /* findSpace */
 }
 
 static void doMemFree(MadMemHead_t *target)
@@ -394,15 +315,18 @@ void madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
 #ifdef MAD_AUTO_RECYCLE_RES
 void madMemChangeOwner(const MadU8 oldOwner, const MadU8 newOwner)
 {
+    MadCpsr_t    cpsr;
     MadMemHead_t *head;
-    MadU8        owner; 
+    MadU8        owner;
     
     MAD_MEM_LOCK()
     
+    madEnterCritical(cpsr);
     if(MAD_THREAD_SELF == oldOwner)
         owner = MadCurTCB->prio;
     else
         owner = oldOwner;
+    madExitCritical(cpsr);
     
     head = mad_used_head;
     while(head) {
@@ -419,6 +343,8 @@ void madMemClearRes(const MadU8 owner)
     MadMemHead_t *prio;
     MadMemHead_t *head;
     
+    MAD_MEM_LOCK()
+
     prio = MNULL;
     head = mad_used_head;
     while(head) {
@@ -433,5 +359,7 @@ void madMemClearRes(const MadU8 owner)
         }
         head = head->next;
     }
+
+    MAD_MEM_UNLOCK()
 }
 #endif /* MAD_AUTO_RECYCLE_RES */

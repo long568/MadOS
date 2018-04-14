@@ -21,8 +21,6 @@ extern  MadVptr        madFBufferGet             (MadFBuffer_t *fb);
 extern  void           madFBufferPut             (MadFBuffer_t *fb, MadVptr buf);
 #define                madFBufferUnusedCount(fb) (fb->n)
 #define                madFBufferMaxCount(fb)    (fb->max)
-#define                madFBufferDelete(fb)      madMemFree(fb)
-#define                madFBufferDeleteNull(fb)  madMemFreeNull(fb)
-#define                madFBufferSafeDelete(fb)  madMemSafeFree(fb)
+#define                madFBufferDelete(fb)      madMemFreeNull(fb)
 
 #endif

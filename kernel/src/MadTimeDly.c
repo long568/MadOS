@@ -28,7 +28,7 @@ MadUint madSysTick(void)
     madEnterCritical(cpsr);
     for(i=0; i<MAD_THREAD_NUM_MAX; i++) {
         pTCB = MadTCBGrp[i];
-        if(!pTCB || !pTCB->timeCnt) 
+        if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) || (!pTCB->timeCnt))
             continue;
         
         pTCB->timeCnt--;

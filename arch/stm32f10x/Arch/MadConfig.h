@@ -13,13 +13,8 @@
  * MadThread
  */
 #define MAD_THREAD_NUM_MAX   (256)
-#define MAD_IDLE_STK_SIZE    (80)      // byte
+#define MAD_IDLE_STK_SIZE    (128)     // byte
 #define MAD_STATIST_STK_SIZE (96)      // byte
-
-/*
- * Lock Memory-Heap by semaphore.
- */
-#define MAD_LOCK_MEM_BY_SEM
 
 /*
  * Automatically recycle the resources of a specified thread.
@@ -44,7 +39,7 @@
 #define MAD_USE_IDLE_HOOK  1
 
 #if MAD_USE_IDLE_HOOK
-#define MAD_IDLE_HOOK  madIdleHook
+#define MAD_IDLE_HOOK  madIdleHook  // Can NOT be blocked.
 extern  void  MAD_IDLE_HOOK(void);
 #endif /* MAD_USE_IDLE_HOOK */
 

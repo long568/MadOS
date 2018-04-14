@@ -83,7 +83,7 @@ static void madStartup(MadVptr exData)
     Init_TestUIP();
     Init_TestPosix();
 
-    madThreadCreate(madSysRunning, 0, 1024, THREAD_PRIO_SYS_RUNNING);
+    madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
     while(1);
@@ -104,7 +104,8 @@ static void madSysRunning(MadVptr exData)
     pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
 	GPIO_Init(GPIOE, &pin);
 
-#if MAD_STATIST_STK_SIZE    
+#if MAD_STATIST_STK_SIZE
+    madTimeDly(100);
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
 #endif
     
@@ -122,7 +123,7 @@ static void madSysRunning(MadVptr exData)
         
 #ifdef MAD_SHOW_IDLERATE
         tmrSysReport ++;
-        if(tmrSysReport >= 2) {
+        if(tmrSysReport >= 2 * 10) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
         }

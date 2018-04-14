@@ -1,6 +1,9 @@
 #include "MadOS.h"
 
+extern MadU8 MadThreadClear;
+
 extern void madOSStartUp(void);
+extern void madThreadrRecyclingResources(void);
 
 #define MAD_REAL_IDLE_STK_SIZE    ((MAD_IDLE_STK_SIZE    + sizeof(MadTCB_t)) / MAD_MEM_ALIGN + 1)
 #if MAD_STATIST_STK_SIZE
@@ -30,7 +33,10 @@ void madOSInit(MadVptr heap_head, MadSize_t heap_size)
     MadThreadRdyGrp = 0;
     for(i=0; i<MAD_THREAD_RDY_NUM; i++)
         MadThreadRdy[i] = 0;
+    MadThreadClear = 0;
+
     madMemInit(heap_head, heap_size);
+    
     MadCurTCB = madThreadCreateCarefully(madActIdle, 0, MAD_REAL_IDLE_STK_SIZE * MAD_MEM_ALIGN, (MadVptr)mad_idle_stk, MAD_ACT_IDLE_PRIO);
     if(!MadCurTCB) 
         while(1);
@@ -56,6 +62,7 @@ static void madActIdle(MadVptr exData)
 #endif
     (void)exData;
     while(1) {
+        madThreadrRecyclingResources();
 #if MAD_STATIST_STK_SIZE
         madEnterCritical(cpsr);
         mad_sys_cnt++;
