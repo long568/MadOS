@@ -26,6 +26,8 @@ void madCopyVectorTab(void)
 
 void madInstallExIrq(xIRQ_Handler irq, MadU32 irqn)
 {
-    xIRQ_Handler *pIrq = (xIRQ_Handler*)SRAM_BASE;
-    pIrq[VECTOR_EX_OFS + irqn] = irq;
+    if(irq) {
+        xIRQ_Handler *pIrq = (xIRQ_Handler*)SRAM_BASE;
+        pIrq[VECTOR_EX_OFS + irqn] = irq;
+    }
 }
