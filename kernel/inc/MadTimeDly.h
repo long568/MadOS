@@ -3,7 +3,10 @@
 
 #include "MadGlobal.h"
 
-extern  void  madInitSysTick  (MadTim_t cnt);
+extern MadTim_t MadSysTickFreq;
+extern MadTim_t MadTicksPerSec;
+
+extern  void  madInitSysTick  (MadTim_t freq, MadTim_t ticks);
 extern  void  madTimeDly      (MadTim_t timeCnt);
 
 #endif

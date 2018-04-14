@@ -1,5 +1,8 @@
 #include "MadOS.h"
 
+MadTim_t MadSysTickFreq;
+MadTim_t MadTicksPerSec;
+
 void madTimeDly(MadTim_t timeCnt)
 {
     MadCpsr_t cpsr;

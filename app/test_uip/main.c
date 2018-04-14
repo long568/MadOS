@@ -7,7 +7,7 @@
 #include "testPosix.h"
 
 #if MAD_STATIST_STK_SIZE
-//#define MAD_SHOW_IDLERATE
+// #define MAD_SHOW_IDLERATE
 #endif
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
@@ -52,7 +52,7 @@ static void madStartup(MadVptr exData)
         RCC_MCOConfig(RCC_MCO_HSE);
     } while(0);
     
-    madInitSysTick(SYSTICKS_PER_SEC);
+    madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
 #endif
@@ -75,6 +75,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    float     -> %d Bytes\n", sizeof(float));
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
+
     uIP_Init();
 
 /********************************************

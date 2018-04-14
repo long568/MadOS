@@ -120,8 +120,8 @@ MadBool uIP_preinit(mETH_t *eth)
     timer_init(&uIP_periodic_timer);
     timer_add(&uIP_arp_timer, &uIP_Clocker);
     timer_add(&uIP_periodic_timer, &uIP_Clocker);
-    timer_set(&uIP_arp_timer, CLOCK_SECOND * 10);
-    timer_set(&uIP_periodic_timer, CLOCK_SECOND / 2);
+    timer_set(&uIP_arp_timer, MadTicksPerSec * 10);
+    timer_set(&uIP_periodic_timer, MadTicksPerSec / 2);
     uip_init();
     do {
         uip_ipaddr_t ipaddr;

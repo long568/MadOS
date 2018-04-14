@@ -23,9 +23,11 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
     return stk;
 }
 
-void madInitSysTick(MadTim_t cnt)
+void madInitSysTick(MadTim_t freq, MadTim_t ticks)
 {
-    SysTick_Config(ARM_SYSTICK_CLK/cnt);
+    MadSysTickFreq = freq;
+    MadTicksPerSec = ticks;
+    SysTick_Config(MadSysTickFreq / MadTicksPerSec);
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     NVIC_SetPriority (SysTick_IRQn, ISR_PRIO_SYSTICK);

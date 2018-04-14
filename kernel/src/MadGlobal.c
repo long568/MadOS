@@ -81,7 +81,7 @@ void madInitStatist(void)
     madEnterCritical(cpsr);
     mad_sys_cnt = 0;
     madExitCritical(cpsr);
-    madTimeDly(SYSTICKS_PER_SEC);
+    madTimeDly(MadTicksPerSec);
     madEnterCritical(cpsr);
     mad_sys_cnt_res = mad_sys_cnt;
     mad_sys_cnt_max = mad_sys_cnt;
@@ -96,7 +96,7 @@ static void madActStatist(MadVptr exData)
     MadCpsr_t cpsr;
     (void)exData;
     while(1) {
-        madTimeDly(SYSTICKS_PER_SEC);
+        madTimeDly(MadTicksPerSec);
         madEnterCritical(cpsr);
         mad_sys_cnt_res = mad_sys_cnt;
         mad_sys_cnt = 0;

@@ -217,7 +217,8 @@ void madThreadrRecyclingResources(void) // Looped in madActIdle
     do {
         madEnterCritical(cpsr);
         pTCB = MadTCBGrp[i];
-        if(((MadTCB_t*)MadThreadFlag_NUM < pTCB) && (pTCB->state && MAD_THREAD_KILLED)) {
+        if(((MadTCB_t*)MadThreadFlag_NUM < pTCB) && 
+           (pTCB->state & MAD_THREAD_KILLED)) {
             MadTCBGrp[i] = (MadTCB_t*)MadThreadFlag_Take;
         } else {
             pTCB = 0;

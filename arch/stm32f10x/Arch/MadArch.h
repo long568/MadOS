@@ -33,8 +33,8 @@ typedef MadU8              MadFlag_t;
 
 #include "MadISR.h"
 
-#define ARM_SYSTICK_CLK  (9000000)
-#define SYSTICKS_PER_SEC (1000)
+#define DEF_SYS_TICK_FREQ (9000000)
+#define DEF_TICKS_PER_SEC (1000)
 
 #define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 #define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); } while(0)

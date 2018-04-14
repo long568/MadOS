@@ -150,13 +150,7 @@ static u8_t *add_hostname(u8_t *optptr) { // Added by long
     u8_t *p_len;
     *optptr++ = DHCP_OPTION_HOSTNAME;
     p_len = optptr++;
-    // len = DHCP_HOST_NAMES((char*)optptr);
-    do {
-        const u8_t str0[] = "MadOS";
-        for(len=0; len<5; len++) {
-            optptr[len] = str0[len];
-        }
-    } while(0);
+    len = DHCP_HOST_NAMES((char*)optptr);
     *p_len = len;
     optptr += len;
     return optptr;
@@ -287,7 +281,7 @@ PT_THREAD(handle_dhcp(void))
     PT_BEGIN(&s.pt);
     /* try_again:*/
     s.state = STATE_SENDING;
-    s.ticks = CLOCK_SECOND;
+    s.ticks = MadTicksPerSec;
     s.data_ok = 0;
 #if DHCP_SHOW_RESULT
     MAD_LOG("DHCP-Client is starting up ... OK\n");
@@ -298,12 +292,12 @@ PT_THREAD(handle_dhcp(void))
         timer_set(&s.timer, s.ticks);
         PT_WAIT_UNTIL(&s.pt, dhcpc_wait_offer() || timer_expired(&s.timer));
         if(s.data_ok) break;
-        if(s.ticks < CLOCK_SECOND * 60) {
+        if(s.ticks < MadTicksPerSec * 60) {
             s.ticks *= 2;
         }
     } while(s.state != STATE_OFFER_RECEIVED);
 
-    s.ticks = CLOCK_SECOND;
+    s.ticks = MadTicksPerSec;
     s.data_ok = 0;
 
     do {
@@ -311,8 +305,8 @@ PT_THREAD(handle_dhcp(void))
         timer_set(&s.timer, s.ticks);
         PT_WAIT_UNTIL(&s.pt, dhcpc_wait_ack() || timer_expired(&s.timer));
         if(s.data_ok) break;
-        if(s.ticks <= CLOCK_SECOND * 10) {
-            s.ticks += CLOCK_SECOND;
+        if(s.ticks <= MadTicksPerSec * 10) {
+            s.ticks += MadTicksPerSec;
         } else {
             PT_RESTART(&s.pt);
         }
@@ -336,9 +330,8 @@ PT_THREAD(handle_dhcp(void))
 #endif
     dhcpc_configured((const struct dhcpc_state *)&s);
 
-#if DHCP_RESTART_DIV
+#ifdef DHCP_RESTART_DIV
     timer_set(&s.timer, lease_time * DHCP_RESTART_DIV);
-    //timer_set(&s.timer, 5000);
     PT_WAIT_UNTIL(&s.pt, timer_expired(&s.timer));
 #else
     while(1) PT_YIELD(&s.pt);
