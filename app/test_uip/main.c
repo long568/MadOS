@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 
 #include "MadOS.h"
 #include "mod_uIP.h"
 #include "testEth.h"
-#include "testSpiFlash.h"
+#include "testPosix.h"
 
 #if MAD_STATIST_STK_SIZE
 //#define MAD_SHOW_IDLERATE
@@ -15,10 +14,6 @@ MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);
-
-void HardFault_Handler(void) {
-	while(1) {}
-}
 
 inline void madIdleHook(void) {
 }
@@ -86,13 +81,7 @@ static void madStartup(MadVptr exData)
  * User-Apps
  ********************************************/
     Init_TestUIP();
-    //Init_SpiFlash();
-
-    do {
-        volatile int fd;
-        fd = open("HiMadOS", O_RDWR);
-        fd = fd;
-    } while(0);
+    Init_TestPosix();
 
     madThreadCreate(madSysRunning, 0, 1024, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

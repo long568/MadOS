@@ -7,7 +7,8 @@
         "mados.h": "c",
         "stm32_ttyusart.h": "c",
         "stdio.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "testspiflash.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

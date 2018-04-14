@@ -3,6 +3,8 @@
 
 typedef void (*xIRQ_Handler)(void);
 
+extern void HardFault_Handler(void);
+
 extern void madCopyVectorTab(void);
 extern void madInstallExIrq(xIRQ_Handler irq, MadU32 irqn);
 
