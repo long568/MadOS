@@ -182,15 +182,17 @@ MadVptr madThreadDelete(MadU8 threadPrio)
         pTCB->xCB = 0;
     }
 
-    msg = pTCB->msg;
-    pTCB->msg   = 0;
-    pTCB->state = MAD_THREAD_KILLED;
 #ifdef MAD_AUTO_RECYCLE_RES
     if(MTRUE == autoClear)
         pTCB->pStk = (MadStk_t*)1;
     else 
         pTCB->pStk = (MadStk_t*)0;
 #endif
+
+    msg = pTCB->msg;
+    pTCB->msg     = 0;
+    pTCB->timeCnt = 0;
+    pTCB->state   = MAD_THREAD_KILLED;
 
     MadThreadClear++;
     madExitCritical(cpsr);
