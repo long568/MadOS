@@ -72,19 +72,18 @@ void madDoSemRelease(MadSemCB_t **pSem, MadU8 err)
     
     prio = MAD_GET_THREAD_PRIO(prio_h, prio_l);
     tcb = MadTCBGrp[prio];
-    if(tcb) {
-        tcb->timeCntRemain = tcb->timeCnt;
-        tcb->timeCnt = 0;
-        tcb->xCB = 0;
-        tcb->state &= ~MAD_THREAD_WAITSEM;
-        tcb->err = err;
-        
-        if(!tcb->state) {
-            MadThreadRdyGrp |= tcb->rdyg_bit;
-            MadThreadRdy[prio_h] |= tcb->rdy_bit;
-            if(prio < MadCurTCB->prio)
-                flagSched = MTRUE;
-        }
+
+    tcb->timeCntRemain = tcb->timeCnt;
+    tcb->timeCnt = 0;
+    tcb->xCB = 0;
+    tcb->state &= ~MAD_THREAD_WAITSEM;
+    tcb->err = err;
+    
+    if(!tcb->state) {
+        MadThreadRdyGrp |= tcb->rdyg_bit;
+        MadThreadRdy[prio_h] |= tcb->rdy_bit;
+        if(prio < MadCurTCB->prio)
+            flagSched = MTRUE;
     }
     
     madExitCritical(cpsr);

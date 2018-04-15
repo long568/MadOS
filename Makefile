@@ -45,8 +45,7 @@ export INCS = $(INCS_FOR_APP) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
-export LIBS = -L$(BUILD_DIR)  \
-              -ldrv -lkernel -larch -lm -lc -lgcc
+export LIBS = -L$(BUILD_DIR) -ldrv -lkernel -larch -lm -lc -lgcc
 
 ifeq ($(BUILD_VER), debug)
 CXFLAGS = -g3
