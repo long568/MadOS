@@ -2,26 +2,10 @@
 #include "UserConfig.h"
 #include "test.h"
 
-static MadU8 MadStack[MAD_OS_STACK_SIZE] = { 0 };
+MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);
-
-void HardFault_Handler(void)
-{
-	volatile int a = 0;
-	while(1) {
-		a++;
-	}
-}
-
-void WWDG_IRQHandler(void)
-{
-	volatile int a = 0;
-	while(1) {
-		a++;
-	}
-}
 
 int main()
 {
@@ -42,7 +26,7 @@ static void madStartup(MadVptr exData)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
     
-    madInitSysTick(SYSTICKS_PER_SEC);
+    madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
 #endif

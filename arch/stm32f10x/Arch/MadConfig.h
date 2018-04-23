@@ -36,7 +36,7 @@
 /*
  * Use hooks to expand MadOS
  */
-#define MAD_USE_IDLE_HOOK  1
+#define MAD_USE_IDLE_HOOK  0
 
 #if MAD_USE_IDLE_HOOK
 #define MAD_IDLE_HOOK  madIdleHook  // Can NOT be blocked.
