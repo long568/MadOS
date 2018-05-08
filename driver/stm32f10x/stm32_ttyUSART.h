@@ -6,7 +6,6 @@
 #include <stddef.h>
 
 #include "MadOS.h"
-#include "UserConfig.h"
 
 #define USART_GETC_NOEOF   1
 

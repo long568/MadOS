@@ -2,10 +2,6 @@
 #define __MAD_ARCH_H__
 
 #include "stm32f10x.h"
-#include "UserConfig.h"
-
-#define MAD_KEIL_MDK
-#define MAD_OS_DEBUG
 
 #define MadVptr            void*
 

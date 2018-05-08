@@ -3,11 +3,6 @@
 
 #include "eth_low.h"
 
-// #define memcpy madMemCopy
-// #define memset madMemSet
-// #define memcmp madMemCmp
-// #define NULL   MNULL
-
 /*
  * Configure uIP
  */

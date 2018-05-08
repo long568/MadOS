@@ -1,4 +1,5 @@
 #include "testSpiFlash.h"
+#include "UserConfig.h"
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;

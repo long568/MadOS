@@ -1,4 +1,5 @@
-export APP        = lesson002
+# export APP        = lesson002
+export APP        = test_uip
 export MCU_ARCH   = armv7-m
 export MCU_VER    = cortex-m3
 export MCU_PREFIX = stm32f10x
@@ -39,6 +40,7 @@ export INCS = $(INCS_FOR_APP) \
 			  -I$(ROOT)/kernel/lib/timer \
 			  -I$(ROOT)/library/uIP/uip \
 			  -I$(ROOT)/library/uIP/uip-funs \
+			  -I$(ROOT)/driver \
 			  -I$(ROOT)/driver/$(MCU_PREFIX) \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
 			  -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
@@ -63,7 +65,7 @@ export LDFLAGS  += $(LIBS) -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 
 all :
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
-	$(MAKE) -C $(ROOT)/driver/$(MCU_PREFIX)
+	$(MAKE) -C $(ROOT)/driver
 	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/library
 	$(MAKE) -C $(ROOT)/app/$(APP)

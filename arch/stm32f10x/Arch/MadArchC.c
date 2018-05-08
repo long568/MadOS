@@ -1,4 +1,5 @@
 #include "MadOS.h"
+#include "UserConfig.h"
 
 MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
 {

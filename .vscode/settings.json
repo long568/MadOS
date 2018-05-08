@@ -8,7 +8,8 @@
         "stm32_ttyusart.h": "c",
         "stdio.h": "c",
         "stdarg.h": "c",
-        "testspiflash.h": "c"
+        "testspiflash.h": "c",
+        "maddrv.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

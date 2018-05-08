@@ -1,4 +1,5 @@
 #include "stm32_ttyUSART.h"
+#include "UserConfig.h"
 
 MAD_FIFO_DECLARE(ttyUsart_BufRx, MadU8, 32);
 MAD_FIFO_DECLARE(ttyUsart_BufTx, MadU8, 32);

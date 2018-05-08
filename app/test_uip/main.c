@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "MadOS.h"
+#include "MadDrv.h"
+#include "UserConfig.h"
 #include "mod_uIP.h"
 #include "testEth.h"
 #include "testPosix.h"
@@ -9,6 +11,10 @@
 #if MAD_STATIST_STK_SIZE
 // #define MAD_SHOW_IDLERATE
 #endif
+
+const MadDrv_t test_drv = {
+    0, 0, 0, 0, 0, 0, 0
+};
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 

@@ -1,4 +1,5 @@
 #include "eth_low.h"
+#include "UserConfig.h"
 
 static MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth);
 static MadBool eth_phy_init(mETH_t *eth);
