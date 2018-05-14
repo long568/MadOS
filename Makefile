@@ -1,5 +1,7 @@
+# export APP        = test_kernel
+# export APP        = test_uip
 # export APP        = lesson002
-export APP        = test_uip
+export APP        = LoARM
 export MCU_ARCH   = armv7-m
 export MCU_VER    = cortex-m3
 export MCU_PREFIX = stm32f10x

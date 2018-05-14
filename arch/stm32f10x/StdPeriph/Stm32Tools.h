@@ -8,9 +8,9 @@ typedef struct __StmPIN {
     uint16_t     pin;
 } StmPIN;
 
-extern void    StmPIN_Init         (StmPIN *p, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed);
-extern void    StmPIN_SetIO        (StmPIN *p, GPIO_TypeDef *port, uint16_t pin);
-extern void    StmPIN_SetValue     (StmPIN *p, MadBool v);
+extern void StmPIN_Init             (StmPIN *p, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed);
+extern void StmPIN_SetIO            (StmPIN *p, GPIO_TypeDef *port, uint16_t pin);
+extern void StmPIN_SetValue         (StmPIN *p, MadBool v);
 
 #define     StmPIN_ReadInValue(p)   GPIO_ReadInputDataBit((p)->port, (p)->pin)
 #define     StmPIN_ReadOutValue(p)  GPIO_ReadOutputDataBit((p)->port, (p)->pin)

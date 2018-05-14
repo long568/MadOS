@@ -1,4 +1,5 @@
 #include "MadOS.h"
+#include "UserConfig.h"
 #include "test.h"
 
 void testEvent_t(MadVptr exData);
