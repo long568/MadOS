@@ -5,6 +5,7 @@
 #include "MadDev.h"
 #include "UserConfig.h"
 #include "mod_uIP.h"
+#include "LoArm.h"
 
 #if MAD_STATIST_STK_SIZE
 // #define MAD_SHOW_IDLERATE
@@ -82,6 +83,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    Init_LoArm();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

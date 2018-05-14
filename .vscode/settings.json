@@ -9,7 +9,9 @@
         "stdio.h": "c",
         "stdarg.h": "c",
         "testspiflash.h": "c",
-        "maddrv.h": "c"
+        "maddrv.h": "c",
+        "loarm.h": "c",
+        "stm32tools.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
