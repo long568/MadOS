@@ -36,9 +36,10 @@
 #define LoArm_AXIS4_DIR_P1 GPIO_Pin_14
 #define LoArm_AXIS4_DIR_P2 GPIO_Pin_15
 
-#define LoArm_TIME_BASE  (72)       // 1MHz
-#define LoArm_TIME_SCALE (LoArm_TIME_BASE - 1)
-#define LoArm_TIME_PWM   (100 - 1)  // 10KHz
+#define LoArm_TIME_BASE   (72)    // 1MHz
+#define LoArm_TIME_MAX    (100)
+#define LoArm_TIME_SCALE  (LoArm_TIME_BASE - 1)
+#define LoArm_TIME_PERIOD (LoArm_TIME_MAX  - 1)
 
 #define LoArm_SERVER_IP(x)  uip_ipaddr(&x, 192, 168, 1, 123)
 #define LoArm_SERVER_PORT() HTONS(5688)
@@ -51,6 +52,6 @@ typedef struct {
     MadU32 key;
 } LoArmCmd_t;
 
-extern MadBool Init_LoArm(void);
+extern MadBool LoArm_Init(void);
 
 #endif

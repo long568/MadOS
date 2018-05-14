@@ -11,7 +11,8 @@
         "testspiflash.h": "c",
         "maddrv.h": "c",
         "loarm.h": "c",
-        "stm32tools.h": "c"
+        "stm32tools.h": "c",
+        "lostepmotor.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
