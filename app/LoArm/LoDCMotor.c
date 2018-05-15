@@ -29,7 +29,7 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
     TIM_TimeBaseStructure.TIM_ClockDivision     = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(motor->t, &TIM_TimeBaseStructure);
-    // TIM_UpdateRequestConfig(TIMx, TIM_UpdateSource_Regular);
+    TIM_UpdateRequestConfig(motor->t, TIM_UpdateSource_Regular);
 
     TIM_OCStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCStructure.TIM_OutputState  = TIM_OutputState_Disable;
@@ -49,13 +49,14 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
     }
 
     motor->speed = 0;
+    LoDCMotor_Lock(motor, MTRUE);
     TIM_Cmd(motor->t, ENABLE);
 }
 
 void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
 {
     MadU8 dir;
-    MadU8 as;
+    volatile MadU8 as;
 
     if (motor->speed != s) {
         if (s > 0) {

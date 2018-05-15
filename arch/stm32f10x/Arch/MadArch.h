@@ -5,10 +5,10 @@
 
 #define MadVptr            void*
 
-typedef char               MadS8;
-typedef short              MadS16;
-typedef int                MadS32;
-typedef long long          MadS64;
+typedef signed char        MadS8;
+typedef signed short       MadS16;
+typedef signed int         MadS32;
+typedef signed long long   MadS64;
 
 typedef unsigned char      MadU8;
 typedef unsigned short     MadU16;

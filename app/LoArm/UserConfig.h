@@ -3,7 +3,7 @@
 
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
-    THREAD_PRIO_MAD_ARM         = 10,
+    THREAD_PRIO_LOARM           = 10,
     THREAD_PRIO_DRIVER_ETH
 };
 

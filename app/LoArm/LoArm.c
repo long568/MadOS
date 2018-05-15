@@ -4,8 +4,9 @@
 #include "LoDCMotor.h"
 #include "UserConfig.h"
 
-MadSemCB_t *LoArmCmd_Sig = 0;
-LoArmCmd_t  LoArmCmdCur = {0, 0, 0, 0, 0};
+MadTCB_t   *LoArm_TCB     = 0;
+MadSemCB_t *LoArmCmd_Sig  = 0;
+LoArmCmd_t  LoArmCmd_Data = {0, 0, 0, 0, 0};
 
 LoStepMotor_t LoArm_Axis1;
 LoStepMotor_t LoArm_Axis2;
@@ -27,33 +28,37 @@ LoDCMotor_t   LoArm_Axis4;
 
 #define LoArmCmd_Set() \
     LoArmCmd_Lock()             \
-    LoArmCmdCur.axis1 = cmd[0]; \
-    LoArmCmdCur.axis2 = cmd[1]; \
-    LoArmCmdCur.axis3 = cmd[2]; \
-    LoArmCmdCur.axis4 = cmd[3]; \
-    LoArmCmdCur.key   = cmd[4]; \
+    LoArmCmd_Data.axis1 = cmd[0]; \
+    LoArmCmd_Data.axis2 = cmd[1]; \
+    LoArmCmd_Data.axis3 = cmd[2]; \
+    LoArmCmd_Data.axis4 = cmd[3]; \
+    LoArmCmd_Data.key   = (((MadU32)cmd[4] << 24) | \
+                           ((MadU32)cmd[5] << 16) | \
+                           ((MadU32)cmd[6] <<  8) | \
+                           (MadU32)cmd[7]);         \
     LoArmCmd_Unlock()
 
 #define LoArmCmd_Get(a1, a2, a3, a4, key) \
     LoArmCmd_Lock()          \
-    a1  = LoArmCmdCur.axis1; \
-    a2  = LoArmCmdCur.axis2; \
-    a3  = LoArmCmdCur.axis3; \
-    a4  = LoArmCmdCur.axis4; \
-    key = LoArmCmdCur.key;   \
+    a1  = LoArmCmd_Data.axis1; \
+    a2  = LoArmCmd_Data.axis2; \
+    a3  = LoArmCmd_Data.axis3; \
+    a4  = LoArmCmd_Data.axis4; \
+    key = LoArmCmd_Data.key;   \
     LoArmCmd_Unlock()
 
 #define LoArmCmd_Clear() \
     LoArmCmd_Lock()        \
-    LoArmCmdCur.axis1 = 0; \
-    LoArmCmdCur.axis2 = 0; \
-    LoArmCmdCur.axis3 = 0; \
-    LoArmCmdCur.axis4 = 0; \
-    LoArmCmdCur.key   = 0; \
+    LoArmCmd_Data.axis1 = 0; \
+    LoArmCmd_Data.axis2 = 0; \
+    LoArmCmd_Data.axis3 = 0; \
+    LoArmCmd_Data.axis4 = 0; \
+    LoArmCmd_Data.key   = 0; \
     LoArmCmd_Unlock()
 
 static void tcp_init(void);
-static void LoArm_thread(MadVptr exData);
+static void LoArm_App(MadVptr exData);
+static void LoArm_KeyHandler(MadU32 key);
 
 MadBool LoArm_Init(void)
 {
@@ -95,22 +100,36 @@ MadBool LoArm_Init(void)
     LoArm_Axis3.g  = LoArm_AXIS3_DIR_G;
     LoArm_Axis3.c  = LoArm_AXIS3_CHL;
     LoArm_Axis3.p1 = LoArm_AXIS3_DIR_P1;
-    LoArm_Axis3.p1 = LoArm_AXIS3_DIR_P2;
+    LoArm_Axis3.p2 = LoArm_AXIS3_DIR_P2;
     LoDCMotor_Init(&LoArm_Axis3);
 
     LoArm_Axis4.t  = LoArm_AXIS4_TIM;
     LoArm_Axis4.g  = LoArm_AXIS4_DIR_G;
     LoArm_Axis4.c  = LoArm_AXIS4_CHL;
     LoArm_Axis4.p1 = LoArm_AXIS4_DIR_P1;
-    LoArm_Axis4.p1 = LoArm_AXIS4_DIR_P2;
+    LoArm_Axis4.p2 = LoArm_AXIS4_DIR_P2;
     LoDCMotor_Init(&LoArm_Axis4);
 
     tcp_init();
-    madThreadCreate(LoArm_thread, 0, 2048, THREAD_PRIO_MAD_ARM);
+    LoArmCmd_Sig = madSemCreateCarefully(0, 1);
+    LoArm_TCB    = madThreadCreate(LoArm_App, 0, 2048, THREAD_PRIO_LOARM);
+    if((!LoArm_TCB) || (!LoArmCmd_Sig)) {
+        LoArm_ErrHandler();
+        return MFALSE;
+    }
+
     return MTRUE;
 }
 
-void LoArm_thread(MadVptr exData)
+void LoArm_ErrHandler(void)
+{
+    volatile static int haha = 0;
+    while(1) {
+        haha++;
+    }
+}
+
+void LoArm_App(MadVptr exData)
 {
     MadU8  ok;
     MadS8  a1;
@@ -119,9 +138,8 @@ void LoArm_thread(MadVptr exData)
     MadS8  a4;
     MadU32 key;
 
-    (void) key;
-
     while(1) {
+#if 1
         ok = madSemWait(&LoArmCmd_Sig, 3000);
         if(MAD_ERR_OK == ok) {
             LoArmCmd_Get(a1, a2, a3, a4, key);
@@ -129,6 +147,7 @@ void LoArm_thread(MadVptr exData)
             LoStepMotor_Go(&LoArm_Axis2, a2);
             LoDCMotor_Go  (&LoArm_Axis3, a3);
             LoDCMotor_Go  (&LoArm_Axis4, a4);
+            LoArm_KeyHandler(key);
         } else {
             LoArmCmd_Clear();
             LoStepMotor_Go(&LoArm_Axis1, 0);
@@ -136,6 +155,41 @@ void LoArm_thread(MadVptr exData)
             LoDCMotor_Go  (&LoArm_Axis3, 0);
             LoDCMotor_Go  (&LoArm_Axis4, 0);
         }
+#else
+        LoStepMotor_Go(&LoArm_Axis1, 0);
+        LoDCMotor_Go  (&LoArm_Axis3, 0);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, 25);
+        LoDCMotor_Go  (&LoArm_Axis3, 25);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, 50);
+        LoDCMotor_Go  (&LoArm_Axis3, 50);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, 75);
+        LoDCMotor_Go  (&LoArm_Axis3, 75);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, 0);
+        LoDCMotor_Go  (&LoArm_Axis3, 0);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, -25);
+        LoDCMotor_Go  (&LoArm_Axis3, -25);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, -50);
+        LoDCMotor_Go  (&LoArm_Axis3, -50);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1, -75);
+        LoDCMotor_Go  (&LoArm_Axis3, -75);
+        madTimeDly(1000);
+        LoStepMotor_Go(&LoArm_Axis1,  100);
+        LoDCMotor_Go  (&LoArm_Axis3, -100);
+        madTimeDly(1000);
+#endif
+    }
+}
+
+void LoArm_KeyHandler(MadU32 key)
+{
+    if(key & LOARM_KEY_FIRE) {
     }
 }
 

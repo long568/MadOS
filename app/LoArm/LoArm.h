@@ -44,6 +44,10 @@
 #define LoArm_SERVER_IP(x)  uip_ipaddr(&x, 192, 168, 1, 123)
 #define LoArm_SERVER_PORT() HTONS(5688)
 
+enum {
+    LOARM_KEY_FIRE = 0x00000001,
+};
+
 typedef struct {
     MadS8  axis1;
     MadS8  axis2;
@@ -53,5 +57,6 @@ typedef struct {
 } LoArmCmd_t;
 
 extern MadBool LoArm_Init(void);
+extern void    LoArm_ErrHandler(void);
 
 #endif

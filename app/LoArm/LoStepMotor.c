@@ -23,7 +23,7 @@ void LoStepMotor_Init(LoStepMotor_t *motor)
     TIM_TimeBaseStructure.TIM_ClockDivision     = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(motor->t, &TIM_TimeBaseStructure);
-    // TIM_UpdateRequestConfig(TIMx, TIM_UpdateSource_Regular);
+    TIM_UpdateRequestConfig(motor->t, TIM_UpdateSource_Regular);
 
     TIM_OCStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCStructure.TIM_OutputState  = TIM_OutputState_Disable;
@@ -69,7 +69,7 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
             as = LoArm_TIME_MAX;
         as  = LoArm_TIME_MAX - as + 1;
         ash = as / 2 + 1;
-        TIM_SetAutoreload(motor->t, as - 1);
+        TIM_SetAutoreload(motor->t, as);
         switch (motor->c) {
             case TIM_Channel_1: TIM_SetCompare1(motor->t, ash); break;
             case TIM_Channel_2: TIM_SetCompare2(motor->t, ash); break;
