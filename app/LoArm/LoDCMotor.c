@@ -56,7 +56,7 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
 void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
 {
     MadU8 dir;
-    volatile MadU8 as;
+    MadU8 as;
 
     if (motor->speed != s) {
         if (s > 0) {
