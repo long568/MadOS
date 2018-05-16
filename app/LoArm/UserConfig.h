@@ -9,7 +9,7 @@ enum {
 
 enum {
     ISR_PRIO_SYSTICK    = 1,
-    ISR_PRIO_TIM6,
+    ISR_PRIO_TIMER,
     ISR_PRIO_ARCH_MEM,
 	ISR_PRIO_IP101A,
     ISR_PRIO_W25Q32,

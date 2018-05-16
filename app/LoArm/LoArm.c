@@ -56,9 +56,12 @@ LoDCMotor_t   LoArm_Axis4;
     LoArmCmd_Data.key   = 0; \
     LoArmCmd_Unlock()
 
-static void tcp_init(void);
-static void LoArm_App(MadVptr exData);
-static void LoArm_KeyHandler(MadU32 key);
+static        void tcp_init(void);
+static        void LoArm_App(MadVptr exData);
+static inline void LoArm_KeyHandler(MadU32 key);
+
+static void LoArm_AXIS1_IRQHandler(void) { LoStepMotor_IRQHandler(&LoArm_Axis1); }
+static void LoArm_AXIS2_IRQHandler(void) { LoStepMotor_IRQHandler(&LoArm_Axis2); }
 
 MadBool LoArm_Init(void)
 {
@@ -74,6 +77,10 @@ MadBool LoArm_Init(void)
     GPIO_PinRemapConfig(GPIO_Remap_TIM4,         ENABLE);
 
     pin.GPIO_Speed = GPIO_Speed_50MHz;
+    pin.GPIO_Mode  = GPIO_Mode_Out_PP;
+    pin.GPIO_Pin   = LoArm_EN_P;
+    GPIO_Init(LoArm_EN_G, &pin);
+
     pin.GPIO_Mode  = GPIO_Mode_AF_PP;
     pin.GPIO_Pin   = LoArm_AXIS1_PWM_P;
     GPIO_Init(LoArm_AXIS1_PWM_G, &pin);
@@ -88,13 +95,13 @@ MadBool LoArm_Init(void)
     LoArm_Axis1.g = LoArm_AXIS1_DIR_G;
     LoArm_Axis1.c = LoArm_AXIS1_CHL;
     LoArm_Axis1.p = LoArm_AXIS1_DIR_P;
-    LoStepMotor_Init(&LoArm_Axis1);
+    LoStepMotor_Init(&LoArm_Axis1, LoArm_AXIS1_IRQHandler, LoArm_AXIS1_IRQn);
 
     LoArm_Axis2.t = LoArm_AXIS2_TIM;
     LoArm_Axis2.g = LoArm_AXIS2_DIR_G;
     LoArm_Axis2.c = LoArm_AXIS2_CHL;
     LoArm_Axis2.p = LoArm_AXIS2_DIR_P;
-    LoStepMotor_Init(&LoArm_Axis2);
+    LoStepMotor_Init(&LoArm_Axis2, LoArm_AXIS2_IRQHandler, LoArm_AXIS2_IRQn);
 
     LoArm_Axis3.t  = LoArm_AXIS3_TIM;
     LoArm_Axis3.g  = LoArm_AXIS3_DIR_G;
@@ -118,6 +125,7 @@ MadBool LoArm_Init(void)
         return MFALSE;
     }
 
+    LoArm_EN(1);
     return MTRUE;
 }
 
@@ -187,7 +195,7 @@ void LoArm_App(MadVptr exData)
     }
 }
 
-void LoArm_KeyHandler(MadU32 key)
+inline void LoArm_KeyHandler(MadU32 key)
 {
     if(key & LOARM_KEY_FIRE) {
     }

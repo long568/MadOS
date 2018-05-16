@@ -6,15 +6,17 @@
 
 #define LoArm_AXIS1_TIM    TIM2
 #define LoArm_AXIS1_CHL    TIM_Channel_3
+#define LoArm_AXIS1_IRQn   TIM2_IRQn
 #define LoArm_AXIS2_TIM    TIM3
 #define LoArm_AXIS2_CHL    TIM_Channel_4
+#define LoArm_AXIS2_IRQn   TIM3_IRQn
 #define LoArm_AXIS3_TIM    TIM4
 #define LoArm_AXIS3_CHL    TIM_Channel_3
 #define LoArm_AXIS4_TIM    TIM4
 #define LoArm_AXIS4_CHL    TIM_Channel_4
 
 #define LoArm_EN_G         GPIOE
-#define LoArm_EN_P         GPIO_Pin_7
+#define LoArm_EN_P         GPIO_Pin_9
 
 #define LoArm_AXIS1_PWM_G  GPIOB
 #define LoArm_AXIS1_PWM_P  GPIO_Pin_10
@@ -37,6 +39,8 @@
 #define LoArm_AXIS4_DIR_P2 GPIO_Pin_15
 
 #define LoArm_TIME_BASE   (72)    // 1MHz
+// #define LoArm_TIME_BASE   (720)   // 100KHz
+// #define LoArm_TIME_BASE   (7200)  // 10KHz
 #define LoArm_TIME_MAX    (100)
 #define LoArm_TIME_SCALE  (LoArm_TIME_BASE - 1)
 #define LoArm_TIME_PERIOD (LoArm_TIME_MAX  - 1)

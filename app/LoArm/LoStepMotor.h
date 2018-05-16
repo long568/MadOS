@@ -4,15 +4,25 @@
 #include "MadOS.h"
 #include "Stm32Tools.h"
 
+typedef enum {
+    LoStepMotor_ABSMode_Run = 0,
+    LoStepMotor_ABSMode_Start,
+    LoStepMotor_ABSMode_Stop
+} LoStepMotor_ABSMode;
+
 typedef struct {
     TIM_TypeDef  *t;
     GPIO_TypeDef *g;
     MadU16        c;
     MadU16        p;
     MadS8         speed;
+    MadS8         abs_dir;
+    MadU16        abs_speed;
+    MadU8         abs_mode;
 } LoStepMotor_t;
 
-extern void LoStepMotor_Init(LoStepMotor_t *motor);
+extern void LoStepMotor_Init(LoStepMotor_t *motor, xIRQ_Handler handler, MadU32 irqn);
 extern void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s);
+extern void LoStepMotor_IRQHandler(LoStepMotor_t *motor);
 
 #endif
