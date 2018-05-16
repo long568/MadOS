@@ -101,14 +101,14 @@ MadBool LoArm_Init(void)
     LoArm_Axis3.c  = LoArm_AXIS3_CHL;
     LoArm_Axis3.p1 = LoArm_AXIS3_DIR_P1;
     LoArm_Axis3.p2 = LoArm_AXIS3_DIR_P2;
-    LoDCMotor_Init(&LoArm_Axis3);
+    LoDCMotor_Init(&LoArm_Axis3, LoDCMotor_TimInit);
 
     LoArm_Axis4.t  = LoArm_AXIS4_TIM;
     LoArm_Axis4.g  = LoArm_AXIS4_DIR_G;
     LoArm_Axis4.c  = LoArm_AXIS4_CHL;
     LoArm_Axis4.p1 = LoArm_AXIS4_DIR_P1;
     LoArm_Axis4.p2 = LoArm_AXIS4_DIR_P2;
-    LoDCMotor_Init(&LoArm_Axis4);
+    LoDCMotor_Init(&LoArm_Axis4, 0);
 
     tcp_init();
     LoArmCmd_Sig = madSemCreateCarefully(0, 1);

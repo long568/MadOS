@@ -11,17 +11,9 @@
           GPIO_SetBits  (m->g, m->p1 | m->p2);  \
 } while(0)
 
-void LoDCMotor_Init(LoDCMotor_t *motor)
+void LoDCMotor_TimInit(LoDCMotor_t *motor)
 {
-    GPIO_InitTypeDef        pin;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef       TIM_OCStructure;
-
-    pin.GPIO_Mode  = GPIO_Mode_Out_PP;
-    pin.GPIO_Speed = GPIO_Speed_50MHz;
-    pin.GPIO_Pin   = motor->p1 | motor->p2;
-    GPIO_Init(motor->g, &pin);
-
     TIM_DeInit(motor->t);
     TIM_TimeBaseStructure.TIM_Prescaler         = LoArm_TIME_SCALE;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
@@ -30,6 +22,20 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(motor->t, &TIM_TimeBaseStructure);
     TIM_UpdateRequestConfig(motor->t, TIM_UpdateSource_Regular);
+    TIM_Cmd(motor->t, ENABLE);
+}
+
+void LoDCMotor_Init(LoDCMotor_t *motor, LoDCMotor_TimInitFun fun)
+{
+    GPIO_InitTypeDef        pin;
+    TIM_OCInitTypeDef       TIM_OCStructure;
+
+    pin.GPIO_Mode  = GPIO_Mode_Out_PP;
+    pin.GPIO_Speed = GPIO_Speed_50MHz;
+    pin.GPIO_Pin   = motor->p1 | motor->p2;
+    GPIO_Init(motor->g, &pin);
+
+    if(fun) fun(motor);
 
     TIM_OCStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCStructure.TIM_OutputState  = TIM_OutputState_Disable;
@@ -50,7 +56,7 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
 
     motor->speed = 0;
     LoDCMotor_Lock(motor, MTRUE);
-    TIM_Cmd(motor->t, ENABLE);
+    TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Enable);
 }
 
 void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
@@ -67,7 +73,6 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
             as  = (MadU8)(-s);
         } else {
             LoDCMotor_Lock(motor, MTRUE);
-            TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Disable);
             motor->speed = 0;
             return;
         }
@@ -81,8 +86,6 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
             case TIM_Channel_4: TIM_SetCompare4(motor->t, as); break;
             default: break;
         }
-        if(motor->speed == 0)
-            TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Enable);
         LoDCMotor_Dir(motor, dir);
 
         motor->speed = s;

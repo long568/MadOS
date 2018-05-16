@@ -10,8 +10,8 @@
 #define LoArm_AXIS2_CHL    TIM_Channel_4
 #define LoArm_AXIS3_TIM    TIM4
 #define LoArm_AXIS3_CHL    TIM_Channel_3
-#define LoArm_AXIS4_TIM    TIM5
-#define LoArm_AXIS4_CHL    TIM_Channel_1
+#define LoArm_AXIS4_TIM    TIM4
+#define LoArm_AXIS4_CHL    TIM_Channel_4
 
 #define LoArm_EN_G         GPIOE
 #define LoArm_EN_P         GPIO_Pin_7
@@ -22,8 +22,8 @@
 #define LoArm_AXIS2_PWM_P  GPIO_Pin_9
 #define LoArm_AXIS3_PWM_G  GPIOD
 #define LoArm_AXIS3_PWM_P  GPIO_Pin_14
-#define LoArm_AXIS4_PWM_G  GPIOA
-#define LoArm_AXIS4_PWM_P  GPIO_Pin_0
+#define LoArm_AXIS4_PWM_G  GPIOD
+#define LoArm_AXIS4_PWM_P  GPIO_Pin_15
 
 #define LoArm_AXIS1_DIR_G  GPIOE
 #define LoArm_AXIS1_DIR_P  GPIO_Pin_10

@@ -13,7 +13,10 @@ typedef struct {
     MadS8         speed;
 } LoDCMotor_t;
 
-extern void LoDCMotor_Init(LoDCMotor_t *motor);
-extern void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s);
+typedef void (*LoDCMotor_TimInitFun)(LoDCMotor_t *motor);
+
+extern void LoDCMotor_TimInit(LoDCMotor_t *motor);
+extern void LoDCMotor_Init   (LoDCMotor_t *motor, LoDCMotor_TimInitFun fun);
+extern void LoDCMotor_Go     (LoDCMotor_t *motor, MadS8 s);
 
 #endif
