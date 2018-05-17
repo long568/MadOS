@@ -39,10 +39,8 @@
 #define LoArm_AXIS4_DIR_P1 GPIO_Pin_14
 #define LoArm_AXIS4_DIR_P2 GPIO_Pin_15
 
-#define LoArm_TIME_BASE   (72)    // 1MHz
-// #define LoArm_TIME_BASE   (720)   // 100KHz
-// #define LoArm_TIME_BASE   (7200)  // 10KHz
-#define LoArm_TIME_MAX    (100)
+#define LoArm_TIME_BASE   (720)   // 100KHz
+#define LoArm_TIME_MAX    (100)   // 1KHz
 #define LoArm_TIME_SCALE  (LoArm_TIME_BASE - 1)
 #define LoArm_TIME_PERIOD (LoArm_TIME_MAX  - 1)
 

@@ -103,11 +103,10 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
             as  = 0;
         }
 
-        if(as > LoArm_TIME_MAX)
+        if (as > LoArm_TIME_MAX)
             as = LoArm_TIME_MAX;
         
-        motor->dir   = dir;
-        motor->speed = s;
+        TIM_Cmd(motor->t, DISABLE);
         switch (motor->c) {
             case TIM_Channel_1: TIM_SetCompare1(motor->t, as); break;
             case TIM_Channel_2: TIM_SetCompare2(motor->t, as); break;
@@ -115,6 +114,12 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
             case TIM_Channel_4: TIM_SetCompare4(motor->t, as); break;
             default: break;
         }
-        TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
+        if (motor->dir != dir) {
+            motor->dir = dir;
+            TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
+        }
+        TIM_Cmd(motor->t, ENABLE);
+
+        motor->speed = s;
     }
 }

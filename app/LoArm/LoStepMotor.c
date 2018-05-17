@@ -55,7 +55,6 @@ void LoStepMotor_Init(LoStepMotor_t *motor, xIRQ_Handler handler, MadU32 irqn)
 
     TIM_ARRPreloadConfig(motor->t, ENABLE);
     TIM_UpdateRequestConfig(motor->t, TIM_UpdateSource_Global);
-    // TIM_Cmd(motor->t, ENABLE);
 }
 
 void LoStepMotor_IRQHandler(LoStepMotor_t *motor)
@@ -87,11 +86,11 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
             return;
         }
 
-        if(as > LoArm_TIME_MAX) as = LoArm_TIME_MAX;
-        as = 100 + (LoArm_TIME_MAX - as) * 8;
-
+        if (as > LoArm_TIME_MAX) as = LoArm_TIME_MAX;
+        as = 10 + (LoArm_TIME_MAX - as) * 3; // 10kHz ~ 322.6Hz
+        // as = 10 * (LoArm_TIME_MAX - as + 1); // 10kHz ~ 100Hz
         ash = as / 2;
-        motor->dir = dir;
+
         TIM_Cmd(motor->t, DISABLE);
         TIM_SetAutoreload(motor->t, as - 1);
         switch (motor->c) {
@@ -101,10 +100,13 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
             case TIM_Channel_4: TIM_SetCompare4(motor->t, ash); break;
             default: break;
         }
+        if (motor->dir != dir) {
+            motor->dir = dir;
+            TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
+        }
         TIM_Cmd(motor->t, ENABLE);
-        TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
-
-        if(motor->speed == 0) {
+        
+        if (motor->speed == 0) {
             TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Enable);
             TIM_GenerateEvent(motor->t, TIM_EventSource_Update);
         }
