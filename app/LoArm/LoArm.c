@@ -62,6 +62,7 @@ static inline void LoArm_KeyHandler(MadU32 key);
 
 static void LoArm_AXIS1_IRQHandler(void) { LoStepMotor_IRQHandler(&LoArm_Axis1); }
 static void LoArm_AXIS2_IRQHandler(void) { LoStepMotor_IRQHandler(&LoArm_Axis2); }
+static void LoArm_AXIS3_IRQHandler(void) { LoDCMotor_IRQHandler(LoArm_AXIS3_TIM, &LoArm_Axis3, &LoArm_Axis4, MNULL); }
 
 MadBool LoArm_Init(void)
 {
@@ -103,19 +104,21 @@ MadBool LoArm_Init(void)
     LoArm_Axis2.p = LoArm_AXIS2_DIR_P;
     LoStepMotor_Init(&LoArm_Axis2, LoArm_AXIS2_IRQHandler, LoArm_AXIS2_IRQn);
 
+    LoDCMotor_TimInit(LoArm_AXIS3_TIM, LoArm_AXIS3_IRQHandler, LoArm_AXIS3_IRQn);
+
     LoArm_Axis3.t  = LoArm_AXIS3_TIM;
     LoArm_Axis3.g  = LoArm_AXIS3_DIR_G;
     LoArm_Axis3.c  = LoArm_AXIS3_CHL;
     LoArm_Axis3.p1 = LoArm_AXIS3_DIR_P1;
     LoArm_Axis3.p2 = LoArm_AXIS3_DIR_P2;
-    LoDCMotor_Init(&LoArm_Axis3, LoDCMotor_TimInit);
+    LoDCMotor_Init(&LoArm_Axis3);
 
     LoArm_Axis4.t  = LoArm_AXIS4_TIM;
     LoArm_Axis4.g  = LoArm_AXIS4_DIR_G;
     LoArm_Axis4.c  = LoArm_AXIS4_CHL;
     LoArm_Axis4.p1 = LoArm_AXIS4_DIR_P1;
     LoArm_Axis4.p2 = LoArm_AXIS4_DIR_P2;
-    LoDCMotor_Init(&LoArm_Axis4, 0);
+    LoDCMotor_Init(&LoArm_Axis4);
 
     tcp_init();
     LoArmCmd_Sig = madSemCreateCarefully(0, 1);

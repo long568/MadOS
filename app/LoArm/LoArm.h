@@ -12,6 +12,7 @@
 #define LoArm_AXIS2_IRQn   TIM3_IRQn
 #define LoArm_AXIS3_TIM    TIM4
 #define LoArm_AXIS3_CHL    TIM_Channel_3
+#define LoArm_AXIS3_IRQn   TIM4_IRQn
 #define LoArm_AXIS4_TIM    TIM4
 #define LoArm_AXIS4_CHL    TIM_Channel_4
 

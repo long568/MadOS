@@ -69,7 +69,6 @@ void LoStepMotor_IRQHandler(LoStepMotor_t *motor)
 
 void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
 {
-    MadCpsr_t cpsr;
     MadU8  dir;
     MadU16 as;
     MadU16 ash;
@@ -109,7 +108,6 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
             TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Enable);
             TIM_GenerateEvent(motor->t, TIM_EventSource_Update);
         }
-
         motor->speed = s;
     }
 }
