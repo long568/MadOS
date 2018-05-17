@@ -21,6 +21,7 @@ void LoDCMotor_TimInit(LoDCMotor_t *motor)
     TIM_TimeBaseStructure.TIM_ClockDivision     = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(motor->t, &TIM_TimeBaseStructure);
+    TIM_ARRPreloadConfig(motor->t, ENABLE);
     TIM_UpdateRequestConfig(motor->t, TIM_UpdateSource_Regular);
     TIM_Cmd(motor->t, ENABLE);
 }
