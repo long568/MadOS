@@ -103,8 +103,7 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
             as  = 0;
         }
 
-        if (as > LoArm_TIME_MAX)
-            as = LoArm_TIME_MAX;
+        if (as > LoArm_TIME_MAX) as = LoArm_TIME_MAX;
         
         TIM_Cmd(motor->t, DISABLE);
         switch (motor->c) {

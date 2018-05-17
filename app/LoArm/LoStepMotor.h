@@ -4,6 +4,9 @@
 #include "MadOS.h"
 #include "Stm32Tools.h"
 
+#define LoStepMotor_BasePeriod (10) // 10KHz
+#define LoStepMotor_PulseWidth (LoStepMotor_BasePeriod / 2)
+
 typedef struct {
     TIM_TypeDef  *t;
     GPIO_TypeDef *g;

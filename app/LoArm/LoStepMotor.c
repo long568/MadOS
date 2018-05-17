@@ -27,7 +27,7 @@ void LoStepMotor_Init(LoStepMotor_t *motor, xIRQ_Handler handler, MadU32 irqn)
     TIM_DeInit(motor->t);
     TIM_TimeBaseStructure.TIM_Prescaler         = LoArm_TIME_SCALE;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period            = LoArm_TIME_PERIOD;
+    TIM_TimeBaseStructure.TIM_Period            = LoStepMotor_BasePeriod;
     TIM_TimeBaseStructure.TIM_ClockDivision     = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(motor->t, &TIM_TimeBaseStructure);
@@ -35,7 +35,7 @@ void LoStepMotor_Init(LoStepMotor_t *motor, xIRQ_Handler handler, MadU32 irqn)
     TIM_OCStructure.TIM_OCMode       = TIM_OCMode_PWM1;
     TIM_OCStructure.TIM_OutputState  = TIM_OutputState_Disable;
     TIM_OCStructure.TIM_OutputNState = TIM_OutputNState_Disable;
-    TIM_OCStructure.TIM_Pulse        = LoArm_TIME_PERIOD / 2 + 1;
+    TIM_OCStructure.TIM_Pulse        = LoStepMotor_PulseWidth;
     TIM_OCStructure.TIM_OCPolarity   = TIM_OCPolarity_High;
     TIM_OCStructure.TIM_OCNPolarity  = TIM_OCNPolarity_High;
     TIM_OCStructure.TIM_OCIdleState  = TIM_OCIdleState_Set;
@@ -70,7 +70,6 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
 {
     MadU8  dir;
     MadU16 as;
-    MadU16 ash;
 
     if (motor->speed != s) {
         if (s > 0) {
@@ -80,26 +79,21 @@ void LoStepMotor_Go(LoStepMotor_t *motor, MadS8 s)
             dir = 0;
             as  = (MadU16)(-s);
         } else {
-            TIM_CCxCmd(motor->t, motor->c, TIM_CCx_Disable);
-            TIM_Cmd(motor->t, DISABLE);
-            motor->speed = 0;
-            return;
+            dir = motor->dir;
+            as  = 0;
         }
 
-        if (as > LoArm_TIME_MAX) as = LoArm_TIME_MAX;
-        as = 10 + (LoArm_TIME_MAX - as) * 3; // 10kHz ~ 322.6Hz
-        // as = 10 * (LoArm_TIME_MAX - as + 1); // 10kHz ~ 100Hz
-        ash = as / 2;
+        if (as > LoArm_TIME_MAX) {
+            as = LoStepMotor_BasePeriod;
+        } else if (as > 0) {
+            as = LoStepMotor_BasePeriod + (LoArm_TIME_MAX - as) * 3; // 10kHz ~ 325.8Hz
+            // as = LoStepMotor_BasePeriod * (LoArm_TIME_MAX - as + 1); // 10kHz ~ 100Hz
+        } else {
+            as = 1;
+        }
 
         TIM_Cmd(motor->t, DISABLE);
         TIM_SetAutoreload(motor->t, as - 1);
-        switch (motor->c) {
-            case TIM_Channel_1: TIM_SetCompare1(motor->t, ash); break;
-            case TIM_Channel_2: TIM_SetCompare2(motor->t, ash); break;
-            case TIM_Channel_3: TIM_SetCompare3(motor->t, ash); break;
-            case TIM_Channel_4: TIM_SetCompare4(motor->t, ash); break;
-            default: break;
-        }
         if (motor->dir != dir) {
             motor->dir = dir;
             TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
