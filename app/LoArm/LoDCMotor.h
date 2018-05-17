@@ -6,8 +6,8 @@
 
 enum {
     LoDCMotor_DirLock = 0,
-    LoDCMotor_DirP,
     LoDCMotor_DirN,
+    LoDCMotor_DirP,
     LoDCMotor_DirSkid
 } LoDCMotor_Dir_t;
 

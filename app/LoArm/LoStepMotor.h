@@ -7,6 +7,11 @@
 #define LoStepMotor_BasePeriod (10) // 10KHz
 #define LoStepMotor_PulseWidth (LoStepMotor_BasePeriod / 2)
 
+enum {
+    LoStepMotor_DirN = 0,
+    LoStepMotor_DirP
+} LoStepMotor_Dir_t;
+
 typedef struct {
     TIM_TypeDef  *t;
     GPIO_TypeDef *g;

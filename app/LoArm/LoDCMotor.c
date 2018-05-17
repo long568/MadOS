@@ -115,6 +115,7 @@ void LoDCMotor_Go(LoDCMotor_t *motor, MadS8 s)
         }
         if (motor->dir != dir) {
             motor->dir = dir;
+            TIM_ClearITPendingBit(motor->t, TIM_IT_Update);
             TIM_ITConfig(motor->t, TIM_IT_Update, ENABLE);
         }
         TIM_Cmd(motor->t, ENABLE);
