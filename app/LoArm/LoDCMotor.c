@@ -1,5 +1,6 @@
 #include "LoArm.h"
 #include "LoDCMotor.h"
+#include "UserConfig.h"
 
 #define LoDCMotor_Dir(m, x) do { \
     GPIO_ResetBits(m->g, m->p1 | m->p2);                                  \
@@ -13,7 +14,15 @@
 
 void LoDCMotor_TimInit(TIM_TypeDef *t, xIRQ_Handler handler, MadU32 irqn)
 {
+    NVIC_InitTypeDef        nvic;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+    nvic.NVIC_IRQChannel                   = irqn;
+    nvic.NVIC_IRQChannelPreemptionPriority = ISR_PRIO_TIMER;
+    nvic.NVIC_IRQChannelSubPriority        = 0;
+    nvic.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&nvic);
+
     TIM_DeInit(t);
     TIM_TimeBaseStructure.TIM_Prescaler         = LoArm_TIME_SCALE;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
