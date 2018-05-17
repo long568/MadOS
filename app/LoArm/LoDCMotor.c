@@ -30,7 +30,6 @@ void LoDCMotor_TimInit(TIM_TypeDef *t, xIRQ_Handler handler, MadU32 irqn)
     TIM_TimeBaseStructure.TIM_ClockDivision     = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(t, &TIM_TimeBaseStructure);
-    TIM_ARRPreloadConfig(t, ENABLE);
     TIM_UpdateRequestConfig(t, TIM_UpdateSource_Regular);
     madInstallExIrq(handler, irqn);
     TIM_Cmd(t, ENABLE);
@@ -73,10 +72,22 @@ void LoDCMotor_Init(LoDCMotor_t *motor)
     TIM_OCStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
 
     switch (motor->c) {
-        case TIM_Channel_1: TIM_OC1Init(motor->t, &TIM_OCStructure); break;
-        case TIM_Channel_2: TIM_OC2Init(motor->t, &TIM_OCStructure); break;
-        case TIM_Channel_3: TIM_OC3Init(motor->t, &TIM_OCStructure); break;
-        case TIM_Channel_4: TIM_OC4Init(motor->t, &TIM_OCStructure); break;
+        case TIM_Channel_1:
+            TIM_OC1Init(motor->t, &TIM_OCStructure);
+            TIM_OC1PreloadConfig(motor->t, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_2:
+            TIM_OC2Init(motor->t, &TIM_OCStructure);
+            TIM_OC2PreloadConfig(motor->t, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_3:
+            TIM_OC3Init(motor->t, &TIM_OCStructure);
+            TIM_OC3PreloadConfig(motor->t, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_4:
+            TIM_OC4Init(motor->t, &TIM_OCStructure);
+            TIM_OC4PreloadConfig(motor->t, TIM_OCPreload_Enable);
+            break;
         default: break;
     }
 
