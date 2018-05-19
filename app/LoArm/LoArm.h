@@ -44,7 +44,8 @@
 #define LoArm_TIME_SCALE  (LoArm_TIME_BASE - 1)
 #define LoArm_TIME_PERIOD (LoArm_TIME_MAX  - 1)
 
-#define LoArm_SERVER_IP(x)  uip_ipaddr(&x, 192, 168, 1, 123)
+// #define LoArm_SERVER_IP(x)  uip_ipaddr(&x, 192, 168, 1, 123)
+#define LoArm_SERVER_IP(x)  uip_ipaddr(&x, 192, 168, 1, 104)
 #define LoArm_SERVER_PORT() HTONS(5688)
 
 enum {
