@@ -19,6 +19,9 @@
 #define LoArm_EN_G         GPIOE
 #define LoArm_EN_P         GPIO_Pin_9
 
+#define LoArm_KILL_G       GPIOE
+#define LoArm_KILL_P       GPIO_Pin_8
+
 #define LoArm_AXIS1_PWM_G  GPIOB
 #define LoArm_AXIS1_PWM_P  GPIO_Pin_10
 #define LoArm_AXIS2_PWM_G  GPIOC
@@ -49,7 +52,7 @@
 #define LoArm_SERVER_PORT() HTONS(5688)
 
 enum {
-    LOARM_KEY_FIRE = 0x00000001,
+    LOARM_KEY_KILL = 0x00000001,
 };
 
 typedef struct {

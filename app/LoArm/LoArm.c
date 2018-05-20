@@ -17,6 +17,10 @@ LoDCMotor_t   LoArm_Axis4;
     (x) ? GPIO_SetBits(LoArm_EN_G, LoArm_EN_P) : GPIO_ResetBits(LoArm_EN_G, LoArm_EN_P); \
 } while(0)
 
+#define LoArm_Kill(x) do { \
+    (x) ? GPIO_SetBits(LoArm_KILL_G, LoArm_KILL_P) : GPIO_ResetBits(LoArm_KILL_G, LoArm_KILL_P); \
+} while(0)
+
 #if 0
     MadSemCB_t *LoArmCmd_Locker = 0;
 #   define LoArmCmd_Lock()   do { madSemWait(&LoArmCmd_Locker, 0);
@@ -27,7 +31,7 @@ LoDCMotor_t   LoArm_Axis4;
 #endif
 
 #define LoArmCmd_Set() \
-    LoArmCmd_Lock()             \
+    LoArmCmd_Lock()               \
     LoArmCmd_Data.axis1 = cmd[0]; \
     LoArmCmd_Data.axis2 = cmd[1]; \
     LoArmCmd_Data.axis3 = cmd[2]; \
@@ -39,7 +43,7 @@ LoDCMotor_t   LoArm_Axis4;
     LoArmCmd_Unlock()
 
 #define LoArmCmd_Get(a1, a2, a3, a4, key) \
-    LoArmCmd_Lock()          \
+    LoArmCmd_Lock()            \
     a1  = LoArmCmd_Data.axis1; \
     a2  = LoArmCmd_Data.axis2; \
     a3  = LoArmCmd_Data.axis3; \
@@ -48,7 +52,7 @@ LoDCMotor_t   LoArm_Axis4;
     LoArmCmd_Unlock()
 
 #define LoArmCmd_Clear() \
-    LoArmCmd_Lock()        \
+    LoArmCmd_Lock()          \
     LoArmCmd_Data.axis1 = 0; \
     LoArmCmd_Data.axis2 = 0; \
     LoArmCmd_Data.axis3 = 0; \
@@ -81,6 +85,8 @@ MadBool LoArm_Init(void)
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
     pin.GPIO_Pin   = LoArm_EN_P;
     GPIO_Init(LoArm_EN_G, &pin);
+    pin.GPIO_Pin   = LoArm_KILL_P;
+    GPIO_Init(LoArm_KILL_G, &pin);
 
     pin.GPIO_Mode  = GPIO_Mode_AF_PP;
     pin.GPIO_Pin   = LoArm_AXIS1_PWM_P;
@@ -128,6 +134,7 @@ MadBool LoArm_Init(void)
         return MFALSE;
     }
 
+    LoArm_Kill(0);
     LoArm_EN(1);
     return MTRUE;
 }
@@ -150,7 +157,6 @@ void LoArm_App(MadVptr exData)
     MadU32 key;
 
     while(1) {
-#if 1
         ok = madSemWait(&LoArmCmd_Sig, 3000);
         if(MAD_ERR_OK == ok) {
             LoArmCmd_Get(a1, a2, a3, a4, key);
@@ -165,42 +171,17 @@ void LoArm_App(MadVptr exData)
             LoStepMotor_Go(&LoArm_Axis2, 0);
             LoDCMotor_Go  (&LoArm_Axis3, 0);
             LoDCMotor_Go  (&LoArm_Axis4, 0);
+            LoArm_KeyHandler(0);
         }
-#else
-        LoStepMotor_Go(&LoArm_Axis1, 0);
-        LoDCMotor_Go  (&LoArm_Axis3, 0);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, 25);
-        LoDCMotor_Go  (&LoArm_Axis3, 25);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, 50);
-        LoDCMotor_Go  (&LoArm_Axis3, 50);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, 75);
-        LoDCMotor_Go  (&LoArm_Axis3, 75);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, 0);
-        LoDCMotor_Go  (&LoArm_Axis3, 0);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, -25);
-        LoDCMotor_Go  (&LoArm_Axis3, -25);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, -50);
-        LoDCMotor_Go  (&LoArm_Axis3, -50);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1, -75);
-        LoDCMotor_Go  (&LoArm_Axis3, -75);
-        madTimeDly(1000);
-        LoStepMotor_Go(&LoArm_Axis1,  100);
-        LoDCMotor_Go  (&LoArm_Axis3, -100);
-        madTimeDly(1000);
-#endif
     }
 }
 
 inline void LoArm_KeyHandler(MadU32 key)
 {
-    if(key & LOARM_KEY_FIRE) {
+    if(key & LOARM_KEY_KILL) {
+        LoArm_Kill(1);
+    } else {
+        LoArm_Kill(0);
     }
 }
 
