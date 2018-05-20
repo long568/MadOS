@@ -86,4 +86,3 @@ $RECYCLE.BIN/
 # =========================
 build/
 .vscode/.cortex-debug.*.state.json
-app/lesson*
