@@ -1,6 +1,6 @@
 #include "LoArm.h"
 #include "LoStepMotor.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 #define LoStepMotor_Dir(m, x) do { \
     (x) ? GPIO_SetBits(m->g, m->p) : GPIO_ResetBits(m->g, m->p); \

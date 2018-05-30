@@ -1,5 +1,5 @@
 #include "stm32_spiFlash.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 SPIPort *SpiFlash;
 

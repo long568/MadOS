@@ -2,7 +2,7 @@
 #define __UIP_CONF__H__
 
 #include "eth_low.h"
-#include "UipConfig.h"
+#include "CfgUip.h"
 
 #define UIP_CONF_EXTERNAL_BUFFER  1
 #define UIP_CONF_BUFFER_SIZE      ETH_PAYLOAD_LEN
@@ -65,9 +65,9 @@ void tcpip_output(void);
 /*
  * Port
  */
-void uIP_Init(void);
-void uIP_dev_send(mETH_t *eth);
-void uIP_dev_read(mETH_t *eth);
-#define uIP_dev_rxsize() ETH_GetRxPktSize()
+void     uIP_Init      (void);
+void     uIP_dev_send  (mETH_t *eth);
+void     uIP_dev_read  (mETH_t *eth);
+uint32_t uIP_dev_rxsize(void);
 
 #endif

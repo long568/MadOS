@@ -3,7 +3,7 @@
 
 #include "MadOS.h"
 #include "MadDrv.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 #include "mod_uIP.h"
 #include "testEth.h"
 #include "testPosix.h"

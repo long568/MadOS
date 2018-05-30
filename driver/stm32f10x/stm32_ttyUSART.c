@@ -1,5 +1,5 @@
 #include "stm32_ttyUSART.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 static MadU8            print_buf[64];
 static MadSemCB_t       _mad_utx_locker,   *mad_utx_locker;

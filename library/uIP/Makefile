@@ -9,3 +9,4 @@ all : prebuild
 prebuild:
 	$(MAKE) -C $(ROOT)/library/uIP/uip
 	$(MAKE) -C $(ROOT)/library/uIP/uip-funs
+	$(MAKE) -C $(ROOT)/library/uIP/uip-ports-$(MCU_PREFIX)

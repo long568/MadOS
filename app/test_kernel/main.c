@@ -1,5 +1,5 @@
 #include "MadOS.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 #include "test.h"
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align

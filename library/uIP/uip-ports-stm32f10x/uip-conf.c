@@ -28,3 +28,7 @@ void uIP_dev_read(mETH_t *eth)
     (void)eth;
 #endif
 }
+
+inline uint32_t uIP_dev_rxsize(void) {
+    return ETH_GetRxPktSize();
+}

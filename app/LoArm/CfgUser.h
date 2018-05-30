@@ -1,5 +1,5 @@
-#ifndef __USER_CONFIG_H__
-#define __USER_CONFIG_H__
+#ifndef __CFG_USER_H__
+#define __CFG_USER_H__
 
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,

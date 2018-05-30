@@ -24,32 +24,37 @@ export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/HiMadOS
 export RULES     = $(ROOT)/rules.mk
-export DRIVER    = $(ROOT)/app/$(APP)/driver.mk
 
-export DEFS = $(DEFS_FOR_APP) \
-			  -DMALLOC_PROVIDED \
-			  -D__DYNAMIC_REENT__ \
-			  -DMISSING_SYSCALL_NAMES \
-			  -DREENTRANT_SYSCALLS_PROVIDED \
-			  -DUSE_STDPERIPH_DRIVER \
-			  -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
+include $(ROOT)/app/$(APP)/CfgLibs.mk
 
-export INCS = $(INCS_FOR_APP) \
-              -I$(ROOT)/app/$(APP) \
-			  -I$(ROOT)/app/$(APP)/inc \
-              -I$(ROOT)/kernel/inc \
-              -I$(ROOT)/kernel/lib/pt \
-			  -I$(ROOT)/kernel/lib/timer \
-			  -I$(ROOT)/library/uIP/uip \
-			  -I$(ROOT)/library/uIP/uip-funs \
-			  -I$(ROOT)/driver \
-			  -I$(ROOT)/driver/$(MCU_PREFIX) \
-			  -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
-			  -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
-			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
-			  -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
+export DEFS += $(DEFS_FOR_APP) \
+			   -DMALLOC_PROVIDED \
+			   -D__DYNAMIC_REENT__ \
+			   -DMISSING_SYSCALL_NAMES \
+			   -DREENTRANT_SYSCALLS_PROVIDED \
+			   -DUSE_STDPERIPH_DRIVER \
+			   -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
-export LIBS = -L$(BUILD_DIR) -ldrv -lkernel -larch -lm -lc -lgcc
+export INCS += $(INCS_FOR_APP) \
+               -I$(ROOT)/app/$(APP) \
+			   -I$(ROOT)/app/$(APP)/inc \
+               -I$(ROOT)/kernel/inc \
+               -I$(ROOT)/kernel/lib/pt \
+			   -I$(ROOT)/kernel/lib/timer \
+			   -I$(ROOT)/library/uIP/uip \
+			   -I$(ROOT)/library/uIP/uip-funs \
+			   -I$(ROOT)/driver \
+			   -I$(ROOT)/driver/$(MCU_PREFIX) \
+			   -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
+			   -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
+			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
+			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
+
+export LIBS += -L$(BUILD_DIR)
+ifeq ($(LIB_UIP), yes)
+export LIBS += -luip
+endif
+export LIBS += -ldrv -lkernel -larch -lm -lc -lgcc
 
 ifeq ($(BUILD_VER), debug)
 CXFLAGS = -g3

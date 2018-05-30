@@ -1,6 +1,6 @@
 #include "LoArm.h"
 #include "LoDCMotor.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 #define LoDCMotor_Dir(m, x) do { \
     GPIO_ResetBits(m->g, m->p1 | m->p2);                                  \

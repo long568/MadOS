@@ -3,7 +3,7 @@
 
 #include "MadOS.h"
 #include "MadDev.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 #include "mod_uIP.h"
 #include "LoArm.h"
 

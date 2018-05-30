@@ -1,5 +1,5 @@
 #include "ArchMemCpy.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 #ifdef MAD_CPY_MEM_BY_DMA
 

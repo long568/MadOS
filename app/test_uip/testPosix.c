@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 #include "testPosix.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 static void TestPosix_Thread(MadVptr exData);
 

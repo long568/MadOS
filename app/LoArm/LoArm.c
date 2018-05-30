@@ -2,7 +2,7 @@
 #include "LoArm.h"
 #include "LoStepMotor.h"
 #include "LoDCMotor.h"
-#include "UserConfig.h"
+#include "CfgUser.h"
 
 MadTCB_t   *LoArm_TCB     = 0;
 MadSemCB_t *LoArmCmd_Sig  = 0;
