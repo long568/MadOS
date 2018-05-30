@@ -16,7 +16,7 @@
                 "${workspaceRoot}/kernel/lib/timer",
                 "${workspaceRoot}/library/uIP/uip",
                 "${workspaceRoot}/library/uIP/uip-funs",
-                "${workspaceRoot}/uip-test"
+                "${workspaceRoot}/test_uip"
             ],
             "defines": [
                 "MALLOC_PROVIDED",

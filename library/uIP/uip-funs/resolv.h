@@ -44,15 +44,13 @@
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
 
-//typedef int uip_udp_appstate_t;
-//void resolv_appcall(void);
-//#define UIP_UDP_APPCALL resolv_appcall
-
 #include "MadOS.h"
 #include "timer.h"
 #include "pt.h"
 #include "mod_uIP.h"
 #include "uipopt.h"
+
+#if UIP_CORE_APP_DNS
 
 #define SET_DNS_HOST(addr) do { \
 		uip_gethostaddr(addr);  \
@@ -84,6 +82,7 @@ void resolv_init(void);
 u16_t *resolv_lookup(char *name);
 void resolv_query(char *name);
 
+#endif /* UIP_CORE_APP_DNS */
 #endif /* __RESOLV_H__ */
 
 /** @} */

@@ -38,6 +38,8 @@
 #include "timer.h"
 #include "mod_uIP.h"
 
+#if UIP_CORE_APP_DHCP
+
 #define DHCP_SHOW_RESULT     0
 #define DHCP_RESTART_DIV     (5 * MadTicksPerSec / 10)
 #define DHCP_HOST_NAMES(buf) sprintf(buf, "MadOS v%d.%d", MAD_VER_MAJOR, MAD_VER_SUB)
@@ -66,4 +68,5 @@ struct dhcpc_state {
 void dhcpc_init(void);
 void dhcpc_configured(const struct dhcpc_state *s);
 
+#endif /* UIP_CORE_APP_DHCP */
 #endif /* __DHCPC_H__ */

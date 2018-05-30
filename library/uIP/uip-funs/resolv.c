@@ -65,6 +65,8 @@
 
 #include <string.h>
 
+#if UIP_CORE_APP_DNS
+
 #ifndef NULL
 #define NULL (void *)0
 #endif /* NULL */
@@ -515,3 +517,5 @@ void resolv_link_changed(MadVptr ep)
 
 /** @} */
 /** @} */
+
+#endif /* UIP_CORE_APP_DNS */

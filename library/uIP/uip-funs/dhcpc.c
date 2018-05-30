@@ -36,6 +36,8 @@
 
 #include "dhcpc.h"
 
+#if UIP_CORE_APP_DHCP
+
 #define STATE_INITIAL         0
 #define STATE_SENDING         1
 #define STATE_OFFER_RECEIVED  2
@@ -419,3 +421,5 @@ void dhcpc_configured(const struct dhcpc_state *s)
     uip_setdraddr(s->default_router);
     uip_setnetmask(s->netmask);
 }
+
+#endif /* UIP_CORE_APP_DHCP */

@@ -206,7 +206,9 @@ static void tcp_appcall(MadVptr ep);
 void tcp_init(void)
 {
     client.link_changed = tcp_link_changed;
+#if UIP_CORE_APP_DNS
     client.resolv_found = MNULL;
+#endif
     uIP_AppRegister(&client);
 }
 
