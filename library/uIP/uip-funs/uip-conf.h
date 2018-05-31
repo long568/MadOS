@@ -62,12 +62,4 @@ void uIP_udp_appcall(void);
  */
 void tcpip_output(void);
 
-/*
- * Port
- */
-void     uIP_Init      (void);
-void     uIP_dev_send  (mETH_t *eth);
-void     uIP_dev_read  (mETH_t *eth);
-uint32_t uIP_dev_rxsize(void);
-
 #endif

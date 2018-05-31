@@ -43,6 +43,7 @@ export INCS += $(INCS_FOR_APP) \
 			   -I$(ROOT)/kernel/lib/timer \
 			   -I$(ROOT)/library/uIP/uip \
 			   -I$(ROOT)/library/uIP/uip-funs \
+			   -I$(ROOT)/library/uIP/uip-ports-$(MCU_PREFIX) \
 			   -I$(ROOT)/driver \
 			   -I$(ROOT)/driver/$(MCU_PREFIX) \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \

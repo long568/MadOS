@@ -1,22 +1,22 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "MadOS",
             "includePath": [
                 "${env.CROSS_TOOLS_HOME}/arm-none-eabi/include",
                 "${env.CROSS_TOOLS_HOME}/lib/gcc/arm-none-eabi/7.3.0/include",
-                "${workspaceRoot}/arch/stm32f10x/Arch",
-                "${workspaceRoot}/arch/stm32f10x/Startup",
-                "${workspaceRoot}/arch/stm32f10x/StdPeriph",
-                "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
-                "${workspaceRoot}/driver",
-                "${workspaceRoot}/driver/stm32f10x",
-                "${workspaceRoot}/kernel/inc",
-                "${workspaceRoot}/kernel/lib/pt",
-                "${workspaceRoot}/kernel/lib/timer",
-                "${workspaceRoot}/library/uIP/uip",
-                "${workspaceRoot}/library/uIP/uip-funs",
-                "${workspaceRoot}/test_uip"
+                "${workspaceFolder}/arch/stm32f10x/Arch",
+                "${workspaceFolder}/arch/stm32f10x/Startup",
+                "${workspaceFolder}/arch/stm32f10x/StdPeriph",
+                "${workspaceFolder}/arch/stm32f10x/StdPeriph/inc",
+                "${workspaceFolder}/driver",
+                "${workspaceFolder}/driver/stm32f10x",
+                "${workspaceFolder}/kernel/inc",
+                "${workspaceFolder}/kernel/lib/pt",
+                "${workspaceFolder}/kernel/lib/timer",
+                "${workspaceFolder}/library/uIP/uip",
+                "${workspaceFolder}/library/uIP/uip-funs",
+                "${workspaceFolder}/app/test_uip"
             ],
             "defines": [
                 "MALLOC_PROVIDED",
@@ -27,37 +27,6 @@
                 "USE_STDPERIPH_DRIVER"
             ],
             "intelliSenseMode": "msvc-x64",
-            "compilerPath": "{env.CROSS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++17"
-        },
-        {
-            "name": "Mac",
-            "includePath": [
-                "${env.CROSS_TOOLS_HOME}/arm-none-eabi/include",
-                "${env.CROSS_TOOLS_HOME}/lib/gcc/arm-none-eabi/7.3.0/include",
-                "${workspaceRoot}/arch/stm32f10x/Arch",
-                "${workspaceRoot}/arch/stm32f10x/Startup",
-                "${workspaceRoot}/arch/stm32f10x/StdPeriph",
-                "${workspaceRoot}/arch/stm32f10x/StdPeriph/inc",
-                "${workspaceRoot}/driver",
-                "${workspaceRoot}/driver/stm32f10x",
-                "${workspaceRoot}/kernel/inc",
-                "${workspaceRoot}/kernel/lib/pt",
-                "${workspaceRoot}/kernel/lib/timer",
-                "${workspaceRoot}/library/uIP/uip",
-                "${workspaceRoot}/library/uIP/uip-funs",
-                "${workspaceRoot}/test_uip"
-            ],
-            "defines": [
-                "MALLOC_PROVIDED",
-                "__DYNAMIC_REENT__",
-                "MISSING_SYSCALL_NAMES",
-                "REENTRANT_SYSCALLS_PROVIDED",
-                "STM32F10X_CL",
-                "USE_STDPERIPH_DRIVER"
-            ],
-            "intelliSenseMode": "clang-x64",
             "compilerPath": "{env.CROSS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17"
