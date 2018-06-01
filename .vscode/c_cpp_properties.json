@@ -23,10 +23,9 @@
                 "__DYNAMIC_REENT__",
                 "MISSING_SYSCALL_NAMES",
                 "REENTRANT_SYSCALLS_PROVIDED",
-                "STM32F10X_CL",
-                "USE_STDPERIPH_DRIVER"
+                "USE_STDPERIPH_DRIVER",
+                "STM32F10X_CL"
             ],
-            "intelliSenseMode": "msvc-x64",
             "compilerPath": "{env.CROSS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17"
