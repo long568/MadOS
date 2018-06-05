@@ -1,4 +1,3 @@
-
     .syntax unified
     .cpu cortex-m3
     .fpu softvfp
@@ -34,7 +33,6 @@ madOSStartUp:
               PendSV_Handler
 *****************************************/
     .section .text.PendSV_Handler
-    .weak    PendSV_Handler
     .type    PendSV_Handler, %function
 PendSV_Handler:
     CPSID	I
@@ -65,8 +63,8 @@ PendSV_Handler_DONE:
 *****************************************/
 .equ SCB_ICSR,    0xE000E000 + 0x0D00 + 0x04
 .equ PENDSV_MASK, 0x00000001 << 28
+
     .section .text.SysTick_Handler
-    .weak    SysTick_Handler
     .type    SysTick_Handler, %function
 SysTick_Handler:
     PUSH    {LR}
