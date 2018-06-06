@@ -2,10 +2,6 @@
 export APP        = test_uip
 # export APP        = lesson002
 # export APP        = LoArm
-export MCU_ARCH   = armv7-m
-export MCU_VER    = cortex-m3
-export MCU_PREFIX = stm32f10x
-export MCU_SUFFIX = cl
 export TOOLCHAIN  = arm-none-eabi
 export BUILD_VER  = debug
 
@@ -24,8 +20,7 @@ export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/HiMadOS
 export RULES     = $(ROOT)/rules.mk
-
-include $(ROOT)/app/$(APP)/CfgLibs.mk
+include $(ROOT)/app/$(APP)/CfgApp.mk
 
 export DEFS += $(DEFS_FOR_APP) \
 			   -DMALLOC_PROVIDED \
