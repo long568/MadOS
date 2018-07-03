@@ -1,18 +1,21 @@
-#include <stdlib.h>
-#include <stddef.h>
+#include <fcntl.h>
 #include "MadOS.h"
 
 int open (const char * file, int flag, ...)
 {
+    volatile int a = 0;
     (void)file;
     (void)flag;
+    a = a;
     return 1;
 }
 
 int creat (const char * file, mode_t mode)
 {
+    volatile int a = 0;
     (void)file;
     (void)mode;
+    a = a;
     return 1;
 }
 
@@ -28,7 +31,9 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
+    volatile int a = 0;
     (void)fd;
     (void)cmd;
+    a = a;
     return 1;
 }

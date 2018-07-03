@@ -16,11 +16,14 @@ static void TestPosix_Thread(MadVptr exData)
     (void)exData;
 
     do {
-        volatile int fd;
-        fd = 0;
-        __NOP();
+        volatile int fd = 0;
+        fd = creat("HiMadOS", O_RDWR);
         fd = open("HiMadOS", O_RDWR);
-        fd = fd;
+        fcntl(fd, 1, "MadOS", 2, 43);
+        isatty(fd);
+        read(fd, exData, 10);
+        write(fd, exData, 10);
+        close(fd);
     } while(0);
 
     while(1) {

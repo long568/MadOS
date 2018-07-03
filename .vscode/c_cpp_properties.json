@@ -20,7 +20,6 @@
             ],
             "defines": [
                 "MALLOC_PROVIDED",
-                "__DYNAMIC_REENT__",
                 "MISSING_SYSCALL_NAMES",
                 "REENTRANT_SYSCALLS_PROVIDED",
                 "USE_STDPERIPH_DRIVER",

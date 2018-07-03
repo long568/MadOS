@@ -24,7 +24,6 @@ include $(ROOT)/app/$(APP)/CfgApp.mk
 
 export DEFS += $(DEFS_FOR_APP) \
 			   -DMALLOC_PROVIDED \
-			   -D__DYNAMIC_REENT__ \
 			   -DMISSING_SYSCALL_NAMES \
 			   -DREENTRANT_SYSCALLS_PROVIDED \
 			   -DUSE_STDPERIPH_DRIVER \
@@ -49,7 +48,7 @@ export LIBS += -L$(BUILD_DIR)
 ifeq ($(LIB_UIP), yes)
 export LIBS += -luip
 endif
-export LIBS += -ldrv -lkernel -larch -lm -lc -lgcc
+export LIBS += -ldrv -lkernel -larch
 
 ifeq ($(BUILD_VER), debug)
 CXFLAGS = -g3
@@ -58,11 +57,11 @@ CXFLAGS =
 endif
 CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 -Wall \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-	       -nostdlib -ffunction-sections -fdata-sections
+	       -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS)
 export CPPFLAGS += $(CXFLAGS)
 export LDFLAGS  += $(LIBS) -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-				   --specs=nano.specs -nostdlib -Bstatic -Wl,--gc-sections \
+				   --specs=nano.specs -Bstatic -Wl,--gc-sections \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 
 all :

@@ -12,7 +12,10 @@
         "maddrv.h": "c",
         "loarm.h": "c",
         "stm32tools.h": "c",
-        "lostepmotor.h": "c"
+        "lostepmotor.h": "c",
+        "stddef.h": "c",
+        "unistd.h": "c",
+        "reent.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
