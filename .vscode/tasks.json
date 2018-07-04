@@ -7,28 +7,20 @@
             "label": "build",
             "type": "shell",
             "command": "make all",
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "group": "build"
         },
         {
             "label": "clean",
             "type": "shell",
             "command": "make clean",
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "group": "build"
         },
         {
             "label": "rebuild",
             "type": "shell",
             "command": "make rebuild",
             "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "problemMatcher": []
         }
     ]
 }
