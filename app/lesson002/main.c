@@ -1,5 +1,5 @@
 #include "MadOS.h"                              // MadOS核心头文件
-#include "CfgUser.h"                         // 用户配置头文件
+#include "CfgUser.h"                            // 用户配置头文件
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 定义运行时堆栈
 static void madStartup(MadVptr exData);         // 函数声明
@@ -16,7 +16,7 @@ int main()
 // static void madStartup(MadVptr exData)
 // {
 //     volatile int a;
-// 	(void)exData;
+//     (void)exData;
 //     a = 0;
 //     while(1) {
 //         a++;

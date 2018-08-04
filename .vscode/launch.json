@@ -14,11 +14,9 @@
             "interface": "swd",
             "preLaunchTask": "build",
             "configFiles": [
-                "interface/stlink.cfg",
+                "interface/stlink-v2.cfg",
                 "target/stm32f1x.cfg"
             ]
         }
     ]
 }
-
-// "interface/stlink-v2.cfg"
