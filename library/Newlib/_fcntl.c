@@ -1,26 +1,26 @@
 #include <fcntl.h>
 #include <string.h>
+#include <stdarg.h>
 #include "MadDev.h"
+#include "nl_cfg.h"
 
 int open (const char * file, int flag, ...)
 {
-    int fd;
+    int        fd;
+    va_list    args;
     const char *name;
+
+    fd = -1;
+    va_start(args, flag);
+
     if(0 == strncmp("/dev/", file, 5)) {
-        MadDev_t *dev;
-        fd   = 0;
         name = &file[5];
-        dev  = DevsList[fd];
-        while(dev) {
-            if(0 == strcmp(name, dev->name)) {
-                dev->drv->open((const char *)fd, flag);
-                return fd;
-            }
-            fd++;
-            dev = DevsList[fd];
-        }
+        fd = MadDev_open(name, flag, args);
+        if(fd >= 0) fd |= OBJ_DEV;
     }
-    return -1;
+
+    va_end(args);
+    return fd;
 }
 
 int creat (const char * file, mode_t mode)
@@ -42,9 +42,7 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
-    volatile int a = 0;
     (void)fd;
     (void)cmd;
-    a = a;
-    return 1;
+    return -1;
 }

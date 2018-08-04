@@ -54,10 +54,12 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
         NVIC_Init(&NVIC_InitStructure);
     } while(0);
 
-    port->txLocker = madSemCreateCarefully(0, 1);
+    port->txLocker = madSemCreate(0);
     port->rxLocker = madSemCreate(0);
     port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
-    if((MNULL == port->txLocker) || (MNULL == port->rxLocker) || (MNULL == port->rxBuff)) {
+    if((MNULL == port->txLocker) || 
+       (MNULL == port->rxLocker) ||
+       (MNULL == port->rxBuff)) {
         madSemDelete(&port->txLocker);
         madSemDelete(&port->rxLocker);
         FIFO_U8_Delete(port->rxBuff);
@@ -93,9 +95,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     }
     USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
     USART_Cmd(port->p, ENABLE);
-    
-    // When DMA going to enable, USART_IT_TC will be triggered once first of all.
-    madSemWait(&port->txLocker, 0);
+
     return MTRUE;
 }
 
@@ -113,9 +113,8 @@ void UsartChar_Irq_Handler(UsartChar *port)
     }
 
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        FIFO_U8_Put(port->rxBuff, port->p->DR);
-        // madSemRelease(&port->rxLocker);
-        USART_ClearITPendingBit(port->p, USART_IT_RXNE);
+        FIFO_U8_Put(port->rxBuff, port->p->DR & 0x01FF);
+        madSemRelease(&port->rxLocker);
     }
 }
 
@@ -160,7 +159,6 @@ int UsartChar_Read(UsartChar *port, char *dat, size_t len)
     return n;
 }
 
-// inline int UsartChar_WaitData(UsartChar *port);
-// {
-//     return madSemWait(&port->rxLocker, 0);
-// }
+inline int UsartChar_WaitData(UsartChar *port) {
+    return madSemWait(&port->rxLocker, 0);
+}

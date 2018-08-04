@@ -1,40 +1,51 @@
 #include <unistd.h>
 #include "MadOS.h"
+#include "MadDev.h"
+#include "nl_cfg.h"
 
-int isatty (int __fildes)
+int isatty (int fd)
 {
-    volatile int a = 0;
-    volatile int b = 1;
-    (void)__fildes;
-    a = b;
-    b = a;
-    return 1;
+    int obj_type = fd & OBJ_MASK;
+    switch(obj_type) {
+        case OBJ_STD:  return 1;
+        case OBJ_FILE: return 0;
+        case OBJ_DEV:  return 0;
+        default:       return 0;
+    }
 }
 
-_READ_WRITE_RETURN_TYPE read (int __fd, void *__buf, size_t __nbyte)
+_READ_WRITE_RETURN_TYPE read (int fd, void *buf, size_t nbyte)
 {
-    volatile int a = 0;
-    (void)__fd;
-    (void)__buf;
-    a = a;
-    return __nbyte;
+    int obj_type = fd & OBJ_MASK;
+    int real_fd  = fd & (~OBJ_MASK);
+    switch(obj_type) {
+        case OBJ_STD:  return 0;
+        case OBJ_FILE: return 0;
+        case OBJ_DEV:  return MadDev_read(real_fd, buf, nbyte);
+        default:       return 0;
+    }
 }
 
-_READ_WRITE_RETURN_TYPE write (int __fd, const void *__buf, size_t __nbyte)
+_READ_WRITE_RETURN_TYPE write (int fd, const void *buf, size_t nbyte)
 {
-    volatile int a = 0;
-    volatile int b = 1;
-    (void)__fd;
-    (void)__buf;
-    a = b;
-    b = a;
-    return __nbyte;
+    int obj_type = fd & OBJ_MASK;
+    int real_fd  = fd & (~OBJ_MASK);
+    switch(obj_type) {
+        case OBJ_STD:  return 0;
+        case OBJ_FILE: return 0;
+        case OBJ_DEV:  return MadDev_write(real_fd, buf, nbyte);
+        default:       return 0;
+    }
 }
 
-int close (int __fildes)
+int close (int fd)
 {
-    volatile int a = 0;
-    (void)__fildes;
-    a = a;
-    return 1;
+    int obj_type = fd & OBJ_MASK;
+    int real_fd  = fd & (~OBJ_MASK);
+    switch(obj_type) {
+        case OBJ_STD:  return 1;
+        case OBJ_FILE: return 1;
+        case OBJ_DEV:  return MadDev_close(real_fd);
+        default:       return 1;
+    }
 }

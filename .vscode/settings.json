@@ -19,7 +19,8 @@
         "stm32f10x_usart.h": "c",
         "cfgdevs.h": "c",
         "usart_char.h": "c",
-        "madisr.h": "c"
+        "madisr.h": "c",
+        "nl_cfg.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

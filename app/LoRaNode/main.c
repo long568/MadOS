@@ -3,6 +3,7 @@
  * LoRa -> USART3 -> Remap -> PC10(TX) : PC11(RX)
  */
 #include <fcntl.h>
+#include <unistd.h>
 #include "MadOS.h"
 #include "CfgUser.h"
 
@@ -10,6 +11,10 @@ MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);
+
+int  tst_fd;
+char tst_buff[32];
+const char tst_cmd[] = {0xFE, 0xF1, 0x01, 0x01, 0x41, 0x13, 0x04, 0x3F, 0x40, 0x41, 0x08, 0xFF };
 
 int main()
 {
@@ -72,6 +77,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    tst_fd = open("/dev/rfid0", 0);
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -83,7 +89,6 @@ static void madSysRunning(MadVptr exData)
 {
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
-    volatile int fd;
 
     (void)exData;
     
@@ -91,12 +96,13 @@ static void madSysRunning(MadVptr exData)
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOE, &pin);
-
-    fd = open("/dev/rfid0", 0);
     
+    // write(tst_fd, tst_cmd, 12);
+
 	while(1) {
         madTimeDly(500);
-        fd = fd;
+        write(tst_fd, tst_cmd, 12);
+        read(tst_fd, tst_buff, 0);
         flag = !flag;
         if(flag) GPIO_ResetBits(GPIOE, GPIO_Pin_1);
         else     GPIO_SetBits(GPIOE, GPIO_Pin_1);

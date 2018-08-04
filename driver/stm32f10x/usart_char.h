@@ -39,6 +39,6 @@ extern MadBool  UsartChar_DeInit       (UsartChar *port);
 extern void     UsartChar_Irq_Handler  (UsartChar *port);
 extern int      UsartChar_Write        (UsartChar *port, const char *dat, size_t len);
 extern int      UsartChar_Read         (UsartChar *port, char *dat, size_t len);
-// extern int      UsartChar_WaitData     (UsartChar *port);
+extern int      UsartChar_WaitData     (UsartChar *port);
 
 #endif
