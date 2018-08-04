@@ -21,6 +21,7 @@ export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build
 export TARGET    = $(BUILD_DIR)/HiMadOS
 export RULES     = $(ROOT)/rules.mk
+export ELIBS     = $(ROOT)/elibs.mk
 include $(ROOT)/app/$(APP)/CfgApp.mk
 
 export DEFS += $(DEFS_FOR_APP) \
@@ -30,14 +31,15 @@ export DEFS += $(DEFS_FOR_APP) \
 			   -DUSE_STDPERIPH_DRIVER \
 			   -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
+include $(ELIBS)
+
 export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/app/$(APP) \
 			   -I$(ROOT)/app/$(APP)/inc \
                -I$(ROOT)/kernel/inc \
                -I$(ROOT)/kernel/lib/pt \
 			   -I$(ROOT)/kernel/lib/timer \
-			   -I$(ROOT)/library/uIP/uip \
-			   -I$(ROOT)/library/uIP/uip-funs \
+			   -I$(ROOT)/library/Newlib \
 			   -I$(ROOT)/driver \
 			   -I$(ROOT)/driver/$(MCU_PREFIX) \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
@@ -45,11 +47,8 @@ export INCS += $(INCS_FOR_APP) \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
-export LIBS += -L$(BUILD_DIR)
-ifeq ($(LIB_UIP), yes)
-export LIBS += -luip
-endif
 export LIBS += -ldrv -lkernel -larch
+export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
 CXFLAGS = -g3

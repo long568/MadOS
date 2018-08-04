@@ -3,6 +3,7 @@
 
 #include "MadOS.h"
 #include "Stm32Tools.h"
+#include "mstd_xifo.h"
 
 typedef struct {
     USART_TypeDef        *p;
@@ -19,7 +20,9 @@ typedef struct {
     MadU16               parity;
     MadU16               mode;
     MadU16               hfc;
-    MadU32               dma_priority
+    MadU32               dma_priority;
+    MadSize_t            rxBuffSize;
+    xIRQ_Handler         IRQh;
 } UsartCharInitData;
 
 typedef struct {
@@ -28,10 +31,14 @@ typedef struct {
     MadSemCB_t           *rxLocker;
     MadSemCB_t           *txLocker;
     DMA_InitTypeDef      txDmaInit;
-    MadU16               rxData;
+    FIFO_U8              *rxBuff;
 } UsartChar;
 
-MadBool  UsartChar_Init         (UsartChar *port, UsartCharInitData *initData);
-MadBool  UsartChar_DeInit       (UsartChar *port);
+extern MadBool  UsartChar_Init         (UsartChar *port, UsartCharInitData *initData);
+extern MadBool  UsartChar_DeInit       (UsartChar *port);
+extern void     UsartChar_Irq_Handler  (UsartChar *port);
+extern int      UsartChar_Write        (UsartChar *port, const char *dat, size_t len);
+extern int      UsartChar_Read         (UsartChar *port, char *dat, size_t len);
+// extern int      UsartChar_WaitData     (UsartChar *port);
 
 #endif

@@ -2,7 +2,6 @@
 #define __MAD_DRV__H__
 
 #include <stddef.h>
-
 #include "MadOS.h"
 
 typedef struct {
@@ -14,5 +13,7 @@ typedef struct {
     int (*close)  (int);
     int (*isatty) (int);
 } MadDrv_t;
+
+extern const MadDrv_t MadDrvRFID;
 
 #endif

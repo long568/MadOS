@@ -1,22 +1,33 @@
 #include <fcntl.h>
-#include "MadOS.h"
+#include <string.h>
+#include "MadDev.h"
 
 int open (const char * file, int flag, ...)
 {
-    volatile int a = 0;
-    (void)file;
-    (void)flag;
-    a = a;
-    return 1;
+    int fd;
+    const char *name;
+    if(0 == strncmp("/dev/", file, 5)) {
+        MadDev_t *dev;
+        fd   = 0;
+        name = &file[5];
+        dev  = DevsList[fd];
+        while(dev) {
+            if(0 == strcmp(name, dev->name)) {
+                dev->drv->open((const char *)fd, flag);
+                return fd;
+            }
+            fd++;
+            dev = DevsList[fd];
+        }
+    }
+    return -1;
 }
 
 int creat (const char * file, mode_t mode)
 {
-    volatile int a = 0;
     (void)file;
     (void)mode;
-    a = a;
-    return 1;
+    return -1;
 }
 
 /* int fcntl (int fd, int cmd, ...) -> cmd:

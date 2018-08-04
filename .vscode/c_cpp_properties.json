@@ -9,6 +9,7 @@
                 "${workspaceFolder}/arch/stm32f10x/Startup",
                 "${workspaceFolder}/arch/stm32f10x/StdPeriph",
                 "${workspaceFolder}/arch/stm32f10x/StdPeriph/inc",
+                "${workspaceFolder}/library/Newlib",
                 "${workspaceFolder}/driver",
                 "${workspaceFolder}/driver/stm32f10x",
                 "${workspaceFolder}/kernel/inc",
@@ -16,7 +17,7 @@
                 "${workspaceFolder}/kernel/lib/timer",
                 "${workspaceFolder}/library/uIP/uip",
                 "${workspaceFolder}/library/uIP/uip-funs",
-                "${workspaceFolder}/app/test_uip"
+                "${workspaceFolder}/app/LoRaNode"
             ],
             "defines": [
                 "MALLOC_PROVIDED",

@@ -2,7 +2,7 @@
  * RFID -> USART1 -> Remap -> PB6(TX)  : PB7(RX)
  * LoRa -> USART3 -> Remap -> PC10(TX) : PC11(RX)
  */
-
+#include <fcntl.h>
 #include "MadOS.h"
 #include "CfgUser.h"
 
@@ -83,6 +83,7 @@ static void madSysRunning(MadVptr exData)
 {
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
+    volatile int fd;
 
     (void)exData;
     
@@ -90,9 +91,12 @@ static void madSysRunning(MadVptr exData)
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOE, &pin);
+
+    fd = open("/dev/rfid0", 0);
     
 	while(1) {
         madTimeDly(500);
+        fd = fd;
         flag = !flag;
         if(flag) GPIO_ResetBits(GPIOE, GPIO_Pin_1);
         else     GPIO_SetBits(GPIOE, GPIO_Pin_1);

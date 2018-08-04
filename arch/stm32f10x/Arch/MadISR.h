@@ -1,6 +1,8 @@
 #ifndef __MAD_ISR__H__
 #define __MAD_ISR__H__
 
+#include "MadOS.h"
+
 typedef void (*xIRQ_Handler)(void);
 
 #ifdef STM32F10X_CL

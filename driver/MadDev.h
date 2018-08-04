@@ -4,7 +4,14 @@
 #include "MadDrv.h"
 
 typedef struct _MadDev_t {
-    MadDrv_t *drv;
+    const char     name[8];
+    MadVptr        dev;
+    const MadVptr  args;
+    MadU8          *txBuff;
+    MadU8          *rxBuff;
+    const MadDrv_t *drv;
 } MadDev_t;
+
+extern MadDev_t *DevsList[];
 
 #endif
