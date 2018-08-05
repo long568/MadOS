@@ -1,6 +1,9 @@
 /*
  * RFID -> USART1 -> Remap -> PB6(TX)  : PB7(RX)
  * LoRa -> USART3 -> Remap -> PC10(TX) : PC11(RX)
+ * RFID CMD: 
+ *     FE F1 01 01 41 01 04 3F 40 41 08 FF
+ *     FE F1 01 01 41 13 04 3F 40 41 1A FF
  */
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,7 +17,7 @@ static void madSysRunning(MadVptr exData);
 
 int  tst_fd;
 char tst_buff[32];
-const char tst_cmd[] = {0xFE, 0xF1, 0x01, 0x01, 0x41, 0x13, 0x04, 0x3F, 0x40, 0x41, 0x08, 0xFF };
+const char tst_cmd[] = { 0x01, 0x01, 0x41, 0x13, 0x04, 0x3F, 0x40, 0x46 };
 
 int main()
 {
@@ -77,9 +80,8 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    tst_fd = open("/dev/rfid0", 0);
     
-    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
+    madThreadCreate(madSysRunning, 0, 128 * 10, THREAD_PRIO_SYS_RUNNING);    
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDeleteAndClear(MAD_THREAD_SELF);
     while(1);
@@ -97,11 +99,15 @@ static void madSysRunning(MadVptr exData)
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOE, &pin);
     
-    // write(tst_fd, tst_cmd, 12);
-
+    tst_fd = open("/dev/rfid0", 0);
+    write(tst_fd, tst_cmd, 8);
+    // while(1) {
+    //     write(tst_fd, tst_cmd, 8);
+    //     madTimeDly(3000);
+    // }
+    
 	while(1) {
         madTimeDly(500);
-        write(tst_fd, tst_cmd, 12);
         read(tst_fd, tst_buff, 0);
         flag = !flag;
         if(flag) GPIO_ResetBits(GPIOE, GPIO_Pin_1);

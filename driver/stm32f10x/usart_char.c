@@ -5,8 +5,8 @@ static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU32 len);
 
 MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
 {
-    USART_InitTypeDef USART_InitStructure;
     MadU8             usart_irqn;
+    USART_InitTypeDef USART_InitStructure;
 
     port->p     = initData->p;
     port->txDma = initData->txDma;
@@ -89,12 +89,15 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     DMA_DeInit(port->txDma);
     
     USART_Init(port->p, &USART_InitStructure);
-    if(initData->mode & USART_Mode_Tx) {
-        USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
-        USART_ITConfig(port->p, USART_IT_TC, ENABLE);
-    }
-    USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
     USART_Cmd(port->p, ENABLE);
+
+    if(initData->mode & USART_Mode_Rx) {
+        USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
+    }
+    if(initData->mode & USART_Mode_Tx) {
+        USART_ITConfig(port->p, USART_IT_TC, ENABLE);
+        USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
+    }
 
     return MTRUE;
 }
@@ -113,7 +116,8 @@ void UsartChar_Irq_Handler(UsartChar *port)
     }
 
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        FIFO_U8_Put(port->rxBuff, port->p->DR & 0x01FF);
+        volatile MadU32 data = port->p->DR & 0x01FF;
+        FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
     }
 }
@@ -126,6 +130,7 @@ static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU32 len)
     DMA_Init(port->txDma, &port->txDmaInit);
     DMA_Cmd(port->txDma, ENABLE);
     res = madSemWait(&port->txLocker, 0);
+    DMA_Cmd(port->txDma, DISABLE);
     DMA_DeInit(port->txDma);
     return res;
 }

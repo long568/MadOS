@@ -20,7 +20,9 @@
         "cfgdevs.h": "c",
         "usart_char.h": "c",
         "madisr.h": "c",
-        "nl_cfg.h": "c"
+        "nl_cfg.h": "c",
+        "stm32f10x_dma.h": "c",
+        "cfguser.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
