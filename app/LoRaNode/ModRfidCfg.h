@@ -7,8 +7,8 @@
 #define RFID_RX_BUFF_SIZE  (12 * 5)
 #define RFID_RX_INTERVAL   (3)
 #define RFID_RX_DLY        (1000)
-#define RFID_MAX_NUM       (256)
-#define RFID_ID_BUFF_SIZE  (8 * RFID_MAX_NUM)
+#define RFID_ID_MAX_NUM    (255)
+#define RFID_ID_BUFF_SIZE  (8 * RFID_ID_MAX_NUM)
 #define RFID_TX_INTERVAL   (1000 * 60)
 
 #define RFID_FLAG_PORT     GPIOE
