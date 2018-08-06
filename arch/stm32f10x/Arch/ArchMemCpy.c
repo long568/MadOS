@@ -1,11 +1,14 @@
 #include "ArchMemCpy.h"
 #include "CfgUser.h"
+#include "MadISR.h"
 
 #ifdef MAD_CPY_MEM_BY_DMA
 
 static MadSemCB_t      mad_archm_locker, *mad_archm_plocker;
 static MadSemCB_t      mad_archm_waiter, *mad_archm_pwaiter;
 static DMA_InitTypeDef mad_archm_dma;
+
+static void madArchMem_IRQ_Handler(void);
 
 void madArchMemInit(void)
 {
@@ -35,9 +38,10 @@ void madArchMemInit(void)
 	mad_archm_pwaiter = &mad_archm_waiter;
     madSemInitCarefully(mad_archm_plocker, 1, 1);
     madSemInitCarefully(mad_archm_pwaiter, 0, 1);
+    madInstallExIrq(madArchMem_IRQ_Handler, ARCHM_DMA_TX_IRQn);
 }
 
-void ARCHM_DMA_TX_IRQ(void)
+static void madArchMem_IRQ_Handler(void)
 {
     if(SET == DMA_GetITStatus(ARCHM_DMA_TX_ITTC)) {
         madSemRelease(&mad_archm_pwaiter);

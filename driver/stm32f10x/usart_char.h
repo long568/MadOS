@@ -34,11 +34,12 @@ typedef struct {
     FIFO_U8              *rxBuff;
 } UsartChar;
 
-extern MadBool  UsartChar_Init         (UsartChar *port, UsartCharInitData *initData);
-extern MadBool  UsartChar_DeInit       (UsartChar *port);
-extern void     UsartChar_Irq_Handler  (UsartChar *port);
-extern int      UsartChar_Write        (UsartChar *port, const char *dat, size_t len);
-extern int      UsartChar_Read         (UsartChar *port, char *dat, size_t len);
-extern int      UsartChar_WaitData     (UsartChar *port);
+extern MadBool UsartChar_Init        (UsartChar *port, UsartCharInitData *initData);
+extern MadBool UsartChar_DeInit      (UsartChar *port);
+extern void    UsartChar_Irq_Handler (UsartChar *port);
+extern int     UsartChar_Write       (UsartChar *port, const char *dat, size_t len);
+extern int     UsartChar_Read        (UsartChar *port, char *dat, size_t len);
+extern void    UsartChar_ClearRecv   (UsartChar *port);
+extern int     UsartChar_WaitRecv    (UsartChar *port);
 
 #endif

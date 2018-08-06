@@ -22,7 +22,7 @@ static const UsartCharInitData initData = {
     USART_Mode_Rx | USART_Mode_Tx,
     USART_HardwareFlowControl_None,
     DMA_Priority_Medium,
-    32,
+    RFID_RX_BUFF_SIZE,
     DevRFID_IRQ_Handler
 };
 

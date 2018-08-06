@@ -15,7 +15,6 @@
 #define ARCHM_DMA_TX_ITs   (ARCHM_DMA_TX_ITTE | ARCHM_DMA_TX_ITGL | ARCHM_DMA_TX_ITTC | ARCHM_DMA_TX_ITHT)
 
 extern  void  madArchMemInit    (void);
-extern  void  ARCHM_DMA_TX_IRQ  (void);
 extern  void  madArchMemCpy     (MadVptr dst, const MadVptr src, MadSize_t size);
 extern  void  madArchMemSet     (MadVptr dst, MadU8 value, MadSize_t size);
 

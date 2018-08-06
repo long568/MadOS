@@ -164,6 +164,12 @@ int UsartChar_Read(UsartChar *port, char *dat, size_t len)
     return n;
 }
 
-inline int UsartChar_WaitData(UsartChar *port) {
+inline void UsartChar_ClearRecv(UsartChar *port) {
+    USART_ITConfig(port->p, USART_IT_RXNE, DISABLE);
+    FIFO_U8_Clear(port->rxBuff);
+    USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
+}
+
+inline int UsartChar_WaitRecv(UsartChar *port) {
     return madSemWait(&port->rxLocker, 0);
 }
