@@ -3,6 +3,6 @@
 
 #include "MadOS.h"
 
-extern MadBool MadRFID_Init(void);
+extern MadBool ModRfid_Init(void);
 
 #endif

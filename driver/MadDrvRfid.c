@@ -1,6 +1,6 @@
 #include "MadDev.h"
+#include "ModRfidCfg.h"
 #include "usart_char.h"
-#include "CfgUser.h"
 
 static int DrvRFID_open   (const char *, int, ...);
 static int DrvRFID_creat  (const char *, mode_t);
@@ -72,7 +72,9 @@ static int DrvRFID_read(int fd, void *buf, size_t len)
     UsartChar *urt = dev->dev;
     UsartChar_ClearRecv(urt);
     UsartChar_WaitRecv(urt);
+    StmPIN_SetHigh(&rfid_led);
     madTimeDly(RFID_RX_DLY);
+    StmPIN_SetLow(&rfid_led);
     n = UsartChar_Read(urt, dat, len);
     j = 0;
     if(n > 11) {

@@ -1,6 +1,6 @@
 #include "MadDev.h"
 #include "usart_char.h"
-#include "CfgUser.h"
+#include "ModRfidCfg.h"
 
 static UsartChar dev;
 

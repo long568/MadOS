@@ -23,7 +23,10 @@
         "nl_cfg.h": "c",
         "stm32f10x_dma.h": "c",
         "cfguser.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "modrfid.h": "c",
+        "modrfidty.h": "c",
+        "string.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

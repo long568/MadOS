@@ -1,6 +1,7 @@
 #include "MadOS.h"
+#include "Stm32Tools.h"
 #include "CfgUser.h"
-#include "ModRFID.h"
+#include "ModRfid.h"
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
@@ -68,9 +69,9 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    MadRFID_Init();
+    ModRfid_Init();
     
-    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);    
+    madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDeleteAndClear(MAD_THREAD_SELF);
     while(1);
@@ -78,20 +79,20 @@ static void madStartup(MadVptr exData)
 
 static void madSysRunning(MadVptr exData)
 {
-    GPIO_InitTypeDef pin;
+    StmPIN  led;
     MadBool flag = MFALSE;
 
     (void)exData;
     
-    pin.GPIO_Mode  = GPIO_Mode_Out_PP;
-	pin.GPIO_Pin   = GPIO_Pin_1;
-	pin.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOE, &pin);
+    led.port = SYS_RUNNING_LED_PORT;
+    led.pin  = SYS_RUNNING_LED_PIN;
+    StmPIN_DefInitOPP(&led);
+    StmPIN_SetHigh(&led);
     
 	while(1) {
         madTimeDly(500);
         flag = !flag;
-        if(flag) GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-        else     GPIO_SetBits(GPIOE, GPIO_Pin_1);
+        if(flag) StmPIN_SetLow(&led);
+        else     StmPIN_SetHigh(&led);
 	}
 }
