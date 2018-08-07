@@ -12,32 +12,24 @@
 #include "ModRfidCfg.h"
 
 StmPIN rfid_led;
+MadU8  rfid_id_cnt;
+char   rfid_tx_buff[RFID_TX_BUFF_SIZE];
 
 static const char rfid_cfg[] = { 0x01, 0x01, 0x41, 0x23, 0x04, 0x3F, 0x40, 0x43 };
-
-static int    rfid_fd;
-static char   rfid_rx_buff[RFID_RX_BUFF_SIZE];
-static char   rfid_tx_buff[RFID_TX_BUFF_SIZE];
-
-static MadU8  *rfid_hw_ver   = (MadU8 *)(&rfid_tx_buff[ 0]);
-static MadU8  *rfid_sw_ver   = (MadU8 *)(&rfid_tx_buff[ 1]);
-static MadU8  *rfid_cmd_type = (MadU8 *)(&rfid_tx_buff[ 2]);
-static MadU8  *rfid_dev_type = (MadU8 *)(&rfid_tx_buff[ 3]);
-static MadU16 *rfid_data_len = (MadU16*)(&rfid_tx_buff[ 4]);
-static MadU32 *rfid_stamp    = (MadU32*)(&rfid_tx_buff[ 6]);
-static MadU8  *rfid_cnt      = (MadU8 *)(&rfid_tx_buff[10]);
-static MadU8  *rfid_id_buff  = (MadU8 *)(&rfid_tx_buff[11]);
-static MadU8  *rfid_id_ptr;
-static MadU8  rfid_id_cnt;
-
+static int        rfid_fd;
+static char       rfid_rx_buff[RFID_RX_BUFF_SIZE];
+static MadU8      *rfid_hw_ver   = (MadU8 *)(&rfid_tx_buff[ 0]);
+static MadU8      *rfid_sw_ver   = (MadU8 *)(&rfid_tx_buff[ 1]);
+static MadU8      *rfid_cmd_type = (MadU8 *)(&rfid_tx_buff[ 2]);
+static MadU8      *rfid_dev_type = (MadU8 *)(&rfid_tx_buff[ 3]);
+static MadU16     *rfid_data_len = (MadU16*)(&rfid_tx_buff[ 4]);
+static MadU32     *rfid_stamp    = (MadU32*)(&rfid_tx_buff[ 6]);
+static MadU8      *rfid_cnt      = (MadU8 *)(&rfid_tx_buff[10]);
+static MadU8      *rfid_id_buff  = (MadU8 *)(&rfid_tx_buff[11]);
+static MadU8      *rfid_id_ptr;
 static MadSemCB_t *rfid_id_buff_locker;
 
-#define RFID_ID_BUFF_LOCK()    madSemWait   (&rfid_id_buff_locker, 0)
-#define RFID_ID_BUFF_TRYLOCK() madSemCheck  (&rfid_id_buff_locker)
-#define RFID_ID_BUFF_UNLOCK()  madSemRelease(&rfid_id_buff_locker)
-
 static void rfid_clear_rx_buff(void);
-static void rfid_clear_id_buff(void);
 static void rfid_thread(MadVptr exData);
 
 MadBool ModRfid_Init(void)
@@ -72,17 +64,29 @@ MadBool ModRfid_Init(void)
     return MFALSE;
 }
 
-static inline void rfid_clear_rx_buff(void)
-{
+inline MadBool rfid_id_buff_lock(void) {
+    return madSemWait(&rfid_id_buff_locker, 0);
+}
+
+inline MadBool rfid_id_buff_trylock(void) {
+    return madSemCheck(&rfid_id_buff_locker);
+}
+
+inline void rfid_id_buff_unlock(void) {
+    return madSemRelease(&rfid_id_buff_locker);
+}
+
+inline void rfid_clear_id_buff(void) {
+    rfid_id_cnt = 0;
+    rfid_id_ptr = rfid_id_buff;
+    madMemSetByDMA(rfid_id_buff, 0, RFID_ID_BUFF_SIZE);
+}
+
+static inline void rfid_clear_rx_buff(void) {
     int i;
     for(i=0; i<RFID_RX_BUFF_SIZE; i++)
         rfid_rx_buff[i] = 0;
     // madMemSetByDMA(rfid_rx_buff, 0, RFID_RX_BUFF_SIZE);
-}
-
-static inline void rfid_clear_id_buff(void)
-{
-    madMemSetByDMA(rfid_id_buff, 0, RFID_ID_BUFF_SIZE);
 }
 
 static void rfid_thread(MadVptr exData)
@@ -98,21 +102,24 @@ static void rfid_thread(MadVptr exData)
     while(1) {
         rfid_clear_rx_buff();
         n = read(rfid_fd, rfid_rx_buff, 0);
-        if((n > 0) && (MTRUE == RFID_ID_BUFF_TRYLOCK())) {
+        if(n > 0) {
+            if(MFALSE == rfid_id_buff_trylock()) {
+                continue;
+            }
             tmp[8] = 0;
             for(i=0; i<n; i++) {
                 if(rfid_id_cnt >= RFID_ID_MAX_NUM)
                     break;
-                for(j=0; j<8; j++)
-                    tmp[j] = rfid_rx_buff[n*12 + 2 + j];
+                for(j=0; j<RFID_ID_LEN; j++)
+                    tmp[j] = rfid_rx_buff[n * RFID_ID_ORGLEN + 2 + j];
                 if(NULL == strstr((const char *)rfid_id_buff, (const char *)tmp)) {
-                    for(j=0; j<8; j++)
+                    for(j=0; j<RFID_ID_LEN; j++)
                         rfid_id_ptr[j] = tmp[j];
-                    rfid_id_ptr += 8;
+                    rfid_id_ptr += RFID_ID_LEN;
                     rfid_id_cnt++;
                 }
             }
-            RFID_ID_BUFF_UNLOCK();
+            rfid_id_buff_unlock();
         }
     }
 }

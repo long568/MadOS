@@ -26,4 +26,4 @@ static const UsartCharInitData initData = {
     DevRFID_IRQ_Handler
 };
 
-MadDev_t RFID0 = { "rfid0", &dev, &initData, MNULL, MNULL, &MadDrvRFID, MAD_DEV_CLOSED };
+MadDev_t RFID0 = { "rfid0", &dev, &initData, MNULL, MNULL, &MadDrvRfid, MAD_DEV_CLOSED };

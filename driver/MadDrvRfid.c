@@ -2,25 +2,25 @@
 #include "ModRfidCfg.h"
 #include "usart_char.h"
 
-static int DrvRFID_open   (const char *, int, ...);
-static int DrvRFID_creat  (const char *, mode_t);
-static int DrvRFID_fcntl  (int fd, int cmd, ...);
-static int DrvRFID_write  (int fd, const void *buf, size_t len);
-static int DrvRFID_read   (int fd, void *buf, size_t len);
-static int DrvRFID_close  (int fd);
-static int DrvRFID_isatty (int fd);
+static int DrvRfid_open   (const char *, int, ...);
+static int DrvRfid_creat  (const char *, mode_t);
+static int DrvRfid_fcntl  (int fd, int cmd, ...);
+static int DrvRfid_write  (int fd, const void *buf, size_t len);
+static int DrvRfid_read   (int fd, void *buf, size_t len);
+static int DrvRfid_close  (int fd);
+static int DrvRfid_isatty (int fd);
 
-const MadDrv_t MadDrvRFID = {
-    DrvRFID_open,
-    DrvRFID_creat,
-    DrvRFID_fcntl,
-    DrvRFID_write,
-    DrvRFID_read,
-    DrvRFID_close,
-    DrvRFID_isatty
+const MadDrv_t MadDrvRfid = {
+    DrvRfid_open,
+    DrvRfid_creat,
+    DrvRfid_fcntl,
+    DrvRfid_write,
+    DrvRfid_read,
+    DrvRfid_close,
+    DrvRfid_isatty
 };
 
-static int DrvRFID_open(const char * file, int flag, ...)
+static int DrvRfid_open(const char * file, int flag, ...)
 {
     int      fd = (int)file;
     MadDev_t *dev = DevsList[fd];
@@ -31,40 +31,40 @@ static int DrvRFID_open(const char * file, int flag, ...)
     }
 }
 
-static int DrvRFID_creat(const char * file, mode_t mode)
+static int DrvRfid_creat(const char * file, mode_t mode)
 {
     (void)file;
     (void)mode;
     return -1;
 }
 
-static int DrvRFID_fcntl(int fd, int cmd, ...)
+static int DrvRfid_fcntl(int fd, int cmd, ...)
 {
     (void)fd;
     (void)cmd;
     return -1;
 }
 
-static int DrvRFID_write(int fd, const void *buf, size_t len)
+static int DrvRfid_write(int fd, const void *buf, size_t len)
 {
     MadDev_t   *dev = DevsList[fd];
     UsartChar  *urt = dev->dev;
     MadU8      i;
-    char       cmd[12];
+    char       cmd[RFID_ID_ORGLEN];
     const char *dst = (const char*)buf;
     (void)len;
     cmd[0]  = 0xFE;
     cmd[1]  = 0xF1;
     cmd[10] = 0x00;
     cmd[11] = 0xFF;
-    for(i=0; i<8; i++) {
+    for(i=0; i<RFID_CFG_LEN; i++) {
         cmd[i+2] = dst[i];
         cmd[10] += dst[i];
     }
-    return UsartChar_Write(urt, cmd, 12);
+    return UsartChar_Write(urt, cmd, RFID_ID_ORGLEN);
 }
 
-static int DrvRFID_read(int fd, void *buf, size_t len)
+static int DrvRfid_read(int fd, void *buf, size_t len)
 {
     char      *dat = (char*)buf;
     MadDev_t  *dev = DevsList[fd];
@@ -77,12 +77,12 @@ static int DrvRFID_read(int fd, void *buf, size_t len)
     StmPIN_SetLow(&rfid_led);
     n = UsartChar_Read(urt, dat, len);
     j = 0;
-    if(n > 11) {
-        for(i=0; i<5; i++) {
-            if((dat[ 0 + i * 12] == '0')  && 
-               (dat[ 1 + i * 12] == '0')  && 
-               (dat[10 + i * 12] == '\r') && 
-               (dat[11 + i * 12] == '\n') ) 
+    if(n > (RFID_ID_ORGLEN - 1)) {
+        for(i=0; i<RFID_RX_MAX_NUM; i++) {
+            if((dat[ 0 + i * RFID_ID_ORGLEN] == '0')  && 
+               (dat[ 1 + i * RFID_ID_ORGLEN] == '0')  && 
+               (dat[10 + i * RFID_ID_ORGLEN] == '\r') && 
+               (dat[11 + i * RFID_ID_ORGLEN] == '\n') ) 
             {
                 j++;
             } else {
@@ -93,13 +93,13 @@ static int DrvRFID_read(int fd, void *buf, size_t len)
     return j;
 }
 
-static int DrvRFID_close(int fd)
+static int DrvRfid_close(int fd)
 {
     (void)fd;
     return -1;
 }
 
-static int DrvRFID_isatty(int fd)
+static int DrvRfid_isatty(int fd)
 {
     (void)fd;
     return 0;

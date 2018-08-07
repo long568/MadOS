@@ -14,6 +14,7 @@ typedef struct {
     int (*isatty) (int);
 } MadDrv_t;
 
-extern const MadDrv_t MadDrvRFID;
+extern const MadDrv_t MadDrvRfid;
+extern const MadDrv_t MadDrvLora_IntoL6_AT;
 
 #endif
