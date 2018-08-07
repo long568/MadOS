@@ -11,17 +11,6 @@ static void madSysRunning(MadVptr exData);
 
 int main()
 {
-    madCopyVectorTab();
-    madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
-    madOSRun();
-	while(1);
-}
-
-static void madStartup(MadVptr exData)
-{
-	(void)exData;
-    
     do { // Enable GPIOs and DMAs
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
@@ -42,6 +31,17 @@ static void madStartup(MadVptr exData)
         GPIO_Init(GPIOA, &gpio);
         RCC_MCOConfig(RCC_MCO_HSE);
     } while(0);
+    
+    madCopyVectorTab();
+    madOSInit(MadStack, MAD_OS_STACK_SIZE);
+    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
+    madOSRun();
+	while(1);
+}
+
+static void madStartup(MadVptr exData)
+{
+	(void)exData;
     
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE

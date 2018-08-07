@@ -86,7 +86,6 @@ static inline void rfid_clear_rx_buff(void) {
     int i;
     for(i=0; i<RFID_RX_BUFF_SIZE; i++)
         rfid_rx_buff[i] = 0;
-    // madMemSetByDMA(rfid_rx_buff, 0, RFID_RX_BUFF_SIZE);
 }
 
 static void rfid_thread(MadVptr exData)

@@ -28,7 +28,8 @@
         "modrfidty.h": "c",
         "string.h": "c",
         "modrfidcfg.h": "c",
-        "modlora.h": "c"
+        "modlora.h": "c",
+        "stm32f10x_rcc.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

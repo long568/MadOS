@@ -16,12 +16,14 @@ static const char LORA_AT_ABP[]    = "AT+MACABPPARAMS=\"00b22ffe\",\"61d1f9f0458
 static const char LORA_AT_FREQ0[]  = "AT+MACCHFREQ=0,433175000\r\n";
 static const char LORA_AT_FREQ1[]  = "AT+MACCHFREQ=1,433375000\r\n";
 static const char LORA_AT_FREQ2[]  = "AT+MACCHFREQ=2,433575000\r\n";
+static const char LORA_AT_FREQ3[]  = "AT+MACCHFREQ=3,433775000\r\n";
 static const char LORA_AT_SPD0[]   = "AT+MACCHDRRANGE=0,4,5\r\n";
 static const char LORA_AT_SPD1[]   = "AT+MACCHDRRANGE=1,4,5\r\n";
 static const char LORA_AT_SPD2[]   = "AT+MACCHDRRANGE=2,4,5\r\n";
+static const char LORA_AT_SPD3[]   = "AT+MACCHDRRANGE=3,4,5\r\n";
 static const char LORA_AT_ADR[]    = "AT+MACADR=1\r\n";
-static const char LORA_AT_JOIN[]   = "AT+MACJOIN=2,6\r\n";
 
+static const char LORA_AT_JOIN[]   = "AT+MACJOIN=2,6\r\n";
 static const char LORA_ACK_REC[]   = "+RECMACEVT:";
 
 static const char *LORA_AT_INIT[]  = {
@@ -33,11 +35,12 @@ static const char *LORA_AT_INIT[]  = {
     LORA_AT_FREQ0,
     LORA_AT_FREQ1,
     LORA_AT_FREQ2,
+    LORA_AT_FREQ3,
     LORA_AT_SPD0,
     LORA_AT_SPD1,
     LORA_AT_SPD2,
-    LORA_AT_ADR,
-    LORA_AT_JOIN
+    LORA_AT_SPD3,
+    LORA_AT_ADR
 };
 
 static int     lora_fd;
@@ -144,15 +147,18 @@ static int lora_send(char *buf, int len)
 static void lora_thread(MadVptr exData)
 {
     int  i, n, s;
-    MadTim_t dly;
     char *ptr;
-
+    MadTim_t dly;
+    
+    i = 0;
     while(1) {
         if(MFALSE == lora_joined) {
-            for(i=0; i<12; i++) {
+            n = sizeof(LORA_AT_INIT) / sizeof(const char *);
+            for(i=0; i<n; i++) {
                 write(lora_fd, LORA_AT_INIT[i], 0);
                 madTimeDly(LORA_CMD_DLY);
             }
+            i = 0;
             lora_join();
             madTimeDly(LORA_TX_DLY);
         } else {
@@ -174,10 +180,13 @@ static void lora_thread(MadVptr exData)
                     dly = 0;
                 }
                 if(0 > lora_send(ptr, n)) {
-                    volatile int a = 0;
-                    a = a;
-                    a = a;
-                    a = a;
+                    i++;
+                    if(i > LORA_TX_RETRY) {
+                        lora_joined = MFALSE;
+                        break;
+                    }
+                } else {
+                    i = 0;
                 }
                 ptr += n;
                 madTimeDly(dly);

@@ -30,7 +30,6 @@ typedef struct {
     DMA_Channel_TypeDef  *txDma;
     MadSemCB_t           *rxLocker;
     MadSemCB_t           *txLocker;
-    DMA_InitTypeDef      txDmaInit;
     FIFO_U8              *rxBuff;
 } UsartChar;
 

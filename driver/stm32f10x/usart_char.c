@@ -1,12 +1,13 @@
 #include "usart_char.h"
 #include "MadISR.h"
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU32 len);
+static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len);
 
 MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
 {
     MadU8             usart_irqn;
     USART_InitTypeDef USART_InitStructure;
+    DMA_InitTypeDef   DMA_InitStructure;
 
     port->p     = initData->p;
     port->txDma = initData->txDma;
@@ -72,22 +73,22 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     USART_InitStructure.USART_Parity              = initData->parity;
     USART_InitStructure.USART_HardwareFlowControl = initData->hfc;
     USART_InitStructure.USART_Mode                = initData->mode;
-    
-    port->txDmaInit.DMA_PeripheralBaseAddr  = (MadU32)(&port->p->DR);
-    port->txDmaInit.DMA_MemoryBaseAddr      = 0;
-    port->txDmaInit.DMA_DIR                 = DMA_DIR_PeripheralDST;
-    port->txDmaInit.DMA_BufferSize          = 0;
-    port->txDmaInit.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;
-    port->txDmaInit.DMA_MemoryInc           = DMA_MemoryInc_Enable;
-    port->txDmaInit.DMA_PeripheralDataSize  = DMA_PeripheralDataSize_Byte;
-    port->txDmaInit.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;
-    port->txDmaInit.DMA_Mode                = DMA_Mode_Normal;
-    port->txDmaInit.DMA_Priority            = initData->dma_priority;
-    port->txDmaInit.DMA_M2M                 = DMA_M2M_Disable;
 
-    USART_DeInit(port->p);
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (MadU32)(&port->p->DR);
+    DMA_InitStructure.DMA_MemoryBaseAddr      = 0;
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_PeripheralDST;
+    DMA_InitStructure.DMA_BufferSize          = 0;
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority            = initData->dma_priority;
+    DMA_InitStructure.DMA_M2M                 = DMA_M2M_Disable;
+
     DMA_DeInit(port->txDma);
-    
+    USART_DeInit(port->p);
+    DMA_Init(port->txDma, &DMA_InitStructure);
     USART_Init(port->p, &USART_InitStructure);
     if(initData->mode & USART_Mode_Rx) {
         USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
@@ -96,6 +97,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }
+    DMA_Cmd(port->txDma, DISABLE);
     USART_Cmd(port->p, ENABLE);
     return MTRUE;
 }
@@ -117,21 +119,16 @@ void UsartChar_Irq_Handler(UsartChar *port)
         volatile MadU32 data = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
-        USART_ClearITPendingBit(port->p, USART_IT_RXNE);
+        // USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
 }
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU32 len)
+static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len)
 {
-    MadU8 res;
-    port->txDmaInit.DMA_MemoryBaseAddr = addr;
-    port->txDmaInit.DMA_BufferSize     = len;
-    DMA_Init(port->txDma, &port->txDmaInit);
+    port->txDma->CMAR = addr;
+    port->txDma->CNDTR = len;
     DMA_Cmd(port->txDma, ENABLE);
-    res = madSemWait(&port->txLocker, 0);
-    DMA_Cmd(port->txDma, DISABLE);
-    DMA_DeInit(port->txDma);
-    return res;
+    return madSemWait(&port->txLocker, 0);
 }
 
 int UsartChar_Write(UsartChar *port, const char *dat, size_t len)
