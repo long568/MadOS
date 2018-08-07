@@ -55,7 +55,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     } while(0);
 
     port->txLocker = madSemCreate(0);
-    port->rxLocker = madSemCreate(0);
+    port->rxLocker = madSemCreateCarefully(0, 1);
     port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
     if((MNULL == port->txLocker) || 
        (MNULL == port->rxLocker) ||
@@ -89,8 +89,6 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     DMA_DeInit(port->txDma);
     
     USART_Init(port->p, &USART_InitStructure);
-    USART_Cmd(port->p, ENABLE);
-
     if(initData->mode & USART_Mode_Rx) {
         USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
     }
@@ -98,7 +96,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }
-
+    USART_Cmd(port->p, ENABLE);
     return MTRUE;
 }
 
@@ -119,6 +117,7 @@ void UsartChar_Irq_Handler(UsartChar *port)
         volatile MadU32 data = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
+        USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
 }
 
@@ -170,6 +169,6 @@ inline void UsartChar_ClearRecv(UsartChar *port) {
     USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
 }
 
-inline int UsartChar_WaitRecv(UsartChar *port) {
-    return madSemWait(&port->rxLocker, 0);
+inline int UsartChar_WaitRecv(UsartChar *port, MadTim_t to) {
+    return madSemWait(&port->rxLocker, to);
 }

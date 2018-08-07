@@ -1,8 +1,10 @@
 #include "MadDev.h"
 
-extern MadDev_t RFID0;
+extern MadDev_t Rfid0;
+extern MadDev_t Lora0;
 
 MadDev_t *DevsList[] = {
-    &RFID0,
+    &Rfid0,
+    &Lora0,
     MNULL
 };

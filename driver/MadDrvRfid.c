@@ -22,7 +22,7 @@ const MadDrv_t MadDrvRfid = {
 
 static int DrvRfid_open(const char * file, int flag, ...)
 {
-    int      fd = (int)file;
+    int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
     if(MTRUE == UsartChar_Init((UsartChar*)(dev->dev), (UsartCharInitData*)(dev->args))) {
         return 1;
@@ -66,12 +66,12 @@ static int DrvRfid_write(int fd, const void *buf, size_t len)
 
 static int DrvRfid_read(int fd, void *buf, size_t len)
 {
+    int i, j, n;
     char      *dat = (char*)buf;
     MadDev_t  *dev = DevsList[fd];
-    int i, j, n;
     UsartChar *urt = dev->dev;
     UsartChar_ClearRecv(urt);
-    UsartChar_WaitRecv(urt);
+    UsartChar_WaitRecv(urt, 0);
     StmPIN_SetHigh(&rfid_led);
     madTimeDly(RFID_RX_DLY);
     StmPIN_SetLow(&rfid_led);

@@ -4,6 +4,9 @@
 #include "CfgUser.h"
 #include "Stm32Tools.h"
 
+#define RFID_FLAG_PORT     GPIOE
+#define RFID_FLAG_PIN      GPIO_Pin_0
+
 #define RFID_RX_INTERVAL   (3)
 #define RFID_RX_DLY        (1000)
 #define RFID_TX_INTERVAL   (1000 * 15)
@@ -17,9 +20,6 @@
 #define RFID_ID_BUFF_SIZE  (RFID_ID_LEN * RFID_ID_MAX_NUM)
 #define RFID_TX_BUFF_SIZE  (RFID_HEAD_SIZE + RFID_ID_BUFF_SIZE + 1)
 
-#define RFID_FLAG_PORT     GPIOE
-#define RFID_FLAG_PIN      GPIO_Pin_0
-
 #define RFID_HEAD_SIZE     (4 + 2 + 4 + 1)
 #define RFID_HW_VERSION    (15)
 #define RFID_SW_VERSION    (15)
@@ -30,7 +30,6 @@
 #define RFID_STAMP         (0)
 
 extern StmPIN  rfid_led;
-extern MadU8   rfid_id_cnt;
 extern char    rfid_tx_buff[RFID_TX_BUFF_SIZE];
 
 extern MadBool rfid_id_buff_lock    (void);

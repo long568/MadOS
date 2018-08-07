@@ -4,7 +4,7 @@
 
 static UsartChar dev;
 
-static void DevRFID_IRQ_Handler(void) { UsartChar_Irq_Handler(&dev); }
+static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
 
 static const UsartCharInitData initData = {
     USART1,
@@ -23,7 +23,7 @@ static const UsartCharInitData initData = {
     USART_HardwareFlowControl_None,
     DMA_Priority_Medium,
     RFID_RX_BUFF_SIZE,
-    DevRFID_IRQ_Handler
+    DevRfid_Irq_Handler
 };
 
-MadDev_t RFID0 = { "rfid0", &dev, &initData, MNULL, MNULL, &MadDrvRfid, MAD_DEV_CLOSED };
+MadDev_t Rfid0 = { "rfid0", &dev, &initData, MNULL, MNULL, &MadDrvRfid, MAD_DEV_CLOSED };

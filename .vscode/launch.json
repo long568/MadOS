@@ -12,7 +12,6 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             "interface": "swd",
-            "runToMain": true,
             "preLaunchTask": "build",
             "configFiles": [
                 "interface/stlink-v2.cfg",
@@ -21,3 +20,5 @@
         }
     ]
 }
+
+// "runToMain": true,

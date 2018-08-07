@@ -3,6 +3,7 @@
 
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
+    THREAD_PRIO_MOD_LORA,
     THREAD_PRIO_MOD_RFID,
     THREAD_PRIO_DRIVER_ETH
 };
@@ -17,7 +18,7 @@ enum {
     ISR_PRIO_PENDSV     = 15
 };
 
-#define MAD_OS_STACK_SIZE    (56 * 1024)
+#define MAD_OS_STACK_SIZE    (52 * 1024)
 
 #define SYS_RUNNING_LED_PORT GPIOE
 #define SYS_RUNNING_LED_PIN  GPIO_Pin_1
