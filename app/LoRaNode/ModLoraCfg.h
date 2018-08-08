@@ -8,7 +8,7 @@
 
 #define LORA_RX_BUFF_SIZE (RFID_LORA_BUFF_SIZE)
 #define LORA_RX_DLY       (1000)
-#define LORA_CMD_DLY      (1000 * 3)
+#define LORA_CMD_DLY      (1000 * 2)
 #define LORA_RX_TIMEOUT   (1000 * 120)
 #define LORA_TX_DLY       (1000 * 10)
 #define LORA_TX_RETRY     (5)
