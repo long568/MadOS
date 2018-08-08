@@ -119,7 +119,7 @@ void UsartChar_Irq_Handler(UsartChar *port)
         volatile MadU32 data = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
-        // USART_ClearITPendingBit(port->p, USART_IT_RXNE);
+        USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
 }
 

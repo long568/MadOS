@@ -11,6 +11,8 @@
 #include "ModRfid.h"
 #include "ModRfidCfg.h"
 
+extern MadSemCB_t *lora_rfid_go;
+
 StmPIN rfid_led;
 char   rfid_tx_buff[RFID_TX_BUFF_SIZE];
 
@@ -102,13 +104,14 @@ static void rfid_thread(MadVptr exData)
         rfid_clear_rx_buff();
         n = read(rfid_fd, rfid_rx_buff, 0);
         if(n > 0) {
-            if(MFALSE == rfid_id_buff_trylock()) {
-                continue;
-            }
+            rfid_id_buff_lock();
             tmp[8] = 0;
             for(i=0; i<n; i++) {
-                if((*rfid_id_cnt) >= RFID_ID_MAX_NUM)
-                    break;
+                if((*rfid_id_cnt) >= RFID_ID_MAX_NUM) {
+                    madSemRelease(&lora_rfid_go);
+                    rfid_id_buff_unlock();
+                    rfid_id_buff_lock();
+                }
                 for(j=0; j<RFID_ID_LEN; j++)
                     tmp[j] = rfid_rx_buff[i * RFID_ID_ORGLEN + 2 + j];
                 if(NULL == strstr((const char *)rfid_id_buff, (const char *)tmp)) {

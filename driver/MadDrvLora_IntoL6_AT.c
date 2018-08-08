@@ -50,7 +50,6 @@ static int DrvLora_write(int fd, const void *buf, size_t len)
 {
     MadDev_t   *dev = DevsList[fd];
     UsartChar  *urt = dev->dev;
-    len = strlen(buf);
     return UsartChar_Write(urt, buf, len);
 }
 

@@ -4,7 +4,8 @@
 #include "ModLora.h"
 #include "ModLoraCfg.h"
 
-StmPIN lora_led;
+StmPIN     lora_led;
+MadSemCB_t *lora_rfid_go;
 
 #define LORA_AT_SEND_FMT "AT+SENDMACDATA=0,1,1,%d\r\n"
 
@@ -16,15 +17,16 @@ static const char LORA_AT_ABP[]    = "AT+MACABPPARAMS=\"00b22ffe\",\"61d1f9f0458
 static const char LORA_AT_FREQ0[]  = "AT+MACCHFREQ=0,433175000\r\n";
 static const char LORA_AT_FREQ1[]  = "AT+MACCHFREQ=1,433375000\r\n";
 static const char LORA_AT_FREQ2[]  = "AT+MACCHFREQ=2,433575000\r\n";
-static const char LORA_AT_FREQ3[]  = "AT+MACCHFREQ=3,433775000\r\n";
+// static const char LORA_AT_FREQ3[]  = "AT+MACCHFREQ=3,433775000\r\n";
 static const char LORA_AT_SPD0[]   = "AT+MACCHDRRANGE=0,4,5\r\n";
 static const char LORA_AT_SPD1[]   = "AT+MACCHDRRANGE=1,4,5\r\n";
 static const char LORA_AT_SPD2[]   = "AT+MACCHDRRANGE=2,4,5\r\n";
-static const char LORA_AT_SPD3[]   = "AT+MACCHDRRANGE=3,4,5\r\n";
+// static const char LORA_AT_SPD3[]   = "AT+MACCHDRRANGE=3,4,5\r\n";
 static const char LORA_AT_ADR[]    = "AT+MACADR=1\r\n";
 
 static const char LORA_AT_JOIN[]   = "AT+MACJOIN=2,6\r\n";
 static const char LORA_ACK_REC[]   = "+RECMACEVT:";
+#define LORA_ACK_REC_INDEX (sizeof(LORA_ACK_REC) - 1)
 
 static const char *LORA_AT_INIT[]  = {
     LORA_ATE0,
@@ -35,11 +37,11 @@ static const char *LORA_AT_INIT[]  = {
     LORA_AT_FREQ0,
     LORA_AT_FREQ1,
     LORA_AT_FREQ2,
-    LORA_AT_FREQ3,
+    // LORA_AT_FREQ3,
     LORA_AT_SPD0,
     LORA_AT_SPD1,
     LORA_AT_SPD2,
-    LORA_AT_SPD3,
+    // LORA_AT_SPD3,
     LORA_AT_ADR
 };
 
@@ -63,11 +65,14 @@ MadBool ModLora_Init(void)
     lora_fd = open("/dev/lora0", 0);
     if (lora_fd > 0) {
         MadTCB_t *tmp;
+        lora_rfid_go = madSemCreate(0);
         tmp = madThreadCreate(lora_thread, 0, 2048, THREAD_PRIO_MOD_LORA);
-        if(tmp) {
+        if(tmp && lora_rfid_go) {
             StmPIN_SetLow(&lora_led);
             return MTRUE;
         } else {
+            madSemDelete(&lora_rfid_go);
+            madThreadDelete(THREAD_PRIO_MOD_LORA);
             close(lora_fd);
         }
     }
@@ -86,13 +91,13 @@ static int lora_join(void)
     char *res;
     char *ptr = lora_rx_buff;
     lora_clear_rx_buff();
-    if(write(lora_fd, LORA_AT_JOIN, 0) > 0) {
+    if(write(lora_fd, LORA_AT_JOIN, strlen(LORA_AT_JOIN)) > 0) {
         do {
             n = read(lora_fd, ptr, 0);
-            if(n > 0) {
+            if(n >= 0) {
                 res = strstr(lora_rx_buff, LORA_ACK_REC);
                 if(NULL != res) {
-                    if('1' == *(res + 13)) {
+                    if('1' == *(res + LORA_ACK_REC_INDEX)) {
                         lora_joined = MTRUE;
                         return 1;
                     } else {
@@ -110,26 +115,20 @@ static int lora_join(void)
 
 static int lora_send(char *buf, int len)
 {
-    int  i, n;
+    int  n;
     char *res;
     char *ptr  = lora_rx_buff;
     sprintf(lora_tx_buff, LORA_AT_SEND_FMT, len);
-    write(lora_fd, lora_tx_buff, 0);
+    write(lora_fd, lora_tx_buff, strlen(lora_tx_buff));
     madTimeDly(LORA_RX_DLY);
-    for(i=0; i<len; i++) {
-        lora_tx_buff[i] = buf[i];
-    }
-    lora_tx_buff[i++] = '\r';
-    lora_tx_buff[i++] = '\n';
-    lora_tx_buff[i++] = '\0';
     lora_clear_rx_buff();
-    if(write(lora_fd, lora_tx_buff, i) > 0) {
+    if(write(lora_fd, buf, len) > 0) {
         do {
             n = read(lora_fd, ptr, 0);
             if(n > 0) {
                 res = strstr(lora_rx_buff, LORA_ACK_REC);
                 if(NULL != res) {
-                    if('3' == *(res + 13)) {
+                    if('3' == *(res + LORA_ACK_REC_INDEX)) {
                         return 1;
                     } else {
                         break;
@@ -146,52 +145,35 @@ static int lora_send(char *buf, int len)
 
 static void lora_thread(MadVptr exData)
 {
-    int  i, n, s;
-    char *ptr;
-    MadTim_t dly;
+    volatile int  i, n;
     
     i = 0;
     while(1) {
         if(MFALSE == lora_joined) {
             n = sizeof(LORA_AT_INIT) / sizeof(const char *);
             for(i=0; i<n; i++) {
-                write(lora_fd, LORA_AT_INIT[i], 0);
-                madTimeDly(LORA_CMD_DLY);
+                write(lora_fd, LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]));
+                read(lora_fd, lora_rx_buff, 0);
             }
             i = 0;
             lora_join();
             madTimeDly(LORA_TX_DLY);
         } else {
             rfid_id_buff_lock();
-            n = rfid_tx_buff[10];
-            s = n * RFID_ID_LEN + RFID_HEAD_SIZE;
-            madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, s);
+            n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
+            madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, n);
             rfid_clear_id_buff();
             rfid_id_buff_unlock();
-            ptr = lora_rfid_buff;
-            do {
-                if(s > LORA_RX_BUFF_SIZE) {
-                    n   = LORA_RX_BUFF_SIZE;
-                    s  -= LORA_RX_BUFF_SIZE;
-                    dly = LORA_TX_DLY;
-                } else {
-                    n   = s;
-                    s   = 0;
-                    dly = 0;
+            *(MadU16*)(lora_rfid_buff + 4) = n - RFID_TOP_SIZE;
+            if(0 > lora_send(lora_rfid_buff, n)) {
+                if(++i > LORA_TX_RETRY) {
+                    lora_joined = MFALSE;
+                    continue;
                 }
-                if(0 > lora_send(ptr, n)) {
-                    i++;
-                    if(i > LORA_TX_RETRY) {
-                        lora_joined = MFALSE;
-                        break;
-                    }
-                } else {
-                    i = 0;
-                }
-                ptr += n;
-                madTimeDly(dly);
-            } while(s);
-            madTimeDly(LORA_TX_INTERVAL);
+            } else {
+                i = 0;
+            }
+            madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
         }
     }
 }
