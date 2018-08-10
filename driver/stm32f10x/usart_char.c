@@ -55,7 +55,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
         NVIC_Init(&NVIC_InitStructure);
     } while(0);
 
-    port->txLocker = madSemCreate(0);
+    port->txLocker = madSemCreateCarefully(0, 1);
     port->rxLocker = madSemCreateCarefully(0, 1);
     port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
     if((MNULL == port->txLocker) || 
@@ -87,9 +87,13 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     DMA_InitStructure.DMA_M2M                 = DMA_M2M_Disable;
 
     DMA_DeInit(port->txDma);
-    USART_DeInit(port->p);
     DMA_Init(port->txDma, &DMA_InitStructure);
+    DMA_Cmd(port->txDma, DISABLE);
+
+    USART_DeInit(port->p);
     USART_Init(port->p, &USART_InitStructure);
+    USART_Cmd(port->p, ENABLE);
+    
     if(initData->mode & USART_Mode_Rx) {
         USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
     }
@@ -97,8 +101,8 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }
-    DMA_Cmd(port->txDma, DISABLE);
-    USART_Cmd(port->p, ENABLE);
+
+    madSemWait(&port->txLocker, 0); // Fix bug in STM32
     return MTRUE;
 }
 

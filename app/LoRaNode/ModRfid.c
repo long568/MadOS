@@ -49,8 +49,6 @@ MadBool ModRfid_Init(void)
         *rfid_dev_type = RFID_DEV_TYPE;
         *rfid_data_len = 0;
         *rfid_stamp    = RFID_STAMP;
-        *rfid_id_cnt   = 0;
-        rfid_id_ptr    = rfid_id_buff;
         rfid_clear_id_buff();
         rfid_id_buff_locker = madSemCreate(1);
         tmp = madThreadCreate(rfid_thread, 0, 2048, THREAD_PRIO_MOD_RFID);
