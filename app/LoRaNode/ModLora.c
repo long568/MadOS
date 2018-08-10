@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ModLora.h"
 #include "ModLoraCfg.h"
+#include "MadDrv.h"
 
 StmPIN     lora_led;
 MadSemCB_t *lora_rfid_go;
@@ -26,6 +27,9 @@ static const char LORA_AT_ADR[]    = "AT+MACADR=1\r\n";
 
 static const char LORA_AT_JOIN[]   = "AT+MACJOIN=2,6\r\n";
 static const char LORA_ACK_REC[]   = "+RECMACEVT:";
+static const char LORA_ACK_OK[]    = "OK";
+static const char LORA_ACK_ERR[]   = "ERROR";
+
 #define LORA_ACK_REC_INDEX (sizeof(LORA_ACK_REC) - 1)
 
 static const char *LORA_AT_INIT[]  = {
@@ -52,6 +56,7 @@ static char    lora_rx_buff[LORA_RX_BUFF_SIZE];
 static char    lora_rfid_buff[RFID_TX_BUFF_SIZE];
 
 static void lora_clear_rx_buff(void);
+static int  lora_go_ok(const char *buf, size_t len);
 static int  lora_go_recmacevt(const char *buf, size_t len, char evn);
 static int  lora_join(void);
 static int  lora_send(char *buf, int len);
@@ -85,6 +90,30 @@ static inline void lora_clear_rx_buff(void) {
     int i;
     for(i=0; i<LORA_RX_BUFF_SIZE; i++)
         lora_rx_buff[i] = 0;
+}
+
+static int lora_go_ok(const char *buf, size_t len)
+{
+    int  n;
+    char *ptr = lora_rx_buff;
+    lora_clear_rx_buff();
+    if(write(lora_fd, buf, len) > 0) {
+        do {
+            n = read(lora_fd, ptr, 0);
+            if(n > 0) {
+                if(NULL != strstr(lora_rx_buff, LORA_ACK_OK)) {
+                    return 1;
+                } else if(NULL != strstr(lora_rx_buff, LORA_ACK_ERR)) {
+                    break;
+                } else {
+                    ptr += n;
+                }
+            } else {
+                break;
+            }
+        } while(1);
+    }
+    return -1;
 }
 
 static int lora_go_recmacevt(const char *buf, size_t len, char evn)
@@ -134,15 +163,18 @@ static int lora_send(char *buf, int len)
 
 static void lora_thread(MadVptr exData)
 {
-    volatile int  i, n;
+    int  i, n;
     
     i = 0;
+    fcntl(lora_fd, F_DEV_RST);
     while(1) {
         if(MFALSE == lora_joined) {
             n = sizeof(LORA_AT_INIT) / sizeof(const char *);
             for(i=0; i<n; i++) {
-                write(lora_fd, LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]));
-                read(lora_fd, lora_rx_buff, 0);
+                if(0 > lora_go_ok(LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]))) {
+                    i = 0;
+                    fcntl(lora_fd, F_DEV_RST);
+                }
             }
             i = 0;
             lora_join();
@@ -159,6 +191,7 @@ static void lora_thread(MadVptr exData)
             if(0 > lora_send(lora_rfid_buff, /*n*/10)) {
                 if(++i > LORA_TX_RETRY) {
                     lora_joined = MFALSE;
+                    fcntl(lora_fd, F_DEV_RST);
                     continue;
                 }
             } else {

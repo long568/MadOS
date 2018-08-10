@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include "MadOS.h"
 
+enum {
+    F_DEV_RST = 16
+};
+
 typedef struct {
     int (*open)   (const char *, int, ...);
     int (*creat)  (const char *, mode_t);

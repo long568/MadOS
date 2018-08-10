@@ -113,18 +113,33 @@ MadBool UsartChar_DeInit(UsartChar *port)
 
 void UsartChar_Irq_Handler(UsartChar *port)
 {
+#if 0 
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
-        USART_ClearITPendingBit(port->p, USART_IT_TC);
+        // USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
-
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
         volatile MadU32 data = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
-        USART_ClearITPendingBit(port->p, USART_IT_RXNE);
+        // USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
+    port->p->SR = 0;
+#else
+    volatile MadU32 s, d;
+    s = port->p->SR;
+    port->p->SR = 0;
+    if(s & 0x40) {
+        DMA_Cmd(port->txDma, DISABLE);
+        madSemRelease(&port->txLocker);
+    }
+    if(s & 0x20) {
+        d = port->p->DR & 0x01FF;
+        FIFO_U8_Put(port->rxBuff, d);
+        madSemRelease(&port->rxLocker);
+    }
+#endif
 }
 
 static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len)

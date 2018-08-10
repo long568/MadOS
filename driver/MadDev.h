@@ -17,11 +17,13 @@ typedef struct _MadDev_t {
     MadU8          *rxBuff;
     const MadDrv_t *drv;
     MadU8          status;
+    MadVptr        ptr;
 } MadDev_t;
 
 extern MadDev_t *DevsList[];
 
 extern int MadDev_open  (const char * file, int flag, ...);
+extern int MadDev_fcntl (int fd, int cmd, ...);
 extern int MadDev_write (int fd, const void *buf, size_t len);
 extern int MadDev_read  (int fd, void *buf, size_t len);
 extern int MadDev_close (int fd);

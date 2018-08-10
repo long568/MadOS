@@ -6,19 +6,15 @@
 
 int open (const char * file, int flag, ...)
 {
-    int        fd;
+    int        fd = -1;
     va_list    args;
     const char *name;
-
-    fd = -1;
     va_start(args, flag);
-
     if(0 == strncmp("/dev/", file, 5)) {
         name = &file[5];
         fd = MadDev_open(name, flag, args);
         if(fd >= 0) fd |= OBJ_DEV;
     }
-
     va_end(args);
     return fd;
 }
@@ -42,7 +38,16 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
-    (void)fd;
-    (void)cmd;
+    int obj_type = fd & OBJ_MASK;
+    int real_fd  = fd & (~OBJ_MASK);
+    va_list args;
+    va_start(args, cmd);
+    switch(obj_type) {
+        case OBJ_STD:  return 0;
+        case OBJ_FILE: return 0;
+        case OBJ_DEV:  return MadDev_fcntl(real_fd, cmd, args);
+        default:       return 0;
+    }
+    va_end(args);
     return -1;
 }

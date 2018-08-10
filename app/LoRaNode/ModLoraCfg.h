@@ -3,8 +3,8 @@
 
 #include "ModRfidCfg.h"
 
-#define LORA_FLAG_PORT     GPIOB
-#define LORA_FLAG_PIN      GPIO_Pin_9
+#define LORA_FLAG_PORT    GPIOB
+#define LORA_FLAG_PIN     GPIO_Pin_9
 
 #define LORA_RX_BUFF_SIZE (RFID_LORA_BUFF_SIZE)
 #define LORA_RX_DLY       (1000)

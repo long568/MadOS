@@ -29,7 +29,9 @@
         "string.h": "c",
         "modrfidcfg.h": "c",
         "modlora.h": "c",
-        "stm32f10x_rcc.h": "c"
+        "stm32f10x_rcc.h": "c",
+        "maddev.h": "c",
+        "modloracfg.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -2,6 +2,7 @@
 #include "MadDev.h"
 #include "ModLoraCfg.h"
 #include "usart_char.h"
+#include "Stm32Tools.h"
 
 static int DrvLora_open   (const char *, int, ...);
 static int DrvLora_creat  (const char *, mode_t);
@@ -23,8 +24,11 @@ const MadDrv_t MadDrvLora_IntoL6_AT = {
 
 static int DrvLora_open(const char * file, int flag, ...)
 {
-    int      fd   = (int)file;
-    MadDev_t *dev = DevsList[fd];
+    int      fd      = (int)file;
+    MadDev_t *dev    = DevsList[fd];
+    StmPIN   *rst_pin = (StmPIN*)(dev->ptr);
+    StmPIN_DefInitOPP(rst_pin);
+    StmPIN_SetHigh(rst_pin);
     if(MTRUE == UsartChar_Init((UsartChar*)(dev->dev), (UsartCharInitData*)(dev->args))) {
         return 1;
     } else {
@@ -41,8 +45,18 @@ static int DrvLora_creat(const char * file, mode_t mode)
 
 static int DrvLora_fcntl(int fd, int cmd, ...)
 {
-    (void)fd;
-    (void)cmd;
+    MadDev_t *dev     = DevsList[fd];
+    StmPIN   *rst_pin = (StmPIN*)(dev->ptr);
+    switch(cmd) {
+        case F_DEV_RST:
+            StmPIN_SetLow(rst_pin);
+            madTimeDly(200);
+            StmPIN_SetHigh(rst_pin);
+            madTimeDly(800);
+            return 1;
+        default:
+            break;
+    }
     return -1;
 }
 
@@ -58,7 +72,7 @@ static int DrvLora_read(int fd, void *buf, size_t len)
     char      *dat = (char*)buf;
     MadDev_t  *dev = DevsList[fd];
     UsartChar *urt = dev->dev;
-    if(MAD_ERR_OK !=  UsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
+    if(MAD_ERR_OK != UsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
         return -1;
     }
     StmPIN_SetHigh(&lora_led);

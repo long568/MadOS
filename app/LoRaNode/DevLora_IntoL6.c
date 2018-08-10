@@ -1,8 +1,10 @@
 #include "MadDev.h"
 #include "usart_char.h"
 #include "ModLoraCfg.h"
+#include "Stm32Tools.h"
 
 static UsartChar dev;
+static StmPIN    rst_pin = { GPIOC, GPIO_Pin_12 };
 
 static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
 
@@ -26,4 +28,4 @@ static const UsartCharInitData initData = {
     DevRfid_Irq_Handler
 };
 
-MadDev_t Lora0 = { "lora0", &dev, &initData, MNULL, MNULL, &MadDrvLora_IntoL6_AT, MAD_DEV_CLOSED };
+MadDev_t Lora0 = { "lora0", &dev, &initData, MNULL, MNULL, &MadDrvLora_IntoL6_AT, MAD_DEV_CLOSED, &rst_pin };

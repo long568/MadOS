@@ -31,6 +31,27 @@ int MadDev_open(const char * file, int flag, ...)
     return -1;
 }
 
+int MadDev_fcntl (int fd, int cmd, ...)
+{
+    int       res;
+    MadCpsr_t cpsr;
+    MadDev_t  *dev;
+    if(fd >= 0) {
+        dev = DevsList[fd];
+        madEnterCritical(cpsr);
+        if(dev->status == MAD_DEV_OPENED) {
+            madExitCritical(cpsr);
+            va_list args;
+            va_start(args, cmd);
+            res = dev->drv->fcntl(fd, cmd, args);
+            va_end(args);
+            return res;
+        }
+        madExitCritical(cpsr);
+    }
+    return -1;
+}
+
 int MadDev_write (int fd, const void *buf, size_t len)
 {
     MadCpsr_t cpsr;
