@@ -1,6 +1,7 @@
 #include "usart_char.h"
 #include "MadISR.h"
 
+#define URT_IRQ_MASK_ORE    (0x08)
 #define URT_IRQ_MASK_RXNE   (0x20)
 #define URT_IRQ_MASK_TC     (0x40)
 #define URT_IRQ_MASK_UNUSED (~(URT_IRQ_MASK_TC | URT_IRQ_MASK_RXNE))
@@ -117,26 +118,27 @@ MadBool UsartChar_DeInit(UsartChar *port)
 
 void UsartChar_Irq_Handler(UsartChar *port)
 {
-#if 1 
+#if 0
+    volatile MadU32 data;
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
-        // USART_ClearITPendingBit(port->p, USART_IT_TC);
+        USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        volatile MadU32 data = port->p->DR & 0x01FF;
+        data = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, data);
         madSemRelease(&port->rxLocker);
         // USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
 #else
-    MadU32 s;
-    s = port->p->SR;
-    // port->p->SR = 0;
-    if(s & URT_IRQ_MASK_RXNE) { //USART_FLAG_ORE;
+    MadU32 s = port->p->SR;
+    if(s & URT_IRQ_MASK_RXNE) {
         volatile MadU32 d = port->p->DR & 0x01FF;
-        FIFO_U8_Put(port->rxBuff, d);
-        madSemRelease(&port->rxLocker);
+        if(!(s & URT_IRQ_MASK_ORE)) {
+            FIFO_U8_Put(port->rxBuff, d);
+            madSemRelease(&port->rxLocker);
+        }
     }
     if(s & URT_IRQ_MASK_TC) {
         port->p->SR &= ~URT_IRQ_MASK_TC;
