@@ -64,7 +64,7 @@ static int DrvLora_write(int fd, const void *buf, size_t len)
 {
     MadDev_t   *dev = DevsList[fd];
     UsartChar  *urt = dev->dev;
-    return UsartChar_Write(urt, buf, len);
+    return UsartChar_Write(urt, buf, len, LORA_WRT_TIMEOUT);
 }
 
 static int DrvLora_read(int fd, void *buf, size_t len)

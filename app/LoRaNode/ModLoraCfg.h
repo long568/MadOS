@@ -14,6 +14,7 @@
 #define LORA_TX_RETRY     (5)
 #define LORA_TX_INTERVAL  (1000 * /*58*/15)
 #define LORA_TX_BUFF_SIZE (LORA_RX_BUFF_SIZE + 2)
+#define LORA_WRT_TIMEOUT  (1000 * 6)
 
 extern StmPIN lora_led;
 

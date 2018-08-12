@@ -5,7 +5,7 @@
 #define URT_IRQ_MASK_TC     (0x40)
 #define URT_IRQ_MASK_UNUSED (~(URT_IRQ_MASK_TC | URT_IRQ_MASK_RXNE))
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len);
+static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to);
 
 MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
 {
@@ -117,7 +117,7 @@ MadBool UsartChar_DeInit(UsartChar *port)
 
 void UsartChar_Irq_Handler(UsartChar *port)
 {
-#if 0 
+#if 1 
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
@@ -129,10 +129,11 @@ void UsartChar_Irq_Handler(UsartChar *port)
         madSemRelease(&port->rxLocker);
         // USART_ClearITPendingBit(port->p, USART_IT_RXNE);
     }
-    port->p->SR = 0;
 #else
-    MadU32 s = port->p->SR;
-    if(s & URT_IRQ_MASK_RXNE) {
+    MadU32 s;
+    s = port->p->SR;
+    // port->p->SR = 0;
+    if(s & URT_IRQ_MASK_RXNE) { //USART_FLAG_ORE;
         volatile MadU32 d = port->p->DR & 0x01FF;
         FIFO_U8_Put(port->rxBuff, d);
         madSemRelease(&port->rxLocker);
@@ -145,19 +146,19 @@ void UsartChar_Irq_Handler(UsartChar *port)
 #endif
 }
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len)
+static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to)
 {
     port->txDma->CMAR = addr;
     port->txDma->CNDTR = len;
     DMA_Cmd(port->txDma, ENABLE);
-    return madSemWait(&port->txLocker, 0);
+    return madSemWait(&port->txLocker, to);
 }
 
-int UsartChar_Write(UsartChar *port, const char *dat, size_t len)
+int UsartChar_Write(UsartChar *port, const char *dat, size_t len, MadTim_t to)
 {
     MadU8 res = MAD_ERR_OK;
     if(len > 0) {
-        res = dev_send(port, (MadU32)dat, len);
+        res = dev_send(port, (MadU32)dat, len, to);
     }
     if(res == MAD_ERR_OK) {
         return len;

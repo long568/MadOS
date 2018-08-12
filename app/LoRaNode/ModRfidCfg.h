@@ -10,6 +10,7 @@
 #define RFID_RX_INTERVAL    (3)
 #define RFID_RX_DLY         (1000)
 #define RFID_TX_INTERVAL    (1000 * 15)
+#define RFID_WRT_TIMEOUT    (1000 * 6)
 
 #define RFID_LORA_BUFF_SIZE (200)
 #define RFID_TOP_SIZE       (4 + 2)

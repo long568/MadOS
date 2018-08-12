@@ -61,7 +61,7 @@ static int DrvRfid_write(int fd, const void *buf, size_t len)
         cmd[i+2] = dst[i];
         cmd[10] += dst[i];
     }
-    return UsartChar_Write(urt, cmd, RFID_ID_ORGLEN);
+    return UsartChar_Write(urt, cmd, RFID_ID_ORGLEN, RFID_WRT_TIMEOUT);
 }
 
 static int DrvRfid_read(int fd, void *buf, size_t len)

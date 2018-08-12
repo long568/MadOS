@@ -70,7 +70,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    // ModRfid_Init();
+    ModRfid_Init();
     ModLora_Init();
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);
