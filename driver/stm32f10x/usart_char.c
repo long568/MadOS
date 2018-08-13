@@ -1,8 +1,18 @@
 #include "usart_char.h"
 #include "MadISR.h"
 
-#define RX_BUFF_LOCK()   USART_ITConfig(port->p, USART_IT_RXNE, DISABLE)
-#define RX_BUFF_UNLOCK() USART_ITConfig(port->p, USART_IT_RXNE, ENABLE)
+#define URT_RX_STM_LOCK 0
+
+#if URT_RX_STM_LOCK
+#define RX_BUFF_LOCK()    USART_ITConfig(port->p, USART_IT_RXNE, DISABLE)
+#define RX_BUFF_UNLOCK()  USART_ITConfig(port->p, USART_IT_RXNE, ENABLE)
+#else
+#define URT_ITF_TC        (MadU16)(0x40)
+#define URT_ITF_RXNE      (MadU16)(0x20)
+#define URT_ITF_IDLE      (MadU16)(0x10)
+#define RX_BUFF_LOCK()    do { MadCpsr_t cpsr; madEnterCritical(cpsr);
+#define RX_BUFF_UNLOCK()  madExitCritical(cpsr); } while(0)
+#endif
 
 static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to);
 
@@ -116,6 +126,7 @@ MadBool UsartChar_DeInit(UsartChar *port)
 
 void UsartChar_Irq_Handler(UsartChar *port)
 {
+#if URT_RX_STM_LOCK
     volatile MadU32 data;
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
@@ -126,17 +137,34 @@ void UsartChar_Irq_Handler(UsartChar *port)
         data = port->p->DR;
         madSemRelease(&port->rxLocker);
     }
-#if 1
+#   if 1
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
     }
-#else
+#   else
     if(USART_GetITStatus(port->p, USART_IT_ORE) != RESET) {
         data = port->p->DR;
     } else if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
+    }
+#   endif
+#else
+    volatile MadU32 data;
+    MadU16 sr = port->p->SR;
+    if(sr & URT_ITF_TC) {
+        DMA_Cmd(port->txDma, DISABLE);
+        madSemRelease(&port->txLocker);
+        port->p->SR &= ~URT_ITF_TC;
+    }
+    if(sr & (URT_ITF_RXNE)) {
+        data = port->p->DR;
+        FIFO_U8_Put(port->rxBuff, data);
+    }
+    if(sr & USART_IT_IDLE) {
+        data = port->p->DR;
+        madSemRelease(&port->rxLocker);
     }
 #endif
 }
