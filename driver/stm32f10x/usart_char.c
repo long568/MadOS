@@ -133,14 +133,11 @@ void UsartChar_Irq_Handler(UsartChar *port)
         madSemRelease(&port->txLocker);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
-    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        data = port->p->DR;
-        madSemRelease(&port->rxLocker);
-    }
 #   if 1
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
+        madSemRelease(&port->rxLocker);
     }
 #   else
     if(USART_GetITStatus(port->p, USART_IT_ORE) != RESET) {
@@ -150,19 +147,23 @@ void UsartChar_Irq_Handler(UsartChar *port)
         FIFO_U8_Put(port->rxBuff, data);
     }
 #   endif
+    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
+        data = port->p->DR;
+        madSemRelease(&port->rxLocker);
+    }
 #else
-    volatile MadU32 data;
+    volatile MadU16 data;
     MadU16 sr = port->p->SR;
     if(sr & URT_ITF_TC) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
         port->p->SR &= ~URT_ITF_TC;
     }
-    if(sr & (URT_ITF_RXNE)) {
+    if(sr & URT_ITF_RXNE) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
     }
-    if(sr & USART_IT_IDLE) {
+    if(sr & URT_ITF_IDLE) {
         data = port->p->DR;
         madSemRelease(&port->rxLocker);
     }

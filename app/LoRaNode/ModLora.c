@@ -98,10 +98,10 @@ static inline void lora_set_rfid_buff(void) {
     int n;
     rfid_id_buff_lock();
     n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
-#if 0
+#if 1
     do {
         int i;
-        for(i=0; i<RFID_TX_BUFF_SIZE; i++)
+        for(i=0; i<n; i++)
             lora_rfid_buff[i] = rfid_tx_buff[i];
     } while(0);
 #else
