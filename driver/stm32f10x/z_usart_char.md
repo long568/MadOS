@@ -1,8 +1,8 @@
 #include "usart_char.h"
 #include "MadISR.h"
 
-#define RX_BUFF_LOCK()   USART_ITConfig(port->p, USART_IT_RXNE, DISABLE)
-#define RX_BUFF_UNLOCK() USART_ITConfig(port->p, USART_IT_RXNE, ENABLE)
+#define RX_BUFF_HEAD_SIZE  sizeof(MadU16)
+#define RX_BUFF_GET_NEXT() (MadU32)((MadU8*)madFBufferGet(port->rxBuff) + RX_BUFF_HEAD_SIZE)
 
 static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to);
 
@@ -14,9 +14,11 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
 
     port->p          = initData->p;
     port->txDma      = initData->txDma;
+    port->rxDma      = initData->rxDma;
+    port->rxBuffSize = initData->rxBuffSize;
 
     switch((MadU32)(port->p)) {
-        case (MadU32)(USART1):
+        case (MadU32)(USART1): 
             RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
             usart_irqn  = USART1_IRQn;
             break;
@@ -24,7 +26,7 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
             usart_irqn  = USART2_IRQn;
             break;
-        case (MadU32)(USART3):
+        case (MadU32)(USART3): 
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
             usart_irqn  = USART3_IRQn;
             break;
@@ -59,14 +61,14 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     } while(0);
 
     port->txLocker = madSemCreateCarefully(0, 1);
-    port->rxLocker = madSemCreateCarefully(0, 1);
-    port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
+    port->rxLocker = madMsgQCreate(initData->rxBuffNum);
+    port->rxBuff   = madFBufferCreate(initData->rxBuffNum, initData->rxBuffSize + RX_BUFF_HEAD_SIZE);
     if((MNULL == port->txLocker) || 
        (MNULL == port->rxLocker) ||
        (MNULL == port->rxBuff)) {
         madSemDelete(&port->txLocker);
-        madSemDelete(&port->rxLocker);
-        FIFO_U8_Delete(port->rxBuff);
+        madMsgQDelete(&port->rxLocker);
+        madFBufferDelete(port->rxBuff);
         return MFALSE;
     }
 
@@ -86,6 +88,15 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     DMA_Init(port->txDma, &DMA_InitStructure);
     DMA_Cmd(port->txDma, DISABLE);
 
+    // Rx DMA
+    DMA_InitStructure.DMA_MemoryBaseAddr      = RX_BUFF_GET_NEXT();
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_PeripheralSRC;
+    DMA_InitStructure.DMA_BufferSize          = initData->rxBuffSize;
+    DMA_InitStructure.DMA_Priority            = initData->rx_dma_priority;
+    DMA_DeInit(port->rxDma);
+    DMA_Init(port->rxDma, &DMA_InitStructure);
+    DMA_Cmd(port->rxDma, ENABLE);
+
     // USART
     USART_InitStructure.USART_BaudRate            = initData->baud;
     USART_InitStructure.USART_WordLength          = initData->word_len;
@@ -93,12 +104,14 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     USART_InitStructure.USART_Parity              = initData->parity;
     USART_InitStructure.USART_HardwareFlowControl = initData->hfc;
     USART_InitStructure.USART_Mode                = initData->mode;
+
     USART_DeInit(port->p);
     USART_Init(port->p, &USART_InitStructure);
     USART_Cmd(port->p, ENABLE);
+    
     if(initData->mode & USART_Mode_Rx) {
-        USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
-        USART_ITConfig(port->p, USART_IT_IDLE, ENABLE);
+        USART_ITConfig(port-p, USART_IT_IDLE, ENABLE);
+        USART_DMACmd(port->p, USART_DMAReq_Rx, ENABLE);
     }
     if(initData->mode & USART_Mode_Tx) {
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
@@ -116,29 +129,24 @@ MadBool UsartChar_DeInit(UsartChar *port)
 
 void UsartChar_Irq_Handler(UsartChar *port)
 {
-    volatile MadU32 data;
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
-    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        data = port->p->DR;
-        madSemRelease(&port->rxLocker);
-    }
-#if 1
-    if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        data = port->p->DR;
-        FIFO_U8_Put(port->rxBuff, data);
-    }
-#else
-    if(USART_GetITStatus(port->p, USART_IT_ORE) != RESET) {
-        data = port->p->DR;
-    } else if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        data = port->p->DR;
-        FIFO_U8_Put(port->rxBuff, data);
-    }
-#endif
+    // if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
+    //     MadU16    *head;
+    //     // volatile MadU32 sr   = port->p->SR;
+    //     volatile MadU32 data = port->p->DR;
+    //     DMA_Cmd(port->rxDma, DISABLE);
+    //     head  = (MadU16*)(port->rxDma->CMAR - RX_BUFF_HEAD_SIZE);
+    //     *head = (MadU16)(port->rxBuffSize - port->rxDma->CNDTR);
+    //     if (madFBufferUnusedCount(port->rxBuff) > 0)
+    //         port->rxDma->CMAR = RX_BUFF_GET_NEXT();
+    //     port->rxDma->CNDTR = port->rxBuffSize;
+    //     DMA_Cmd(port->rxDma, ENABLE);
+    //     madMsgSend(&port->rxLocker, head);
+    // }
 }
 
 static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to)
@@ -162,30 +170,28 @@ int UsartChar_Write(UsartChar *port, const char *dat, size_t len, MadTim_t to)
     } 
 }
 
-int UsartChar_Read(UsartChar *port, char *dat, size_t len)
+int UsartChar_Read(UsartChar *port, char *dat, size_t len, MadTim_t to)
 {
     MadSize_t i, c, n;
-    RX_BUFF_LOCK();
+    USART_ITConfig(port->p, USART_IT_RXNE, DISABLE);
     c = FIFO_U8_Cnt(port->rxBuff);
-    RX_BUFF_UNLOCK();
     if((len > 0) && (len < c)) {
         n = len;
     } else {
         n = c;
     }
-    for(i=0; i<n; i++) {
-        FIFO_U8_Get2(port->rxBuff, dat[i]);
-    }
-    RX_BUFF_LOCK();
-    FIFO_U8_Cnt(port->rxBuff) -= n;
-    RX_BUFF_UNLOCK();
+    for(i=0; i<n; i++)
+        FIFO_U8_Get(port->rxBuff, dat[i]);
+    USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
     return n;
+    // char *msg;
+    // madMsgWait(&port->rxLocker, &(MadVptr)msg, to);
 }
 
 inline void UsartChar_ClearRecv(UsartChar *port) {
-    RX_BUFF_LOCK();
+    USART_ITConfig(port->p, USART_IT_RXNE, DISABLE);
     FIFO_U8_Clear(port->rxBuff);
-    RX_BUFF_UNLOCK();
+    USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
 }
 
 inline int UsartChar_WaitRecv(UsartChar *port, MadTim_t to) {

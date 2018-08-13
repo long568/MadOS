@@ -47,10 +47,10 @@ static int DrvRfid_fcntl(int fd, int cmd, ...)
 
 static int DrvRfid_write(int fd, const void *buf, size_t len)
 {
-    MadDev_t   *dev = DevsList[fd];
-    UsartChar  *urt = dev->dev;
     MadU8      i;
     char       cmd[RFID_ID_ORGLEN];
+    MadDev_t   *dev = DevsList[fd];
+    UsartChar  *urt = dev->dev;
     const char *dst = (const char*)buf;
     (void)len;
     cmd[0]  = 0xFE;

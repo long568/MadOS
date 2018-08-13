@@ -20,7 +20,7 @@ typedef struct {
     MadU16               parity;
     MadU16               mode;
     MadU16               hfc;
-    MadU32               dma_priority;
+    MadU32               tx_dma_priority;
     MadSize_t            rxBuffSize;
     xIRQ_Handler         IRQh;
 } UsartCharInitData;
@@ -28,8 +28,8 @@ typedef struct {
 typedef struct {
     USART_TypeDef        *p;
     DMA_Channel_TypeDef  *txDma;
-    MadSemCB_t           *rxLocker;
     MadSemCB_t           *txLocker;
+    MadSemCB_t           *rxLocker;
     FIFO_U8              *rxBuff;
 } UsartChar;
 
@@ -37,7 +37,7 @@ extern MadBool UsartChar_Init        (UsartChar *port, UsartCharInitData *initDa
 extern MadBool UsartChar_DeInit      (UsartChar *port);
 extern void    UsartChar_Irq_Handler (UsartChar *port);
 extern int     UsartChar_Write       (UsartChar *port, const char *dat, size_t len, MadTim_t to);
-extern int     UsartChar_Read        (UsartChar *port, char *dat, size_t len);
+extern int     UsartChar_Read        (UsartChar *port,       char *dat, size_t len);
 extern void    UsartChar_ClearRecv   (UsartChar *port);
 extern int     UsartChar_WaitRecv    (UsartChar *port, MadTim_t to);
 

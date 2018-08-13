@@ -79,10 +79,15 @@ inline void rfid_id_buff_unlock(void) {
 inline void rfid_clear_id_buff(void) {
     *rfid_id_cnt = 0;
     rfid_id_ptr  = rfid_id_buff;
-    int i;
-    for(i=0; i<RFID_ID_BUFF_SIZE; i++)
-        rfid_id_buff[i] = 0;
-    // madMemSetByDMA(rfid_id_buff, 0, RFID_ID_BUFF_SIZE);
+#if 0
+    do {
+        int i;
+        for(i=0; i<RFID_ID_BUFF_SIZE; i++)
+            rfid_id_buff[i] = 0;
+    } while(0);
+#else
+    madMemSetByDMA(rfid_id_buff, 0, RFID_ID_BUFF_SIZE);
+#endif
 }
 
 static inline void rfid_clear_rx_buff(void) {

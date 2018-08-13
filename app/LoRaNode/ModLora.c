@@ -94,11 +94,22 @@ static inline void lora_clear_rx_buff(void) {
 }
 
 static inline void lora_set_rfid_buff(void) {
-    int i;
-    for(i=0; i<RFID_TX_BUFF_SIZE; i++)
-        lora_rfid_buff[i] = rfid_tx_buff[i];
-    // madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, n);
+
+    int n;
+    rfid_id_buff_lock();
+    n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
+#if 0
+    do {
+        int i;
+        for(i=0; i<RFID_TX_BUFF_SIZE; i++)
+            lora_rfid_buff[i] = rfid_tx_buff[i];
+    } while(0);
+#else
+    madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, n);
+#endif
     rfid_clear_id_buff();
+    rfid_id_buff_unlock();
+    *(MadU16*)(lora_rfid_buff + 4) = n - RFID_TOP_SIZE;
 }
 
 static int lora_go_ok(const char *buf, size_t len)
@@ -188,16 +199,9 @@ static void lora_thread(MadVptr exData)
             i = 0;
             lora_join();
             madTimeDly(LORA_TX_DLY);
-            // for(n=0; n<10; n++)
-            //     lora_rfid_buff[n] = n+1;
         } else {
-            rfid_id_buff_lock();
-            n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
             lora_set_rfid_buff();
-            rfid_id_buff_unlock();
-            *(MadU16*)(lora_rfid_buff + 4) = n - RFID_TOP_SIZE;
             if(0 > lora_send(lora_rfid_buff, n)) {
-            // if(0 > lora_send(lora_rfid_buff, 10)) {
                 if(++i > LORA_TX_RETRY) {
                     lora_joined = MFALSE;
                     fcntl(lora_fd, F_DEV_RST);
