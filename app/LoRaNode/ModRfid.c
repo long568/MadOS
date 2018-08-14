@@ -49,7 +49,7 @@ MadBool ModRfid_Init(void)
         *rfid_dev_type = RFID_DEV_TYPE;
         *rfid_data_len = 0;
         *rfid_stamp    = RFID_STAMP;
-        rfid_clear_id_buff();
+        rfid_clear_id_buff(RFID_ID_BUFF_SIZE);
         rfid_id_buff_locker = madSemCreate(1);
         tmp = madThreadCreate(rfid_thread, 0, 2048, THREAD_PRIO_MOD_RFID);
         if(rfid_id_buff_locker && tmp) {
@@ -76,24 +76,15 @@ inline void rfid_id_buff_unlock(void) {
     return madSemRelease(&rfid_id_buff_locker);
 }
 
-inline void rfid_clear_id_buff(void) {
+inline void rfid_clear_id_buff(size_t n) {
     *rfid_id_cnt = 0;
     rfid_id_ptr  = rfid_id_buff;
-#if 0
-    do {
-        int i;
-        for(i=0; i<RFID_ID_BUFF_SIZE; i++)
-            rfid_id_buff[i] = 0;
-    } while(0);
-#else
-    madMemSetByDMA(rfid_id_buff, 0, RFID_ID_BUFF_SIZE);
-#endif
+    madMemSetByDMA(rfid_id_buff, 0, n);
+
 }
 
 static inline void rfid_clear_rx_buff(void) {
-    int i;
-    for(i=0; i<RFID_RX_BUFF_SIZE; i++)
-        rfid_rx_buff[i] = 0;
+    madMemSetByDMA(rfid_rx_buff, 0, RFID_RX_BUFF_SIZE);
 }
 
 static void rfid_thread(MadVptr exData)

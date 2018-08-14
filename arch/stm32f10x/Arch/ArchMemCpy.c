@@ -64,8 +64,7 @@ void madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)src;
     ARCHM_DMA_TX->CNDTR = size;
-    ARCHM_DMA_TX->CCR  |= DMA_MemoryInc_Enable;
-    DMA_Cmd(ARCHM_DMA_TX, ENABLE);
+    ARCHM_DMA_TX->CCR  |= 0x81;
     madSemWait(&mad_archm_waiter, 0);
     madSemRelease(&mad_archm_locker);
 }
@@ -76,8 +75,8 @@ void madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)(&value);
     ARCHM_DMA_TX->CNDTR = size;
-    ARCHM_DMA_TX->CCR  &= ~DMA_MemoryInc_Enable; 
-    DMA_Cmd(ARCHM_DMA_TX, ENABLE);
+    ARCHM_DMA_TX->CCR  &= ~0x80;
+    ARCHM_DMA_TX->CCR  |= 0x01;
     madSemWait(&mad_archm_waiter, 0);
     madSemRelease(&mad_archm_locker);
 }

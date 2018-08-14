@@ -1,12 +1,13 @@
 #ifndef __MOD_LORA_CFG__H__
 #define __MOD_LORA_CFG__H__
 
-#include "ModRfidCfg.h"
+#include "CfgUser.h"
+#include "Stm32Tools.h"
 
 #define LORA_FLAG_PORT    GPIOB
 #define LORA_FLAG_PIN     GPIO_Pin_9
 
-#define LORA_RX_BUFF_SIZE (RFID_LORA_BUFF_SIZE)
+#define LORA_RX_BUFF_SIZE (200)
 #define LORA_RX_DLY       (1000)
 #define LORA_CMD_DLY      (1000 * 2)
 #define LORA_RX_TIMEOUT   (1000 * 60)

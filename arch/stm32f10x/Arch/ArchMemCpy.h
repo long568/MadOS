@@ -4,6 +4,8 @@
 #include "MadOS.h"
 #ifdef MAD_CPY_MEM_BY_DMA
 
+#define ARCHM_DMA_OPT_NUM  (60)
+
 #define ARCHM_DMA_DIR_M2P  DMA_DIR_PeripheralDST
 #define ARCHM_DMA_TX       DMA1_Channel1
 #define ARCHM_DMA_TX_IRQn  DMA1_Channel1_IRQn

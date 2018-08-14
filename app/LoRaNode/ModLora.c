@@ -1,8 +1,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include "ModLora.h"
 #include "ModLoraCfg.h"
+#include "ModRfidCfg.h"
 #include "MadDrv.h"
 
 StmPIN     lora_led;
@@ -88,26 +88,15 @@ MadBool ModLora_Init(void)
 }
 
 static inline void lora_clear_rx_buff(void) {
-    int i;
-    for(i=0; i<LORA_RX_BUFF_SIZE; i++)
-        lora_rx_buff[i] = 0;
+    madMemSetByDMA(lora_rx_buff, 0, LORA_RX_BUFF_SIZE);
 }
 
 static inline void lora_set_rfid_buff(void) {
-
     int n;
     rfid_id_buff_lock();
     n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
-#if 1
-    do {
-        int i;
-        for(i=0; i<n; i++)
-            lora_rfid_buff[i] = rfid_tx_buff[i];
-    } while(0);
-#else
     madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, n);
-#endif
-    rfid_clear_id_buff();
+    rfid_clear_id_buff(n);
     rfid_id_buff_unlock();
     *(MadU16*)(lora_rfid_buff + 4) = n - RFID_TOP_SIZE;
 }
@@ -184,7 +173,7 @@ static int lora_send(char *buf, int len)
 static void lora_thread(MadVptr exData)
 {
     int  i, n;
-    
+
     i = 0;
     fcntl(lora_fd, F_DEV_RST);
     while(1) {
