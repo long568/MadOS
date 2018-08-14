@@ -145,7 +145,7 @@ static int lora_go_recmacevt(const char *buf, size_t len, char evn)
     if(write(lora_fd, buf, len) > 0) {
         do {
             n = read(lora_fd, ptr, 0);
-            if(n >= 0) {
+            if(n > 0) {
                 res = strstr(lora_rx_buff, LORA_ACK_REC);
                 if(NULL != res) {
                     if(evn == *(res + LORA_ACK_REC_INDEX)) {
