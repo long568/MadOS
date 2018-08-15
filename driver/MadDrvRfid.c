@@ -1,6 +1,6 @@
 #include "MadDev.h"
-#include "ModRfidCfg.h"
 #include "usart_char.h"
+#include "MadDrvRfid.h"
 
 static int DrvRfid_open   (const char *, int, ...);
 static int DrvRfid_creat  (const char *, mode_t);
@@ -48,7 +48,7 @@ static int DrvRfid_fcntl(int fd, int cmd, ...)
 static int DrvRfid_write(int fd, const void *buf, size_t len)
 {
     MadU8      i;
-    char       cmd[RFID_ID_ORGLEN];
+    char       cmd[12];
     MadDev_t   *dev = DevsList[fd];
     UsartChar  *urt = dev->dev;
     const char *dst = (const char*)buf;
@@ -57,11 +57,11 @@ static int DrvRfid_write(int fd, const void *buf, size_t len)
     cmd[1]  = 0xF1;
     cmd[10] = 0x00;
     cmd[11] = 0xFF;
-    for(i=0; i<RFID_CFG_LEN; i++) {
+    for(i=0; i<8; i++) {
         cmd[i+2] = dst[i];
         cmd[10] += dst[i];
     }
-    return UsartChar_Write(urt, cmd, RFID_ID_ORGLEN, RFID_WRT_TIMEOUT);
+    return UsartChar_Write(urt, cmd, 12, RFID_WRT_TIMEOUT);
 }
 
 static int DrvRfid_read(int fd, void *buf, size_t len)
@@ -72,9 +72,7 @@ static int DrvRfid_read(int fd, void *buf, size_t len)
     UsartChar *urt = dev->dev;
     UsartChar_ClearRecv(urt);
     UsartChar_WaitRecv(urt, 0);
-    StmPIN_SetHigh(&rfid_led);
     madTimeDly(RFID_RX_DLY);
-    StmPIN_SetLow(&rfid_led);
     n = UsartChar_Read(urt, dat, len);
     j = 0;
     if(n > (RFID_ID_ORGLEN - 1)) {

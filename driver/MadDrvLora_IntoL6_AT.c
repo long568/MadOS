@@ -1,8 +1,7 @@
-#include <string.h>
 #include "MadDev.h"
-#include "ModLoraCfg.h"
 #include "usart_char.h"
 #include "Stm32Tools.h"
+#include "MadDrvLora_IntoL6_AT.h"
 
 static int DrvLora_open   (const char *, int, ...);
 static int DrvLora_creat  (const char *, mode_t);
@@ -75,9 +74,7 @@ static int DrvLora_read(int fd, void *buf, size_t len)
     if(MAD_ERR_OK != UsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
         return -1;
     }
-    StmPIN_SetHigh(&lora_led);
     madTimeDly(LORA_RX_DLY);
-    StmPIN_SetLow(&lora_led);
     return UsartChar_Read(urt, dat, len);
 }
 

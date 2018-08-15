@@ -9,6 +9,13 @@ static void madSysRunning(MadVptr exData);
 
 int main()
 {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
     madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
@@ -19,13 +26,6 @@ int main()
 static void madStartup(MadVptr exData)
 {
 	(void)exData;
-    
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-    
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 #if MAD_STATIST_STK_SIZE
     madInitStatist();
@@ -50,7 +50,6 @@ static void madSysRunning(MadVptr exData)
 
     (void)exData;
     
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Pin   = GPIO_Pin_1;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;

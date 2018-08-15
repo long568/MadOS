@@ -2,21 +2,16 @@
 #define __MOD_RFID_TY__H__
 
 #include "ModLoraCfg.h"
+#include "MadDrvRfid.h"
 
 #define RFID_FLAG_PORT      GPIOE
 #define RFID_FLAG_PIN       GPIO_Pin_0
 
 #define RFID_RX_INTERVAL    (3)
-#define RFID_RX_DLY         (1000)
 #define RFID_TX_INTERVAL    (1000 * 15)
-#define RFID_WRT_TIMEOUT    (1000 * 6)
 
 #define RFID_TOP_SIZE       (4 + 2)
 #define RFID_HEAD_SIZE      (RFID_TOP_SIZE + 4 + 1)
-#define RFID_CFG_LEN        (8)
-#define RFID_ID_LEN         (8)
-#define RFID_ID_ORGLEN      (12)
-#define RFID_RX_MAX_NUM     (5)
 #define RFID_ID_MAX_NUM     ((LORA_RX_BUFF_SIZE - RFID_HEAD_SIZE) / RFID_ID_LEN)
 #define RFID_RX_BUFF_SIZE   (RFID_ID_ORGLEN * RFID_RX_MAX_NUM)
 #define RFID_ID_BUFF_SIZE   (RFID_ID_LEN * RFID_ID_MAX_NUM)

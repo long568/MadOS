@@ -166,7 +166,7 @@ static int lora_send(char *buf, int len)
 {
     sprintf(lora_tx_buff, LORA_AT_SEND_FMT, len);
     write(lora_fd, lora_tx_buff, strlen(lora_tx_buff));
-    madTimeDly(LORA_RX_DLY);
+    madTimeDly(1000);
     return lora_go_recmacevt(buf, len, '3');
 }
 

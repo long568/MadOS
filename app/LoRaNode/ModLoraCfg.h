@@ -3,19 +3,16 @@
 
 #include "CfgUser.h"
 #include "Stm32Tools.h"
+#include "MadDrvLora_IntoL6_AT.h"
 
 #define LORA_FLAG_PORT    GPIOB
 #define LORA_FLAG_PIN     GPIO_Pin_9
 
 #define LORA_RX_BUFF_SIZE (200)
-#define LORA_RX_DLY       (1000)
-#define LORA_CMD_DLY      (1000 * 2)
-#define LORA_RX_TIMEOUT   (1000 * 60)
 #define LORA_TX_DLY       (1000 * 10)
 #define LORA_TX_RETRY     (5)
 #define LORA_TX_INTERVAL  (1000 * /*58*/15)
-#define LORA_TX_BUFF_SIZE (LORA_RX_BUFF_SIZE + 2)
-#define LORA_WRT_TIMEOUT  (1000 * 6)
+#define LORA_TX_BUFF_SIZE (LORA_RX_BUFF_SIZE)
 
 extern StmPIN lora_led;
 
