@@ -28,4 +28,4 @@ static const UsartCharInitData initData = {
     DevRfid_Irq_Handler
 };
 
-MadDev_t Lora0 = { "lora0", &dev, &initData, MNULL, MNULL, &MadDrvLora_IntoL6_AT, MAD_DEV_CLOSED, &rst_pin };
+MadDev_t Lora0 = { "lora0", &dev, &initData, &MadDrvLora_IntoL6_AT, MAD_DEV_CLOSED, &rst_pin };

@@ -10,14 +10,18 @@ enum {
 };
 
 typedef struct _MadDev_t {
+    // User specified
     const char     name[8];
     MadVptr        dev;
     const MadVptr  args;
-    MadU8          *txBuff;
-    MadU8          *rxBuff;
     const MadDrv_t *drv;
     MadU8          status;
     MadVptr        ptr;
+    // Automatic initialization
+    MadU8          *txBuff;
+    MadU8          *rxBuff;
+    MadSemCB_t     *txLocker;
+    MadSemCB_t     *rxLocker;
 } MadDev_t;
 
 extern MadDev_t *DevsList[];

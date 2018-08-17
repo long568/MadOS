@@ -108,7 +108,9 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     USART_Cmd(port->p, ENABLE);
     if(initData->mode & USART_Mode_Rx) {
         USART_ITConfig(port->p, USART_IT_RXNE, ENABLE);
+#if !URT_RX_STM_LOCK
         USART_ITConfig(port->p, USART_IT_IDLE, ENABLE);
+#endif
     }
     if(initData->mode & USART_Mode_Tx) {
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
@@ -133,22 +135,9 @@ void UsartChar_Irq_Handler(UsartChar *port)
         madSemRelease(&port->txLocker);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
-#   if 1
     if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
-        madSemRelease(&port->rxLocker);
-    }
-#   else
-    if(USART_GetITStatus(port->p, USART_IT_ORE) != RESET) {
-        data = port->p->DR;
-    } else if(USART_GetITStatus(port->p, USART_IT_RXNE) != RESET) {
-        data = port->p->DR;
-        FIFO_U8_Put(port->rxBuff, data);
-    }
-#   endif
-    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        data = port->p->DR;
         madSemRelease(&port->rxLocker);
     }
 #else

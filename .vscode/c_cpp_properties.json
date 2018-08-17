@@ -17,7 +17,7 @@
                 "${workspaceFolder}/kernel/lib/timer",
                 "${workspaceFolder}/library/uIP/uip",
                 "${workspaceFolder}/library/uIP/uip-funs",
-                "${workspaceFolder}/app/test_uip"
+                "${workspaceFolder}/app/LoRaNode"
             ],
             "defines": [
                 "MALLOC_PROVIDED",

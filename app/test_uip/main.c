@@ -62,7 +62,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
     MAD_LOG("* MCU     : STM32F107VCT6\n");
     MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
-    MAD_LOG("* FileSys : W25Q32 + ...\n");
+    MAD_LOG("* FileSys : TF     + Fatfs(v0.13b)\n");
     MAD_LOG("* Platform dependent data types :\n");
     MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
     MAD_LOG("    short     -> %d Bytes\n", sizeof(short));

@@ -24,6 +24,10 @@ static int DrvRfid_open(const char * file, int flag, ...)
 {
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
+    dev->txBuff   = 0;
+    dev->rxBuff   = 0;
+    dev->txLocker = 0;
+    dev->rxLocker = 0;
     if(MTRUE == UsartChar_Init((UsartChar*)(dev->dev), (UsartCharInitData*)(dev->args))) {
         return 1;
     } else {
@@ -72,7 +76,7 @@ static int DrvRfid_read(int fd, void *buf, size_t len)
     UsartChar *urt = dev->dev;
     UsartChar_ClearRecv(urt);
     UsartChar_WaitRecv(urt, 0);
-    madTimeDly(RFID_RX_DLY);
+    // madTimeDly(RFID_RX_DLY);
     n = UsartChar_Read(urt, dat, len);
     j = 0;
     if(n > (RFID_ID_ORGLEN - 1)) {

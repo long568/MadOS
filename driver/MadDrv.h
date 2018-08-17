@@ -2,6 +2,9 @@
 #define __MAD_DRV__H__
 
 #include <stddef.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "MadOS.h"
 
 enum {
@@ -18,6 +21,7 @@ typedef struct {
     int (*isatty) (int);
 } MadDrv_t;
 
+extern const MadDrv_t MadDrvTty;
 extern const MadDrv_t MadDrvRfid;
 extern const MadDrv_t MadDrvLora_IntoL6_AT;
 

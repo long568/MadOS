@@ -1,6 +1,7 @@
 #ifndef __USART_LOW__H__
 #define __USART_LOW__H__
 
+#include <stddef.h>
 #include "MadOS.h"
 #include "Stm32Tools.h"
 #include "mstd_xifo.h"

@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 #include "ModLoraCfg.h"
 #include "ModRfidCfg.h"
 #include "MadDrv.h"
@@ -170,10 +171,10 @@ static int lora_send(char *buf, int len)
     return lora_go_recmacevt(buf, len, '3');
 }
 
+volatile int test_a;
 static void lora_thread(MadVptr exData)
 {
     int  i, n;
-
     i = 0;
     fcntl(lora_fd, F_DEV_RST);
     while(1) {
@@ -183,10 +184,17 @@ static void lora_thread(MadVptr exData)
                 if(0 > lora_go_ok(LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]))) {
                     i = 0;
                     fcntl(lora_fd, F_DEV_RST);
+                } else {
+                    StmPIN_SetHigh(&lora_led);
+                    madTimeDly(100);
+                    StmPIN_SetLow(&lora_led);
                 }
             }
             i = 0;
             lora_join();
+            test_a = 1;
+            test_a = 2;
+            test_a = test_a;
             madTimeDly(LORA_TX_DLY);
         } else {
             lora_set_rfid_buff();
@@ -199,6 +207,9 @@ static void lora_thread(MadVptr exData)
             } else {
                 i = 0;
             }
+            StmPIN_SetHigh(&lora_led);
+            madTimeDly(1000);
+            StmPIN_SetLow(&lora_led);
             madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
         }
     }

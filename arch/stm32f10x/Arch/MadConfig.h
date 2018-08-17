@@ -29,9 +29,10 @@
 /*
  * Print debug information
  */
-#include "stm32_ttyUSART.h"
-#define MAD_LOG_INIT()  ttyUsart_Init()
-#define MAD_LOG(...)    ttyUsart_Print(__VA_ARGS__)
+extern  int madLogInit (void);
+extern  int madLog     (const char * fmt, ...);
+#define MAD_LOG_INIT() do { if(MFALSE == madLogInit()) while(1); } while(0)
+#define MAD_LOG(...)   madLog(__VA_ARGS__)
 
 /*
  * Use hooks to expand MadOS

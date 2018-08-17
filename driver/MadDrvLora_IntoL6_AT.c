@@ -28,6 +28,10 @@ static int DrvLora_open(const char * file, int flag, ...)
     StmPIN   *rst_pin = (StmPIN*)(dev->ptr);
     StmPIN_DefInitOPP(rst_pin);
     StmPIN_SetHigh(rst_pin);
+    dev->txBuff   = 0;
+    dev->rxBuff   = 0;
+    dev->txLocker = 0;
+    dev->rxLocker = 0;
     if(MTRUE == UsartChar_Init((UsartChar*)(dev->dev), (UsartCharInitData*)(dev->args))) {
         return 1;
     } else {
@@ -74,7 +78,7 @@ static int DrvLora_read(int fd, void *buf, size_t len)
     if(MAD_ERR_OK != UsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
         return -1;
     }
-    madTimeDly(LORA_RX_DLY);
+    // madTimeDly(LORA_RX_DLY);
     return UsartChar_Read(urt, dat, len);
 }
 

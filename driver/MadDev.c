@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdarg.h>
 #include "MadDev.h"
 
 int MadDev_open(const char * file, int flag, ...)

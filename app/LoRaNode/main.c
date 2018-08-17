@@ -52,11 +52,12 @@ static void madStartup(MadVptr exData)
  * Core-Modules
  ********************************************/
     MAD_LOG_INIT();
-    MAD_LOG("    \n");
+    MAD_LOG("   \n");
+    MAD_LOG("   \n");
     MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
     MAD_LOG("* MCU     : STM32F107VCT6\n");
     MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
-    MAD_LOG("* FileSys : MicroSD + Fatfs\n");
+    MAD_LOG("* FileSys : TF     + Fatfs(v0.13b)\n");
     MAD_LOG("* Platform dependent data types :\n");
     MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
     MAD_LOG("    short     -> %d Bytes\n", sizeof(short));

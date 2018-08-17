@@ -6,4 +6,6 @@
 #define OBJ_DEV  (0x20000000)
 #define OBJ_MASK (0xF0000000)
 
+#define TTY_DEV_INDEX (0)
+
 #endif
