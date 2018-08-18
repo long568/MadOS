@@ -355,7 +355,8 @@ static void lora_thread(MadVptr exData)
                     lora_joined = MFALSE;
                     continue;
                 }
-                madTimeDly((MadTim_t)(rand() & 0x0000000F));
+                srand(SysTick->VAL);
+                madTimeDly((MadTim_t)(rand() % 16 + 1));
             } else {
                 i = 0;
                 madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);

@@ -37,7 +37,9 @@
         "string_view": "c",
         "archmemcpy.h": "c",
         "stat.h": "c",
-        "maddrvlora_intol6_at.h": "c"
+        "maddrvlora_intol6_at.h": "c",
+        "time.h": "c",
+        "_timespec.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
