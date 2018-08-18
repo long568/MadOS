@@ -332,6 +332,7 @@ static inline int lora_send(char *buf, int len)
 
 static void lora_thread(MadVptr exData)
 {
+    volatile int abc;
     int  i, n;
     i = 0;
     while(1) {
@@ -356,6 +357,9 @@ static void lora_thread(MadVptr exData)
                     continue;
                 }
                 srand(SysTick->VAL);
+                abc = 1;
+                abc = 2;
+                abc = abc;
                 madTimeDly((MadTim_t)(rand() % 16 + 1));
             } else {
                 i = 0;

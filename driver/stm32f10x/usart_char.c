@@ -146,12 +146,12 @@ void UsartChar_Irq_Handler(UsartChar *port)
     if(sr & URT_ITF_RXNE) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
-    } else if(sr & URT_ITF_IDLE) {
-        data = port->p->DR;
     }
     if(sr & URT_ITF_IDLE) {
+        data = port->p->DR;
         madSemRelease(&port->rxLocker);
     }
+    sr = port->p->SR;
     if(sr & URT_ITF_TC) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
