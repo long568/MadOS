@@ -12,7 +12,7 @@
 #define LORA_OPT_DLY      (600)
 #define LORA_TX_DLY       (1000 * 10)
 #define LORA_TX_RETRY     (5)
-#define LORA_TX_INTERVAL  (1000 * /*58*/15)
+#define LORA_TX_INTERVAL  (1000 * /*58*/16)
 #define LORA_TX_BUFF_SIZE (LORA_RX_BUFF_SIZE)
 
 #endif

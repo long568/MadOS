@@ -24,3 +24,8 @@ void _free_r(struct _reent * __reent, void * p) {
     (void)__reent;
     madMemFree(p);
 }
+
+inline
+void * malloc(size_t __size) {
+    return madMemMalloc(__size);
+}

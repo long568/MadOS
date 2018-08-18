@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "ModLoraCfg.h"
 #include "ModRfidCfg.h"
 #include "MadDrv.h"
@@ -17,7 +18,7 @@ MadSemCB_t *lora_rfid_go;
 
 static StmPIN lora_led;
 
-#define LORA_AT_SEND_FMT "AT+SENDMACDATA=0,1,1,%d\r\n"
+#define LORA_AT_SEND_FMT "AT+SENDMACDATA=0,1,10,%d\r\n"
 
 static const char LORA_ATE0[]      = "ATE0\r\n";
 static const char LORA_AT_DEV[]    = "AT+DEVICE=\"568568568\",\"V1.0.0\",\"V1.0.0\"\r\n";
@@ -354,10 +355,11 @@ static void lora_thread(MadVptr exData)
                     lora_joined = MFALSE;
                     continue;
                 }
+                madTimeDly((MadTim_t)(rand() & 0x0000000F));
             } else {
                 i = 0;
+                madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
             }
-            madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
         }
     }
 }
