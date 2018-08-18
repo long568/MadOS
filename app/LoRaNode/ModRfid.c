@@ -93,9 +93,9 @@ static void rfid_thread(MadVptr exData)
     MadU8 tmp[9];
 
     write(rfid_fd, rfid_cfg, 0);
-    madTimeDly(RFID_RX_DLY);
+    madTimeDly(1000);
     write(rfid_fd, rfid_cfg, 0);
-    madTimeDly(RFID_RX_DLY);
+    madTimeDly(1000);
 
     while(1) {
         rfid_clear_rx_buff();

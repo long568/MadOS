@@ -55,9 +55,9 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
     switch(cmd) {
         case F_DEV_RST:
             StmPIN_SetLow(rst_pin);
-            madTimeDly(200);
+            madTimeDly(1000);
             StmPIN_SetHigh(rst_pin);
-            madTimeDly(800);
+            madTimeDly(5000);
             return 1;
         default:
             break;
@@ -69,7 +69,7 @@ static int Drv_write(int fd, const void *buf, size_t len)
 {
     MadDev_t   *dev = DevsList[fd];
     UsartChar  *urt = dev->dev;
-    return UsartChar_Write(urt, buf, len, LORA_WRT_TIMEOUT);
+    return UsartChar_Write(urt, buf, len, LORA_TX_TIMEOUT);
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
@@ -80,7 +80,6 @@ static int Drv_read(int fd, void *buf, size_t len)
     if(MAD_ERR_OK != UsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
         return -1;
     }
-    // madTimeDly(LORA_RX_DLY);
     return UsartChar_Read(urt, dat, len);
 }
 

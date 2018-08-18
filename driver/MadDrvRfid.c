@@ -67,7 +67,7 @@ static int Drv_write(int fd, const void *buf, size_t len)
         cmd[i+2] = dst[i];
         cmd[10] += dst[i];
     }
-    return UsartChar_Write(urt, cmd, 12, RFID_WRT_TIMEOUT);
+    return UsartChar_Write(urt, cmd, 12, RFID_TX_TIMEOUT);
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
@@ -78,7 +78,6 @@ static int Drv_read(int fd, void *buf, size_t len)
     UsartChar *urt = dev->dev;
     UsartChar_ClearRecv(urt);
     UsartChar_WaitRecv(urt, 0);
-    // madTimeDly(RFID_RX_DLY);
     n = UsartChar_Read(urt, dat, len);
     j = 0;
     if(n > (RFID_ID_ORGLEN - 1)) {
