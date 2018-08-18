@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include "MadDev.h"
 
-int MadDev_open(const char * file, int flag, ...)
+int MadDev_open(const char * file, int flag, va_list args)
 {
     MadCpsr_t cpsr;
     int       fd   = 0;
@@ -14,7 +14,7 @@ int MadDev_open(const char * file, int flag, ...)
             if(dev->status == MAD_DEV_CLOSED) {
                 dev->status = MAD_DEV_OPTING;
                 madExitCritical(cpsr);
-                if(0 < dev->drv->open((const char *)fd, flag)) {
+                if(0 < dev->drv->open((const char *)fd, flag, args)) {
                     madEnterCritical(cpsr);
                     dev->status = MAD_DEV_OPENED;
                     madExitCritical(cpsr);
@@ -32,7 +32,7 @@ int MadDev_open(const char * file, int flag, ...)
     return -1;
 }
 
-int MadDev_fcntl (int fd, int cmd, ...)
+int MadDev_fcntl (int fd, int cmd, va_list args)
 {
     int       res;
     MadCpsr_t cpsr;
@@ -42,10 +42,7 @@ int MadDev_fcntl (int fd, int cmd, ...)
         madEnterCritical(cpsr);
         if(dev->status == MAD_DEV_OPENED) {
             madExitCritical(cpsr);
-            va_list args;
-            va_start(args, cmd);
             res = dev->drv->fcntl(fd, cmd, args);
-            va_end(args);
             return res;
         }
         madExitCritical(cpsr);
@@ -53,7 +50,7 @@ int MadDev_fcntl (int fd, int cmd, ...)
     return -1;
 }
 
-int MadDev_write (int fd, const void *buf, size_t len)
+int MadDev_write(int fd, const void *buf, size_t len)
 {
     MadCpsr_t cpsr;
     MadDev_t  *dev;
@@ -69,7 +66,7 @@ int MadDev_write (int fd, const void *buf, size_t len)
     return -1;
 }
 
-int MadDev_read  (int fd, void *buf, size_t len)
+int MadDev_read(int fd, void *buf, size_t len)
 {
     MadCpsr_t cpsr;
     MadDev_t  *dev;
@@ -85,7 +82,7 @@ int MadDev_read  (int fd, void *buf, size_t len)
     return -1;
 }
 
-int MadDev_close (int fd)
+int MadDev_close(int fd)
 {
     int       res;
     MadCpsr_t cpsr;

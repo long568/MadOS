@@ -2,28 +2,29 @@
 #include "usart_char.h"
 #include "MadDrvRfid.h"
 
-static int DrvRfid_open   (const char *, int, ...);
-static int DrvRfid_creat  (const char *, mode_t);
-static int DrvRfid_fcntl  (int fd, int cmd, ...);
-static int DrvRfid_write  (int fd, const void *buf, size_t len);
-static int DrvRfid_read   (int fd, void *buf, size_t len);
-static int DrvRfid_close  (int fd);
-static int DrvRfid_isatty (int fd);
+static int Drv_open   (const char *, int, va_list);
+static int Drv_creat  (const char *, mode_t);
+static int Drv_fcntl  (int fd, int cmd, va_list);
+static int Drv_write  (int fd, const void *buf, size_t len);
+static int Drv_read   (int fd, void *buf, size_t len);
+static int Drv_close  (int fd);
+static int Drv_isatty (int fd);
 
 const MadDrv_t MadDrvRfid = {
-    DrvRfid_open,
-    DrvRfid_creat,
-    DrvRfid_fcntl,
-    DrvRfid_write,
-    DrvRfid_read,
-    DrvRfid_close,
-    DrvRfid_isatty
+    Drv_open,
+    Drv_creat,
+    Drv_fcntl,
+    Drv_write,
+    Drv_read,
+    Drv_close,
+    Drv_isatty
 };
 
-static int DrvRfid_open(const char * file, int flag, ...)
+static int Drv_open(const char * file, int flag, va_list args)
 {
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
+    (void)args;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
     dev->txLocker = 0;
@@ -35,21 +36,22 @@ static int DrvRfid_open(const char * file, int flag, ...)
     }
 }
 
-static int DrvRfid_creat(const char * file, mode_t mode)
+static int Drv_creat(const char * file, mode_t mode)
 {
     (void)file;
     (void)mode;
     return -1;
 }
 
-static int DrvRfid_fcntl(int fd, int cmd, ...)
+static int Drv_fcntl(int fd, int cmd, va_list args)
 {
     (void)fd;
     (void)cmd;
+    (void)args;
     return -1;
 }
 
-static int DrvRfid_write(int fd, const void *buf, size_t len)
+static int Drv_write(int fd, const void *buf, size_t len)
 {
     MadU8      i;
     char       cmd[12];
@@ -68,7 +70,7 @@ static int DrvRfid_write(int fd, const void *buf, size_t len)
     return UsartChar_Write(urt, cmd, 12, RFID_WRT_TIMEOUT);
 }
 
-static int DrvRfid_read(int fd, void *buf, size_t len)
+static int Drv_read(int fd, void *buf, size_t len)
 {
     int i, j, n;
     char      *dat = (char*)buf;
@@ -95,13 +97,13 @@ static int DrvRfid_read(int fd, void *buf, size_t len)
     return j;
 }
 
-static int DrvRfid_close(int fd)
+static int Drv_close(int fd)
 {
     (void)fd;
     return -1;
 }
 
-static int DrvRfid_isatty(int fd)
+static int Drv_isatty(int fd)
 {
     (void)fd;
     return 0;

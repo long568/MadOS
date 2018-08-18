@@ -2,9 +2,9 @@
 #include "usart_char.h"
 #include "MadDrvTty.h"
 
-static int Drv_open   (const char *, int, ...);
+static int Drv_open   (const char *, int, va_list);
 static int Drv_creat  (const char *, mode_t);
-static int Drv_fcntl  (int fd, int cmd, ...);
+static int Drv_fcntl  (int fd, int cmd, va_list);
 static int Drv_write  (int fd, const void *buf, size_t len);
 static int Drv_read   (int fd, void *buf, size_t len);
 static int Drv_close  (int fd);
@@ -20,10 +20,11 @@ const MadDrv_t MadDrvTty = {
     Drv_isatty
 };
 
-static int Drv_open(const char * file, int flag, ...)
+static int Drv_open(const char * file, int flag, va_list args)
 {
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
+    (void)args;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
     dev->txLocker = 0;
@@ -41,9 +42,10 @@ static int Drv_creat(const char * file, mode_t mode)
     return -1;
 }
 
-static int Drv_fcntl(int fd, int cmd, ...)
+static int Drv_fcntl(int fd, int cmd, va_list args)
 {
     // MadDev_t *dev     = DevsList[fd];
+    (void)args;
     switch(cmd) {
         case F_DEV_RST:
             return 1;
