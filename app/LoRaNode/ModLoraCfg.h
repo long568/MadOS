@@ -15,6 +15,4 @@
 #define LORA_TX_INTERVAL  (1000 * /*58*/15)
 #define LORA_TX_BUFF_SIZE (LORA_RX_BUFF_SIZE)
 
-extern StmPIN lora_led;
-
 #endif

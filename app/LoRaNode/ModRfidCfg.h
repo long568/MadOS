@@ -25,7 +25,6 @@
 #define RFID_DEV_TYPE       (17)
 #define RFID_STAMP          (0)
 
-extern StmPIN  rfid_led;
 extern char    rfid_tx_buff[RFID_TX_BUFF_SIZE];
 
 extern MadBool rfid_id_buff_lock    (void);

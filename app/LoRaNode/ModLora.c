@@ -6,8 +6,16 @@
 #include "ModRfidCfg.h"
 #include "MadDrv.h"
 
-StmPIN     lora_led;
+enum {
+    LORA_GO_OK = 0,
+    LORA_GO_JOIN,
+    LORA_GO_PRESEND,
+    LORA_GO_SEND,
+};
+
 MadSemCB_t *lora_rfid_go;
+
+static StmPIN lora_led;
 
 #define LORA_AT_SEND_FMT "AT+SENDMACDATA=0,1,1,%d\r\n"
 
@@ -57,14 +65,11 @@ static char    lora_tx_buff[LORA_TX_BUFF_SIZE];
 static char    lora_rx_buff[LORA_RX_BUFF_SIZE];
 static char    lora_rfid_buff[RFID_TX_BUFF_SIZE];
 
-static void lora_clear_rx_buff(void);
-static int  lora_set_rfid_buff(void);
-static int  lora_go_ok        (const char *buf, size_t len);
-static int  lora_go_presend   (const char *buf, size_t len);
-static int  lora_go_recmacevt (const char *buf, size_t len, char evn);
-static int  lora_join         (void);
-static int  lora_send         (char *buf, int len);
-static void lora_thread       (MadVptr exData);
+static inline void lora_clear_rx_buff(void);
+static inline int  lora_set_rfid_buff(void);
+static inline int  lora_join         (void);
+static inline int  lora_send         (char *buf, int len);
+static        void lora_thread       (MadVptr exData);
 
 MadBool ModLora_Init(void)
 {
@@ -105,6 +110,7 @@ static inline int lora_set_rfid_buff(void) {
     return n;
 }
 
+#if 0
 static int lora_go_ok(const char *buf, size_t len)
 {
     int  n;
@@ -121,9 +127,8 @@ static int lora_go_ok(const char *buf, size_t len)
                     break;
                 } else if(NULL != strstr(lora_rx_buff, LORA_ACK_ERR)) {
                     break;
-                } else {
-                    ptr += n;
                 }
+                ptr += n;
             } else {
                 break;
             }
@@ -166,7 +171,6 @@ static int lora_go_recmacevt(const char *buf, size_t len, char evn)
 {
     int  n;
     int  res;
-    char *tmp;
     char *ptr = lora_rx_buff;
     res = -1;
     lora_clear_rx_buff();
@@ -174,7 +178,7 @@ static int lora_go_recmacevt(const char *buf, size_t len, char evn)
         do {
             n = read(lora_fd, ptr, 0);
             if(n > 0) {
-                tmp = strstr(lora_rx_buff, LORA_ACK_REC);
+                char *tmp = strstr(lora_rx_buff, LORA_ACK_REC);
                 if(NULL != tmp) {
                     if(evn == *(tmp + LORA_ACK_REC_INDEX)) {
                         res = 1;
@@ -193,25 +197,137 @@ static int lora_go_recmacevt(const char *buf, size_t len, char evn)
     return res;
 }
 
-static int lora_join(void)
+static inline int lora_set(const char *buf, size_t len) {
+    return lora_go_ok(buf, len);
+}
+
+static inline int lora_join(void)
 {
-    int res = -1;
+    int res;
     if(0 < lora_go_recmacevt(LORA_AT_JOIN, strlen(LORA_AT_JOIN), '1')) {
         lora_joined = MTRUE;
         res = 1;
+    } else {
+        res = -1;
     }
     return res;
 }
 
-static int lora_send(char *buf, int len)
+static inline int lora_send(char *buf, int len)
 {
-    int res = -1;
-    sprintf(lora_tx_buff, LORA_AT_SEND_FMT, len);
-    if(0 < lora_go_presend(lora_tx_buff, strlen(lora_tx_buff))) {
+    int res;
+    int n = sprintf(lora_tx_buff, LORA_AT_SEND_FMT, len);
+    if(0 < lora_go_presend(lora_tx_buff, n)) {
         res = lora_go_recmacevt(buf, len, '3');
+    } else {
+        res = -1;
     }
     return res;
 }
+#else
+static inline int lora_go_ok(void);
+static inline int lora_go_presend(void);
+static inline int lora_go_recmacevt(char evn);
+
+static int lora_go(const char *buf, size_t len, int act)
+{
+    int  n;
+    int  res;
+    char *ptr = lora_rx_buff;
+    res = -1;
+    lora_clear_rx_buff();
+    if(write(lora_fd, buf, len) > 0) {
+        do {
+            n = read(lora_fd, ptr, 0);
+            if(n > 0) {
+                switch(act) {
+                    case LORA_GO_OK:      res = lora_go_ok();           break;
+                    case LORA_GO_JOIN:    res = lora_go_recmacevt('1'); break;
+                    case LORA_GO_PRESEND: res = lora_go_presend();      break;
+                    case LORA_GO_SEND:    res = lora_go_recmacevt('3'); break;
+                    default:              res = -1;                     break;
+                }
+                if(res == 0) {
+                    ptr += n;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        } while(1);
+    }
+    StmPIN_SetHigh(&lora_led);
+    madTimeDly(LORA_OPT_DLY);
+    StmPIN_SetLow(&lora_led);
+    return res;
+}
+
+static inline int lora_go_ok(void) {
+    int res;
+    if(NULL != strstr(lora_rx_buff, LORA_ACK_OK)) {
+        res = 1;
+    } else if(NULL != strstr(lora_rx_buff, LORA_ACK_ERR)) {
+        res = -1;
+    } else {
+        res = 0;
+    }
+    return res;
+}
+
+static inline int lora_go_presend(void) {
+    int res;
+    if(NULL != strstr(lora_rx_buff, LORA_ACK_PRESEND)) {
+        res = 1;
+    } else {
+        res = 0;
+    }
+    return res;
+}
+
+static inline int lora_go_recmacevt(char evn) {
+    int  res;
+    char *tmp = strstr(lora_rx_buff, LORA_ACK_REC);
+    if(NULL != tmp) {
+        if(evn == *(tmp + LORA_ACK_REC_INDEX)) {
+            res = 1;
+        } else {
+            res = -1;
+        }
+    } else {
+        res = 0;
+    }
+    return res;
+}
+
+static inline int lora_set(const char *buf, size_t len) {
+    return lora_go(buf, len, LORA_GO_OK);
+}
+
+static inline int lora_join(void)
+{
+    int res;
+    if(0 < lora_go(LORA_AT_JOIN, strlen(LORA_AT_JOIN), LORA_GO_JOIN)) {
+        lora_joined = MTRUE;
+        res = 1;
+    } else {
+        res = -1;
+    }
+    return res;
+}
+
+static inline int lora_send(char *buf, int len)
+{
+    int res = -1;
+    int n = sprintf(lora_tx_buff, LORA_AT_SEND_FMT, len);
+    if(n > 0){
+        if(0 < lora_go(lora_tx_buff, n, LORA_GO_PRESEND)) {
+            res = lora_go(buf, len, LORA_GO_SEND);
+        }
+    }
+    return res;
+}
+#endif
 
 static void lora_thread(MadVptr exData)
 {
@@ -224,7 +340,7 @@ static void lora_thread(MadVptr exData)
                 if(i == 0) {
                     fcntl(lora_fd, F_DEV_RST);
                 }
-                if(0 > lora_go_ok(LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]))) {
+                if(0 > lora_set(LORA_AT_INIT[i], strlen(LORA_AT_INIT[i]))) {
                     i = 0;
                 }
             }

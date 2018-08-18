@@ -13,9 +13,9 @@
 
 extern MadSemCB_t *lora_rfid_go;
 
-StmPIN rfid_led;
-char   rfid_tx_buff[RFID_TX_BUFF_SIZE];
+char rfid_tx_buff[RFID_TX_BUFF_SIZE];
 
+static StmPIN     rfid_led;
 static const char rfid_cfg[] = { 0x01, 0x01, 0x41, 0x23, 0x04, 0x3F, 0x40, 0x43 };
 static int        rfid_fd;
 static char       rfid_rx_buff[RFID_RX_BUFF_SIZE];
