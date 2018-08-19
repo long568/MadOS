@@ -79,12 +79,12 @@ inline void rfid_id_buff_unlock(void) {
 inline void rfid_clear_id_buff(size_t n) {
     *rfid_id_cnt = 0;
     rfid_id_ptr  = rfid_id_buff;
-    madMemSetByDMA(rfid_id_buff, 0, n);
+    memset(rfid_id_buff, 0, n);
 
 }
 
 static inline void rfid_clear_rx_buff(void) {
-    madMemSetByDMA(rfid_rx_buff, 0, RFID_RX_BUFF_SIZE);
+    memset(rfid_rx_buff, 0, RFID_RX_BUFF_SIZE);
 }
 
 static void rfid_thread(MadVptr exData)

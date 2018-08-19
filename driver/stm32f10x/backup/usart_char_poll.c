@@ -143,11 +143,22 @@ void UsartChar_Irq_Handler(UsartChar *port)
 #else
     volatile MadU16 data;
     MadU16 sr = port->p->SR;
-    if(sr & URT_ITF_RXNE) {
+    // if(sr & URT_ITF_RXNE) {
+    //     data = port->p->DR;
+    //     FIFO_U8_Put(port->rxBuff, data);
+    // }
+    // if(sr & URT_ITF_IDLE) {
+    //     data = port->p->DR;
+    //     madSemRelease(&port->rxLocker);
+    // }
+    if((sr & URT_ITF_RXNE) && (sr & URT_ITF_IDLE)) {
         data = port->p->DR;
         FIFO_U8_Put(port->rxBuff, data);
-    }
-    if(sr & URT_ITF_IDLE) {
+        madSemRelease(&port->rxLocker);
+    } else if(sr & URT_ITF_RXNE) {
+        data = port->p->DR;
+        FIFO_U8_Put(port->rxBuff, data);
+    } else if(sr & URT_ITF_IDLE) {
         data = port->p->DR;
         madSemRelease(&port->rxLocker);
     }

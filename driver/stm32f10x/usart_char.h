@@ -9,6 +9,7 @@
 typedef struct {
     USART_TypeDef        *p;
     DMA_Channel_TypeDef  *txDma;
+    DMA_Channel_TypeDef  *rxDma;
     struct {
         MadU32  remap;
         StmPIN  tx;
@@ -22,6 +23,7 @@ typedef struct {
     MadU16               mode;
     MadU16               hfc;
     MadU32               tx_dma_priority;
+    MadU32               rx_dma_priority;
     MadSize_t            rxBuffSize;
     xIRQ_Handler         IRQh;
 } UsartCharInitData;
@@ -29,9 +31,12 @@ typedef struct {
 typedef struct {
     USART_TypeDef        *p;
     DMA_Channel_TypeDef  *txDma;
+    DMA_Channel_TypeDef  *rxDma;
     MadSemCB_t           *txLocker;
     MadSemCB_t           *rxLocker;
     FIFO_U8              *rxBuff;
+    MadU32               rxCnt;
+    MadU32               rxMax;
 } UsartChar;
 
 extern MadBool UsartChar_Init        (UsartChar *port, UsartCharInitData *initData);

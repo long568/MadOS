@@ -1,6 +1,7 @@
 #ifndef __COM_LIFO__H__
 #define __COM_LIFO__H__
 
+#include <string.h>
 #include "MadOS.h"
 
 /*
@@ -47,15 +48,49 @@ typedef struct {
 } FIFO_U8;
 
 extern  FIFO_U8* FIFO_U8_Create(MadU16 size);
-#define FIFO_U8_Delete(fifo)  madMemFreeNull(fifo);
-#define FIFO_U8_Put(fifo, c)  do { if (fifo->cnt < fifo->max) { *fifo->tail++ = c; fifo->cnt++; if(fifo->tail == fifo->end) fifo->tail = fifo->buf; } } while(0)
-#define FIFO_U8_Get(fifo, c)  do { if (fifo->cnt >         0) { c = *fifo->head++; fifo->cnt--; if(fifo->head == fifo->end) fifo->head = fifo->buf; } } while(0)
-#define FIFO_U8_Get2(fifo, c) do { c = *fifo->head++; if(fifo->head == fifo->end) fifo->head = fifo->buf; } while(0)
-#define FIFO_U8_Full(fifo)    fifo->cnt == fifo->max
-#define FIFO_U8_Empty(fifo)   fifo->cnt == 0
-#define FIFO_U8_Cnt(fifo)     fifo->cnt
-#define FIFO_U8_Max(fifo)     fifo->max
-#define FIFO_U8_Buf(fifo)     fifo->buf
-#define FIFO_U8_Clear(fifo)   do { fifo->cnt = 0; fifo->head = fifo->tail = fifo->buf; } while(0);
+#define FIFO_U8_Delete(fifo)     madMemFreeNull(fifo);
+#define FIFO_U8_Put(fifo, c)     do { if (fifo->cnt < fifo->max) { *fifo->tail++ = c; fifo->cnt++; if(fifo->tail == fifo->end) fifo->tail = fifo->buf; } } while(0)
+#define FIFO_U8_Get(fifo, c)     do { if (fifo->cnt >         0) { c = *fifo->head++; fifo->cnt--; if(fifo->head == fifo->end) fifo->head = fifo->buf; } } while(0)
+#define FIFO_U8_Get2(fifo, c)    do { c = *fifo->head++; if(fifo->head == fifo->end) fifo->head = fifo->buf; } while(0)
+#define FIFO_U8_Full(fifo)       fifo->cnt == fifo->max
+#define FIFO_U8_Empty(fifo)      fifo->cnt == 0
+#define FIFO_U8_Cnt(fifo)        fifo->cnt
+#define FIFO_U8_Max(fifo)        fifo->max
+#define FIFO_U8_Buf(fifo)        fifo->buf
+#define FIFO_U8_Clear(fifo)      do { fifo->cnt = 0; fifo->head = fifo->tail = fifo->buf; } while(0);
+#define FIFO_U8_DMA_Put(fifo, n) do { /*Called in ISR-Mode*/ \
+    if(fifo->cnt < fifo->max) {                                            \
+        MadU8 *tmp;                                                        \
+        MadU32 ofs = fifo->max - fifo->cnt;                                \
+        if(ofs > n) { tmp = fifo->tail + n;   fifo->cnt += n;            } \
+        else        { tmp = fifo->tail + ofs; fifo->cnt += ofs; n = ofs; } \
+        if( tmp < fifo->end) fifo->tail = tmp;                             \
+        else                 fifo->tail = fifo->buf + (tmp - fifo->end);   \
+    } else {   \
+        n = 0; \
+    }          \
+} while(0)
+#define FIFO_U8_DMA_Get(fifo, dat, n) do { /*Called in User-Mode*/ \
+    if(fifo->cnt > 0) { \
+        MadCpsr_t cpsr; \
+        madEnterCritical(cpsr);                        \
+        if((n == 0) || (n > fifo->cnt)) n = fifo->cnt; \
+        madExitCritical(cpsr);                         \
+        if(fifo->head + n < fifo->end)  {              \
+            memcpy(dat, fifo->head, n);                \
+            fifo->head += n;                           \
+        } else {                                       \
+            MadU32 ofs = fifo->end - fifo->head;       \
+            memcpy(dat,     fifo->head, ofs);          \
+            memcpy(dat+ofs, fifo->buf,  n - ofs);      \
+            fifo->head = fifo->buf + n - ofs;          \
+        }                                              \
+        madEnterCritical(cpsr);                        \
+        fifo->cnt -= n;                                \
+        madExitCritical(cpsr);                         \
+    } else {   \
+        n = 0; \
+    }          \
+} while(0)
 
 #endif

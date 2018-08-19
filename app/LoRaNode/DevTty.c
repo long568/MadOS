@@ -14,6 +14,7 @@ static void Dev_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
 static const UsartCharInitData initData = {
     USART2,
     DMA1_Channel7,
+    DMA1_Channel6,
     { 
         GPIO_Remap_USART2,
         { GPIOD, GPIO_Pin_5 },
@@ -26,6 +27,7 @@ static const UsartCharInitData initData = {
     USART_Parity_No,
     USART_Mode_Rx | USART_Mode_Tx,
     USART_HardwareFlowControl_None,
+    DMA_Priority_Low,
     DMA_Priority_Low,
     128,
     Dev_Irq_Handler

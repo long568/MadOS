@@ -11,6 +11,7 @@ static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
 static const UsartCharInitData initData = {
     USART3,
     DMA1_Channel2,
+    DMA1_Channel3,
     { 
         GPIO_PartialRemap_USART3,
         { GPIOC, GPIO_Pin_10 },
@@ -23,6 +24,7 @@ static const UsartCharInitData initData = {
     USART_Parity_No,
     USART_Mode_Rx | USART_Mode_Tx,
     USART_HardwareFlowControl_None,
+    DMA_Priority_Medium,
     DMA_Priority_Medium,
     LORA_RX_BUFF_SIZE,
     DevRfid_Irq_Handler

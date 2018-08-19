@@ -97,14 +97,14 @@ MadBool ModLora_Init(void)
 }
 
 static inline void lora_clear_rx_buff(void) {
-    madMemSetByDMA(lora_rx_buff, 0, LORA_RX_BUFF_SIZE);
+    memset(lora_rx_buff, 0, LORA_RX_BUFF_SIZE);
 }
 
 static inline int lora_set_rfid_buff(void) {
     int n;
     rfid_id_buff_lock();
     n = rfid_tx_buff[10] * RFID_ID_LEN + RFID_HEAD_SIZE;
-    madMemCopyByDMA(lora_rfid_buff, rfid_tx_buff, n);
+    memcpy(lora_rfid_buff, rfid_tx_buff, n);
     rfid_clear_id_buff(n);
     rfid_id_buff_unlock();
     *(MadU16*)(lora_rfid_buff + 4) = n - RFID_TOP_SIZE;

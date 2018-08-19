@@ -9,6 +9,7 @@ static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
 static const UsartCharInitData initData = {
     USART1,
     DMA1_Channel4,
+    DMA1_Channel5,
     { 
         GPIO_Remap_USART1,
         { GPIOB, GPIO_Pin_6 },
@@ -21,6 +22,7 @@ static const UsartCharInitData initData = {
     USART_Parity_No,
     USART_Mode_Rx | USART_Mode_Tx,
     USART_HardwareFlowControl_None,
+    DMA_Priority_Medium,
     DMA_Priority_Medium,
     RFID_RX_BUFF_SIZE,
     DevRfid_Irq_Handler

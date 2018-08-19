@@ -60,6 +60,7 @@ static void madArchMem_IRQ_Handler(void)
 
 void madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
 {
+    if(size == 0) return;
     madSemWait(&mad_archm_locker, 0);
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)src;
@@ -71,6 +72,7 @@ void madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
 
 void madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
 {
+    if(size == 0) return;
     madSemWait(&mad_archm_locker, 0);
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)(&value);
