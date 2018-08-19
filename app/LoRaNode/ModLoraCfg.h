@@ -9,7 +9,7 @@
 #define LORA_FLAG_PIN     GPIO_Pin_9
 
 #define LORA_RX_BUFF_SIZE (200)
-#define LORA_OPT_DLY      (1000)
+#define LORA_OPT_DLY      (500)
 #define LORA_TX_DLY       (1000 * 10)
 #define LORA_TX_RETRY     (5)
 #define LORA_TX_INTERVAL  (1000 * /*58*/16)
