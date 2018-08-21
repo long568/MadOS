@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "ModLoraCfg.h"
 #include "ModRfidCfg.h"
 #include "MadDrv.h"
@@ -235,8 +234,7 @@ static void lora_thread(MadVptr exData)
                     lora_joined = MFALSE;
                     continue;
                 }
-                srand(SysTick->VAL);
-                madTimeDly((MadTim_t)(rand() % LORA_TX_INTERVAL + 1000));
+                madTimeDly((MadTim_t)((SysTick->VAL % 8000) + 2000)); // Retry in 2~10s
             } else {
                 i = 0;
                 madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
