@@ -19,8 +19,9 @@ enum {
 static const char LORA_ATE0[]      = "ATE0\r\n";
 static const char LORA_AT_DEV[]    = "AT+DEVICE=\"568568568\",\"V1.0.0\",\"V1.0.0\"\r\n";
 static const char LORA_AT_SETPRO[] = "AT+SETPROTOCOL=0\r\n";
-static const char LORA_AT_OTAA[]   = "AT+MACOTAAPARAMS=\"AB01020304050600\",\"0000000000000000\",\"01020304050607080910111213141516\"\r\n";
-static const char LORA_AT_ABP[]    = "AT+MACABPPARAMS=\"018b4bb6\",\"9c1a22062ec3468ff19bb2c4db5068e7\",\"9c1d5c609caf02cf1648bccc5d6c4a4b\"\r\n";
+static const char LORA_AT_OTAA[]   = "AT+MACOTAAPARAMS=\"AA01020304050601\",\"0000000000000000\",\"01020304050607080910111213141516\"\r\n";
+// static const char LORA_AT_OTAA[]   = "AT+MACOTAAPARAMS=\"AB01020304050600\",\"0000000000000000\",\"01020304050607080910111213141516\"\r\n";
+// static const char LORA_AT_ABP[]    = "AT+MACABPPARAMS=\"018b4bb6\",\"9c1a22062ec3468ff19bb2c4db5068e7\",\"9c1d5c609caf02cf1648bccc5d6c4a4b\"\r\n";
 static const char LORA_AT_FREQ0[]  = "AT+MACCHFREQ=0,433175000\r\n";
 static const char LORA_AT_FREQ1[]  = "AT+MACCHFREQ=1,433375000\r\n";
 static const char LORA_AT_FREQ2[]  = "AT+MACCHFREQ=2,433575000\r\n";
@@ -30,7 +31,7 @@ static const char LORA_AT_SPD1[]   = "AT+MACCHDRRANGE=1,4,5\r\n";
 static const char LORA_AT_SPD2[]   = "AT+MACCHDRRANGE=2,4,5\r\n";
 // static const char LORA_AT_SPD3[]   = "AT+MACCHDRRANGE=3,4,5\r\n";
 static const char LORA_AT_ADR[]    = "AT+MACADR=1\r\n";
-static const char LORA_AT_JOIN[]   = "AT+MACJOIN=2,6\r\n";
+static const char LORA_AT_JOIN[]   = "AT+MACJOIN=3,6\r\n"; // "AT+MACJOIN=2,6\r\n";
 
 static const char LORA_ACK_OK[]      = "OK";
 static const char LORA_ACK_ERR[]     = "ERROR";
@@ -42,7 +43,7 @@ static const char *LORA_AT_INIT[]  = {
     LORA_AT_DEV,
     LORA_AT_SETPRO,
     LORA_AT_OTAA,
-    LORA_AT_ABP,
+    // LORA_AT_ABP,
     LORA_AT_FREQ0,
     LORA_AT_FREQ1,
     LORA_AT_FREQ2,
@@ -234,7 +235,7 @@ static void lora_thread(MadVptr exData)
                     lora_joined = MFALSE;
                     continue;
                 }
-                madTimeDly((MadTim_t)((SysTick->VAL % 8000) + 2000)); // Retry in 2~10s
+                madTimeDly((MadTim_t)(((SysTick->VAL % 8) + 2) * 1000)); // Retry in 2~10s
             } else {
                 i = 0;
                 madSemWait(&lora_rfid_go, LORA_TX_INTERVAL);
