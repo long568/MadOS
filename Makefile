@@ -1,8 +1,9 @@
 # export APP        = test_kernel
 # export APP        = test_uip
+export APP        = test_fatfs
 # export APP        = lesson002
 # export APP        = LoArm
-export APP        = LoRaNode
+# export APP        = LoRaNode
 export TOOLCHAIN  = arm-none-eabi
 export BUILD_VER  = debug
 
