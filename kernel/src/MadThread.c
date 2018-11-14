@@ -196,7 +196,10 @@ MadVptr madThreadDelete(MadU8 threadPrio)
 
     MadThreadClear++;
     madExitCritical(cpsr);
-    if(flagSched) madSched();
+    if(flagSched) {
+        madSched();
+        while(1);
+    }
     return msg;
 }
 

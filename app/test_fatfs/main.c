@@ -4,6 +4,7 @@
 #include "MadOS.h"
 #include "MadDrv.h"
 #include "CfgUser.h"
+#include "testSpiFlash.h"
 #include "testFatFs.h"
 
 #if MAD_STATIST_STK_SIZE
@@ -77,7 +78,8 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    TestFatFs_Init();
+    SpiFlash_Init();
+    //TestFatFs_Init();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -97,7 +99,7 @@ static void madSysRunning(MadVptr exData)
     
     pin.GPIO_Mode  = GPIO_Mode_Out_PP;
 	pin.GPIO_Speed = GPIO_Speed_50MHz;
-    pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
+    pin.GPIO_Pin   = GPIO_Pin_1;
 	GPIO_Init(GPIOE, &pin);
 
 #if MAD_STATIST_STK_SIZE
@@ -111,10 +113,8 @@ static void madSysRunning(MadVptr exData)
         flag = !flag;
         if(flag) {
             GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-            GPIO_SetBits  (GPIOE, GPIO_Pin_0);
         } else {
             GPIO_SetBits  (GPIOE, GPIO_Pin_1);
-            GPIO_ResetBits(GPIOE, GPIO_Pin_0);
         }
         
 #ifdef MAD_SHOW_IDLERATE

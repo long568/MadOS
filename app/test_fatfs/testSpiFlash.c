@@ -1,5 +1,8 @@
-#include "testSpiFlash.h"
 #include "CfgUser.h"
+#include "spi_flash.h"
+#include "testSpiFlash.h"
+
+SPIPort SpiFlash;
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
@@ -26,9 +29,33 @@ TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength
 
 void threadTestSpiFlash(MadVptr exData);
 
-void Init_SpiFlash(void)
+static void sFLASH_SPI_IRQHandler(void) { SpiLow_SPI_IRQHandler(&SpiFlash); }
+static void sFLASH_DMA_IRQHandler(void) { SpiLow_DMA_IRQHandler(&SpiFlash); }
+
+void SpiFlash_Init(void)
 {
-    sFLASH_Init();
+    SPIPortInitData init_dat;
+    
+    init_dat.io.remap     = GPIO_Remap_SPI3;
+    init_dat.io.nss.port  = GPIOD;
+    init_dat.io.nss.pin   = GPIO_Pin_2;
+    init_dat.io.sck.port  = GPIOC;
+    init_dat.io.sck.pin   = GPIO_Pin_10;
+    init_dat.io.miso.port = GPIOC;
+    init_dat.io.miso.pin  = GPIO_Pin_11;
+    init_dat.io.mosi.port = GPIOC;
+    init_dat.io.mosi.pin  = GPIO_Pin_12;
+    
+    init_dat.irqPrio      = ISR_PRIO_W25Q32;
+    init_dat.dataWidth    = SPI_DW_8Bit;
+    init_dat.spi          = SPI3;
+    init_dat.dmaTx        = DMA2_Channel2;
+    init_dat.dmaRx        = DMA2_Channel1;
+    init_dat.retry        = sFLASH_SPI_TIMEOUT;
+    init_dat.irqSpi       = sFLASH_SPI_IRQHandler;
+    init_dat.irqDma       = sFLASH_DMA_IRQHandler;
+
+    sFLASH_Init(&SpiFlash, &init_dat);
     madThreadCreate(threadTestSpiFlash, 0, 2048, THREAD_PRIO_TEST_SPI_FLASH);
 }
 
@@ -44,11 +71,11 @@ void threadTestSpiFlash(MadVptr exData)
     StmPIN_SetHigh(&led);
     
     while(1) {
-        FlashID = sFLASH_ReadID();
+        FlashID = sFLASH_ReadID(&SpiFlash);
         if(FlashID == sFLASH_ID) {
-            sFLASH_EraseSector(FLASH_SectorToErase);
-            sFLASH_WriteBuffer(Tx_Buffer, FLASH_WriteAddress, BufferSize);
-            sFLASH_ReadBuffer(Rx_Buffer, FLASH_ReadAddress, BufferSize);
+            sFLASH_EraseSector(&SpiFlash, FLASH_SectorToErase);
+            sFLASH_WriteBuffer(&SpiFlash, Tx_Buffer, FLASH_WriteAddress, BufferSize);
+            sFLASH_ReadBuffer(&SpiFlash, Rx_Buffer, FLASH_ReadAddress, BufferSize);
             TransferStatus1 = Buffercmp(Tx_Buffer, Rx_Buffer, BufferSize);
             if(TransferStatus1 == PASSED) {
                 StmPIN_SetLow(&led);
@@ -57,8 +84,8 @@ void threadTestSpiFlash(MadVptr exData)
                 madTimeDly(1000);
                 continue;
             }
-            sFLASH_EraseSector(FLASH_SectorToErase);
-            sFLASH_ReadBuffer(Rx_Buffer, FLASH_ReadAddress, BufferSize);
+            sFLASH_EraseSector(&SpiFlash, FLASH_SectorToErase);
+            sFLASH_ReadBuffer(&SpiFlash, Rx_Buffer, FLASH_ReadAddress, BufferSize);
             for (Index = 0; Index < BufferSize; Index++) {
                 if (Rx_Buffer[Index] != 0xFF) {
                     TransferStatus2 = FAILED;
@@ -69,7 +96,7 @@ void threadTestSpiFlash(MadVptr exData)
         } else {
             StmPIN_SetHigh(&led);
         }
-        madTimeDly(3000);
+        madThreadDelete(MAD_THREAD_SELF);
     }
 }
 

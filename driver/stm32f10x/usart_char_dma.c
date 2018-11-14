@@ -21,23 +21,23 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     switch((MadU32)(port->p)) {
         case (MadU32)(USART1):
             RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-            usart_irqn  = USART1_IRQn;
+            usart_irqn = USART1_IRQn;
             break;
         case (MadU32)(USART2):
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-            usart_irqn  = USART2_IRQn;
+            usart_irqn = USART2_IRQn;
             break;
         case (MadU32)(USART3):
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-            usart_irqn  = USART3_IRQn;
+            usart_irqn = USART3_IRQn;
             break;
         case (MadU32)(UART4):
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
-            usart_irqn  = UART4_IRQn;
+            usart_irqn = UART4_IRQn;
             break;
         case (MadU32)(UART5):
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
-            usart_irqn  = UART5_IRQn;
+            usart_irqn = UART5_IRQn;
             break;
         default:
             return MFALSE;
