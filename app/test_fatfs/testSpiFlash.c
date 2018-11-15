@@ -59,7 +59,6 @@ void SpiFlash_Init(void)
     madThreadCreate(threadTestSpiFlash, 0, 2048, THREAD_PRIO_TEST_SPI_FLASH);
 }
 
-volatile MadU32 ttt_0, ttt_1, ttt_2;
 void threadTestSpiFlash(MadVptr exData)
 {
     StmPIN led;

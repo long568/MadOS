@@ -17,6 +17,7 @@ void TestFatFs_Init(void)
 static void test_fatfs_act(MadVptr exData)
 {
     while(1) {
+        fopen("hello.txt", "w");
         madTimeDly(1000);
     }
 }
