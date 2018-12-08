@@ -65,7 +65,7 @@ export LDFLAGS  += $(LIBS) -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 				   --specs=nano.specs -Bstatic -Wl,--gc-sections \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 
-all :
+all:
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
 	$(MAKE) -C $(ROOT)/driver
 	$(MAKE) -C $(ROOT)/kernel
@@ -73,7 +73,7 @@ all :
 	$(MAKE) -C $(ROOT)/app/$(APP)
 	$(ECHO) 'Building ... Done.'
 
-clean :
+clean:
 	$(RM) -r $(BUILD_DIR)
 	$(ECHO) 'Cleaning ... Done.'
 

@@ -5,7 +5,7 @@ PSTA = $(ROOT)/arch/$(MCU_PREFIX)/Startup
 
 export TEMP = $(BUILD_DIR)/arch
 
-all : prebuild
+all: prebuild
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)
 	$(MAKE) -C $(PACH)
 	$(MAKE) -C $(PSTA)

@@ -2,7 +2,7 @@ LIBK = libuip.a
 
 export TEMP = $(BUILD_DIR)/uip
 
-all : prebuild
+all: prebuild
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)
 	$(ECHO) 'Creating $(LIBK) ... Done'
 

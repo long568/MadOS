@@ -29,3 +29,8 @@ inline
 void * malloc(size_t __size) {
     return madMemMalloc(__size);
 }
+
+inline
+void free(void *p) {
+    madMemFree(p);
+}

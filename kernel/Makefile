@@ -2,7 +2,7 @@ LIBK = libkernel.a
 
 export TEMP = $(BUILD_DIR)/kernel
 
-all : prebuild
+all: prebuild
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)
 	$(ECHO) 'Creating $(LIBK) ... Done'
 
