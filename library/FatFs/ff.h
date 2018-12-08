@@ -351,11 +351,17 @@ void ff_memfree (void* mblock);			/* Free memory block */
 #endif
 
 /* Sync functions */
-#if FF_FS_REENTRANT
+#if FF_FS_REENTRANT // Modified by long 20181209
 int ff_cre_syncobj (BYTE vol, FF_SYNC_t* sobj);	/* Create a sync object */
-int ff_req_grant (FF_SYNC_t sobj);		/* Lock sync object */
-void ff_rel_grant (FF_SYNC_t sobj);		/* Unlock sync object */
-int ff_del_syncobj (FF_SYNC_t sobj);	/* Delete a sync object */
+// int ff_req_grant (FF_SYNC_t sobj);		    /* Lock sync object */
+// void ff_rel_grant (FF_SYNC_t sobj);		    /* Unlock sync object */
+// int ff_del_syncobj (FF_SYNC_t sobj);	        /* Delete a sync object */
+int  __ff_req_grant  (FF_SYNC_t* sobj);
+void __ff_rel_grant  (FF_SYNC_t* sobj);
+int  __ff_del_syncobj(FF_SYNC_t* sobj);
+#define ff_req_grant(sobj)   __ff_req_grant(&(sobj))
+#define ff_rel_grant(sobj)   __ff_rel_grant(&(sobj))
+#define ff_del_syncobj(sobj) __ff_del_syncobj(&(sobj))
 #endif
 
 
