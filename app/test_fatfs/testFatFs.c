@@ -7,6 +7,11 @@
 #include "spi_flash.h"
 #include "testFatFs.h"
 
+// static mSpi_t sFatFs;
+
+// static void sFatFs_SPI_IRQHandler(void) { mSpiLow_SPI_IRQHandler(&sFatFs); }
+// static void sFatFs_DMA_IRQHandler(void) { mSpiLow_DMA_IRQHandler(&sFatFs); }
+
 static void test_fatfs_act(MadVptr exData);
 
 void TestFatFs_Init(void)

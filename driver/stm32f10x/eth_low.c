@@ -1,12 +1,12 @@
 #include "eth_low.h"
 #include "CfgUser.h"
 
-static MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth);
-static MadBool eth_phy_init(mETH_t *eth);
-static void    eth_init_failed(mETH_t *eth);
-static MadBool eth_mac_deinit(mETH_t *eth);
-static MadBool eth_mac_init(mETH_t *eth);
-static MadBool eth_mac_start(mETH_t *eth);
+static MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData);
+static MadBool eth_phy_init(mEth_t *eth);
+static void    eth_init_failed(mEth_t *eth);
+static MadBool eth_mac_deinit(mEth_t *eth);
+static MadBool eth_mac_init(mEth_t *eth);
+static MadBool eth_mac_start(mEth_t *eth);
 static void    eth_driver_thread(MadVptr exData);
 
 /******************************************
@@ -14,36 +14,36 @@ static void    eth_driver_thread(MadVptr exData);
  * For StmEth, instance of the only eth.
  *
  ******************************************/
-mETH_t StmEth;
+static mEth_t StmEth;
 
 //void ETH_WKUP_IRQHandler(void)
 //void ETH_IRQHandler(void)
 
-void mETH_ExtEvent(void)
+void mEth_ExtEvent(void)
 {
     if(EXTI_GetITStatus(StmEth.EXIT_Line) != RESET) {
-        madEventTrigger(&StmEth.Event, EPE_STATUS_CHANGED);
+        madEventTrigger(&StmEth.Event, mEth_PE_STATUS_CHANGED);
         EXTI_ClearITPendingBit(StmEth.EXIT_Line);
     }
 }
 
-void mETH_PhyEvent(void)
+void mEth_PhyEvent(void)
 {
     if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_R)) {
-#if ETH_SOFT_FLOW_CONTROL
+#if mEth_SOFT_FLOW_CONTROL
         if(++StmEth.RxDscrCnt == StmEth.RxDscrNum) {
             ETH_DMAReceptionCmd(DISABLE);
         }
 #endif
-        madEventTrigger(&StmEth.Event, EPE_STATUS_RXPKT);
+        madEventTrigger(&StmEth.Event, mEth_PE_STATUS_RXPKT);
         ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
     }
     ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
 }
 
-MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn)
+MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t fn)
 {
-    mETH_InitData initData;
+    mEth_InitData_t initData;
     
     GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
     
@@ -75,17 +75,17 @@ MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn)
     initData.MAC_ADDRESS[5] = 0x00;
     initData.Priority       = ISR_PRIO_IP101A;
     initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
-    initData.ThreadStkSize  = ETH_THREAD_STKSIZE;
+    initData.ThreadStkSize  = mEth_THREAD_STKSIZE;
     initData.MaxPktSize     = ETH_MAX_PACKET_SIZE;
-    initData.TxDscrNum      = ETH_TXBUFNB;
-    initData.RxDscrNum      = ETH_RXBUFNB;
+    initData.TxDscrNum      = mEth_TXBUFNB;
+    initData.RxDscrNum      = mEth_RXBUFNB;
     initData.infn           = infn;
     initData.fn             = fn;
 
-    madInstallExIrq(mETH_ExtEvent, EXTI15_10_IRQn);
-    madInstallExIrq(mETH_PhyEvent, ETH_IRQn);
+    madInstallExIrq(mEth_ExtEvent, EXTI15_10_IRQn);
+    madInstallExIrq(mEth_PhyEvent, ETH_IRQn);
     
-    if(eth_low_init(&initData, &StmEth)) { 
+    if(eth_low_init(&StmEth, &initData)) { 
         if(eth_phy_init(&StmEth)) {
             return MTRUE; // Success
         }
@@ -100,7 +100,7 @@ MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn)
  *
  ******************************************/
 
-MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth)
+MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
 {
     MadUint i;
     MadU8 prio;
@@ -121,7 +121,7 @@ MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth)
     eth->MaxPktSize  = initData->MaxPktSize;
     eth->TxDscrNum   = initData->TxDscrNum;
     eth->RxDscrNum   = initData->RxDscrNum;
-#if ETH_SOFT_FLOW_CONTROL
+#if mEth_SOFT_FLOW_CONTROL
     eth->RxDscrCnt   = 0;
 #endif
     eth->TxDscr      = (ETH_DMADESCTypeDef*)madMemMalloc(eth->TxDscrNum * sizeof(ETH_DMADESCTypeDef));
@@ -131,7 +131,7 @@ MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth)
     if((!eth->TxDscr) || (!eth->RxDscr) || (!eth->TxBuff) || (!eth->RxBuff)) {
         return MFALSE;
     }
-    eth->Event = madEventCreate(EPE_STATUS_ALL, MEMODE_WAIT_ONE);
+    eth->Event = madEventCreate(mEth_PE_STATUS_ALL, MEMODE_WAIT_ONE);
     if(MNULL == eth->Event) {
         return MFALSE;
     }
@@ -178,7 +178,7 @@ MadBool eth_low_init(mETH_InitData *initData, mETH_t *eth)
     return MTRUE;
 }
 
-void eth_init_failed(mETH_t *eth)
+void eth_init_failed(mEth_t *eth)
 {
     if(eth) {
         madMemFree(eth->TxDscr);
@@ -189,26 +189,26 @@ void eth_init_failed(mETH_t *eth)
     }
 }
 
-MadBool eth_phy_init(mETH_t *eth)
+MadBool eth_phy_init(mEth_t *eth)
 {
     MadU16 phy_reg;
     MadU16 phy_addr;
     phy_addr = eth->PHY_ADDRESS;
     // Get PHY-State to make sure IP101A is working.
-    ETH_PHY_WT(ETH_ReadPHYRegister(phy_addr, EPR_CTRL), ETH_TIMEOUT_TICKS);
+    mEth_PHY_WT(ETH_ReadPHYRegister(phy_addr, mEth_PR_CTRL), mEth_TIMEOUT_TICKS);
     // Reset PHY
-    phy_reg = ETH_ReadPHYRegister(phy_addr, EPR_CTRL);
+    phy_reg = ETH_ReadPHYRegister(phy_addr, mEth_PR_CTRL);
     phy_reg |= PHY_Reset;
-    ETH_WritePHYRegister(phy_addr, EPR_CTRL, phy_reg);
-    ETH_PHY_WF(ETH_ReadPHYRegister(phy_addr, EPR_CTRL) & PHY_Reset, ETH_TIMEOUT_TICKS);
+    ETH_WritePHYRegister(phy_addr, mEth_PR_CTRL, phy_reg);
+    mEth_PHY_WF(ETH_ReadPHYRegister(phy_addr, mEth_PR_CTRL) & PHY_Reset, mEth_TIMEOUT_TICKS);
     _eth_delay_(PHY_ResetDelay);
     // Configure interrupt of IP101A
-    ETH_WritePHYRegister(phy_addr, EPR_INTR, EPF_ISR);
-    ETH_ReadPHYRegister(phy_addr, EPR_INTR);
+    ETH_WritePHYRegister(phy_addr, mEth_PR_INTR, mEth_PF_ISR);
+    ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
     return MTRUE;
 }
 
-MadBool eth_mac_deinit(mETH_t *eth)
+MadBool eth_mac_deinit(mEth_t *eth)
 {
     ETH_DeInit();
     ETH_SoftwareReset();
@@ -217,7 +217,7 @@ MadBool eth_mac_deinit(mETH_t *eth)
     return MTRUE;
 }
 
-MadBool eth_mac_init(mETH_t *eth)
+MadBool eth_mac_init(mEth_t *eth)
 {
     MadU16 phy_addr;
     ETH_InitTypeDef ETH_InitStructure;
@@ -236,7 +236,7 @@ MadBool eth_mac_init(mETH_t *eth)
     ETH_InitStructure.ETH_PromiscuousMode = ETH_PromiscuousMode_Disable;
     ETH_InitStructure.ETH_MulticastFramesFilter = ETH_MulticastFramesFilter_Perfect;
     ETH_InitStructure.ETH_UnicastFramesFilter = ETH_UnicastFramesFilter_Perfect;
-#if ETH_CHECKSUM_BY_HARDWARE
+#if  mEth_CHECKSUM_BY_HARDWARE
     ETH_InitStructure.ETH_ChecksumOffload = ETH_ChecksumOffload_Enable;
 #endif
     
@@ -267,7 +267,7 @@ MadBool eth_mac_init(mETH_t *eth)
     }
 }
 
-MadBool eth_mac_start(mETH_t *eth)
+MadBool eth_mac_start(mEth_t *eth)
 {
     int i;
     ETH_DMATxDescChainInit(eth->TxDscr, eth->TxBuff, eth->TxDscrNum);
@@ -275,7 +275,7 @@ MadBool eth_mac_start(mETH_t *eth)
     for(i=0; i<eth->RxDscrNum; i++) {
         ETH_DMARxDescReceiveITConfig(&eth->RxDscr[i], ENABLE);
     }
-#if ETH_CHECKSUM_BY_HARDWARE
+#if  mEth_CHECKSUM_BY_HARDWARE
     for(i=0; i<eth->TxDscrNum; i++) {
         ETH_DMATxDescChecksumInsertionConfig(&eth->TxDscr[i], ETH_DMATxDesc_ChecksumTCPUDPICMPFull);
     }
@@ -289,10 +289,10 @@ void eth_driver_thread(MadVptr exData)
     MadU8 ok;
     MadUint event;
     MadTim_t dt;
-    mETH_t *eth = (mETH_t*)exData;
+    mEth_t *eth = (mEth_t*)exData;
     
     while(1) {
-        ok = madEventWait(&eth->Event, ETH_EVENT_TIMEOUT, &event);
+        ok = madEventWait(&eth->Event, mEth_EVENT_TIMEOUT, &event);
         switch(ok) {
             case MAD_ERR_OK: {
                 MadCpsr_t cpsr;
@@ -300,12 +300,12 @@ void eth_driver_thread(MadVptr exData)
                 madEnterCritical(cpsr);
                 remain = MadCurTCB->timeCntRemain;
                 madExitCritical(cpsr);
-                dt = ETH_EVENT_TIMEOUT - remain;
+                dt = mEth_EVENT_TIMEOUT - remain;
                 break;
             }
             case MAD_ERR_TIMEOUT:
-                event = EPE_STATUS_TIMEOUT;
-                dt = ETH_EVENT_TIMEOUT;
+                event = mEth_PE_STATUS_TIMEOUT;
+                dt = mEth_EVENT_TIMEOUT;
                 break;
             default:
                 event = 0;
@@ -316,7 +316,7 @@ void eth_driver_thread(MadVptr exData)
         //if(!event) continue;  // Should never happen...
         
         // Handle PHY-Event
-        if(event & EPE_STATUS_CHANGED) {
+        if(event & mEth_PE_STATUS_CHANGED) {
             madTimeDly(10);
             dt += 10;
             if(0 == StmPIN_ReadInValue(&eth->INTP)) {
@@ -324,10 +324,10 @@ void eth_driver_thread(MadVptr exData)
                 MadU16 phy_addr = eth->PHY_ADDRESS;
                 // Read 2 times to make sure we got real value of the reg.
                 // This maybe a bug of IP101A
-                ETH_ReadPHYRegister(phy_addr, EPR_INTR);
-                ETH_ReadPHYRegister(phy_addr, EPR_INTR);
-                ETH_ReadPHYRegister(phy_addr, EPR_STAT);
-                phy_reg = ETH_ReadPHYRegister(phy_addr, EPR_STAT);
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
+                phy_reg = ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
                 eth_mac_deinit(eth);
                 if(phy_reg & PHY_Linked_Status) {
                     eth_mac_init(eth);

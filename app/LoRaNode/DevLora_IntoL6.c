@@ -3,12 +3,12 @@
 #include "ModLoraCfg.h"
 #include "Stm32Tools.h"
 
-static UsartChar dev;
-static StmPIN    rst_pin = { GPIOC, GPIO_Pin_12 };
+static mUsartChar_t dev;
+static StmPIN       rst_pin = { GPIOC, GPIO_Pin_12 };
 
-static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
+static void DevRfid_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
-static const UsartCharInitData initData = {
+static const mUsartChar_InitData_t initData = {
     USART3,
     DMA1_Channel2,
     DMA1_Channel3,

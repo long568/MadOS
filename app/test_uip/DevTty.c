@@ -5,13 +5,12 @@
 #include "Stm32Tools.h"
 #include "CfgUser.h"
 
-static MadSemCB_t *tty_tx_locker;
+static MadSemCB_t   *tty_tx_locker;
+static mUsartChar_t dev;
 
-static UsartChar dev;
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
-static void Dev_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
-
-static const UsartCharInitData initData = {
+static const mUsartChar_InitData_t initData = {
     USART2,
     DMA1_Channel7,
     DMA1_Channel6,

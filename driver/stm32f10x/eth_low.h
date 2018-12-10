@@ -4,6 +4,6 @@
 #include "Stm32Tools.h"
 #include "eth_low_cfg.h"
 
-extern MadBool mEth_Init(mETH_Preinit infn, mETH_Callback fn);
+extern MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t fn);
 
 #endif

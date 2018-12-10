@@ -1,177 +1,177 @@
 #include "spi_flash.h"
 
-uint8_t sFLASH_ReadByte(SPIPort *port)
+uint8_t mSpiFlash_ReadByte(mSpi_t *port)
 {
     MadU8 data;
-    if(spiRead8Bit(port, &data)) {
+    if(mSpiRead8Bit(port, &data)) {
         return data;
     } else {
-        return SPI_INVALID_DATA;
+        return mSpi_INVALID_DATA;
     }
 }
 
-uint8_t sFLASH_SendByte(SPIPort *port, uint8_t byte)
+uint8_t mSpiFlash_SendByte(mSpi_t *port, uint8_t byte)
 {
     MadU8 res;
-    if(spiSend8BitRes(port, byte, &res)) {
+    if(mSpiSend8BitRes(port, byte, &res)) {
         return res;
     } else {
-        return SPI_INVALID_DATA;
+        return mSpi_INVALID_DATA;
     }
 }
 
-void sFLASH_WriteEnable(SPIPort *port)
+void mSpiFlash_WriteEnable(mSpi_t *port)
 {
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_WREN);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_WREN);
+    mSpiFlash_CS_HIGH(port);
 }
 
-void sFLASH_WaitForWriteEnd(SPIPort *port)
+void mSpiFlash_WaitForWriteEnd(mSpi_t *port)
 {
     uint8_t flashstatus = 0;
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_RDSR);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_RDSR);
     do {
-        flashstatus = sFLASH_SendByte(port, sFLASH_DUMMY_BYTE);
-    } while ((flashstatus & sFLASH_WIP_FLAG) == SET);
-    sFLASH_CS_HIGH(port);
+        flashstatus = mSpiFlash_SendByte(port, mSpiFlash_DUMMY_BYTE);
+    } while ((flashstatus & mSpiFlash_WIP_FLAG) == SET);
+    mSpiFlash_CS_HIGH(port);
 }
 
-inline void sFLASH_DeInit(SPIPort *port) {
-    spiDeInit(port);
+inline void mSpiFlash_DeInit(mSpi_t *port) {
+    mSpiDeInit(port);
 }
 
-inline void sFLASH_Init(SPIPort *port, SPIPortInitData *init_dat) {
-    spiInit(port, init_dat);
+inline void mSpiFlash_Init(mSpi_t *port, mSpi_InitData_t *init_dat) {
+    mSpiInit(port, init_dat);
 }
 
-void sFLASH_EraseSector(SPIPort *port, uint32_t SectorAddr)
+void mSpiFlash_EraseSector(mSpi_t *port, uint32_t SectorAddr)
 {
-    sFLASH_WaitForWriteEnd(port);
-    sFLASH_WriteEnable(port);
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_SE);
-    sFLASH_SendByte(port, (SectorAddr & 0xFF0000) >> 16);
-    sFLASH_SendByte(port, (SectorAddr & 0xFF00) >> 8);
-    sFLASH_SendByte(port, SectorAddr & 0xFF);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_WaitForWriteEnd(port);
+    mSpiFlash_WriteEnable(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_SE);
+    mSpiFlash_SendByte(port, (SectorAddr & 0xFF0000) >> 16);
+    mSpiFlash_SendByte(port, (SectorAddr & 0xFF00) >> 8);
+    mSpiFlash_SendByte(port, SectorAddr & 0xFF);
+    mSpiFlash_CS_HIGH(port);
 }
 
-void sFLASH_EraseBulk(SPIPort *port)
+void mSpiFlash_EraseBulk(mSpi_t *port)
 {
-    sFLASH_WaitForWriteEnd(port);
-    sFLASH_WriteEnable(port);
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_BE);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_WaitForWriteEnd(port);
+    mSpiFlash_WriteEnable(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_BE);
+    mSpiFlash_CS_HIGH(port);
 }
 
-void sFLASH_ReadBuffer(SPIPort *port, uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
+void mSpiFlash_ReadBuffer(mSpi_t *port, uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 {
-    sFLASH_WaitForWriteEnd(port);
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_READ);
-    sFLASH_SendByte(port, (ReadAddr & 0xFF0000) >> 16);
-    sFLASH_SendByte(port, (ReadAddr& 0xFF00) >> 8);
-    sFLASH_SendByte(port, ReadAddr & 0xFF);
-    spiSwitchBuffer(port, pBuffer, NumByteToRead, MTRUE, sFLASH_SPI_TIMEOUT);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_WaitForWriteEnd(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_READ);
+    mSpiFlash_SendByte(port, (ReadAddr & 0xFF0000) >> 16);
+    mSpiFlash_SendByte(port, (ReadAddr& 0xFF00) >> 8);
+    mSpiFlash_SendByte(port, ReadAddr & 0xFF);
+    mSpiSwitchBuffer(port, pBuffer, NumByteToRead, MTRUE, mSpiFlash_SPI_TIMEOUT);
+    mSpiFlash_CS_HIGH(port);
 }
 
-void sFLASH_WritePage(SPIPort *port, uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
+void mSpiFlash_WritePage(mSpi_t *port, uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
-    sFLASH_WaitForWriteEnd(port);
-    sFLASH_WriteEnable(port);
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, sFLASH_CMD_WRITE);
-    sFLASH_SendByte(port, (WriteAddr & 0xFF0000) >> 16);
-    sFLASH_SendByte(port, (WriteAddr & 0xFF00) >> 8);
-    sFLASH_SendByte(port, WriteAddr & 0xFF);
-    spiSwitchBuffer(port, pBuffer, NumByteToWrite, MFALSE, sFLASH_SPI_TIMEOUT);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_WaitForWriteEnd(port);
+    mSpiFlash_WriteEnable(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, mSpiFlash_CMD_WRITE);
+    mSpiFlash_SendByte(port, (WriteAddr & 0xFF0000) >> 16);
+    mSpiFlash_SendByte(port, (WriteAddr & 0xFF00) >> 8);
+    mSpiFlash_SendByte(port, WriteAddr & 0xFF);
+    mSpiSwitchBuffer(port, pBuffer, NumByteToWrite, MFALSE, mSpiFlash_SPI_TIMEOUT);
+    mSpiFlash_CS_HIGH(port);
 }
 
-void sFLASH_WriteBuffer(SPIPort *port, uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
+void mSpiFlash_WriteBuffer(mSpi_t *port, uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
   uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
-  Addr = WriteAddr % sFLASH_SPI_PAGESIZE;
-  count = sFLASH_SPI_PAGESIZE - Addr;
-  NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGESIZE;
-  NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGESIZE;
+  Addr = WriteAddr % mSpiFlash_SPI_PAGESIZE;
+  count = mSpiFlash_SPI_PAGESIZE - Addr;
+  NumOfPage =  NumByteToWrite / mSpiFlash_SPI_PAGESIZE;
+  NumOfSingle = NumByteToWrite % mSpiFlash_SPI_PAGESIZE;
 
-  if (Addr == 0) /*!< WriteAddr is sFLASH_PAGESIZE aligned  */
+  if (Addr == 0) /*!< WriteAddr is mSpiFlash_PAGESIZE aligned  */
   {
-    if (NumOfPage == 0) /*!< NumByteToWrite < sFLASH_PAGESIZE */
+    if (NumOfPage == 0) /*!< NumByteToWrite < mSpiFlash_PAGESIZE */
     {
-      sFLASH_WritePage(port, pBuffer, WriteAddr, NumByteToWrite);
+      mSpiFlash_WritePage(port, pBuffer, WriteAddr, NumByteToWrite);
     }
-    else /*!< NumByteToWrite > sFLASH_PAGESIZE */
+    else /*!< NumByteToWrite > mSpiFlash_PAGESIZE */
     {
       while (NumOfPage--)
       {
-        sFLASH_WritePage(port, pBuffer, WriteAddr, sFLASH_SPI_PAGESIZE);
-        WriteAddr +=  sFLASH_SPI_PAGESIZE;
-        pBuffer += sFLASH_SPI_PAGESIZE;
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, mSpiFlash_SPI_PAGESIZE);
+        WriteAddr +=  mSpiFlash_SPI_PAGESIZE;
+        pBuffer += mSpiFlash_SPI_PAGESIZE;
       }
 
-      sFLASH_WritePage(port, pBuffer, WriteAddr, NumOfSingle);
+      mSpiFlash_WritePage(port, pBuffer, WriteAddr, NumOfSingle);
     }
   }
-  else /*!< WriteAddr is not sFLASH_PAGESIZE aligned  */
+  else /*!< WriteAddr is not mSpiFlash_PAGESIZE aligned  */
   {
-    if (NumOfPage == 0) /*!< NumByteToWrite < sFLASH_PAGESIZE */
+    if (NumOfPage == 0) /*!< NumByteToWrite < mSpiFlash_PAGESIZE */
     {
-      if (NumOfSingle > count) /*!< (NumByteToWrite + WriteAddr) > sFLASH_PAGESIZE */
+      if (NumOfSingle > count) /*!< (NumByteToWrite + WriteAddr) > mSpiFlash_PAGESIZE */
       {
         temp = NumOfSingle - count;
 
-        sFLASH_WritePage(port, pBuffer, WriteAddr, count);
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, count);
         WriteAddr +=  count;
         pBuffer += count;
 
-        sFLASH_WritePage(port, pBuffer, WriteAddr, temp);
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, temp);
       }
       else
       {
-        sFLASH_WritePage(port, pBuffer, WriteAddr, NumByteToWrite);
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, NumByteToWrite);
       }
     }
-    else /*!< NumByteToWrite > sFLASH_PAGESIZE */
+    else /*!< NumByteToWrite > mSpiFlash_PAGESIZE */
     {
       NumByteToWrite -= count;
-      NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGESIZE;
-      NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGESIZE;
+      NumOfPage =  NumByteToWrite / mSpiFlash_SPI_PAGESIZE;
+      NumOfSingle = NumByteToWrite % mSpiFlash_SPI_PAGESIZE;
 
-      sFLASH_WritePage(port, pBuffer, WriteAddr, count);
+      mSpiFlash_WritePage(port, pBuffer, WriteAddr, count);
       WriteAddr +=  count;
       pBuffer += count;
 
       while (NumOfPage--)
       {
-        sFLASH_WritePage(port, pBuffer, WriteAddr, sFLASH_SPI_PAGESIZE);
-        WriteAddr +=  sFLASH_SPI_PAGESIZE;
-        pBuffer += sFLASH_SPI_PAGESIZE;
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, mSpiFlash_SPI_PAGESIZE);
+        WriteAddr +=  mSpiFlash_SPI_PAGESIZE;
+        pBuffer += mSpiFlash_SPI_PAGESIZE;
       }
 
       if (NumOfSingle != 0)
       {
-        sFLASH_WritePage(port, pBuffer, WriteAddr, NumOfSingle);
+        mSpiFlash_WritePage(port, pBuffer, WriteAddr, NumOfSingle);
       }
     }
   }
 }
 
-uint32_t sFLASH_ReadID(SPIPort *port)
+uint32_t mSpiFlash_ReadID(mSpi_t *port)
 {
     uint32_t Temp = 0, Temp0 = 0, Temp1 = 0, Temp2 = 0;
-    sFLASH_CS_LOW(port);
-    sFLASH_SendByte(port, 0x9F);
-    Temp0 = sFLASH_SendByte(port, sFLASH_DUMMY_BYTE);
-    Temp1 = sFLASH_SendByte(port, sFLASH_DUMMY_BYTE);
-    Temp2 = sFLASH_SendByte(port, sFLASH_DUMMY_BYTE);
-    sFLASH_CS_HIGH(port);
+    mSpiFlash_CS_LOW(port);
+    mSpiFlash_SendByte(port, 0x9F);
+    Temp0 = mSpiFlash_SendByte(port, mSpiFlash_DUMMY_BYTE);
+    Temp1 = mSpiFlash_SendByte(port, mSpiFlash_DUMMY_BYTE);
+    Temp2 = mSpiFlash_SendByte(port, mSpiFlash_DUMMY_BYTE);
+    mSpiFlash_CS_HIGH(port);
     Temp = (Temp0 << 16) | (Temp1 << 8) | Temp2;
     return Temp;
 }

@@ -109,7 +109,7 @@ void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
  *****************************************************/
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
-MadBool uIP_preinit(mETH_t *eth)
+MadBool uIP_preinit(mEth_t *eth)
 {
     MadUint i;
     uIP_app_list = 0;
@@ -149,16 +149,16 @@ MadBool uIP_preinit(mETH_t *eth)
     return MTRUE;
 }
 
-MadBool uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt)
+MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
 {
     clocker_dt(&uIP_Clocker, dt);
     
-    if(event & EPE_STATUS_CHANGED) {
+    if(event & mEth_PE_STATUS_CHANGED) {
         if(eth->isLinked) uIP_linked_on();
         else              uIP_linked_off();
     }
     
-    if(event & EPE_STATUS_RXPKT) {
+    if(event & mEth_PE_STATUS_RXPKT) {
         while(uIP_dev_rxsize() /*ETH_GetRxPktSize()*/) {
             uIP_dev_read(eth);
             if(uip_len > 0) {

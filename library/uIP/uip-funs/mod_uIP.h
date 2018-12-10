@@ -22,8 +22,8 @@ typedef enum {
 extern clocker uIP_Clocker;
 
 extern MadBool  uIP_Init(void); // The module using uIP should be initialized after uIP_Init().
-extern void     uIP_dev_send  (mETH_t *eth);
-extern void     uIP_dev_read  (mETH_t *eth);
+extern void     uIP_dev_send  (mEth_t *eth);
+extern void     uIP_dev_read  (mEth_t *eth);
 extern uint32_t uIP_dev_rxsize(void);
 
 extern void     uIP_AppRegister(uIP_App *app);                            // Do NOT modify an uIP_App has already registered.
@@ -31,7 +31,7 @@ extern void     uIP_AppUnregister(uIP_App *app);                          // Wan
 extern void     uIP_SetTcpConn(uIP_TcpConn *conn, uIP_Callback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
 extern void     uIP_SetUdpConn(uIP_UdpConn *conn, uIP_Callback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
 
-extern MadBool  uIP_preinit(mETH_t *eth);
-extern MadBool  uIP_handler(mETH_t *eth, MadUint event, MadTim_t dt);
+extern MadBool  uIP_preinit(mEth_t *eth);
+extern MadBool  uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt);
 
 #endif

@@ -14,9 +14,9 @@
 #define RX_BUFF_UNLOCK()  madExitCritical(cpsr); } while(0)
 #endif
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to);
+static MadU8 dev_send(mUsartChar_t *port, MadU32 addr, MadU16 len, MadTim_t to);
 
-MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
+MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
 {
     MadU8             usart_irqn;
     USART_InitTypeDef USART_InitStructure;
@@ -121,12 +121,12 @@ MadBool UsartChar_Init(UsartChar *port, UsartCharInitData *initData)
     return MTRUE;
 }
 
-MadBool UsartChar_DeInit(UsartChar *port)
+MadBool mUsartChar_DeInit(mUsartChar_t *port)
 {
     return MTRUE;
 }
 
-void UsartChar_Irq_Handler(UsartChar *port)
+inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
 #if URT_RX_STM_LOCK
     volatile MadU32 data;
@@ -171,7 +171,7 @@ void UsartChar_Irq_Handler(UsartChar *port)
 #endif
 }
 
-static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to)
+static MadU8 dev_send(mUsartChar_t *port, MadU32 addr, MadU16 len, MadTim_t to)
 {
     port->txDma->CMAR = addr;
     port->txDma->CNDTR = len;
@@ -179,7 +179,7 @@ static MadU8 dev_send(UsartChar *port, MadU32 addr, MadU16 len, MadTim_t to)
     return madSemWait(&port->txLocker, to);
 }
 
-int UsartChar_Write(UsartChar *port, const char *dat, size_t len, MadTim_t to)
+int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len, MadTim_t to)
 {
     MadU8 res = MAD_ERR_OK;
     if(len > 0) {
@@ -192,7 +192,7 @@ int UsartChar_Write(UsartChar *port, const char *dat, size_t len, MadTim_t to)
     } 
 }
 
-int UsartChar_Read(UsartChar *port, char *dat, size_t len)
+int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len)
 {
     MadSize_t i, c, n;
     RX_BUFF_LOCK();
@@ -212,12 +212,12 @@ int UsartChar_Read(UsartChar *port, char *dat, size_t len)
     return n;
 }
 
-inline void UsartChar_ClearRecv(UsartChar *port) {
+inline void mUsartChar_ClearRecv(mUsartChar_t *port) {
     RX_BUFF_LOCK();
     FIFO_U8_Clear(port->rxBuff);
     RX_BUFF_UNLOCK();
 }
 
-inline int UsartChar_WaitRecv(UsartChar *port, MadTim_t to) {
+inline int mUsartChar_WaitRecv(mUsartChar_t *port, MadTim_t to) {
     return madSemWait(&port->rxLocker, to);
 }

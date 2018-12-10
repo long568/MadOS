@@ -2,11 +2,11 @@
 #include "usart_char.h"
 #include "ModRfidCfg.h"
 
-static UsartChar dev;
+static mUsartChar_t dev;
 
-static void DevRfid_Irq_Handler(void) { UsartChar_Irq_Handler(&dev); }
+static void DevRfid_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
-static const UsartCharInitData initData = {
+static const mUsartChar_InitData_t initData = {
     USART1,
     DMA1_Channel4,
     DMA1_Channel5,

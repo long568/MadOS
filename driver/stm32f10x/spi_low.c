@@ -1,34 +1,34 @@
 #include "spi_low.h"
 
-static MadBool initPort(SPIPort *port, SPIPortInitData *initData);
-static MadBool initDev (SPIPort *port, SPIPortInitData *initData);
+static MadBool initPort(mSpi_t *port, mSpi_InitData_t *initData);
+static MadBool initDev (mSpi_t *port, mSpi_InitData_t *initData);
 
-void SpiLow_SPI_IRQHandler(SPIPort *port) {
+inline void mSpiLow_SPI_IRQHandler(mSpi_t *port) {
     if(RESET != SPI_I2S_GetITStatus(port->spi, SPI_I2S_IT_RXNE)) {
-        port->data = SPI_READ(port);
+        port->data = mSpi_READ(port);
         madSemRelease(&port->spiLock);
-        SPI_SINGLE_RX_ISR_DISABLE(port);
+        mSpi_RX_ISR_DISABLE(port);
         SPI_I2S_ClearITPendingBit(port->spi, SPI_I2S_IT_RXNE);
     }
 }
 
-void SpiLow_DMA_IRQHandler(SPIPort *port) {
+inline void mSpiLow_DMA_IRQHandler(mSpi_t *port) {
     if(RESET != DMA_GetITStatus(port->dmaPendingBit)) {
         port->dmaError = MAD_ERR_OK;
         madSemRelease(&port->dmaLock);
-        SPI_DMA_RX_ISR_DISABLE(port);
+        mSpi_DMA_RX_ISR_DISABLE(port);
         DMA_ClearITPendingBit(port->dmaPendingBit);
     }
 }
 
-MadBool spiInit(SPIPort *port, SPIPortInitData *initData)
+MadBool mSpiInit(mSpi_t *port, mSpi_InitData_t *initData)
 {
     if(!initPort(port, initData)) return MFALSE;
     if(!initDev (port, initData)) return MFALSE;
     return MTRUE;
 }
 
-MadBool initPort(SPIPort *port, SPIPortInitData *initData)
+MadBool initPort(mSpi_t *port, mSpi_InitData_t *initData)
 {
     port->spiLock = madSemCreateCarefully(0, 1);
     port->dmaLock = madSemCreateCarefully(0, 1);
@@ -45,12 +45,12 @@ MadBool initPort(SPIPort *port, SPIPortInitData *initData)
     port->dmaTx    = initData->dmaTx;
     port->retry    = initData->retry;
     port->dmaError = MAD_ERR_OK;
-    port->data     = SPI_INVALID_DATA;
+    port->data     = mSpi_INVALID_DATA;
     
     return MTRUE;
 }
 
-MadBool initDev(SPIPort *port, SPIPortInitData *initData)
+MadBool initDev(mSpi_t *port, mSpi_InitData_t *initData)
 {
     MadU8 spi_irqn, dma_irqn;
     DMA_InitTypeDef dma;
@@ -60,12 +60,12 @@ MadBool initDev(SPIPort *port, SPIPortInitData *initData)
     uint32_t dma_p_data_width, dma_m_data_width;
     
     switch (initData->dataWidth) {
-        case SPI_DW_8Bit:
+        case mSpi_DW_8Bit:
             spi_data_width   = SPI_DataSize_8b;
             dma_p_data_width = DMA_PeripheralDataSize_Byte;
             dma_m_data_width = DMA_MemoryDataSize_Byte;
             break;
-        case SPI_DW_16Bit:
+        case mSpi_DW_16Bit:
             spi_data_width   = SPI_DataSize_16b;
             dma_p_data_width = DMA_PeripheralDataSize_HalfWord;
             dma_m_data_width = DMA_MemoryDataSize_HalfWord;
@@ -105,7 +105,7 @@ MadBool initDev(SPIPort *port, SPIPortInitData *initData)
     StmPIN_DefInitAPP(&initData->io.sck);
     StmPIN_DefInitAPP(&initData->io.mosi);
     StmPIN_DefInitIFL(&initData->io.miso);
-    SPI_NSS_DISABLE(port);
+    mSpi_NSS_DISABLE(port);
 
     DMA_DeInit(initData->dmaRx);
     DMA_DeInit(initData->dmaTx);
@@ -152,9 +152,9 @@ MadBool initDev(SPIPort *port, SPIPortInitData *initData)
     return MTRUE;
 }
 
-MadBool spiDeInit(SPIPort *port)
+MadBool mSpiDeInit(mSpi_t *port)
 {
-    SPI_NSS_DISABLE(port);
+    mSpi_NSS_DISABLE(port);
     madSemDelete(&port->spiLock);
     madSemDelete(&port->dmaLock);
     SPI_I2S_DeInit(port->spi);
@@ -163,14 +163,14 @@ MadBool spiDeInit(SPIPort *port)
     return MTRUE;
 }
 
-MadBool spiTry2Send8Bit(SPIPort* port, MadU8 send, MadU8 *read, MadUint retry)
+MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read, MadUint retry)
 {
     MadCpsr_t cpsr;
     MadU8     res;
     while(retry--) {
-        if(MTRUE == SPI_IS_TXBUFFER_EMPTY(port)) {
-            SPI_SEND(port, send);
-            SPI_SINGLE_RX_ISR_ENABLE(port);
+        if(MTRUE == mSpi_IS_TXBUFFER_EMPTY(port)) {
+            mSpi_SEND(port, send);
+            mSpi_RX_ISR_ENABLE(port);
             retry++;
             res = madSemWait(&port->spiLock, retry);
             if(MAD_ERR_OK == res){
@@ -187,20 +187,20 @@ MadBool spiTry2Send8Bit(SPIPort* port, MadU8 send, MadU8 *read, MadUint retry)
     return MFALSE;
 }
 
-MadBool spiSwitchBuffer(SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to)
+MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to)
 {
     MadU8 res;
     MadU8 dma_err;
-    MadU8 invalid = SPI_INVALID_DATA;
+    MadU8 invalid = mSpi_INVALID_DATA;
 
 #if 0    
    if(5 > len) {
        MadUint i;
        for(i=0; i<len; i++) {
            if(MTRUE == is_read) {
-               MAD_TRY(spiRead8Bit(port, buffer + i));
+               MAD_TRY(mSpiRead8Bit(port, buffer + i));
            } else {
-               MAD_TRY(spiSend8Bit(port, *(buffer + i)));
+               MAD_TRY(mSpiSend8Bit(port, *(buffer + i)));
            }
        }
        return MTRUE;
@@ -222,10 +222,10 @@ MadBool spiSwitchBuffer(SPIPort* port, MadU8 *buffer, MadUint len, MadBool is_re
     }
     
     port->dmaError = MAD_ERR_UNDEFINE;
-    DMA_ITConfig(port->dmaRx, DMA_IT_TC, ENABLE);
-    SPI_DMA_ENABLE(port);
+    mSpi_DMA_RX_ISR_ENABLE(port);
+    mSpi_DMA_ENABLE(port);
     res = madSemWait(&port->dmaLock, to);
-    SPI_DMA_DISABLE(port);
+    mSpi_DMA_DISABLE(port);
     dma_err = port->dmaError;
     
     if((MAD_ERR_OK == res) && (MAD_ERR_OK == dma_err)) {
