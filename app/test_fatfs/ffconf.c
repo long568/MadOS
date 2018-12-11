@@ -13,7 +13,7 @@
 
 /* Definitions of physical drive number for each drive */
 #define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
+#define DEV_SDC		1	/* Example: Map MMC/SD card to physical drive 1 */
 #define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
 static mSpiSd_t sd0;
@@ -27,8 +27,25 @@ DSTATUS disk_status (
 )
 {
 	DRESULT res;
-	(void)pdrv;
-	res = mSpiSd_status(&sd0);
+
+	switch (pdrv) {
+		case DEV_RAM:
+			res = STA_NODISK;
+			break;
+
+		case DEV_SDC:
+			res = mSpiSd_status(&sd0);
+			break;
+
+		case DEV_USB:
+			res = STA_NODISK;
+			break;
+
+		default:
+			res = STA_NODISK;
+			break;
+	}
+
 	return res;
 }
 
@@ -43,8 +60,25 @@ DSTATUS disk_initialize (
 )
 {
 	DRESULT res;
-	(void)pdrv;
-	res = mSpiSd_initialize(&sd0);
+	
+	switch (pdrv) {
+		case DEV_RAM:
+			res = STA_NODISK;
+			break;
+
+		case DEV_SDC:
+			res = mSpiSd_initialize(&sd0);
+			break;
+
+		case DEV_USB:
+			res = STA_NODISK;
+			break;
+
+		default:
+			res = STA_NODISK;
+			break;
+	}
+
 	return res;
 }
 
@@ -62,8 +96,25 @@ DRESULT disk_read (
 )
 {
 	DRESULT res;
-	(void)pdrv;
-	res = mSpiSd_read(&sd0, buff, sector, count);
+	
+	switch (pdrv) {
+		case DEV_RAM:
+			res = STA_NODISK;
+			break;
+
+		case DEV_SDC:
+			res = mSpiSd_read(&sd0, buff, sector, count);
+			break;
+
+		case DEV_USB:
+			res = STA_NODISK;
+			break;
+
+		default:
+			res = STA_NODISK;
+			break;
+	}
+
 	return res;
 }
 
@@ -83,8 +134,25 @@ DRESULT disk_write (
 )
 {
 	DRESULT res;
-	(void)pdrv;
-	res = mSpiSd_write(&sd0, buff, sector, count);
+	
+	switch (pdrv) {
+		case DEV_RAM:
+			res = STA_NODISK;
+			break;
+
+		case DEV_SDC:
+			res = mSpiSd_write(&sd0, buff, sector, count);
+			break;
+
+		case DEV_USB:
+			res = STA_NODISK;
+			break;
+
+		default:
+			res = STA_NODISK;
+			break;
+	}
+
 	return res;
 }
 
@@ -102,7 +170,24 @@ DRESULT disk_ioctl (
 )
 {
 	DRESULT res;
-	(void)pdrv;
-	res = mSpiSd_ioctl(&sd0, cmd, buff);
+	
+	switch (pdrv) {
+		case DEV_RAM:
+			res = STA_NODISK;
+			break;
+
+		case DEV_SDC:
+			res = mSpiSd_ioctl(&sd0, cmd, buff);
+			break;
+
+		case DEV_USB:
+			res = STA_NODISK;
+			break;
+
+		default:
+			res = STA_NODISK;
+			break;
+	}
+
 	return res;
 }
