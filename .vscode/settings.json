@@ -40,7 +40,8 @@
         "maddrvlora_intol6_at.h": "c",
         "time.h": "c",
         "_timespec.h": "c",
-        "diskio.h": "c"
+        "diskio.h": "c",
+        "stm32f10x_sdio.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
