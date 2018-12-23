@@ -4,7 +4,6 @@
 # export APP        = lesson002
 # export APP        = LoArm
 export APP        = LoIoT
-# export APP        = LoRaNode
 export TOOLCHAIN  = arm-none-eabi
 export BUILD_VER  = debug
 
