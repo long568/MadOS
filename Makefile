@@ -1,8 +1,9 @@
 # export APP        = test_kernel
 # export APP        = test_uip
-export APP        = test_fatfs
+# export APP        = test_fatfs
 # export APP        = lesson002
 # export APP        = LoArm
+export APP        = LoIoT
 # export APP        = LoRaNode
 export TOOLCHAIN  = arm-none-eabi
 export BUILD_VER  = debug
@@ -56,7 +57,8 @@ CXFLAGS = -g3
 else
 CXFLAGS =
 endif
-CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 -Wall \
+CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 \
+		   -Wall -Wshadow -Wpointer-arith \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 	       -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS)

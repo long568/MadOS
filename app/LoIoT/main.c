@@ -1,8 +1,7 @@
 #include "MadOS.h"
 #include "Stm32Tools.h"
 #include "CfgUser.h"
-#include "ModRfid.h"
-#include "ModLora.h"
+#include "ModLora_IntoL6.h"
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
 
@@ -71,7 +70,6 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    ModRfid_Init();
     ModLora_Init();
     
     madThreadCreate(madSysRunning, 0, 128, THREAD_PRIO_SYS_RUNNING);

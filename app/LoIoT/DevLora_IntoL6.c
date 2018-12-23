@@ -1,7 +1,7 @@
-#include "MadDev.h"
+#include "CfgUser.h"
 #include "usart_char.h"
-#include "ModLoraCfg.h"
-#include "Stm32Tools.h"
+#include "MadDev.h"
+#include "MadDrvLora_IntoL6_AT.h"
 
 static mUsartChar_t dev;
 static StmPIN       rst_pin = { GPIOC, GPIO_Pin_12 };

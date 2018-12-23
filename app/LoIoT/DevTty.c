@@ -1,9 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include "CfgUser.h"
 #include "MadDev.h"
 #include "usart_char.h"
 #include "Stm32Tools.h"
-#include "CfgUser.h"
 
 static MadSemCB_t   *tty_tx_locker;
 static mUsartChar_t dev;

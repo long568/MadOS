@@ -7,3 +7,8 @@ ifeq ($(LIB_FATFS), yes)
 export LIBS += -lfatfs
 export INCS += -I$(ROOT)/library/FatFs
 endif
+
+ifeq ($(LIB_CJSON), yes)
+export LIBS += -lcjson
+export INCS += -I$(ROOT)/library/cJSON
+endif

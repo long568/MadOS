@@ -18,7 +18,8 @@
                 "${workspaceFolder}/library/uIP/uip",
                 "${workspaceFolder}/library/uIP/uip-funs",
                 "${workspaceFolder}/library/FatFs",
-                "${workspaceFolder}/app/test_fatfs"
+                "${workspaceFolder}/library/cJSON",
+                "${workspaceFolder}/app/LoIoT"
             ],
             "defines": [
                 "MALLOC_PROVIDED",

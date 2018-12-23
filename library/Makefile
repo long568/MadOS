@@ -7,3 +7,6 @@ endif
 ifeq ($(LIB_FATFS), yes)
 	$(MAKE) -C $(ROOT)/library/FatFs
 endif
+ifeq ($(LIB_CJSON), yes)
+	$(MAKE) -C $(ROOT)/library/cJSON
+endif

@@ -124,6 +124,12 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
 
 MadBool mUsartChar_DeInit(mUsartChar_t *port)
 {
+    DMA_DeInit(port->txDma);
+    DMA_DeInit(port->rxDma);
+    USART_DeInit(port->p);
+    madSemDelete(&port->txLocker);
+    madSemDelete(&port->rxLocker);
+    FIFO_U8_Delete(port->rxBuff);
     return MTRUE;
 }
 
