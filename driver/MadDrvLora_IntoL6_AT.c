@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "MadDev.h"
 #include "usart_char.h"
 #include "Stm32Tools.h"
@@ -24,6 +25,7 @@
 #define LORA_AT_OTAA_FMT   "AT+MACOTAAPARAMS=\"%s\",\"%s\",\"%s\"\r\n"
 #define LORA_AT_OTAA_FMT2  "AT+MACOTAAPARAMS=\"%02X%02X%02X%02X%02X%02X%02X%02X\",\"%s\",\"%s\"\r\n"
 #define LORA_AT_SEND_FMT   "AT+SENDMACDATA=0,1,10,%d\r\n"
+#define LORA_AT_READ_FMT   "+RECMACDATA,%d,%d:"
 #define LORA_ACK_REC_INDEX (sizeof(LORA_ACK_REC) - 1)
 
 enum {
@@ -37,9 +39,6 @@ static const char LORA_ATE0[]      = "ATE0\r\n";
 static const char LORA_AT_DEV[]    = "AT+DEVICE=\"568568568\",\"V1.0.0\",\"V1.0.0\"\r\n";
 static const char LORA_AT_SETPRO[] = "AT+SETPROTOCOL=0\r\n";
 static       char *LORA_AT_OTAA;
-// static const char LORA_AT_FREQ0[]  = "AT+MACCHFREQ=0,433175000\r\n";
-// static const char LORA_AT_FREQ1[]  = "AT+MACCHFREQ=1,433375000\r\n";
-// static const char LORA_AT_FREQ2[]  = "AT+MACCHFREQ=2,433575000\r\n";
 static const char LORA_AT_FREQ3[]  = "AT+MACCHFREQ=3,433775000\r\n";
 static const char LORA_AT_FREQ4[]  = "AT+MACCHFREQ=4,433975000\r\n";
 static const char LORA_AT_FREQ5[]  = "AT+MACCHFREQ=5,434175000\r\n";
@@ -53,9 +52,6 @@ static const char LORA_AT_SPD4[]   = "AT+MACCHDRRANGE=4,5,5\r\n";
 static const char LORA_AT_SPD5[]   = "AT+MACCHDRRANGE=5,5,5\r\n";
 static const char LORA_AT_SPD6[]   = "AT+MACCHDRRANGE=6,5,5\r\n";
 static const char LORA_AT_SPD7[]   = "AT+MACCHDRRANGE=7,5,5\r\n";
-// static const char LORA_AT_CHEN0[]  = "AT+MACCH=0,1\r\n";
-// static const char LORA_AT_CHEN1[]  = "AT+MACCH=1,1\r\n";
-// static const char LORA_AT_CHEN2[]  = "AT+MACCH=2,1\r\n";
 static const char LORA_AT_CHEN3[]  = "AT+MACCH=3,1\r\n";
 static const char LORA_AT_CHEN4[]  = "AT+MACCH=4,1\r\n";
 static const char LORA_AT_CHEN5[]  = "AT+MACCH=5,1\r\n";
@@ -68,6 +64,7 @@ static const char LORA_AT_JOIN[]   = "AT+MACJOIN=3,6\r\n";
 static const char LORA_ACK_OK[]      = "OK";
 static const char LORA_ACK_ERR[]     = "ERROR";
 static const char LORA_ACK_REC[]     = "+RECMACEVT:";
+static const char LORA_ACK_READ[]    = "+RECMACDATA,";
 static const char LORA_ACK_PRESEND[] = "> ";
 
 static const char * const LORA_AT_INIT[] = {
@@ -97,22 +94,8 @@ static const char * const LORA_AT_INIT[] = {
     LORA_AT_ADR
 };
 
-#if 1
-static StmPIN  lora_led;
-#define lora_led_init() do{ lora_led.port = LORA_FLAG_PORT; \
-                            lora_led.pin  = LORA_FLAG_PIN;  \
-                            StmPIN_DefInitOPP(&lora_led); }while(0)
-#define lora_led_on()   StmPIN_SetLow(&lora_led)
-#define lora_led_off()  StmPIN_SetHigh(&lora_led)
-#else
-#define lora_led_init()
-#define lora_led_on()
-#define lora_led_off() 
-#endif
-
 static inline int  low_write         (int fd, const void *buf, size_t len);
 static inline int  low_read          (int fd, void *buf, size_t len);
-static inline void lora_clear_rx_buff(void *buff);
 static inline void lora_random_dly   (void);
 static inline void lora_reset        (StmPIN *pin);
 static inline int  lora_go_ok        (const char *buff);
@@ -121,7 +104,8 @@ static inline int  lora_go_recmacevt (const char *buff, char evn);
 static        int  lora_go           (int fd, const char *buf, size_t len, int act);
 static        int  lora_init         (int fd);
 static inline int  lora_join         (int fd);
-static inline int  lora_send         (int fd, const char *buf, int len);
+static inline int  lora_send         (int fd, const char *buf, size_t len);
+static        int  lora_read         (int fd, char *buf, size_t *len);
 
 static inline int low_write(int fd, const void *buf, size_t len)
 {
@@ -139,10 +123,6 @@ static inline int low_read(int fd, void *buf, size_t len)
         return -1;
     }
     return mUsartChar_Read(urt, dat, len);
-}
-
-static inline void lora_clear_rx_buff(void *buff) {
-    memset(buff, 0, LORA_RX_BUFF_SIZE);
 }
 
 static inline void lora_random_dly(void) { // Retry in 2~10s
@@ -197,16 +177,16 @@ static int lora_go(int fd, const char *buf, size_t len, int act)
 {
     int  n;
     int  res;
-    char *ptr;
     char *rx_buf;
     MadDev_t *dev = DevsList[fd];
-    rx_buf = (char*)(dev->rxBuff);
-    ptr    = rx_buf;
+
     res    = -1;
-    lora_clear_rx_buff(rx_buf);
+    rx_buf = (char*)(dev->rxBuff);
+
     if(low_write(fd, buf, len) > 0) {
         do {
-            n = low_read(fd, ptr, 0);
+            n = low_read(fd, rx_buf, 0);
+            rx_buf[n] = 0;
             if(n > 0) {
                 switch(act) {
                     case LORA_GO_OK:      res = lora_go_ok(rx_buf);             break;
@@ -215,9 +195,7 @@ static int lora_go(int fd, const char *buf, size_t len, int act)
                     case LORA_GO_SEND:    res = lora_go_recmacevt(rx_buf, '3'); break;
                     default:              res = -1;                             break;
                 }
-                if(res == 0) {
-                    ptr += n;
-                } else {
+                if(res != 0) {
                     break;
                 }
             } else {
@@ -225,9 +203,8 @@ static int lora_go(int fd, const char *buf, size_t len, int act)
             }
         } while(1);
     }
-    lora_led_off();
+
     madTimeDly(LORA_OPT_DLY);
-    lora_led_on();
     return res;
 }
 
@@ -240,9 +217,6 @@ static int lora_init(int fd)
     MadDev_t *dev = DevsList[fd];
     StmPIN *rst_pin = (StmPIN*)(dev->ptr);
     MadU8 *chipId = madChipId();
-
-    lora_led_init();
-    lora_led_on();
 
     LORA_AT_OTAA = (char*)malloc(AT_OTAA_LEN);
     if(0 == LORA_AT_OTAA) return -1;
@@ -288,7 +262,7 @@ static inline int lora_join(int fd)
     return res;
 }
 
-static inline int lora_send(int fd, const char *buf, int len)
+static inline int lora_send(int fd, const char *buf, size_t len)
 {
     char cmd[32];
     int  res = -1;
@@ -298,6 +272,39 @@ static inline int lora_send(int fd, const char *buf, int len)
             res = lora_go(fd, buf, len, LORA_GO_SEND);
         }
     }
+    return res;
+}
+
+static int lora_read(int fd, char *buf, size_t *len)
+{
+    int  n;
+    int  res;
+    char *rx_buf;
+    MadDev_t *dev = DevsList[fd];
+
+    res    = -1;
+    rx_buf = (char*)(dev->rxBuff);
+
+    do {
+        n = low_read(fd, rx_buf, 0);
+        rx_buf[n] = 0;
+        if(n > 0) {
+            char *tmp = strstr(rx_buf, LORA_ACK_READ);
+            if(tmp != 0) {
+                int rssi;
+                if(2 == sscanf(tmp, LORA_AT_READ_FMT, &rssi, len)) {
+                    char *ptr = strchr(tmp, ':');
+                    memcpy(buf, ptr, *len);
+                    res = 1;
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    } while(1);
+
+    madTimeDly(LORA_OPT_DLY);
     return res;
 }
 
@@ -333,7 +340,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     if(MTRUE == mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
         if(0 > lora_init(fd)) {
             mUsartChar_DeInit((mUsartChar_t*)(dev->dev));
-            return -1; 
+            return -1;
         }
         return 1;
     } else {
@@ -365,12 +372,20 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
 
 static int Drv_write(int fd, const void *buf, size_t len)
 {
-    return lora_send(fd, buf, len);
+    if(0 < lora_send(fd, buf, len)) {
+        return len;
+    } else {
+        return -1;
+    }
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
 {
-    return -1;
+    if(0 < lora_read(fd, buf, &len)) {
+        return len;
+    } else {
+        return -1;
+    }
 }
 
 static int Drv_close(int fd)
