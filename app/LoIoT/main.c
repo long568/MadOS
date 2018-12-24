@@ -1,6 +1,6 @@
+#include "CfgUser.h"
 #include "MadOS.h"
 #include "Stm32Tools.h"
-#include "CfgUser.h"
 #include "ModLora_IntoL6.h"
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
@@ -40,6 +40,7 @@ int main()
 
 static void madStartup(MadVptr exData)
 {
+    MadU8 *chipId;
 	(void)exData;
     
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
@@ -50,13 +51,17 @@ static void madStartup(MadVptr exData)
 /********************************************
  * Core-Modules
  ********************************************/
+    chipId = madChipId();
     MAD_LOG_INIT();
     MAD_LOG("   \n");
     MAD_LOG("   \n");
     MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
-    MAD_LOG("* MCU     : STM32F107VCT6\n");
-    MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
-    MAD_LOG("* FileSys : TF     + Fatfs(v0.13b)\n");
+    MAD_LOG("* Chip Model: STM32F107VCT6\n");
+    MAD_LOG("* Chip ID   : %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
+            chipId[0], chipId[1], chipId[2], chipId[3], chipId[4],  chipId[5],
+            chipId[6], chipId[7], chipId[8], chipId[9], chipId[10], chipId[11]);
+    MAD_LOG("* Network   : IP101A + uIP(v1.0)\n");
+    MAD_LOG("* FileSys   : TF     + Fatfs(v0.13b)\n");
     MAD_LOG("* Platform dependent data types :\n");
     MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
     MAD_LOG("    short     -> %d Bytes\n", sizeof(short));

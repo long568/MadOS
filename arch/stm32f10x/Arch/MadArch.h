@@ -47,4 +47,6 @@ typedef MadU8              MadFlag_t;
 								   res = (MadU8)(t & 0x000000FF); }while(0)
 #endif
 
+extern MadU8* madChipId(void);
+
 #endif /*__MAD_ARCH_H__*/

@@ -37,7 +37,7 @@ static void lora_thread(MadVptr exData)
 	cJSON_AddFalseToObject (fmt,"interlace");
 	cJSON_AddNumberToObject(fmt,"frame rate",	24);
     out=cJSON_Print(root);
-    cJSON_Delete(root);	
+    cJSON_Delete(root);
     // free(out);
 
     lora_joined = MFALSE;

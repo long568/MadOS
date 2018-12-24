@@ -1,6 +1,9 @@
 #include "MadOS.h"
 #include "CfgUser.h"
 
+#define CHIP_ID_BASE 0x1FFFF7E8
+static MadU8 mad_chip_id[12];
+
 MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
 {
     MadStk_t *stk = (MadStk_t *)pStk;
@@ -33,4 +36,13 @@ void madInitSysTick(MadTim_t freq, MadTim_t ticks)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     NVIC_SetPriority (SysTick_IRQn, ISR_PRIO_SYSTICK);
     NVIC_SetPriority (PendSV_IRQn,  ISR_PRIO_PENDSV);
+}
+
+MadU8* madChipId(void)
+{
+    MadU32 *chipId = (MadU32*)mad_chip_id;
+    chipId[0] = *(__I uint32_t *)(CHIP_ID_BASE + 0x00);
+    chipId[1] = *(__I uint32_t *)(CHIP_ID_BASE + 0x04);
+    chipId[2] = *(__I uint32_t *)(CHIP_ID_BASE + 0x08);
+    return mad_chip_id;
 }
