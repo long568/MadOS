@@ -294,6 +294,7 @@ static int lora_read(int fd, char *buf, size_t *len)
                 int rssi;
                 if(2 == sscanf(tmp, LORA_AT_READ_FMT, &rssi, len)) {
                     char *ptr = strchr(tmp, ':');
+                    ptr++;
                     memcpy(buf, ptr, *len);
                     res = 1;
                     break;
