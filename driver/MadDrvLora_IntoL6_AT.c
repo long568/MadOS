@@ -24,7 +24,7 @@
 
 #define LORA_AT_OTAA_FMT   "AT+MACOTAAPARAMS=\"%s\",\"%s\",\"%s\"\r\n"
 #define LORA_AT_OTAA_FMT2  "AT+MACOTAAPARAMS=\"%02X%02X%02X%02X%02X%02X%02X%02X\",\"%s\",\"%s\"\r\n"
-#define LORA_AT_SEND_FMT   "AT+SENDMACDATA=0,1,10,%d\r\n"
+#define LORA_AT_SEND_FMT   "AT+SENDMACDATA=0,1,30,%d\r\n"
 #define LORA_AT_READ_FMT   "+RECMACDATA,%d,%d:"
 #define LORA_ACK_REC_INDEX (sizeof(LORA_ACK_REC) - 1)
 
@@ -37,6 +37,7 @@ enum {
 
 static const char LORA_ATE0[]      = "ATE0\r\n";
 static const char LORA_AT_DEV[]    = "AT+DEVICE=\"568568568\",\"V1.0.0\",\"V1.0.0\"\r\n";
+static const char LORA_AT_CLASS[]  = "AT+MACCLASS=2\r\n"; // 0-A, 1-B, 2-C
 static const char LORA_AT_SETPRO[] = "AT+SETPROTOCOL=0\r\n";
 static       char *LORA_AT_OTAA;
 static const char LORA_AT_FREQ3[]  = "AT+MACCHFREQ=3,433775000\r\n";
@@ -70,6 +71,7 @@ static const char LORA_ACK_PRESEND[] = "> ";
 static const char * const LORA_AT_INIT[] = {
     LORA_ATE0,
     LORA_AT_DEV,
+    LORA_AT_CLASS,
     LORA_AT_SETPRO,
     0, //LORA_AT_OTAA
     LORA_AT_FREQ3,
@@ -187,6 +189,7 @@ static int lora_go(int fd, const char *buf, size_t len, int act)
         do {
             n = low_read(fd, rx_buf, 0);
             rx_buf[n] = 0;
+            // MAD_LOG("%s\n", rx_buf);
             if(n > 0) {
                 switch(act) {
                     case LORA_GO_OK:      res = lora_go_ok(rx_buf);             break;
@@ -230,7 +233,7 @@ static int lora_init(int fd)
             if(i == 0) {
                 lora_reset(rst_pin);
             }
-            if(i == 3) {
+            if (0 == LORA_AT_INIT[i]) {
                 at_cmd = LORA_AT_OTAA;
             } else {
                 at_cmd = LORA_AT_INIT[i];
@@ -296,6 +299,7 @@ static int lora_read(int fd, char *buf, size_t *len)
                     char *ptr = strchr(tmp, ':');
                     ptr++;
                     memcpy(buf, ptr, *len);
+                    buf[*len] = 0;
                     res = 1;
                     break;
                 }
