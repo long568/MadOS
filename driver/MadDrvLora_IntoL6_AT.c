@@ -188,9 +188,9 @@ static int lora_go(int fd, const char *buf, size_t len, int act)
     if(low_write(fd, buf, len) > 0) {
         do {
             n = low_read(fd, rx_buf, 0);
-            rx_buf[n] = 0;
             // MAD_LOG("%s\n", rx_buf);
             if(n > 0) {
+                rx_buf[n] = 0;
                 switch(act) {
                     case LORA_GO_OK:      res = lora_go_ok(rx_buf);             break;
                     case LORA_GO_JOIN:    res = lora_go_recmacevt(rx_buf, '1'); break;
@@ -290,8 +290,8 @@ static int lora_read(int fd, char *buf, size_t *len)
 
     do {
         n = low_read(fd, rx_buf, 0);
-        rx_buf[n] = 0;
         if(n > 0) {
+            rx_buf[n] = 0;
             char *tmp = strstr(rx_buf, LORA_ACK_READ);
             if(tmp != 0) {
                 int rssi;

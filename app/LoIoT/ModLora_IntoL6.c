@@ -10,7 +10,7 @@
 
 #define LORA_TX_INTERVAL (1000 * 28)
 
-#if 0
+#if 1
 static StmPIN  lora_led;
 #define lora_led_init() do{ lora_led.port = LORA_FLAG_PORT; \
                             lora_led.pin  = LORA_FLAG_PIN;  \
@@ -32,6 +32,8 @@ static void lora_thread (MadVptr exData);
 MadBool ModLora_Init(void)
 {
     if(MNULL != madThreadCreate(lora_thread, 0, 2048, THREAD_PRIO_MOD_LORA)) {
+        lora_led_init();
+        lora_led_off();
         return MTRUE;
     }
     return MFALSE;
@@ -91,8 +93,11 @@ static void lora_thread(MadVptr exData)
             write(lora_fd, out, strlen(out));
             if(0 < read(lora_fd, buf, 0)) { // Wait for response
                 lora_print_rsp(buf);
+            } else {
+                lora_led_on();
             }
             madTimeDly(LORA_TX_INTERVAL);
+            lora_led_off();
         }
     }
 }
