@@ -82,12 +82,13 @@ static void lora_thread(MadVptr exData)
     lora_joined = MFALSE;
     while(1) {
         if(MFALSE == lora_joined) {
+            MAD_LOG("Opening lora device ... ");
             lora_fd = open("/dev/lora0", 0);
             if (lora_fd > 0) {
-                MAD_LOG("Open lora device ... OK\n");
+                MAD_LOG("Done\n");
                 lora_joined = MTRUE;
             } else {
-                MAD_LOG("Open lora device ... Failed\n");
+                MAD_LOG("Failed\n");
             }
         } else {
             write(lora_fd, out, strlen(out));
