@@ -62,8 +62,9 @@ CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 \
 	       -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS)
 export CPPFLAGS += $(CXFLAGS)
-export LDFLAGS  += $(LIBS) -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-				   --specs=nano.specs -Bstatic -Wl,--gc-sections \
+export LDFLAGS  += $(LIBS) \
+    			   -Bstatic -Wl,--gc-sections \
+				   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 
 all:
