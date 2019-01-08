@@ -4,6 +4,7 @@
 enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
     THREAD_PRIO_MOD_LORA,
+    THREAD_PRIO_MOD_O2,
     THREAD_PRIO_DRIVER_ETH
 };
 
@@ -15,6 +16,8 @@ enum {
     ISR_PRIO_TTY_USART,
     ISR_PRIO_PENDSV     = 15
 };
+
+#define USING_MSTD_CRCTABLE  1
 
 #define MAD_OS_STACK_SIZE    (52 * 1024)
 

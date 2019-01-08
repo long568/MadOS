@@ -1,5 +1,5 @@
-#ifndef __MOD_LORA_CFG__H__
-#define __MOD_LORA_CFG__H__
+#ifndef __MOD_LORA_INTOL6__H__
+#define __MOD_LORA_INTOL6__H__
 
 #include "MadOS.h"
 
