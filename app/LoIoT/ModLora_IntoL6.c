@@ -75,28 +75,28 @@ static char * lora_out(void)
     item = cJSON_CreateObject();
     cJSON_AddStringToObject(item, "title", "温度");
     cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit",  "℃");
+    cJSON_AddStringToObject(item, "unit", "℃");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", o2_data.hum / 100, o2_data.hum % 100);
     item = cJSON_CreateObject();
     cJSON_AddStringToObject(item, "title", "湿度");
     cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit",  "\%");
+    cJSON_AddStringToObject(item, "unit", "\%");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", o2_data.vol / 10, o2_data.vol % 10);
     item = cJSON_CreateObject();
     cJSON_AddStringToObject(item, "title", "噪音");
     cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit",  "dB");
+    cJSON_AddStringToObject(item, "unit", "dB");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", o2_data.o2 / 100, o2_data.o2 % 100);
     item = cJSON_CreateObject();
     cJSON_AddStringToObject(item, "title", "氧气");
     cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit",  "\%");
+    cJSON_AddStringToObject(item, "unit", "\%");
     cJSON_AddItemToArray(array, item);
 
     out=cJSON_PrintUnformatted(root);
@@ -113,7 +113,9 @@ static void lora_thread(MadVptr exData)
     lora_joined = MFALSE;
     while(1) {
         if(MFALSE == lora_joined) {
+            lora_led_on();
             lora_fd = open("/dev/lora0", 0);
+            lora_led_off();
             if (lora_fd > 0) {
                 MAD_LOG("Opening lora ... Done\n");
                 lora_joined = MTRUE;

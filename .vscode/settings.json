@@ -42,7 +42,8 @@
         "_timespec.h": "c",
         "diskio.h": "c",
         "stm32f10x_sdio.h": "c",
-        "spi_sd.h": "c"
+        "spi_sd.h": "c",
+        "maddrvo2.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "CfgUser.h"
-#include "Stm32Tools.h"
 #include "MadDrvO2.h"
 
 static int o2_fd;
@@ -11,7 +10,10 @@ static int o2_opened;
 static MadSemCB_t *o2_locker;
 static SensorO2_t o2_data = { 0, 0, 0, 0 };
 
-static void o2_thread (MadVptr exData);
+static void o2_log        (void);
+static void o2_zero_data  (void);
+static void o2_handle_data(SensorO2_t *data);
+static void o2_thread     (MadVptr exData);
 
 inline static void o2_lock(void)   { madSemWait(&o2_locker, 0); }
 inline static void o2_unlock(void) { madSemRelease(&o2_locker); }
@@ -37,6 +39,23 @@ void ModO2_GetData(SensorO2_t *data)
     o2_unlock();
 }
 
+static void o2_log(void)
+{
+    MAD_LOG("Sensor:%04X-%04X-%04X-%04X\n",
+        o2_data.tmp, o2_data.hum, o2_data.vol, o2_data.o2);
+}
+
+static void o2_zero_data(void)
+{
+    o2_lock();
+    o2_data.tmp = 0;
+    o2_data.hum = 0;
+    o2_data.vol = 0;
+    o2_data.o2  = 0;
+    o2_unlock();
+    o2_log();
+}
+
 static void o2_handle_data(SensorO2_t *data)
 {
     o2_lock();
@@ -52,8 +71,7 @@ static void o2_handle_data(SensorO2_t *data)
         o2_data.o2  = (o2_data.o2  + data->o2 ) / 2;
     }
     o2_unlock();
-    MAD_LOG("Sensor:%04X-%04X-%04X-%04X\n",
-        o2_data.tmp, o2_data.hum, o2_data.vol, o2_data.o2);
+    o2_log();
 }
 
 static void o2_thread(MadVptr exData)
@@ -64,18 +82,20 @@ static void o2_thread(MadVptr exData)
     
     while(1) {
         if(o2_opened) {
+            madTimeDly(3000);
             res = read(o2_fd, &data, 0);
             if(0 > res) {
                 close(o2_fd);
+                o2_zero_data();
                 o2_opened = MFALSE;
+            } else {
+                o2_handle_data(&data);
             }
-            o2_handle_data(&data);
-            madTimeDly(3000);
         } else {
             o2_fd = open("/dev/o20", 0);
-            if(o2_fd > 0) o2_opened = MTRUE;
-            // madTimeDly(1000 * 60 * 5);
-            madTimeDly(1000 * 5);
+            if(o2_fd > 0) {
+                o2_opened = MTRUE;
+            }
         }
     }
 }

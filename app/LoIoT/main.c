@@ -76,6 +76,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    // madTimeDly(1000 * 60 * 5); // Wait for sensor ready
     ModO2_Init();
     ModLora_Init();
     
