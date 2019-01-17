@@ -136,7 +136,7 @@ static void lora_thread(MadVptr exData)
                 err_cnt = 0;
             }
 
-            if(err_cnt > 6) {
+            if(err_cnt > 3) {
                 close(lora_fd);
                 lora_joined = MFALSE;
             } else {
