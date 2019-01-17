@@ -11,7 +11,7 @@
 #include "ModO2.h"
 
 #define LORA_RX_RSP      0
-#define LORA_TX_INTERVAL (1000 * 28)
+#define LORA_TX_INTERVAL (1000 * 60 * 1)
 
 #if 1
 static StmPIN  lora_led;
@@ -23,7 +23,7 @@ static StmPIN  lora_led;
 #else
 #define lora_led_init()
 #define lora_led_on()
-#define lora_led_off() 
+#define lora_led_off()
 #endif
 
 static int     lora_fd;
@@ -124,9 +124,11 @@ static void lora_thread(MadVptr exData)
                 MAD_LOG("Opening lora ... Failed\n");
             }
         } else {
+            lora_led_on();
             out = lora_out();
             err = write(lora_fd, out, strlen(out));
             free(out);
+            lora_led_off();
 
             if(0 > err) {
                 err_cnt++;
@@ -151,7 +153,6 @@ static void lora_thread(MadVptr exData)
             }
 
             madTimeDly(LORA_TX_INTERVAL);
-            lora_led_off();
         }
     }
 }
