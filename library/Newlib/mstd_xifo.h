@@ -66,31 +66,33 @@ extern  FIFO_U8* FIFO_U8_Create(MadU16 size);
         else        { tmp = fifo->tail + ofs; fifo->cnt += ofs; n = ofs; } \
         if( tmp < fifo->end) fifo->tail = tmp;                             \
         else                 fifo->tail = fifo->buf + (tmp - fifo->end);   \
-    } else {   \
-        n = 0; \
-    }          \
+    } else {                                                               \
+        n = 0;                                                             \
+    }                                                                      \
 } while(0)
-#define FIFO_U8_DMA_Get(fifo, dat, n) do { /*Called in User-Mode*/ \
-    if(fifo->cnt > 0) { \
-        MadCpsr_t cpsr; \
-        madEnterCritical(cpsr);                        \
-        if((n == 0) || (n > fifo->cnt)) n = fifo->cnt; \
-        madExitCritical(cpsr);                         \
-        if(fifo->head + n < fifo->end)  {              \
-            memcpy(dat, fifo->head, n);                \
-            fifo->head += n;                           \
-        } else {                                       \
-            MadU32 ofs = fifo->end - fifo->head;       \
-            memcpy(dat,     fifo->head, ofs);          \
-            memcpy(dat+ofs, fifo->buf,  n - ofs);      \
-            fifo->head = fifo->buf + n - ofs;          \
-        }                                              \
-        madEnterCritical(cpsr);                        \
-        fifo->cnt -= n;                                \
-        madExitCritical(cpsr);                         \
-    } else {   \
-        n = 0; \
-    }          \
+#define FIFO_U8_DMA_Get(fifo, dat, len) do { /*Called in User-Mode*/ \
+    if(fifo->cnt > 0) {                                     \
+        MadCpsr_t cpsr;                                     \
+        size_t n = len;                                     \
+        madEnterCritical(cpsr);                             \
+        if((n == 0) || (n > fifo->cnt)) n = fifo->cnt;      \
+        madExitCritical(cpsr);                              \
+        if(fifo->head + n < fifo->end)  {                   \
+            fifo->head += n;                                \
+            if(0 == memcpy(dat, fifo->head, n)) len = 0;    \
+        } else {                                            \
+            MadU32 ofs = fifo->end - fifo->head;            \
+            fifo->head = fifo->buf + n - ofs;               \
+            if((0 == memcpy(dat,     fifo->head, ofs)) ||   \
+               (0 == memcpy(dat+ofs, fifo->buf,  n - ofs))) \
+               len = 0;                                     \
+        }                                                   \
+        madEnterCritical(cpsr);                             \
+        fifo->cnt -= n;                                     \
+        madExitCritical(cpsr);                              \
+    } else {                                                \
+        len = 0;                                            \
+    }                                                       \
 } while(0)
 
 #endif

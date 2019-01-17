@@ -1,33 +1,40 @@
 #include <string.h>
 #include "MadOS.h"
-
-#define MEM_OPT_THRESHOLD (30)
+#include "nl_cfg.h"
 
 inline
 void * memcpy(void *dst, const void *src, size_t n) {
+#ifdef MAD_CPY_MEM_BY_DMA
     if(n > 0) {
         if(n < MEM_OPT_THRESHOLD) {
-            madMemCopy(dst, src, n);
+            return madMemCpy(dst, src, n);
         } else {
-            madMemCopyByDMA(dst, src, n);
+            return madMemCpyByDMA(dst, src, n);
         }
     }
-    return dst;
-} 
+    return 0;
+#else
+    return madMemCpy(dst, src, n);
+#endif
+}
 
 inline
 void * memset(void *dst, int val, size_t n) {
+#ifdef MAD_CPY_MEM_BY_DMA
     if(n > 0) {
         if(n < MEM_OPT_THRESHOLD) {
-            madMemSet(dst, val, n);
+            return madMemSet(dst, val, n);
         } else {
-            madMemSetByDMA(dst, val, n);
+            return madMemSetByDMA(dst, val, n);
         }
     }
-    return dst;
+    return 0;
+#else
+    return madMemSet(dst, src, n);
+#endif
 }
 
-// inline
-// int memcmp(const void *dst, const void *src, size_t n) {
-//     return madMemCmp(dst, src, n);
-// }
+inline
+int memcmp(const void *dst, const void *src, size_t n) {
+    return madMemCmp(dst, src, n);
+}

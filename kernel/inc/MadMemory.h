@@ -10,9 +10,9 @@ extern  MadVptr    madMemRealloc          (MadVptr p, MadSize_t size);
 extern  void       madMemFree             (MadVptr p);
 extern  MadSize_t  madMemUnusedSize       (void);
 extern  MadSize_t  madMemMaxSize          (void);
-extern  void       madMemCopy             (MadVptr dst, const MadVptr src, MadSize_t len);
+extern  MadVptr    madMemCpy              (MadVptr dst, const MadVptr src, MadSize_t len);
+extern  MadVptr    madMemSet              (MadVptr dst, MadU8 value, MadSize_t len);
 extern  MadInt     madMemCmp              (const MadVptr dst, const MadVptr src, MadSize_t len);
-extern  void       madMemSet              (MadVptr dst, MadU8 value, MadSize_t len);
 #define            madMemMalloc(n)        madMemMallocCarefully(n, MNULL)
 #define            madMemFreeNull(p)      do{ madMemFree(p); p=0; }while(0)
 
@@ -23,10 +23,10 @@ extern  void       madMemClearRes         (const MadU8 owner);
 
 #ifdef MAD_CPY_MEM_BY_DMA
 #include "ArchMemCpy.h"
-#define            madMemCopyByDMA(dst, src, len)  madArchMemCpy(dst, src, len)
+#define            madMemCpyByDMA(dst, src, len)   madArchMemCpy(dst, src, len)
 #define            madMemSetByDMA(dst, val, len)   madArchMemSet(dst, val, len)
 #else  /* MAD_CPY_MEM_BY_DMA */
-#define            madMemCopyByDMA(dst, src, len)  madMemCopy(dst, src, len)
+#define            madMemCpyByDMA(dst, src, len)   madMemCpy(dst, src, len)
 #define            madMemSetByDMA(dst, val, len)   madMemSet(dst, val, len)
 #endif /* MAD_CPY_MEM_BY_DMA */
 

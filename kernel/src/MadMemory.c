@@ -145,7 +145,7 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
                     MadU8     *dst = res + MAD_MEM_HEAD_SIZE;
                     MadU8     *src = (MadU8*)head + MAD_MEM_HEAD_SIZE;
                     MadSize_t num = ((head->size > real_n) ? real_n : head->size) - MAD_MEM_HEAD_SIZE;
-                    madMemCopy(dst, src, num);
+                    madMemCpy(dst, src, num);
 #ifdef MAD_AUTO_RECYCLE_RES
                     ((MadMemHead_t *)res)->owner = head->owner;
 #endif
@@ -270,7 +270,7 @@ static void doMemFree(MadMemHead_t *target)
     }
 }
 
-void madMemCopy(MadVptr dst, const MadVptr src, MadSize_t len)
+MadVptr madMemCpy(MadVptr dst, const MadVptr src, MadSize_t len)
 {
     MadSize_t   i;
     MadU8       *d;
@@ -280,6 +280,18 @@ void madMemCopy(MadVptr dst, const MadVptr src, MadSize_t len)
     for(i=0; i<len; i++) {
         *d++ = *s++;
     }
+    return dst;
+}
+
+MadVptr madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
+{
+    MadSize_t i;
+    MadU8     *d;
+    d = dst;
+    for(i=0; i<len; i++) {
+        *d++ = value;
+    }
+    return dst;
 }
 
 MadInt madMemCmp(const MadVptr dst, const MadVptr src, MadSize_t len)
@@ -300,16 +312,6 @@ MadInt madMemCmp(const MadVptr dst, const MadVptr src, MadSize_t len)
         }
     }
     return 0;
-}
-
-void madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
-{
-    MadSize_t i;
-    MadU8     *d;
-    d = dst;
-    for(i=0; i<len; i++) {
-        *d++ = value;
-    }
 }
 
 #ifdef MAD_AUTO_RECYCLE_RES

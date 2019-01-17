@@ -8,4 +8,6 @@
 
 #define TTY_DEV_INDEX (0)
 
+#define MEM_OPT_THRESHOLD (30)
+
 #endif

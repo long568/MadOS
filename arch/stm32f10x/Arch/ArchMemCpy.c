@@ -14,6 +14,7 @@ MadBool madArchMemInit(void)
     NVIC_InitTypeDef nvic;
     DMA_InitTypeDef  dma;
     
+    DMA_DeInit(ARCHM_DMA_TX);
     dma.DMA_PeripheralBaseAddr = 0;  // Configured by app.
     dma.DMA_MemoryBaseAddr     = 0;  // Configured by app.
     dma.DMA_DIR                = ARCHM_DMA_DIR_M2P;
@@ -27,7 +28,6 @@ MadBool madArchMemInit(void)
     dma.DMA_M2M                = DMA_M2M_Enable;
     DMA_Init(ARCHM_DMA_TX, &dma);
     DMA_ITConfig(ARCHM_DMA_TX, ARCHM_DMA_TX_ITTC, ENABLE);
-    DMA_Cmd(ARCHM_DMA_TX, DISABLE);
     
     nvic.NVIC_IRQChannel                   = ARCHM_DMA_TX_IRQn;
     nvic.NVIC_IRQChannelPreemptionPriority = ISR_PRIO_ARCH_MEM;
@@ -58,29 +58,41 @@ static void madArchMem_IRQ_Handler(void)
     }
 }
 
-void madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
+MadVptr madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
 {
-    if(size == 0) return;
+    MadU8 res;
+    if(size == 0) return 0;
     madSemWait(&mad_archm_locker, 0);
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)src;
     ARCHM_DMA_TX->CNDTR = size;
     ARCHM_DMA_TX->CCR  |= 0x81;
-    madSemWait(&mad_archm_waiter, 0);
+    res = madSemWait(&mad_archm_waiter, ARCHM_DMA_TIMEOUT);
     madSemRelease(&mad_archm_locker);
+    if(res == MAD_ERR_OK) {
+        return dst;
+    } else {
+        return 0;
+    }
 }
 
-void madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
+MadVptr madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
 {
-    if(size == 0) return;
+    MadU8 res;
+    if(size == 0) return 0;
     madSemWait(&mad_archm_locker, 0);
     ARCHM_DMA_TX->CPAR  = (MadU32)dst;
     ARCHM_DMA_TX->CMAR  = (MadU32)(&value);
     ARCHM_DMA_TX->CNDTR = size;
     ARCHM_DMA_TX->CCR  &= ~0x80;
     ARCHM_DMA_TX->CCR  |= 0x01;
-    madSemWait(&mad_archm_waiter, 0);
+    res = madSemWait(&mad_archm_waiter, ARCHM_DMA_TIMEOUT);
     madSemRelease(&mad_archm_locker);
+    if(res == MAD_ERR_OK) {
+        return dst;
+    } else {
+        return 0;
+    }
 }
 
 #endif

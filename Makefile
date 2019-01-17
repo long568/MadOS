@@ -4,9 +4,9 @@
 # export APP        = lesson002
 # export APP        = LoArm
 export APP        = LoIoT
-export TOOLCHAIN  = arm-none-eabi
-export BUILD_VER  = debug
 
+export BUILD_VER  = debug
+export TOOLCHAIN  = arm-none-eabi
 export AR    = $(TOOLCHAIN)-ar
 export CC    = $(TOOLCHAIN)-gcc
 export CPP   = $(TOOLCHAIN)-g++
@@ -52,9 +52,7 @@ export LIBS += -ldrv -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
-CXFLAGS = -g3
-else
-CXFLAGS =
+CXFLAGS += -g3
 endif
 CXFLAGS += $(DEFS) $(INCS) -Os -std=c99 \
 		   -Wall -Wshadow -Wpointer-arith \
