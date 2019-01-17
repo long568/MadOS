@@ -4,6 +4,8 @@
 
 #ifdef MAD_CPY_MEM_BY_DMA
 
+#define WAITER_TIMEOUT (size + 100)
+
 static MadSemCB_t *mad_archm_locker;
 static MadSemCB_t *mad_archm_waiter;
 
@@ -35,7 +37,7 @@ MadBool madArchMemInit(void)
     nvic.NVIC_IRQChannelCmd                = ENABLE;
     NVIC_Init(&nvic);
     madInstallExIrq(madArchMem_IRQ_Handler, ARCHM_DMA_TX_IRQn);
-   
+
 	mad_archm_locker = madSemCreate(1);
     mad_archm_waiter = madSemCreateCarefully(0, 1);
     if((MNULL == mad_archm_locker) || (MNULL == mad_archm_waiter)) {
@@ -67,7 +69,7 @@ MadVptr madArchMemCpy(MadVptr dst, const MadVptr src, MadSize_t size)
     ARCHM_DMA_TX->CMAR  = (MadU32)src;
     ARCHM_DMA_TX->CNDTR = size;
     ARCHM_DMA_TX->CCR  |= 0x81;
-    res = madSemWait(&mad_archm_waiter, size);
+    res = madSemWait(&mad_archm_waiter, WAITER_TIMEOUT);
     madSemRelease(&mad_archm_locker);
     if(res == MAD_ERR_OK) {
         return dst;
@@ -86,7 +88,7 @@ MadVptr madArchMemSet(MadVptr dst, MadU8 value, MadSize_t size)
     ARCHM_DMA_TX->CNDTR = size;
     ARCHM_DMA_TX->CCR  &= ~0x80;
     ARCHM_DMA_TX->CCR  |= 0x01;
-    res = madSemWait(&mad_archm_waiter, size);
+    res = madSemWait(&mad_archm_waiter, WAITER_TIMEOUT);
     madSemRelease(&mad_archm_locker);
     if(res == MAD_ERR_OK) {
         return dst;
