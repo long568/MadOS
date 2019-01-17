@@ -111,10 +111,13 @@ static void lora_thread(MadVptr exData)
     
     err_cnt = 0;
     lora_joined = MFALSE;
+    madWatchDog_Start(WATCHDOG_3MIN);
+
     while(1) {
         if(MFALSE == lora_joined) {
             lora_led_on();
             lora_fd = open("/dev/lora0", 0);
+            madWatchDog_Feed();
             lora_led_off();
             if (lora_fd > 0) {
                 MAD_LOG("Opening lora ... Done\n");
@@ -152,6 +155,7 @@ static void lora_thread(MadVptr exData)
 #endif
             }
 
+            madWatchDog_Feed();
             madTimeDly(LORA_TX_INTERVAL);
         }
     }

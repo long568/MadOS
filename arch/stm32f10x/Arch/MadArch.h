@@ -47,6 +47,11 @@ typedef MadU8              MadFlag_t;
 								   res = (MadU8)(t & 0x000000FF); }while(0)
 #endif
 
-extern MadU8* madChipId(void);
+#define WATCHDOG_3MIN  IWDG_Prescaler_256, 28125
+#define WATCHDOG_5MIN  IWDG_Prescaler_256, 46875
+
+extern MadU8*  madChipId         (void);
+extern void    madWatchDog_Start (MadU8 prer, MadU16 rlr);
+extern void    madWatchDog_Feed  (void);
 
 #endif /*__MAD_ARCH_H__*/

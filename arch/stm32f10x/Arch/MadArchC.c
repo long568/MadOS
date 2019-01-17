@@ -46,3 +46,17 @@ MadU8* madChipId(void)
     chipId[2] = *(__I uint32_t *)(CHIP_ID_BASE + 0x08);
     return mad_chip_id;
 }
+
+inline void madWatchDog_Start(MadU8 prer, MadU16 rlr)
+{
+    IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); /*使能对寄存器IWDG_PR和IWDG_RLR的写操作*/
+    IWDG_SetPrescaler(prer);                      /*设置IWDG预分频值:设置IWDG预分频值*/
+    IWDG_SetReload(rlr);                          /*设置IWDG重装载值*/
+    IWDG_ReloadCounter();                         /*按照IWDG重装载寄存器的值重装载IWDG计数器*/
+    IWDG_Enable();                                /*使能IWDG*/
+}
+
+inline void madWatchDog_Feed(void)
+{
+    IWDG_ReloadCounter();
+}
