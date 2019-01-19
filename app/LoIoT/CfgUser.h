@@ -5,6 +5,7 @@ enum {
     THREAD_PRIO_SYS_RUNNING     = 1,
     THREAD_PRIO_MOD_LORA,
     THREAD_PRIO_MOD_O2,
+    THREAD_PRIO_MOD_NH3,
     THREAD_PRIO_DRIVER_ETH
 };
 
@@ -22,6 +23,6 @@ enum {
 #define MAD_OS_STACK_SIZE    (52 * 1024)
 
 #define SYS_RUNNING_LED_PORT GPIOE
-#define SYS_RUNNING_LED_PIN  GPIO_Pin_1
+#define SYS_RUNNING_LED_PIN  GPIO_Pin_0
 
 #endif

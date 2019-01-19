@@ -3,10 +3,11 @@
 #include <string.h>
 #include <stdio.h>
 #include "CfgUser.h"
+#include "cJSON.h"
 #include "MadDrvO2.h"
 
 static int o2_fd;
-static int o2_opened;
+static int o2_opened = MFALSE;
 static MadSemCB_t *o2_locker;
 static SensorO2_t o2_data = { 0, 0, 0, 0 };
 
@@ -29,19 +30,66 @@ MadBool ModO2_Init(void)
     return MTRUE;
 }
 
-void ModO2_GetData(SensorO2_t *data)
+char* ModO2_GetData(void)
 {
-    o2_lock();
-    data->tmp = o2_data.tmp;
-    data->hum = o2_data.hum;
-    data->vol = o2_data.vol;
-    data->o2  = o2_data.o2;
-    o2_unlock();
+    char *out;  // Freed by user
+    char buf[7];
+    SensorO2_t data;
+    cJSON *root, *item, *array;
+
+    if(MFALSE == o2_opened) {
+        data.tmp = 0;
+        data.hum = 0;
+        data.vol = 0;
+        data.o2  = 0;
+    } else {
+        o2_lock();
+        data.tmp = o2_data.tmp;
+        data.hum = o2_data.hum;
+        data.vol = o2_data.vol;
+        data.o2  = o2_data.o2;
+        o2_unlock();
+    }
+
+    root = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "infoList", array=cJSON_CreateArray());
+
+    sprintf(buf, "%d.%d", data.tmp / 100 - 20, data.tmp % 100);
+    item = cJSON_CreateObject();
+    cJSON_AddStringToObject(item, "title", "温度");
+    cJSON_AddStringToObject(item, "value", buf);
+    cJSON_AddStringToObject(item, "unit", "℃");
+    cJSON_AddItemToArray(array, item);
+
+    sprintf(buf, "%d.%d", data.hum / 100, data.hum % 100);
+    item = cJSON_CreateObject();
+    cJSON_AddStringToObject(item, "title", "湿度");
+    cJSON_AddStringToObject(item, "value", buf);
+    cJSON_AddStringToObject(item, "unit", "\%");
+    cJSON_AddItemToArray(array, item);
+
+    sprintf(buf, "%d.%d", data.vol / 10, data.vol % 10);
+    item = cJSON_CreateObject();
+    cJSON_AddStringToObject(item, "title", "噪音");
+    cJSON_AddStringToObject(item, "value", buf);
+    cJSON_AddStringToObject(item, "unit", "dB");
+    cJSON_AddItemToArray(array, item);
+
+    sprintf(buf, "%d.%d", data.o2 / 100, data.o2 % 100);
+    item = cJSON_CreateObject();
+    cJSON_AddStringToObject(item, "title", "氧气");
+    cJSON_AddStringToObject(item, "value", buf);
+    cJSON_AddStringToObject(item, "unit", "\%");
+    cJSON_AddItemToArray(array, item);
+
+    out=cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    return out;
 }
 
 static void o2_log(void)
 {
-    MAD_LOG("Sensor:%04X-%04X-%04X-%04X\n",
+    MAD_LOG("Sensor O2:%04X-%04X-%04X-%04X\n",
         o2_data.tmp, o2_data.hum, o2_data.vol, o2_data.o2);
 }
 
@@ -78,7 +126,6 @@ static void o2_thread(MadVptr exData)
 {
     int res;
     SensorO2_t data;
-    o2_opened = MFALSE;
     
     while(1) {
         if(o2_opened) {

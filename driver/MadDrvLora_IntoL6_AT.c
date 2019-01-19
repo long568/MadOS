@@ -99,7 +99,7 @@ static const char * const LORA_AT_INIT[] = {
 static inline int  low_write         (int fd, const void *buf, size_t len);
 static inline int  low_read          (int fd, void *buf, size_t len);
 static inline void lora_random_dly   (void);
-static inline void lora_reset        (StmPIN *pin);
+static inline void lora_reset        (int fd);
 static inline int  lora_go_ok        (const char *buff);
 static inline int  lora_go_presend   (const char *buff);
 static inline int  lora_go_recmacevt (const char *buff, char evn);
@@ -131,11 +131,16 @@ static inline void lora_random_dly(void) { // Retry in 2~10s
     madTimeDly((MadTim_t)(((SysTick->VAL % 9) + 2) * 1000)); 
 }
 
-static inline void lora_reset(StmPIN *pin) {
-    StmPIN_SetLow(pin);
+static inline void lora_reset(int fd) {
+    MadDev_t *dev = DevsList[fd];
+    mUsartChar_t *urt = dev->dev;
+    StmPIN *rst_pin = (StmPIN*)(dev->ptr);
+    StmPIN_SetLow(rst_pin);
     madTimeDly(1000);
-    StmPIN_SetHigh(pin);
-    madTimeDly(5000);
+    StmPIN_SetHigh(rst_pin);
+    mUsartChar_WaitRecv(urt, LORA_RX_TIMEOUT);
+    mUsartChar_ClearRecv(urt);
+    madTimeDly(1000);
 }
 
 static inline int lora_go_ok(const char *buff) {
@@ -215,10 +220,7 @@ static int lora_init(int fd)
 {
     int i;
     const char *at_cmd;
-
     const int n = sizeof(LORA_AT_INIT) / sizeof(const char *);
-    MadDev_t *dev = DevsList[fd];
-    StmPIN *rst_pin = (StmPIN*)(dev->ptr);
     MadU8 *chipId = madChipId();
 
     LORA_AT_OTAA = (char*)malloc(AT_OTAA_LEN);
@@ -231,7 +233,7 @@ static int lora_init(int fd)
     while(1) {
         for(i=0; i<n; i++) {
             if(i == 0) {
-                lora_reset(rst_pin);
+                lora_reset(fd);
             }
             if (0 == LORA_AT_INIT[i]) {
                 at_cmd = LORA_AT_OTAA;
@@ -362,12 +364,10 @@ static int Drv_creat(const char * file, mode_t mode)
 
 static int Drv_fcntl(int fd, int cmd, va_list args)
 {
-    MadDev_t *dev     = DevsList[fd];
-    StmPIN   *rst_pin = (StmPIN*)(dev->ptr);
     (void)args;
     switch(cmd) {
         case F_DEV_RST:
-            lora_reset(rst_pin);
+            lora_reset(fd);
             return 1;
         default:
             break;

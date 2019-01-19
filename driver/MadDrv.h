@@ -26,5 +26,6 @@ extern const MadDrv_t MadDrvTty;
 extern const MadDrv_t MadDrvRfid;
 extern const MadDrv_t MadDrvLora_IntoL6_AT;
 extern const MadDrv_t MadDrvO2;
+extern const MadDrv_t MadDrvNH3;
 
 #endif

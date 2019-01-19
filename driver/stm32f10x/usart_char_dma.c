@@ -136,9 +136,10 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
 inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
     if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        volatile MadU32 data = port->p->DR; (void) data;
+        volatile MadU32 data = port->p->DR;
         MadU32 offset;
         MadU32 dma_cnt = port->rxDma->CNDTR;
+        (void)data;
         if(dma_cnt < port->rxCnt) {
             offset = port->rxCnt - dma_cnt;
         } else {

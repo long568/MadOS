@@ -7,11 +7,11 @@
 #include "Stm32Tools.h"
 #include "MadDrv.h"
 #include "MadDrvLora_IntoL6_AT.h"
-#include "cJSON.h"
 #include "ModO2.h"
+#include "ModNH3.h"
 
 #define LORA_RX_RSP      0
-#define LORA_TX_INTERVAL (1000 * 60 * 1)
+#define LORA_TX_INTERVAL 28000 //(1000 * 60 * 1)
 
 #if 1
 static StmPIN  lora_led;
@@ -32,7 +32,7 @@ static MadBool lora_joined;
 #if LORA_RX_RSP
 static void lora_print_rsp(char *buf);
 #endif
-static void lora_thread(MadVptr exData);
+static void  lora_thread (MadVptr exData);
 
 MadBool ModLora_Init(void)
 {
@@ -59,51 +59,6 @@ static void lora_print_rsp(char *buf)
 }
 #endif
 
-static char * lora_out(void)
-{
-    char *out;
-    char buf[7];
-    SensorO2_t o2_data;
-    cJSON *root, *item, *array;
-
-    ModO2_GetData(&o2_data);
-
-    root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "infoList", array=cJSON_CreateArray());
-
-    sprintf(buf, "%d.%d", o2_data.tmp / 100 - 20, o2_data.tmp % 100);
-    item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "温度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "℃");
-    cJSON_AddItemToArray(array, item);
-
-    sprintf(buf, "%d.%d", o2_data.hum / 100, o2_data.hum % 100);
-    item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "湿度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "\%");
-    cJSON_AddItemToArray(array, item);
-
-    sprintf(buf, "%d.%d", o2_data.vol / 10, o2_data.vol % 10);
-    item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "噪音");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "dB");
-    cJSON_AddItemToArray(array, item);
-
-    sprintf(buf, "%d.%d", o2_data.o2 / 100, o2_data.o2 % 100);
-    item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "氧气");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "\%");
-    cJSON_AddItemToArray(array, item);
-
-    out=cJSON_PrintUnformatted(root);
-    cJSON_Delete(root);
-    return out;
-}
-
 static void lora_thread(MadVptr exData)
 {
     int err, err_cnt;
@@ -111,13 +66,13 @@ static void lora_thread(MadVptr exData)
     
     err_cnt = 0;
     lora_joined = MFALSE;
-    madWatchDog_Start(WATCHDOG_3MIN);
+    // madWatchDog_Start(WATCHDOG_3MIN);
 
     while(1) {
         if(MFALSE == lora_joined) {
             lora_led_on();
             lora_fd = open("/dev/lora0", 0);
-            madWatchDog_Feed();
+            // madWatchDog_Feed();
             lora_led_off();
             if (lora_fd > 0) {
                 MAD_LOG("Opening lora ... Done\n");
@@ -128,7 +83,7 @@ static void lora_thread(MadVptr exData)
             }
         } else {
             lora_led_on();
-            out = lora_out();
+            out = ModNH3_GetData();
             err = write(lora_fd, out, strlen(out));
             free(out);
             lora_led_off();
@@ -155,7 +110,7 @@ static void lora_thread(MadVptr exData)
 #endif
             }
 
-            madWatchDog_Feed();
+            // madWatchDog_Feed();
             madTimeDly(LORA_TX_INTERVAL);
         }
     }

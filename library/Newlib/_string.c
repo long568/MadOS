@@ -30,7 +30,7 @@ void * memset(void *dst, int val, size_t n) {
     }
     return 0;
 #else
-    return madMemSet(dst, src, n);
+    return madMemSet(dst, val, n);
 #endif
 }
 

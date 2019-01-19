@@ -4,7 +4,7 @@
 #include "MadOS.h"
 #include "MadDrvO2.h"
 
-extern MadBool ModO2_Init(void);
-extern void    ModO2_GetData(SensorO2_t *data);
+extern MadBool ModO2_Init   (void);
+extern char*   ModO2_GetData(void);
 
 #endif
