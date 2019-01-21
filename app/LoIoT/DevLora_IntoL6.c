@@ -6,7 +6,7 @@
 static mUsartChar_t dev;
 static StmPIN       rst_pin = { GPIOC, GPIO_Pin_12 };
 
-static void DevRfid_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
 static const mUsartChar_InitData_t initData = {
     USART3,
@@ -27,7 +27,7 @@ static const mUsartChar_InitData_t initData = {
     DMA_Priority_Medium,
     DMA_Priority_Medium,
     LORA_RX_BUFF_SIZE,
-    DevRfid_Irq_Handler
+    Dev_Irq_Handler
 };
 
 MadDev_t Lora0 = { "lora0", &dev, &initData, &MadDrvLora_IntoL6_AT, MAD_DEV_CLOSED, &rst_pin };

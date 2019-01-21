@@ -50,27 +50,28 @@ char* ModNH3_GetData(void)
     }
 
     root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "infoList", array=cJSON_CreateArray());
+    cJSON_AddStringToObject(root, "type", "sensor");
+    cJSON_AddItemToObject(root, "data", array=cJSON_CreateArray());
 
     sprintf(buf, "%d.%d", data.tmp / 10, data.tmp % 10);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "温度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "℃");
+    cJSON_AddStringToObject(item, "t", "温度");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "℃");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", data.hum / 10, data.hum % 10);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "湿度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "\%");
+    cJSON_AddStringToObject(item, "t", "湿度");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "\%");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", data.nh3 / 10, data.nh3 % 10);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "氨气");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "ppm");
+    cJSON_AddStringToObject(item, "t", "氨气");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "ppm");
     cJSON_AddItemToArray(array, item);
 
     out=cJSON_PrintUnformatted(root);

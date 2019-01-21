@@ -5,7 +5,7 @@
 
 static mUsartChar_t dev;
 
-static void DevNH3_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
 static const mUsartChar_InitData_t initData = {
     USART1,
@@ -26,7 +26,7 @@ static const mUsartChar_InitData_t initData = {
     DMA_Priority_Medium,
     DMA_Priority_Medium,
     NH3_RX_BUF_SIZ,
-    DevNH3_Irq_Handler
+    Dev_Irq_Handler
 };
 
 MadDev_t NH30 = { "nh30", &dev, &initData, &MadDrvNH3, MAD_DEV_CLOSED, NULL };

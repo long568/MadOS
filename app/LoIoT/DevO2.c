@@ -5,7 +5,7 @@
 
 static mUsartChar_t dev;
 
-static void DevO2_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
 static const mUsartChar_InitData_t initData = {
     USART1,
@@ -26,7 +26,7 @@ static const mUsartChar_InitData_t initData = {
     DMA_Priority_Medium,
     DMA_Priority_Medium,
     O2_RX_BUF_SIZ,
-    DevO2_Irq_Handler
+    Dev_Irq_Handler
 };
 
 MadDev_t O20 = { "o20", &dev, &initData, &MadDrvO2, MAD_DEV_CLOSED, NULL };

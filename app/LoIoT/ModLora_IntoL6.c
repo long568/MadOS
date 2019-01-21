@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "CfgUser.h"
+#include "cJSON.h"
 #include "Stm32Tools.h"
 #include "MadDrv.h"
 #include "MadDrvLora_IntoL6_AT.h"
@@ -15,15 +16,23 @@
 
 #if 1
 static StmPIN  lora_led;
-#define lora_led_init() do{ lora_led.port = LORA_FLAG_PORT; \
-                            lora_led.pin  = LORA_FLAG_PIN;  \
-                            StmPIN_DefInitOPP(&lora_led); }while(0)
-#define lora_led_on()   StmPIN_SetLow(&lora_led)
-#define lora_led_off()  StmPIN_SetHigh(&lora_led)
+#   define lora_led_init() do{ lora_led.port = LORA_FLAG_PORT; \
+                                lora_led.pin  = LORA_FLAG_PIN;  \
+                                StmPIN_DefInitOPP(&lora_led); }while(0)
+#   define lora_led_on()   StmPIN_SetLow(&lora_led)
+#   define lora_led_off()  StmPIN_SetHigh(&lora_led)
 #else
-#define lora_led_init()
-#define lora_led_on()
-#define lora_led_off()
+#   define lora_led_init()
+#   define lora_led_on()
+#   define lora_led_off()
+#endif
+
+#if 0
+#   define WD_START() madWatchDog_Start(WATCHDOG_3MIN)
+#   define WD_FEED()  madWatchDog_Feed()
+#else
+#   define WD_START()
+#   define WD_FEED()
 #endif
 
 static int     lora_fd;
@@ -32,7 +41,7 @@ static MadBool lora_joined;
 #if LORA_RX_RSP
 static void lora_print_rsp(char *buf);
 #endif
-static void  lora_thread (MadVptr exData);
+static void lora_thread (MadVptr exData);
 
 MadBool ModLora_Init(void)
 {
@@ -66,14 +75,15 @@ static void lora_thread(MadVptr exData)
     
     err_cnt = 0;
     lora_joined = MFALSE;
-    // madWatchDog_Start(WATCHDOG_3MIN);
+    WD_START();
 
     while(1) {
         if(MFALSE == lora_joined) {
             lora_led_on();
             lora_fd = open("/dev/lora0", 0);
-            // madWatchDog_Feed();
+            WD_FEED();
             lora_led_off();
+
             if (lora_fd > 0) {
                 MAD_LOG("Opening lora ... Done\n");
                 lora_joined = MTRUE;
@@ -85,6 +95,7 @@ static void lora_thread(MadVptr exData)
             lora_led_on();
             out = ModNH3_GetData();
             err = write(lora_fd, out, strlen(out));
+            WD_FEED();
             free(out);
             lora_led_off();
 
@@ -110,7 +121,6 @@ static void lora_thread(MadVptr exData)
 #endif
             }
 
-            // madWatchDog_Feed();
             madTimeDly(LORA_TX_INTERVAL);
         }
     }

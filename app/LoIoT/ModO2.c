@@ -52,34 +52,35 @@ char* ModO2_GetData(void)
     }
 
     root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "infoList", array=cJSON_CreateArray());
+    cJSON_AddStringToObject(root, "type", "sensor");
+    cJSON_AddItemToObject(root, "data", array=cJSON_CreateArray());
 
     sprintf(buf, "%d.%d", data.tmp / 100 - 20, data.tmp % 100);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "温度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "℃");
+    cJSON_AddStringToObject(item, "t", "温度");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "℃");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", data.hum / 100, data.hum % 100);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "湿度");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "\%");
+    cJSON_AddStringToObject(item, "t", "湿度");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "\%");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", data.vol / 10, data.vol % 10);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "噪音");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "dB");
+    cJSON_AddStringToObject(item, "t", "噪音");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "dB");
     cJSON_AddItemToArray(array, item);
 
     sprintf(buf, "%d.%d", data.o2 / 100, data.o2 % 100);
     item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "title", "氧气");
-    cJSON_AddStringToObject(item, "value", buf);
-    cJSON_AddStringToObject(item, "unit", "\%");
+    cJSON_AddStringToObject(item, "t", "氧气");
+    cJSON_AddStringToObject(item, "v", buf);
+    cJSON_AddStringToObject(item, "u", "\%");
     cJSON_AddItemToArray(array, item);
 
     out=cJSON_PrintUnformatted(root);
