@@ -415,11 +415,11 @@ void dhcpc_link_changed(MadVptr ep)
     }
 }
 
-void dhcpc_configured(const struct dhcpc_state *s)
+void dhcpc_configured(const struct dhcpc_state *ps)
 {
-    uip_sethostaddr(s->ipaddr);
-    uip_setdraddr(s->default_router);
-    uip_setnetmask(s->netmask);
+    uip_sethostaddr(ps->ipaddr);
+    uip_setdraddr(ps->default_router);
+    uip_setnetmask(ps->netmask);
 }
 
 #endif /* UIP_CORE_APP_DHCP */

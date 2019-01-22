@@ -26,7 +26,7 @@ DSTATUS disk_status (
 	BYTE pdrv		/* Physical drive nmuber to identify the drive */
 )
 {
-	DRESULT res;
+	DSTATUS res;
 
 	switch (pdrv) {
 		case DEV_RAM:
@@ -59,7 +59,7 @@ DSTATUS disk_initialize (
 	BYTE pdrv				/* Physical drive nmuber to identify the drive */
 )
 {
-	DRESULT res;
+	DSTATUS res;
 	
 	switch (pdrv) {
 		case DEV_RAM:
@@ -99,7 +99,7 @@ DRESULT disk_read (
 	
 	switch (pdrv) {
 		case DEV_RAM:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		case DEV_SDC:
@@ -107,11 +107,11 @@ DRESULT disk_read (
 			break;
 
 		case DEV_USB:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		default:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 	}
 
@@ -137,7 +137,7 @@ DRESULT disk_write (
 	
 	switch (pdrv) {
 		case DEV_RAM:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		case DEV_SDC:
@@ -145,11 +145,11 @@ DRESULT disk_write (
 			break;
 
 		case DEV_USB:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		default:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 	}
 
@@ -173,7 +173,7 @@ DRESULT disk_ioctl (
 	
 	switch (pdrv) {
 		case DEV_RAM:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		case DEV_SDC:
@@ -181,11 +181,11 @@ DRESULT disk_ioctl (
 			break;
 
 		case DEV_USB:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 
 		default:
-			res = STA_NODISK;
+			res = RES_NOTRDY;
 			break;
 	}
 

@@ -4,7 +4,6 @@
 #include "stm32_eth.h"
 
 #define mEth_CHECKSUM_BY_HARDWARE 1
-#define mEth_SOFT_FLOW_CONTROL    0
 
 #define mEth_TIMEOUT_TICKS  (888) // ticks
 #define mEth_EVENT_TIMEOUT  (100) // ms
@@ -91,9 +90,6 @@ typedef struct _mEth_t {
     MadU16             MaxPktSize;
     MadU8              TxDscrNum;
     MadU8              RxDscrNum;
-#if mEth_SOFT_FLOW_CONTROL
-    MadU8              RxDscrCnt;
-#endif
     MadEventCB_t       *Event;
     mEth_Callback_t    fn;
     ETH_DMADESCTypeDef *TxDscr;

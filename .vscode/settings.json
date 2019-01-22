@@ -46,7 +46,9 @@
         "maddrvo2.h": "c",
         "maddrvnh3.h": "c",
         "modnh3.h": "c",
-        "modo2.h": "c"
+        "modo2.h": "c",
+        "ffconf.h": "c",
+        "ff.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

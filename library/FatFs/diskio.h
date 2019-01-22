@@ -9,11 +9,13 @@
 extern "C" {
 #endif
 
+#include "ff.h"
+
 /* Status of Disk Functions */
-typedef MadU8	DSTATUS;
+typedef BYTE DSTATUS;
 
 /* Results of Disk Functions */
-typedef enum {
+typedef enum  {
 	RES_OK = 0,		/* 0: Successful */
 	RES_ERROR,		/* 1: R/W Error */
 	RES_WRPRT,		/* 2: Write Protected */
@@ -26,11 +28,11 @@ typedef enum {
 /* Prototypes for disk control functions */
 
 
-DSTATUS disk_initialize (MadU8 pdrv);
-DSTATUS disk_status (MadU8 pdrv);
-DRESULT disk_read (MadU8 pdrv, MadU8* buff, MadU32 sector, MadUint count);
-DRESULT disk_write (MadU8 pdrv, const MadU8* buff, MadU32 sector, MadUint count);
-DRESULT disk_ioctl (MadU8 pdrv, MadU8 cmd, void* buff);
+DSTATUS disk_initialize(BYTE pdrv);
+DSTATUS disk_status    (BYTE pdrv);
+DRESULT disk_read      (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_write     (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_ioctl     (BYTE pdrv, BYTE cmd, void* buff);
 
 
 /* Disk Status Bits (DSTATUS) */

@@ -58,7 +58,7 @@ static void madStartup(MadVptr exData)
  * Core-Modules
  ********************************************/
     MAD_LOG_INIT();
-    MAD_LOG("    \n");
+    MAD_LOG("\n\n");
     MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
     MAD_LOG("* MCU     : STM32F107VCT6\n");
     MAD_LOG("* Network : IP101A + uIP(v1.0)\n");

@@ -30,11 +30,6 @@ void mEth_ExtEvent(void)
 void mEth_PhyEvent(void)
 {
     if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_R)) {
-#if mEth_SOFT_FLOW_CONTROL
-        if(++StmEth.RxDscrCnt == StmEth.RxDscrNum) {
-            ETH_DMAReceptionCmd(DISABLE);
-        }
-#endif
         madEventTrigger(&StmEth.Event, mEth_PE_STATUS_RXPKT);
         ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
     }
@@ -67,12 +62,22 @@ MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t fn)
     
     initData.Enable         = ENABLE;
     initData.PHY_ADDRESS    = 0x00;
+#if 1
+    do {
+        MadU8 i;
+        MadU8 *chip_id = madChipId();
+        for(i=0; i<6; i++) {
+            initData.MAC_ADDRESS[i] = chip_id[i];
+        }
+    } while(0);
+#else
     initData.MAC_ADDRESS[0] = 0x4D;
     initData.MAC_ADDRESS[1] = 0x61;
     initData.MAC_ADDRESS[2] = 0x64;
     initData.MAC_ADDRESS[3] = 0x43;
     initData.MAC_ADDRESS[4] = 0x13;
     initData.MAC_ADDRESS[5] = 0x00;
+#endif
     initData.Priority       = ISR_PRIO_IP101A;
     initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
     initData.ThreadStkSize  = mEth_THREAD_STKSIZE;
@@ -121,9 +126,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     eth->MaxPktSize  = initData->MaxPktSize;
     eth->TxDscrNum   = initData->TxDscrNum;
     eth->RxDscrNum   = initData->RxDscrNum;
-#if mEth_SOFT_FLOW_CONTROL
-    eth->RxDscrCnt   = 0;
-#endif
+
     eth->TxDscr      = (ETH_DMADESCTypeDef*)madMemMalloc(eth->TxDscrNum * sizeof(ETH_DMADESCTypeDef));
     eth->RxDscr      = (ETH_DMADESCTypeDef*)madMemMalloc(eth->RxDscrNum * sizeof(ETH_DMADESCTypeDef));
     eth->TxBuff      = (MadU8*)madMemMalloc(eth->TxDscrNum * eth->MaxPktSize);

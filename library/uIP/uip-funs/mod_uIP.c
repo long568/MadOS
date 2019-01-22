@@ -109,6 +109,10 @@ void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
  *****************************************************/
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
+inline MadBool uIP_Init(void) {
+    return mEth_Init(uIP_preinit, uIP_handler);
+}
+
 MadBool uIP_preinit(mEth_t *eth)
 {
     MadUint i;
@@ -160,7 +164,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     
     if(event & mEth_PE_STATUS_RXPKT) {
         while(uIP_dev_rxsize() /*ETH_GetRxPktSize()*/) {
-            uIP_dev_read(eth);
+            uip_len = (MadU16)uIP_dev_read(eth, uip_buf);
             if(uip_len > 0) {
                 if(BUF->type == htons(UIP_ETHTYPE_IP)) {
                     uip_arp_ipin();
@@ -170,7 +174,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
                        uip_len is set to a value > 0. */
                     if(uip_len > 0) {
                         uip_arp_out();
-                        uIP_dev_send(eth);
+                        uIP_dev_send(eth, uip_buf, uip_len);
                     }
                 } else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
                     uip_arp_arpin();
@@ -178,7 +182,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
                        should be sent out on the network, the global variable
                        uip_len is set to a value > 0. */
                     if(uip_len > 0) {
-                        uIP_dev_send(eth);
+                        uIP_dev_send(eth, uip_buf, uip_len);
                     }
                 }
             }
@@ -192,7 +196,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
             uip_len is set to a value > 0. */
             if(uip_len > 0) {
                 uip_arp_out();
-                uIP_dev_send(eth);
+                uIP_dev_send(eth, uip_buf, uip_len);
             }
         }
 #if UIP_UDP
@@ -203,7 +207,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
             uip_len is set to a value > 0. */
             if(uip_len > 0) {
                 uip_arp_out();
-                uIP_dev_send(eth);
+                uIP_dev_send(eth, uip_buf, uip_len);
             }
         }
 #endif /* UIP_UDP */

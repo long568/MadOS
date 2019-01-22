@@ -1,9 +1,9 @@
 # export APP        = test_kernel
-# export APP        = test_uip
+export APP        = test_uip
 # export APP        = test_fatfs
 # export APP        = lesson002
 # export APP        = LoArm
-export APP        = LoIoT
+# export APP        = LoIoT
 
 export BUILD_VER  = debug
 export TOOLCHAIN  = arm-none-eabi
@@ -32,8 +32,6 @@ export DEFS += $(DEFS_FOR_APP) \
 			   -DUSE_STDPERIPH_DRIVER \
 			   -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
-include $(ELIBS)
-
 export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/app/$(APP) \
 			   -I$(ROOT)/app/$(APP)/inc \
@@ -48,6 +46,7 @@ export INCS += $(INCS_FOR_APP) \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
 			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
+include $(ELIBS)
 export LIBS += -ldrv -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
