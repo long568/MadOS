@@ -6,8 +6,7 @@ SRCS = $(wildcard *.c)
 
 include $(RULES)
 
-LDFLAGS += --specs=nano.specs
-# -u _printf_float
+#LDFLAGS += -u _printf_float
 
 after_all:
 	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) $(LDFLAGS) -o $(TARGET).elf
