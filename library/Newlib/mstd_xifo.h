@@ -73,7 +73,7 @@ extern  FIFO_U8* FIFO_U8_Create(MadU16 size);
     }                                                                      \
 } while(0)
 
-#if 1
+#if 0
 #  define FIFO_U8_DMA_Get(fifo, dat, len) do { /*Called in User-Mode*/ \
     if(fifo->cnt > 0) {                                     \
         MadCpsr_t cpsr;                                     \

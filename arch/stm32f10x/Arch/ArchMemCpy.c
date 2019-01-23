@@ -4,7 +4,7 @@
 
 #ifdef MAD_CPY_MEM_BY_DMA
 
-#define WAITER_TIMEOUT (size + 100)
+#define WAITER_TIMEOUT 0 //(size + 100)
 
 static MadSemCB_t *mad_archm_locker;
 static MadSemCB_t *mad_archm_waiter;

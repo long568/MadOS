@@ -27,6 +27,7 @@
   * @brief ETH driver modules
   * @{
   */
+#define ETH_COPY_OBO 1
 
 /** @defgroup ETH_Private_TypesDefinitions
   * @{
@@ -498,7 +499,9 @@ void ETH_Start(void)
   */
 uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
 { 
-  /*uint32_t offset = 0;*/
+#if ETH_COPY_OBO
+  uint32_t offset = 0;
+#endif
     
   /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU (when reset) */
   if((DMATxDescToSet->Status & ETH_DMATxDesc_OWN) != (uint32_t)RESET)
@@ -508,7 +511,7 @@ uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
   }
   
   /* Copy the frame to be sent into memory pointed by the current ETHERNET DMA Tx descriptor */
-#if 0 // Modified by long 20190123
+#if ETH_COPY_OBO // Modified by long 20190123
   for(offset=0; offset<FrameLength; offset++)       
   {
     (*(__IO uint8_t *)((DMATxDescToSet->Buffer1Addr) + offset)) = (*(ppkt + offset));
@@ -564,7 +567,10 @@ uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
   */
 uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
 { 
-  uint32_t /*offset = 0,*/ framelength = 0;
+#if ETH_COPY_OBO
+  uint32_t offset = 0;
+#endif
+  uint32_t framelength = 0;
   /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU (when reset) */
   if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (uint32_t)RESET)
   {
@@ -579,7 +585,7 @@ uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
     /* Get the Frame Length of the received packet: substruct 4 bytes of the CRC */
     framelength = ((DMARxDescToGet->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT) - 4;
     /* Copy the received frame into buffer from memory pointed by the current ETHERNET DMA Rx descriptor */
-#if 0 // Modified by long 20190123
+#if ETH_COPY_OBO // Modified by long 20190123
     for(offset=0; offset<framelength; offset++)       
     {
       (*(ppkt + offset)) = (*(__IO uint8_t *)((DMARxDescToGet->Buffer1Addr) + offset));
