@@ -163,7 +163,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     }
     
     if(event & mEth_PE_STATUS_RXPKT) {
-        while(uIP_dev_rxsize() /*ETH_GetRxPktSize()*/) {
+        while(uIP_dev_rxsize(eth)) {
             uip_len = (MadU16)uIP_dev_read(eth, uip_buf);
             if(uip_len > 0) {
                 if(BUF->type == htons(UIP_ETHTYPE_IP)) {

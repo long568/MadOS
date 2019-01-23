@@ -21,10 +21,10 @@ typedef enum {
 
 extern clocker uIP_Clocker;
 
-extern MadBool  uIP_Init(void); // The module using uIP should be initialized after uIP_Init().
-extern MadU32   uIP_dev_send(mEth_t *eth, MadU8 *buf, MadU32 len);
-extern MadU32   uIP_dev_read(mEth_t *eth, MadU8 *buf);
-extern MadU32   uIP_dev_rxsize(void);
+extern MadBool  uIP_Init      (void); // The module using uIP should be initialized after uIP_Init().
+extern MadU32   uIP_dev_send  (mEth_t *eth, MadU8 *buf, MadU32 len);
+extern MadU32   uIP_dev_read  (mEth_t *eth, MadU8 *buf);
+extern MadU32   uIP_dev_rxsize(mEth_t *eth);
 
 extern void     uIP_AppRegister(uIP_App *app);                            // Do NOT modify an uIP_App has already registered.
 extern void     uIP_AppUnregister(uIP_App *app);                          // Want modify an uIP_App ? Unregister it first.
