@@ -13,13 +13,8 @@ inline MadU32 uIP_dev_send(mEth_t *eth, MadU8 *buf, MadU32 len) {
 }
 
 inline MadU32 uIP_dev_read(mEth_t *eth, MadU8 *buf) {
-    MadU32 len;
-    if(eth->isLinked) {
-        len = ETH_HandleRxPkt(buf);
-    } else {
-        len = 0;
-    }
-    return len;
+    (void)eth;
+    return ETH_HandleRxPkt(buf);
 }
 
 inline MadU32 uIP_dev_rxsize(void) {

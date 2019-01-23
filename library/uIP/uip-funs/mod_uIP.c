@@ -136,7 +136,7 @@ MadBool uIP_preinit(mEth_t *eth)
         uip_setnetmask(ipaddr);
         dhcpc_init();
 #else
-        uip_ipaddr(ipaddr, 192,168,1,111);
+        uip_ipaddr(ipaddr, 192,168,1,235);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 192,168,1,1);
         uip_setdraddr(ipaddr);

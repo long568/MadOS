@@ -3,10 +3,8 @@
 #include "testEth.h"
 #include "uTcp.h"
 
-#define RESOLV_NUM   (11)
-
+#define RESOLV_NUM   (10)
 const char * const resolv_names[] = {
-    "------",
     "www.baidu.com",
     "www.taobao.com",
     "www.jd.com",
@@ -94,10 +92,10 @@ static PT_THREAD(tcp_pt(MadVptr ep))
     static struct pt  *pt        = &pt_tcp;
     
     PT_BEGIN(pt);
-
     uip_ipaddr_t ipaddr;
     SET_TARGET_IP(ipaddr);
     uip_connect(&ipaddr, HTONS(5685));
+
     PT_WAIT_UNTIL(pt, tcp_is_connected());
     CHECK_IF_RESTART();
 

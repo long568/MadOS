@@ -48,7 +48,8 @@
         "modnh3.h": "c",
         "modo2.h": "c",
         "ffconf.h": "c",
-        "ff.h": "c"
+        "ff.h": "c",
+        "uip.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
