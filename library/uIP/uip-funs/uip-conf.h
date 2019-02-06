@@ -4,7 +4,7 @@
 #include "eth_low.h"
 #include "CfgUip.h"
 
-#define UIP_CONF_EXTERNAL_BUFFER  1
+#define UIP_CONF_EXTERNAL_BUFFER
 #define UIP_CONF_BUFFER_SIZE      ETH_PAYLOAD_LEN
 #define UIP_CHECKSUM_BY_HARDWARE  mEth_CHECKSUM_BY_HARDWARE
 #define UIP_ARCH_CHKSUM           0

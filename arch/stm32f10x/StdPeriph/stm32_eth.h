@@ -1625,6 +1625,10 @@ uint32_t ETH_HandleRxPkt(u8 *ppkt);
 uint32_t ETH_GetRxPktSize(void);
 void ETH_DropRxPkt(void);
 
+// Added by long 20190205
+uint32_t ETH_HandleTxPkt2(u8 *ppkt, u16 FrameLength);
+uint32_t ETH_HandleRxPkt2(u8 **ppkt);
+
 /** 
   * @brief  PHY  
   */ 

@@ -1,5 +1,5 @@
-#ifndef __USART_CHAR__H__
-#define __USART_CHAR__H__
+#ifndef __USART_BLK__H__
+#define __USART_BLK__H__
 
 #include <stddef.h>
 #include "MadOS.h"
@@ -24,9 +24,8 @@ typedef struct {
     MadU16               hfc;
     MadU32               tx_dma_priority;
     MadU32               rx_dma_priority;
-    MadSize_t            rxBuffSize;
     xIRQ_Handler         IRQh;
-} mUsartChar_InitData_t;
+} mUsartBlk_InitData_t;
 
 typedef struct {
     USART_TypeDef        *p;
@@ -34,17 +33,12 @@ typedef struct {
     DMA_Channel_TypeDef  *rxDma;
     MadSemCB_t           *txLocker;
     MadSemCB_t           *rxLocker;
-    FIFO_U8              *rxBuff;
-    MadU32               rxCnt;
-    MadU32               rxMax;
-} mUsartChar_t;
+} mUsartBlk_t;
 
-extern MadBool mUsartChar_Init        (mUsartChar_t *port, mUsartChar_InitData_t *initData);
-extern MadBool mUsartChar_DeInit      (mUsartChar_t *port);
-extern int     mUsartChar_Write       (mUsartChar_t *port, const char *dat, size_t len, MadTim_t to);
-extern int     mUsartChar_Read        (mUsartChar_t *port,       char *dat, size_t len);
-extern void    mUsartChar_ClearRecv   (mUsartChar_t *port);
-extern int     mUsartChar_WaitRecv    (mUsartChar_t *port, MadTim_t to);
-extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);
+extern MadBool mUsartBlk_Init        (mUsartBlk_t *port, mUsartBlk_InitData_t *initData);
+extern MadBool mUsartBlk_DeInit      (mUsartBlk_t *port);
+extern int     mUsartBlk_Write       (mUsartBlk_t *port, const char *dat, size_t len, MadTim_t to);
+extern int     mUsartBlk_Read        (mUsartBlk_t *port,       char *dat, size_t len, MadTim_t to);
+extern void    mUsartBlk_Irq_Handler (mUsartBlk_t *port);
 
 #endif
