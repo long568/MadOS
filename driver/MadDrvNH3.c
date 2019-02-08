@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include "MadDev.h"
-#include "usart_char.h"
+#include "usart_blk.h"
 #include "MadDrvNH3.h"
+
+#define CACHE_SIZ   19
+#define TX_TIMEOUT  (1000 * 6)
+#define RX_TIMEOUT  (1000 * 6)
 
 static MadU8 const CMD_READALL[] = { 0x01, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08 };
 
@@ -32,7 +36,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     dev->rxBuff   = 0;
     dev->txLocker = 0;
     dev->rxLocker = 0;
-    if(MTRUE == mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
+    if(MTRUE == mUsartBlk_Init((mUsartBlk_t*)(dev->dev), (mUsartBlk_InitData_t*)(dev->args))) {
         return 1;
     } else {
         return -1;
@@ -62,14 +66,10 @@ static int Drv_write(int fd, const void *buf, size_t len)
     return -1;
 }
 
-static int get_data(mUsartChar_t* urt, const MadU8* cmd, char* cache)
+static int get_data(mUsartBlk_t* urt, const MadU8* cmd, char* cache)
 {
-    volatile int cnt;
-    if(0 > mUsartChar_Write(urt, (const char *)cmd, 8, NH3_TX_TIMEOUT)) return -1;
-    if(MAD_ERR_OK !=  mUsartChar_WaitRecv(urt, NH3_RX_TIMEOUT)) return -1;
-    cnt = mUsartChar_Read(urt, cache, 0);
-    if(0 > cnt) return -1;
-    return 1;
+    mUsartBlk_WriteNBlock(urt, (const char *)cmd, 8);
+    return mUsartBlk_Read(urt, cache, CACHE_SIZ, RX_TIMEOUT);
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
@@ -77,13 +77,12 @@ static int Drv_read(int fd, void *buf, size_t len)
     int cnt;
     char *cache;
     char *data;
-    SensorNH3_t  *dat = (SensorNH3_t*)buf;
-    MadDev_t     *dev = DevsList[fd];
-    mUsartChar_t *urt = dev->dev;
+    SensorNH3_t *dat = (SensorNH3_t*)buf;
+    MadDev_t    *dev = DevsList[fd];
+    mUsartBlk_t *urt = dev->dev;
 
-    cache = malloc(NH3_RX_BUF_SIZ);
+    cache = malloc(CACHE_SIZ);
     if(MNULL == cache) return -1;
-    mUsartChar_ClearRecv(urt);
 
     cnt = get_data(urt, CMD_READALL, cache);
     if(0 > cnt) {
@@ -110,7 +109,7 @@ static int Drv_read(int fd, void *buf, size_t len)
 static int Drv_close(int fd)
 {
     MadDev_t *dev = DevsList[fd];
-    return mUsartChar_DeInit((mUsartChar_t*)(dev->dev));
+    return mUsartBlk_DeInit((mUsartBlk_t*)(dev->dev));
 }
 
 static int Drv_isatty(int fd)

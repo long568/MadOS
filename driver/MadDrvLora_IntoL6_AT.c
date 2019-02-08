@@ -121,10 +121,7 @@ static inline int low_read(int fd, void *buf, size_t len)
     char         *dat = (char*)buf;
     MadDev_t     *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
-    if(MAD_ERR_OK != mUsartChar_WaitRecv(urt, LORA_RX_TIMEOUT)) {
-        return -1;
-    }
-    return mUsartChar_Read(urt, dat, len);
+    return mUsartChar_Read(urt, dat, len, LORA_RX_TIMEOUT);
 }
 
 static inline void lora_random_dly(void) { // Retry in 2~10s
@@ -138,7 +135,7 @@ static inline void lora_reset(int fd) {
     StmPIN_SetLow(rst_pin);
     madTimeDly(1000);
     StmPIN_SetHigh(rst_pin);
-    mUsartChar_WaitRecv(urt, LORA_RX_TIMEOUT);
+    mUsartChar_WaitRecv(urt, 1000 * 6);
     mUsartChar_ClearRecv(urt);
     madTimeDly(1000);
 }

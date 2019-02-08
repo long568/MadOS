@@ -38,6 +38,7 @@ typedef struct {
 extern MadBool mUsartBlk_Init        (mUsartBlk_t *port, mUsartBlk_InitData_t *initData);
 extern MadBool mUsartBlk_DeInit      (mUsartBlk_t *port);
 extern int     mUsartBlk_Write       (mUsartBlk_t *port, const char *dat, size_t len, MadTim_t to);
+extern int     mUsartBlk_WriteNBlock (mUsartBlk_t *port, const char *dat, size_t len);
 extern int     mUsartBlk_Read        (mUsartBlk_t *port,       char *dat, size_t len, MadTim_t to);
 extern void    mUsartBlk_Irq_Handler (mUsartBlk_t *port);
 

@@ -125,8 +125,9 @@ MadBool mUsartBlk_DeInit(mUsartBlk_t *port)
 inline void mUsartBlk_Irq_Handler(mUsartBlk_t *port)
 {
     if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        volatile MadU32 data = port->p->DR;
+        volatile MadU32 data;
         (void)data;
+        data = port->p->DR;
         DMA_Cmd(port->rxDma, DISABLE);
         madSemRelease(&port->rxLocker);
     }
@@ -140,12 +141,24 @@ inline void mUsartBlk_Irq_Handler(mUsartBlk_t *port)
 int mUsartBlk_Write(mUsartBlk_t *port, const char *dat, size_t len, MadTim_t to)
 {
     if(len > 0) {
+        madSemCheck(&port->txLocker);
         port->txDma->CMAR = (MadU32)dat;
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
-        if(MAD_ERR_OK == madSemWait(&port->txLocker, to) ) {
+        if(MAD_ERR_OK == madSemWait(&port->txLocker, to)) {
             return len - port->txDma->CNDTR;
         }
+    }
+    return -1;
+}
+
+int mUsartBlk_WriteNBlock(mUsartBlk_t *port, const char *dat, size_t len)
+{
+    if(len > 0) {
+        port->txDma->CMAR = (MadU32)dat;
+        port->txDma->CNDTR = len;
+        DMA_Cmd(port->txDma, ENABLE);
+        return len;
     }
     return -1;
 }
@@ -156,7 +169,7 @@ int mUsartBlk_Read(mUsartBlk_t *port, char *dat, size_t len, MadTim_t to)
         port->rxDma->CMAR = (MadU32)dat;
         port->rxDma->CNDTR = len;
         DMA_Cmd(port->rxDma, ENABLE);
-        if(MAD_ERR_OK == madSemWait(&port->rxLocker, to) ) {
+        if(MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
             return len - port->rxDma->CNDTR;
         }
     }

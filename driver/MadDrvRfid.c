@@ -77,8 +77,7 @@ static int Drv_read(int fd, void *buf, size_t len)
     MadDev_t  *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
     mUsartChar_ClearRecv(urt);
-    mUsartChar_WaitRecv(urt, 0);
-    n = mUsartChar_Read(urt, dat, len);
+    n = mUsartChar_Read(urt, dat, len, 0);
     j = 0;
     if(n > (RFID_ID_ORGLEN - 1)) {
         for(i=0; i<RFID_RX_MAX_NUM; i++) {

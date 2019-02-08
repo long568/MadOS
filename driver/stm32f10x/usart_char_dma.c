@@ -134,10 +134,12 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
 inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
     if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        volatile MadU32 data = port->p->DR;
+        volatile MadU32 data;
         MadU32 offset;
-        MadU32 dma_cnt = port->rxDma->CNDTR;
+        MadU32 dma_cnt;
         (void)data;
+        data = port->p->DR;
+        dma_cnt = port->rxDma->CNDTR;
         if(dma_cnt < port->rxCnt) {
             offset = port->rxCnt - dma_cnt;
         } else {
@@ -157,17 +159,38 @@ inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
 int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len, MadTim_t to)
 {
     if(len > 0) {
+        madSemCheck(&port->txLocker);
         port->txDma->CMAR = (MadU32)dat;
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
-        if(MAD_ERR_OK == madSemWait(&port->txLocker, to) ) {
+        if(MAD_ERR_OK == madSemWait(&port->txLocker, to)) {
             return len - port->txDma->CNDTR;
         }
     }
     return -1;
 }
 
-int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len)
+int mUsartChar_WriteNBlock(mUsartChar_t *port, const char *dat, size_t len)
+{
+    if(len > 0) {
+        port->txDma->CMAR = (MadU32)dat;
+        port->txDma->CNDTR = len;
+        DMA_Cmd(port->txDma, ENABLE);
+        return len;
+    }
+    return -1;
+}
+
+int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len, MadTim_t to)
+{
+    if(MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
+        FIFO_U8_DMA_Get(port->rxBuff, dat, len);
+        return len;
+    }
+    return -1;
+}
+
+int mUsartChar_ReadNBlock(mUsartChar_t *port, char *dat, size_t len)
 {
     FIFO_U8_DMA_Get(port->rxBuff, dat, len);
     return len;

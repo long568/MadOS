@@ -42,7 +42,9 @@ typedef struct {
 extern MadBool mUsartChar_Init        (mUsartChar_t *port, mUsartChar_InitData_t *initData);
 extern MadBool mUsartChar_DeInit      (mUsartChar_t *port);
 extern int     mUsartChar_Write       (mUsartChar_t *port, const char *dat, size_t len, MadTim_t to);
-extern int     mUsartChar_Read        (mUsartChar_t *port,       char *dat, size_t len);
+extern int     mUsartChar_WriteNBlock (mUsartChar_t *port, const char *dat, size_t len);
+extern int     mUsartChar_Read        (mUsartChar_t *port,       char *dat, size_t len, MadTim_t to);
+extern int     mUsartChar_ReadNBlock  (mUsartChar_t *port,       char *dat, size_t len);
 extern void    mUsartChar_ClearRecv   (mUsartChar_t *port);
 extern int     mUsartChar_WaitRecv    (mUsartChar_t *port, MadTim_t to);
 extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);

@@ -67,10 +67,7 @@ static int Drv_read(int fd, void *buf, size_t len)
     char      *dat = (char*)buf;
     MadDev_t  *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
-    if(MAD_ERR_OK != mUsartChar_WaitRecv(urt, TTY_RX_TIMEOUT)) {
-        return -1;
-    }
-    return mUsartChar_Read(urt, dat, len);
+    return mUsartChar_Read(urt, dat, len, TTY_RX_TIMEOUT);
 }
 
 static int Drv_close(int fd)
