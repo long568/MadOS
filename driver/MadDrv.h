@@ -9,7 +9,10 @@
 #include "MadOS.h"
 
 enum {
-    F_DEV_RST = 16
+    F_DEV_RST = 16,
+    F_DISK_STATUS,
+    F_DISK_READ,
+    F_DISK_WRITE
 };
 
 typedef struct {
@@ -27,5 +30,6 @@ extern const MadDrv_t MadDrvRfid;
 extern const MadDrv_t MadDrvLora_IntoL6_AT;
 extern const MadDrv_t MadDrvO2;
 extern const MadDrv_t MadDrvNH3;
+extern const MadDrv_t MadDrvSdhc;
 
 #endif

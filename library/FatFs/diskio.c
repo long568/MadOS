@@ -9,14 +9,14 @@
 
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
-#include "spi_sd.h"
+#include "MadDrv.h"
 
 /* Definitions of physical drive number for each drive */
 #define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
 #define DEV_SDC		1	/* Example: Map MMC/SD card to physical drive 1 */
 #define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
-static mSpiSd_t sd0;
+static int dev_sd = -1;
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
@@ -34,7 +34,13 @@ DSTATUS disk_status (
 			break;
 
 		case DEV_SDC:
-			res = mSpiSd_status(&sd0);
+			if(0 > dev_sd) {
+				res = STA_NOINIT;
+			} else if(0 > fcntl(dev_sd, F_DISK_STATUS)) {
+				res = STA_NODISK;
+			} else {
+				res = RES_OK;
+			}
 			break;
 
 		case DEV_USB:
@@ -67,7 +73,12 @@ DSTATUS disk_initialize (
 			break;
 
 		case DEV_SDC:
-			res = mSpiSd_initialize(&sd0);
+			dev_sd = open("/dev/sd0", 0);
+			if(dev_sd > 0) {
+				res = RES_OK;
+			} else {
+				res = STA_NODISK;
+			}
 			break;
 
 		case DEV_USB:
@@ -103,7 +114,11 @@ DRESULT disk_read (
 			break;
 
 		case DEV_SDC:
-			res = mSpiSd_read(&sd0, buff, sector, count);
+			if(0 > fcntl(dev_sd, F_DISK_READ, buff, sector, count)) {
+				res = RES_ERROR;
+			} else {
+				res = RES_OK;
+			}
 			break;
 
 		case DEV_USB:
@@ -141,7 +156,11 @@ DRESULT disk_write (
 			break;
 
 		case DEV_SDC:
-			res = mSpiSd_write(&sd0, buff, sector, count);
+			if(0 > fcntl(dev_sd, F_DISK_WRITE, buff, sector, count)) {
+				res = RES_ERROR;
+			} else {
+				res = RES_OK;
+			}
 			break;
 
 		case DEV_USB:
@@ -177,7 +196,11 @@ DRESULT disk_ioctl (
 			break;
 
 		case DEV_SDC:
-			res = mSpiSd_ioctl(&sd0, cmd, buff);
+			if(0 > fcntl(dev_sd, cmd, buff)) {
+				res = RES_ERROR;
+			} else {
+				res = RES_OK;
+			}
 			break;
 
 		case DEV_USB:

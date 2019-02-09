@@ -194,7 +194,7 @@ MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, MadBool is_re
     MadU8 invalid = mSpi_INVALID_DATA;
 
 #if 0    
-   if(5 > len) {
+   if(8 > len) {
        MadUint i;
        for(i=0; i<len; i++) {
            if(MTRUE == is_read) {
@@ -233,4 +233,25 @@ MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, MadBool is_re
     } else {
         return MFALSE;
     }
+}
+
+MadBool mSpiSetClkPrescaler(mSpi_t *port, MadU16 p)
+{
+    uint16_t reg = port->spi->CR1;
+
+    switch((MadU32)(port->spi)) {
+        case (MadU32)(SPI1):
+            p += 0x08;
+            break;
+        case (MadU32)(SPI2):
+        case (MadU32)(SPI3):
+            break;
+        default:
+            return MFALSE;
+    }
+
+    reg &= ~SPI_BaudRatePrescaler_256;
+    reg |= p & SPI_BaudRatePrescaler_256;
+    port->spi->CR1 = reg;
+    return MTRUE;
 }

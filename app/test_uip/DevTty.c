@@ -32,7 +32,7 @@ static const mUsartChar_InitData_t initData = {
     Dev_Irq_Handler
 };
 
-MadDev_t Tty0 = { "tty0", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, 0, };
+MadDev_t Tty0 = { "tty0", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, NULL };
 
 int madLogInit(void)
 {

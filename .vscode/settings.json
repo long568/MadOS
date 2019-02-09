@@ -50,7 +50,9 @@
         "ffconf.h": "c",
         "ff.h": "c",
         "uip.h": "c",
-        "usart_blk.h": "c"
+        "usart_blk.h": "c",
+        "_default_fcntl.h": "c",
+        "spi_low.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -58,20 +58,24 @@ typedef struct __mSpi_t {
 #define mSpi_DMA_DISABLE(port)          do{ SPI_I2S_DMACmd(port->spi, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, DISABLE);  \
                                             DMA_Cmd((port)->dmaRx, DISABLE); DMA_Cmd((port)->dmaTx, DISABLE); } while(0)
 
-extern MadBool  mSpiInit         (mSpi_t *port, mSpi_InitData_t *initData);
-extern MadBool  mSpiDeInit       (mSpi_t *port);
-extern MadBool  mSpiTry2Send8Bit (mSpi_t *port, MadU8 send, MadU8 *read, MadUint retry);
-extern MadBool  mSpiSwitchBuffer (mSpi_t *port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to);
+extern MadBool  mSpiInit           (mSpi_t *port, mSpi_InitData_t *initData);
+extern MadBool  mSpiDeInit         (mSpi_t *port);
+extern MadBool  mSpiTry2Send8Bit   (mSpi_t *port, MadU8 send, MadU8 *read, MadUint retry);
+extern MadBool  mSpiSwitchBuffer   (mSpi_t *port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to);
+extern MadBool  mSpiSetClkPrescaler(mSpi_t *port, MadU16 p);
 
 extern void mSpiLow_SPI_IRQHandler(mSpi_t *port);
 extern void mSpiLow_DMA_IRQHandler(mSpi_t *port);
 
-#define mSpiSwitch8Bit(port, send, read)  mSpiTry2Send8Bit  (port, send, read, (port)->retry)
-#define mSpiRead8Bit(port, res)           mSpiSwitch8Bit    (port, mSpi_INVALID_DATA, res)
-#define mSpiSend8Bit(port, data)          mSpiSwitch8Bit    (port, data, MNULL)
-#define mSpiSend8BitRes(port, data, res)  mSpiSwitch8Bit    (port, data, res)
-#define mSpiSend8BitInvalid(port)         mSpiSwitch8Bit    (port, mSpi_INVALID_DATA, MNULL)
+#define mSpiSwitch8Bit(port, send, read) mSpiTry2Send8Bit (port, send, read, (port)->retry)
+#define mSpiRead8Bit(port, res)          mSpiSwitch8Bit   (port, mSpi_INVALID_DATA, res)
+#define mSpiSend8Bit(port, data)         mSpiSwitch8Bit   (port, data, MNULL)
+#define mSpiSend8BitRes(port, data, res) mSpiSwitch8Bit   (port, data, res)
+#define mSpiSend8BitInvalid(port)        mSpiSwitch8Bit   (port, mSpi_INVALID_DATA, MNULL)
 
-#define mSpi_TRY(port, x)  {if(MFALSE == x) {mSpi_NSS_DISABLE(port); return MFALSE;}}
+#define mSpiWriteBytes(port, data, len, to) mSpiSwitchBuffer (port, (MadU8*)data, len, MFALSE, to)
+#define mSpiReadBytes(port, data, len, to)  mSpiSwitchBuffer (port, (MadU8*)data, len, MTRUE, to)
+
+#define mSpi_TRY(port, x)  do{ if(MFALSE == x) { mSpi_NSS_DISABLE(port); return MFALSE; } }while(0)
 
 #endif

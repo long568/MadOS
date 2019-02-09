@@ -14,7 +14,7 @@ int isatty (int fd)
     }
 }
 
-_READ_WRITE_RETURN_TYPE read (int fd, void *buf, size_t nbyte)
+int read (int fd, void *buf, size_t nbyte)
 {
     int obj_type = fd & OBJ_MASK;
     int real_fd  = fd & (~OBJ_MASK);
@@ -26,7 +26,7 @@ _READ_WRITE_RETURN_TYPE read (int fd, void *buf, size_t nbyte)
     }
 }
 
-_READ_WRITE_RETURN_TYPE write (int fd, const void *buf, size_t nbyte)
+int write (int fd, const void *buf, size_t nbyte)
 {
     int obj_type = fd & OBJ_MASK;
     int real_fd  = fd & (~OBJ_MASK);
