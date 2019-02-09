@@ -239,7 +239,7 @@ static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff)
             do {
                 mSpiRead8Bit(spi, &tmp);
             } while((tmp == 0xFF) && (--i));
-            switch (tmp & 0x0F)
+            switch (tmp & 0x1F)
             {
                 case 0x05:
                     res = 1;
