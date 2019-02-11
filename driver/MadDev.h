@@ -27,9 +27,11 @@ typedef struct _MadDev_t {
 extern MadDev_t *DevsList[];
 
 extern int MadDev_open  (const char * file, int flag, va_list args);
+extern int MadDev_creat (const char * file, mode_t mode);
 extern int MadDev_fcntl (int fd, int cmd, va_list args);
 extern int MadDev_write (int fd, const void *buf, size_t len);
 extern int MadDev_read  (int fd, void *buf, size_t len);
 extern int MadDev_close (int fd);
+extern int MadDev_isatty(int fd);
 
 #endif

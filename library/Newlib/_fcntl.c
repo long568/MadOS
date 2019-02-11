@@ -1,19 +1,38 @@
+/***************************************************
+ * fd allocation
+ * std_in : 0
+ * std_out: 1
+ * std_err: 2
+ * Device : 3 ~ 999 (0 ~ 996)
+ * File   : > 999
+ ***************************************************/
 #include <fcntl.h>
 #include <string.h>
 #include <stdarg.h>
 #include "MadDev.h"
 #include "nl_cfg.h"
 
+int (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
+int (*MadFile_creat) (const char * file, mode_t mode)            = 0;
+int (*MadFile_fcntl) (int fd, int cmd, va_list args)             = 0;
+
 int open (const char * file, int flag, ...)
 {
-    int        fd = -1;
-    va_list    args;
+    int fd = -1;
+    va_list args;
     const char *name;
     va_start(args, flag);
     if(0 == strncmp("/dev/", file, 5)) {
         name = &file[5];
         fd = MadDev_open(name, flag, args);
-        if(fd >= 0) fd |= OBJ_DEV;
+        if(fd >= 0) fd += DEV_FD_START;
+    } else {
+        if(MadFile_open) {
+            fd = MadFile_open(file, flag, args);
+            if(fd != -1) {
+                fd += DEV_FD_END;
+            }
+        }
     }
     va_end(args);
     return fd;
@@ -21,9 +40,21 @@ int open (const char * file, int flag, ...)
 
 int creat (const char * file, mode_t mode)
 {
-    (void)file;
-    (void)mode;
-    return -1;
+    int fd = -1;
+    const char *name;
+    if(0 == strncmp("/dev/", file, 5)) {
+        name = &file[5];
+        fd = MadDev_creat(name, mode);
+        if(fd >= 0) fd += DEV_FD_START;
+    } else {
+        if(MadFile_creat) {
+            fd = MadFile_creat(file, mode);
+            if(fd != -1) {
+                fd += DEV_FD_END;
+            }
+        }
+    }
+    return fd;
 }
 
 /* int fcntl (int fd, int cmd, ...) -> cmd:
@@ -38,16 +69,20 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
-    int obj_type = fd & OBJ_MASK;
-    int real_fd  = fd & (~OBJ_MASK);
+    int res = -1;
     va_list args;
     va_start(args, cmd);
-    switch(obj_type) {
-        case OBJ_STD:  return 0;
-        case OBJ_FILE: return 0;
-        case OBJ_DEV:  return MadDev_fcntl(real_fd, cmd, args);
-        default:       return 0;
+    if((MadU32)fd < DEV_FD_START) {
+        res = MadDev_fcntl(TTY_DEV_INDEX, cmd, args);
+    } else if((MadU32)fd < DEV_FD_END) {
+        fd -= DEV_FD_START;
+        res = MadDev_fcntl(fd, cmd, args);
+    } else {
+        if(MadFile_fcntl) {
+            fd -= DEV_FD_END;
+            res = MadFile_fcntl(fd, cmd, args);
+        }
     }
     va_end(args);
-    return -1;
+    return res;
 }

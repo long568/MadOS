@@ -395,7 +395,8 @@ static int Drv_close(int fd)
     MadDev_t *dev = DevsList[fd];
     StmPIN   *rst_pin = (StmPIN*)(dev->ptr);
     StmPIN_SetHigh(rst_pin);
-    return mUsartChar_DeInit((mUsartChar_t*)(dev->dev));
+    mUsartChar_DeInit((mUsartChar_t*)(dev->dev));
+    return 0;
 }
 
 static int Drv_isatty(int fd)

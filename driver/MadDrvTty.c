@@ -79,5 +79,5 @@ static int Drv_close(int fd)
 static int Drv_isatty(int fd)
 {
     (void)fd;
-    return 0;
+    return 1;
 }

@@ -111,7 +111,8 @@ static int Drv_read(int fd, void *buf, size_t len)
 static int Drv_close(int fd)
 {
     MadDev_t *dev = DevsList[fd];
-    return mUsartBlk_DeInit((mUsartBlk_t*)(dev->dev));
+    mUsartBlk_DeInit((mUsartBlk_t*)(dev->dev));
+    return 0;
 }
 
 static int Drv_isatty(int fd)

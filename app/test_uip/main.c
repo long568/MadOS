@@ -5,6 +5,8 @@
 #include "MadDrv.h"
 #include "CfgUser.h"
 #include "mod_uIP.h"
+#include "mod_FatFs.h"
+
 #include "testEth.h"
 
 #if MAD_STATIST_STK_SIZE
@@ -74,7 +76,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("================================\n");
 
     uIP_Init();
-
+    FatFs_Init();
 /********************************************
  * User-Apps
  ********************************************/

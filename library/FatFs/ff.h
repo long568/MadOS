@@ -328,7 +328,7 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 #define EOF (-1)
 #endif
 
-
+#include "mod_FatFs.h" // Added by long 20190211
 
 
 /*--------------------------------------------------------------*/

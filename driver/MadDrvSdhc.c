@@ -446,8 +446,12 @@ static int Drv_read(int fd, void *buf, size_t len)
 
 static int Drv_close(int fd)
 {
-    (void)fd;
-    return -1;
+    MadDev_t *dev = DevsList[fd];
+    mSpi_t   *spi = (mSpi_t *)(dev->dev);
+    free(dev->ptr);
+    mSpiDeInit(spi);
+    MAD_LOG("[SD]...Closed\n");
+    return 0;
 }
 
 static int Drv_isatty(int fd)

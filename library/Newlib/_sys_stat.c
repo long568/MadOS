@@ -6,17 +6,10 @@
 int	fstat (int fd, struct stat *sb )
 {
     MadCpsr_t cpsr;
-    int obj_type = fd & OBJ_MASK;
-    switch(obj_type) {
-        case OBJ_STD: {
-            madEnterCritical(cpsr);
-            sb->st_mode = S_IFCHR;
-            madExitCritical(cpsr);
-            break;
-        }
-        case OBJ_FILE:
-        case OBJ_DEV:
-        default:       break;
+    if((MadU32)fd < DEV_FD_START) {
+        madEnterCritical(cpsr);
+        sb->st_mode = S_IFCHR;
+        madExitCritical(cpsr);
     }
     return 0;
 }
