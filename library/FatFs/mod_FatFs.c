@@ -92,19 +92,19 @@ static int FatFs_open(const char * file, int flag, va_list args)
     }
 }
 
-static int FatFs_creat (const char * file, mode_t mode)
+static int FatFs_creat(const char * file, mode_t mode)
 {
     va_list args;
     return FatFs_open(file, mode, args);
 }
 
-static int FatFs_fcntl (int fd, int cmd, va_list args)
+static int FatFs_fcntl(int fd, int cmd, va_list args)
 {
     (void)fd; (void)cmd; (void)args;
     return -1;
 }
 
-static int FatFs_write (int fd, const void *buf, size_t len)
+static int FatFs_write(int fd, const void *buf, size_t len)
 {
     UINT bw;
     FIL *fp = (FIL*)fd;
@@ -115,7 +115,7 @@ static int FatFs_write (int fd, const void *buf, size_t len)
     }
 }
 
-static int FatFs_read  (int fd, void *buf, size_t len)
+static int FatFs_read(int fd, void *buf, size_t len)
 {
     UINT br;
     FIL *fp = (FIL*)fd;
