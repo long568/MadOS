@@ -28,5 +28,6 @@ MISSING_SYSCALL_NAMES
 #define MEM_OPT_THRESHOLD (30)
 #define DEV_FD_START      (3)
 #define DEV_FD_END        (1000)
+#define FIL_NUM_MAX       (10)
 
 #endif

@@ -8,9 +8,10 @@
 #include "mod_FatFs.h"
 
 #include "testEth.h"
+#include "testFatFs.h"
 
 #if MAD_STATIST_STK_SIZE
-// #define MAD_SHOW_IDLERATE
+#define MAD_SHOW_IDLERATE
 #endif
 
 MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
@@ -81,6 +82,7 @@ static void madStartup(MadVptr exData)
  * User-Apps
  ********************************************/
     Init_TestUIP();
+    Init_TestFatFs();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -90,11 +92,12 @@ static void madStartup(MadVptr exData)
 
 static void madSysRunning(MadVptr exData)
 {
+#ifdef MAD_SHOW_IDLERATE
+    int tmrSysReport = 0;
+    int idle_rate = 100;
+#endif
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
-#ifdef MAD_SHOW_IDLERATE
-    MadUint tmrSysReport  = 0;
-#endif
 
     (void)exData;
     
@@ -122,9 +125,11 @@ static void madSysRunning(MadVptr exData)
         
 #ifdef MAD_SHOW_IDLERATE
         tmrSysReport ++;
-        if(tmrSysReport >= 2 * 10) {
+        idle_rate += madIdleRate();
+        idle_rate >>= 1;
+        if(tmrSysReport > 10) {
             tmrSysReport = 0;
-            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
+            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
         }
 #endif
 	}

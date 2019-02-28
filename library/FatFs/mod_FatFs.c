@@ -23,9 +23,12 @@ static int FatFs_close (int fd);
 MadBool FatFs_Init(void)
 {
     MadCpsr_t cpsr;
+    int res;
     fs_sd = (FATFS*)malloc(sizeof(FATFS));
     if(!fs_sd) return MFALSE;
-    if(FR_OK == f_mount(fs_sd, "sd", 1)) {
+    MAD_LOG("[FatFs] Startup\n");
+    res = f_mount(fs_sd, "/sd", 1);
+    if(FR_OK == res) {
         madEnterCritical(cpsr);
         MadFile_open  = FatFs_open;
         MadFile_creat = FatFs_creat;
@@ -34,11 +37,14 @@ MadBool FatFs_Init(void)
         MadFile_read  = FatFs_read;
         MadFile_close = FatFs_close;
         madExitCritical(cpsr);
-        return MTRUE;
+        MAD_LOG("[FatFs] /sd mounted\n");
+        res = MTRUE;
     } else {
         free(fs_sd);
-        return MFALSE;
+        MAD_LOG("[FatFs] /sd error\n");
+        res = MFALSE;
     }
+    return res;
 }
 
 // FatFs

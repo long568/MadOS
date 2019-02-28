@@ -2,7 +2,7 @@
 export TEMP = $(BUILD_DIR)/app
 
 ASMS =
-SRCS = $(wildcard *.c)
+SRCS = $(wildcard *.c) $(wildcard *.cpp)
 
 include $(RULES)
 

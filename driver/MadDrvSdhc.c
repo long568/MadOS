@@ -8,6 +8,7 @@
 #include "spi_low.h"
 #include "MadDrvSdhc.h"
 #include "mstd_crc.h"
+#include "../library/FatFs/diskio.h"
 
 #define CMD0    0
 #define CMD1    1
@@ -39,8 +40,9 @@ static void mSpiSd_SetCmd(MadU8 *buf, MadU8 cmd, MadU32 arg)
 
 static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep)
 {
+    int i;
     MadU8 *prep;
-    MadU8 i, r, res;
+    MadU8 r, res;
     res = mSpi_INVALID_DATA;
     prep = (MadU8*)rep;
     if(MTRUE == mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
@@ -66,8 +68,9 @@ static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep
 
 static MadU8 mSpiSd_BootCmd2(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep)
 { // For CMD12
+    int i;
     MadU8 *prep;
-    MadU8 i, r, res;
+    MadU8 r, res;
     res = mSpi_INVALID_DATA;
     prep = (MadU8*)rep;
     if(MTRUE == mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
@@ -119,7 +122,7 @@ static int mSpiSd_WriteCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, M
     i = CMD_RETRY_NUM;
     res = 1;
     do {
-        r = mSpiSd_SendCmd(spi, cmd, r1, arg, rep);
+        r = mSpiSd_SendCmd(spi, cmd, arg, r1, rep);
     } while ((r == mSpi_INVALID_DATA) && (--i));
     if(r == mSpi_INVALID_DATA) {
         res = -1;
@@ -134,7 +137,7 @@ static int mSpiSd_WriteCmd2(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, 
     i = CMD_RETRY_NUM;
     res = 1;
     do {
-        r = mSpiSd_SendCmd2(spi, cmd, r1, arg, rep);
+        r = mSpiSd_SendCmd2(spi, cmd, arg, r1, rep);
     } while ((r == mSpi_INVALID_DATA) && (--i));
     if(r == mSpi_INVALID_DATA) {
         res = -1;
@@ -147,7 +150,7 @@ static int mSpiSd_Reset(mSpi_t *spi)
 {
     int i;
     MadU8 res;
-    MAD_LOG("[SD]mSpiSd_Reset\n");
+    MAD_LOG("[SD] mSpiSd_Reset\n");
     mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_128); // 36MHz / 128 = 281.25KHz
     madTimeDly(100);
     for(i=0; i<10; i++) { // > 74 clks
@@ -160,8 +163,8 @@ static int mSpiSd_Reset(mSpi_t *spi)
 inline
 static int mSpiSd_InitSDC(mSpi_t *spi)
 {
-    MAD_LOG("[SD]mSpiSd_InitSDC\n");
-    if(0 < mSpiSd_WriteCmd(spi, CMD55,  0, 0x01, 0)) {
+    MAD_LOG("[SD] mSpiSd_InitSDC\n");
+    if(0 < mSpiSd_WriteCmd(spi, CMD55, 0, 0x01, 0)) {
         return mSpiSd_WriteCmd(spi, ACMD41, 0x40000000, 0x00, 0);
     } else {
         return -1;
@@ -171,14 +174,14 @@ static int mSpiSd_InitSDC(mSpi_t *spi)
 inline
 static int mSpiSd_Init(mSpi_t *spi)
 {
-    MAD_LOG("[SD]mSpiSd_Init\n");
+    MAD_LOG("[SD] mSpiSd_Init\n");
     return mSpiSd_WriteCmd(spi, CMD1, 0, 0x00, 0);
 }
 
 inline
 static int mSpiSd_SetBlkSize(mSpi_t *spi)
 {
-    MAD_LOG("[SD]mSpiSd_SetBlkSize\n");
+    MAD_LOG("[SD] mSpiSd_SetBlkSize\n");
     return mSpiSd_WriteCmd2(spi, CMD16, SECTOR_SIZE, 0x00, 0);
 }
 
@@ -186,7 +189,7 @@ inline
 static int mSpiSd_OCR(mSpi_t *spi, MadU32 *rep)
 {
     int res;
-    MAD_LOG("[SD]mSpiSd_OCR\n");
+    // MAD_LOG("[SD] mSpiSd_OCR\n");
     res = mSpiSd_WriteCmd2(spi, CMD58, 0, 0x00, rep);
     return res;
 }
@@ -367,14 +370,14 @@ static int Drv_open(const char * file, int flag, va_list args)
         if((0 > mSpiSd_InitSDC(spi)) && (0 > mSpiSd_Init(spi))) break;
         if(0 > mSpiSd_SetBlkSize(spi)) break;
         if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
-        mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_4); // 36MHz / 4 = 9MHz
-        MAD_LOG("[SD]...Ready\n");
+        mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2); // 36MHz / x
+        MAD_LOG("[SD] Ready\n");
         return 1;
     } while(0);
 
     free(dev->ptr);
     mSpiDeInit(spi);
-    MAD_LOG("[SD]...Error\n");
+    MAD_LOG("[SD] Error\n");
     return -1;
 }
 
@@ -419,6 +422,11 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
             sector = va_arg(args, MadU32);
             count  = va_arg(args, MadU32);
             res = mSpiSd_write(spi, buff, sector, count);
+            break;
+        }
+
+        case CTRL_SYNC: {
+            res = 1;
             break;
         }
 

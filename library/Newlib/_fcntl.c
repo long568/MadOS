@@ -12,12 +12,15 @@
 #include "MadDev.h"
 #include "nl_cfg.h"
 
+int std_fd_array[FIL_NUM_MAX] = { -1 };
+
 int (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
 int (*MadFile_creat) (const char * file, mode_t mode)            = 0;
 int (*MadFile_fcntl) (int fd, int cmd, va_list args)             = 0;
 
 int open (const char * file, int flag, ...)
 {
+    MadCpsr_t cpsr;
     int fd = -1;
     va_list args;
     const char *name;
@@ -28,9 +31,28 @@ int open (const char * file, int flag, ...)
         if(fd >= 0) fd += DEV_FD_START;
     } else {
         if(MadFile_open) {
-            fd = MadFile_open(file, flag, args);
-            if(fd != -1) {
-                fd += DEV_FD_END;
+            int i;
+            for(i=0; i<FIL_NUM_MAX; i++) {
+                madEnterCritical(cpsr);
+                if(-1 == std_fd_array[i]) {
+                    std_fd_array[i] = 0;
+                    madExitCritical(cpsr);
+                    break;
+                }
+                madExitCritical(cpsr);
+            }
+            if(i < FIL_NUM_MAX) {
+                fd = MadFile_open(file, flag, args);
+                if(fd != -1) {
+                    madEnterCritical(cpsr);
+                    std_fd_array[i] = fd;
+                    madExitCritical(cpsr);
+                    fd = i + DEV_FD_END;
+                } else {
+                    madEnterCritical(cpsr);
+                    std_fd_array[i] = -1;
+                    madExitCritical(cpsr);
+                }
             }
         }
     }
@@ -40,6 +62,7 @@ int open (const char * file, int flag, ...)
 
 int creat (const char * file, mode_t mode)
 {
+    MadCpsr_t cpsr;
     int fd = -1;
     const char *name;
     if(0 == strncmp("/dev/", file, 5)) {
@@ -48,9 +71,28 @@ int creat (const char * file, mode_t mode)
         if(fd >= 0) fd += DEV_FD_START;
     } else {
         if(MadFile_creat) {
-            fd = MadFile_creat(file, mode);
-            if(fd != -1) {
-                fd += DEV_FD_END;
+            int i;
+            for(i=0; i<FIL_NUM_MAX; i++) {
+                madEnterCritical(cpsr);
+                if(-1 == std_fd_array[i]) {
+                    std_fd_array[i] = 0;
+                    madExitCritical(cpsr);
+                    break;
+                }
+                madExitCritical(cpsr);
+            }
+            if(i < FIL_NUM_MAX) {
+                fd = MadFile_creat(file, mode);
+                if(fd != -1) {
+                    madEnterCritical(cpsr);
+                    std_fd_array[i] = fd;
+                    madExitCritical(cpsr);
+                    fd = i + DEV_FD_END;
+                } else {
+                    madEnterCritical(cpsr);
+                    std_fd_array[i] = -1;
+                    madExitCritical(cpsr);
+                }
             }
         }
     }
@@ -69,6 +111,7 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
+    MadCpsr_t cpsr;
     int res = -1;
     va_list args;
     va_start(args, cmd);
@@ -79,7 +122,9 @@ int fcntl (int fd, int cmd, ...)
         res = MadDev_fcntl(fd, cmd, args);
     } else {
         if(MadFile_fcntl) {
-            fd -= DEV_FD_END;
+            madEnterCritical(cpsr);
+            fd = std_fd_array[fd - DEV_FD_END];
+            madExitCritical(cpsr);
             res = MadFile_fcntl(fd, cmd, args);
         }
     }

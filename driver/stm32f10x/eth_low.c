@@ -129,7 +129,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
 
     eth->TxDscr      = (ETH_DMADESCTypeDef*)madMemMalloc(eth->TxDscrNum * sizeof(ETH_DMADESCTypeDef));
     eth->RxDscr      = (ETH_DMADESCTypeDef*)madMemMalloc(eth->RxDscrNum * sizeof(ETH_DMADESCTypeDef));
-    eth->TxBuff      = 0; //(MadU8*)madMemMalloc(eth->TxDscrNum * eth->MaxPktSize);
+    eth->TxBuff      = (MadU8*)madMemMalloc(eth->TxDscrNum * eth->MaxPktSize);
     eth->RxBuff      = (MadU8*)madMemMalloc(eth->RxDscrNum * eth->MaxPktSize);
     if((!eth->TxDscr) || (!eth->RxDscr) || (!eth->TxBuff) || (!eth->RxBuff)) {
         return MFALSE;

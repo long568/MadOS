@@ -1,3 +1,7 @@
+/*
+ * Test Cmd
+ * psping -i 0 -l 1234 -q -t 192.168.1.109
+ */
 #include <stdlib.h>
 #include "mod_uIP.h"
 
@@ -7,7 +11,6 @@ timer   uIP_periodic_timer;
 timer   uIP_arp_timer;
 uIP_App *uIP_app_list;
 u8_t    *uip_buf;
-u8_t    *uip_buf_s;
 
 #define APPLIST_LOOP(fun, ...) \
 do {                                    \
@@ -119,8 +122,7 @@ MadBool uIP_preinit(mEth_t *eth)
 {
     MadUint i;
     uIP_app_list = 0;
-    // uip_buf = (u8_t*)madMemMalloc(UIP_CONF_BUFFER_SIZE);
-    uip_buf_s = (u8_t*)malloc(UIP_CONF_BUFFER_SIZE);
+    uip_buf = (u8_t*)malloc(UIP_CONF_BUFFER_SIZE);
     if(!uip_buf) return MFALSE;
     clocker_init(&uIP_Clocker);
     timer_init(&uIP_arp_timer);
@@ -167,8 +169,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     
     if(event & mEth_PE_STATUS_RXPKT) {
         while(uIP_dev_rxsize(eth)) {
-            // uip_len = (MadU16)uIP_dev_read(eth, uip_buf);
-            uip_len = (MadU16)uIP_dev_read2(eth, &uip_buf);
+            uip_len = (MadU16)uIP_dev_read(eth, uip_buf);
             if(uip_len > 0) {
                 if(BUF->type == htons(UIP_ETHTYPE_IP)) {
                     uip_arp_ipin();
@@ -193,7 +194,6 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
         }
     } else if(timer_expired(&uIP_periodic_timer)) {
         int i;
-        uip_buf = uip_buf_s; // Added by long 20190204
         for(i = 0; i < UIP_CONNS; i++) {
             uip_periodic(i);
             /* If the above function invocation resulted in data that

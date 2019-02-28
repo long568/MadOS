@@ -10,16 +10,16 @@ define gen_dep
 	$(ECHO) 'Scanning $< ...'
 	$(RM) $@
 	$(MKDIR) $(TEMP)
-	@$(CC) $(CFLAGS) -MM $< > $@.tmp
+	@$(1) $(2) -MM $< > $@.tmp
 	@sed 's,^\($*.o\)[ :]*,$(TEMP)/\1 $@: ,g' < $@.tmp > $@
 	$(RM) $@.tmp
 endef
 
 $(TEMP)/%.d: %.c
-	$(gen_dep)
+	$(call gen_dep, $(CC) $(CFLAGS))
 
 $(TEMP)/%.d: %.cpp
-	$(gen_dep)
+	$(call gen_dep, $(CPP) $(CPPFLAGS))
 
 $(TEMP)/%.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $@
