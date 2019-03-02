@@ -21,8 +21,7 @@ void Init_TestFatFs(void)
 
 static void test_fatfs_act(MadVptr exData)
 {
-    int i;
-
+    int i, j;
 #if 0
     volatile int res;
     UINT cnt;
@@ -68,13 +67,15 @@ static void test_fatfs_act(MadVptr exData)
 
 #if 1
     FILE *fil;
-    volatile size_t cnt;
+    size_t cnt;
     MadU8 *buf;
+    MadU8 err_code;
 
     fil = fopen("/sd/hello.md", "w");
     if(fil) {
         cnt = fwrite(HELLO_MADOS, HELLO_LEN, 1, fil);
         fclose(fil);
+        fil = 0;
         MAD_LOG("fwrite [%d / %d]\n", cnt, 1);
     } else {
         MAD_LOG("fopen err\n");
@@ -85,6 +86,7 @@ static void test_fatfs_act(MadVptr exData)
         buf = (MadU8*)malloc(BUFF_LEN);
         cnt = fread(buf, HELLO_LEN, 1, fil);
         fclose(fil);
+        fil = 0;
         MAD_LOG("fread [%d][%s]\n", cnt, buf);
         free(buf);
     } else {
@@ -93,42 +95,61 @@ static void test_fatfs_act(MadVptr exData)
 #endif
 
     i = 0;
+    j = 0;
     while(1) {
         if(i++ < WRITE_CNT) {
-#if 0
-            fil = fopen("/sd/hello.md", "r");
+#if 1
+            fil = fopen("/sd/hello.md", "w");
             if(fil) {
-                // cnt = fwrite(HELLO_MADOS, HELLO_LEN, 1, fil);
-                buf = (MadU8*)malloc(BUFF_LEN);
-                cnt = fread(buf, HELLO_LEN, 1, fil);
+                cnt = fwrite(HELLO_MADOS, HELLO_LEN, 1, fil);
                 fclose(fil);
-                MAD_LOG("fread [%d][%s]\n", cnt, buf);
-                free(buf);
+                fil = 0;
+                if(cnt != 1) {
+                    err_code = 3;
+                    i = WRITE_CNT;
+                    continue;
+                }
             } else {
-                MAD_LOG("fopen err\n");
+                err_code = 1;
                 i = WRITE_CNT;
                 continue;
             }
 #endif
 
 #if 1
-            fil = fopen("/sd/hello.md", "w");
+            fil = fopen("/sd/hello.md", "r");
             if(fil) {
-                // MAD_LOG("fopen ok\n");
-                cnt = fwrite(HELLO_MADOS, HELLO_LEN, 1, fil);
-                // MAD_LOG("fwrite [%d]\n", cnt);
+                buf = (MadU8*)malloc(BUFF_LEN);
+                cnt = fread(buf, HELLO_LEN, 1, fil);
                 fclose(fil);
-                // MAD_LOG("fclose ok\n");
+                fil = 0;
+                free(buf);
+                if(cnt != 1) {
+                    err_code = 4;
+                    i = WRITE_CNT;
+                    continue;
+                }
             } else {
-                MAD_LOG("fopen err\n");
+                err_code = 2;
                 i = WRITE_CNT;
                 continue;
             }
 #endif
-            if(0 == i%100)
-                MAD_LOG("ff [%d / %d]\n", i, WRITE_CNT);
+
+            if(0 == i%1000) {
+                i = 0;
+                MAD_LOG("ff working [%d]\n", ++j);
+            }
+            // do {
+            //     int c = getchar();
+            //     if(c == 'q') {
+            //         err_code = 0;
+            //         i = WRITE_CNT;
+            //     }
+            // } while(0)
             madTimeDly(10);
         } else {
+            MAD_LOG("ff done [%d / %d]\n", j, err_code);
             madTimeDly(UINT32_MAX);
         }
     }

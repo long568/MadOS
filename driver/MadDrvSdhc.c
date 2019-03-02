@@ -119,7 +119,7 @@ static int mSpiSd_WriteCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, M
 {
     int i, res;
     MadU8 r;
-    i = CMD_RETRY_NUM;
+    i = STARTUP_RETRY_NUM;
     res = 1;
     do {
         r = mSpiSd_SendCmd(spi, cmd, arg, r1, rep);
@@ -134,7 +134,7 @@ static int mSpiSd_WriteCmd2(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, 
 {
     int i, res;
     MadU8 r;
-    i = CMD_RETRY_NUM;
+    i = STARTUP_RETRY_NUM;
     res = 1;
     do {
         r = mSpiSd_SendCmd2(spi, cmd, arg, r1, rep);
@@ -149,15 +149,13 @@ inline
 static int mSpiSd_Reset(mSpi_t *spi)
 {
     int i;
-    MadU8 res;
     MAD_LOG("[SD] mSpiSd_Reset\n");
     mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_128); // 36MHz / 128 = 281.25KHz
     madTimeDly(100);
     for(i=0; i<10; i++) { // > 74 clks
         mSpiSend8BitInvalid(spi);
     }
-    res = mSpiSd_WriteCmd2(spi, CMD0, 0, 0x01, 0);
-    return res;
+    return mSpiSd_WriteCmd2(spi, CMD0, 0, 0x01, 0);
 }
 
 inline
@@ -229,12 +227,17 @@ static int mSpiSd_ReadOneSector(mSpi_t *spi, MadU8 *buff)
     return res;
 }
 
-static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff)
+static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadBool isMul)
 {
     int i;
     MadU8 res, tmp;
     res = -1;
-    if(MTRUE == mSpiSend8Bit(spi, 0xFE)) {
+    if(MTRUE == isMul) {
+        tmp = 0xFE;
+    } else {
+        tmp = 0xFC;
+    }
+    if(MTRUE == mSpiSend8Bit(spi, tmp)) {
         if(MTRUE == mSpiWriteBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
             mSpiSend8BitInvalid(spi);
             mSpiSend8BitInvalid(spi);
@@ -308,7 +311,8 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
             mSpiSend8BitInvalid(spi);
-            res = mSpiSd_WriteOneSector(spi, data);
+            mSpiSend8BitInvalid(spi);
+            res = mSpiSd_WriteOneSector(spi, data, MFALSE);
         }
         mSpi_NSS_DISABLE(spi);
     } else {
@@ -316,8 +320,9 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
             mSpiSend8BitInvalid(spi);
+            mSpiSend8BitInvalid(spi);
             do {
-                res   = mSpiSd_WriteOneSector(spi, data);
+                res   = mSpiSd_WriteOneSector(spi, data, MTRUE);
                 data += SECTOR_SIZE;
             } while((res == 1) && (--count));
             mSpiSend8Bit(spi, 0xFD);
@@ -349,6 +354,7 @@ const MadDrv_t MadDrvSdhc = {
 
 static int Drv_open(const char * file, int flag, va_list args)
 {
+    int      i;
     SdInfo_t *sd_info;
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
@@ -364,16 +370,21 @@ static int Drv_open(const char * file, int flag, va_list args)
     if(0 == dev->ptr) return -1;
     sd_info = (SdInfo_t*)(dev->ptr);
 
+    i = 1;
     do {
-        if(MFALSE == mSpiInit(spi, initData)) break;
-        if(0 > mSpiSd_Reset(spi)) break;
-        if((0 > mSpiSd_InitSDC(spi)) && (0 > mSpiSd_Init(spi))) break;
-        if(0 > mSpiSd_SetBlkSize(spi)) break;
-        if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
-        mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2); // 36MHz / x
-        MAD_LOG("[SD] Ready\n");
-        return 1;
-    } while(0);
+        do {
+            MAD_LOG("[SD] Startup ... [%d]\n", i);
+            if(MFALSE == mSpiInit(spi, initData)) break;
+            if(0 > mSpiSd_Reset(spi)) break;
+            if((0 > mSpiSd_InitSDC(spi)) && (0 > mSpiSd_Init(spi))) break;
+            if(0 > mSpiSd_SetBlkSize(spi)) break;
+            if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
+            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2); // 36MHz / x
+            MAD_LOG("[SD] Ready\n");
+            return 1;
+        } while(0);
+        madTimeDly(3000);
+    } while(i++ < STARTUP_RETRY_NUM);
 
     free(dev->ptr);
     mSpiDeInit(spi);
