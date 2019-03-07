@@ -33,7 +33,7 @@
 #define HELLO_MADOS "Hello MadOS\nNow, we are ONE !!!\n"
 #define HELLO_LEN   sizeof(HELLO_MADOS)-1
 #define BUFF_LEN    HELLO_LEN + 8
-#define WRITE_CNT   50000
+#define WRITE_CNT   (10 * 1024 * 1024 / 32)
 
 static void test_fatfs_act(MadVptr exData);
 
@@ -130,7 +130,7 @@ static void test_fatfs_act(MadVptr exData)
     
     while(1) {
         if(i++ < WRITE_CNT) {
-            madTimeDly(50);
+            madTimeDly(10);
 #if 1
             fil = fopen("/sd/hello.md", "a");
             if(fil) {
@@ -150,7 +150,7 @@ static void test_fatfs_act(MadVptr exData)
 #endif
 
 #if 1
-            madTimeDly(50);
+            // madTimeDly(50);
             fil = fopen("/sd/hello.md", "r");
             if(fil) {
                 buf = (MadU8*)malloc(BUFF_LEN);

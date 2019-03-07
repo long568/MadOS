@@ -199,8 +199,7 @@ static int mSpiSd_WaitIdle(mSpi_t *spi)
     MadU8 tmp;
     count = IDLE_RETRY_NUM;
     do {
-        mSpiMulEmpty(spi, 3, DAT_TIME_OUT);
-        mSpiRead8Bit(spi, &tmp);
+        mSpiMulRead(spi, &tmp, 8, DAT_TIME_OUT);
     } while ((tmp != 0xFF) && (--count));
     if(tmp != 0xFF) {
         return -1;
@@ -323,7 +322,6 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
                 data += SECTOR_SIZE;
             } while((res == 1) && (--count));
             mSpiSend8Bit(spi, 0xFD);
-            // mSpiSend8BitInvalid(spi);
             mSpiSd_WaitIdle(spi);
         }
         mSpi_NSS_DISABLE(spi);

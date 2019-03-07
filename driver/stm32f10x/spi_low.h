@@ -15,7 +15,8 @@ typedef enum {
 typedef enum {
     mSpi_Opt_Read,
     mSpi_Opt_Write,
-    mSpi_Opt_Empty,
+    mSpi_Opt_MulRead,
+    mSpi_Opt_MulWrite,
 } mSpi_Opt_t;
 
 typedef struct __mSpi_InitData_t {
@@ -81,9 +82,10 @@ extern void mSpiLow_DMA_IRQHandler(mSpi_t *port);
 
 #define mSpiReadBytes(port, data, len, to)  mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Read, to)
 #define mSpiWriteBytes(port, data, len, to) mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Write, to)
-#define mSpiMulBytes(port, data, len, to)   mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Empty, to)
+#define mSpiMulRead(port, data, len, to)    mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_MulRead, to)
+#define mSpiMulWrite(port, data, len, to)   mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_MulWrite, to)
 #define mSpiMulEmpty(port, len, to)         do { MadU8 _empty = mSpi_INVALID_DATA;     \
-                                                 mSpiMulBytes(port, &_empty, len, to); \
+                                                 mSpiMulWrite(port, &_empty, len, to); \
                                             } while(0)
 
 #define mSpi_TRY(port, x)  do{ if(MFALSE == x) { mSpi_NSS_DISABLE(port); return MFALSE; } }while(0)

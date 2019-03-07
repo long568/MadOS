@@ -207,24 +207,41 @@ MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, mSpi_Opt_t op
    }
 #endif
 
+    switch (opt)
+    {
+        case mSpi_Opt_Read:
+            port->dmaRx->CMAR  = (MadU32)buffer;
+            port->dmaRx->CCR  |= DMA_MemoryInc_Enable;
+            port->dmaTx->CMAR  = (MadU32)(&invalid);
+            port->dmaTx->CCR  &= ~DMA_MemoryInc_Enable;
+            break;
+
+        case mSpi_Opt_Write:
+            port->dmaRx->CMAR  = (MadU32)(&invalid);
+            port->dmaRx->CCR  &= ~DMA_MemoryInc_Enable;
+            port->dmaTx->CMAR  = (MadU32)buffer;
+            port->dmaTx->CCR  |= DMA_MemoryInc_Enable;
+            break;
+
+        case mSpi_Opt_MulRead:
+            port->dmaRx->CMAR  = (MadU32)buffer;
+            port->dmaRx->CCR  &= ~DMA_MemoryInc_Enable;
+            port->dmaTx->CMAR  = (MadU32)(&invalid);
+            port->dmaTx->CCR  &= ~DMA_MemoryInc_Enable;
+            break;
+
+        case mSpi_Opt_MulWrite:
+            port->dmaRx->CMAR  = (MadU32)(&invalid);
+            port->dmaRx->CCR  &= ~DMA_MemoryInc_Enable;
+            port->dmaTx->CMAR  = (MadU32)buffer;
+            port->dmaTx->CCR  &= ~DMA_MemoryInc_Enable;
+            break;
+    
+        default:
+            return MFALSE;
+    }
     port->dmaRx->CNDTR = (MadU16)len;
     port->dmaTx->CNDTR = (MadU16)len;
-    if(mSpi_Opt_Read == opt) {
-        port->dmaRx->CMAR  = (MadU32)buffer;
-        port->dmaRx->CCR  |= DMA_MemoryInc_Enable;
-        port->dmaTx->CMAR  = (MadU32)(&invalid);
-        port->dmaTx->CCR  &= ~DMA_MemoryInc_Enable;
-    } else if(mSpi_Opt_Write == opt) {
-        port->dmaRx->CMAR  = (MadU32)(&invalid);
-        port->dmaRx->CCR  &= ~DMA_MemoryInc_Enable;
-        port->dmaTx->CMAR  = (MadU32)buffer;
-        port->dmaTx->CCR  |= DMA_MemoryInc_Enable;
-    } else {
-        port->dmaRx->CMAR  = (MadU32)(&invalid);
-        port->dmaRx->CCR  &= ~DMA_MemoryInc_Enable;
-        port->dmaTx->CMAR  = (MadU32)buffer;
-        port->dmaTx->CCR  &= ~DMA_MemoryInc_Enable;
-    }
     
     port->dmaError = MAD_ERR_UNDEFINE;
     mSpi_DMA_RX_ISR_ENABLE(port);
