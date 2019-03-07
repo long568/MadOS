@@ -34,6 +34,7 @@
 #define HELLO_LEN   sizeof(HELLO_MADOS)-1
 #define BUFF_LEN    HELLO_LEN + 8
 #define WRITE_CNT   (10 * 1024 * 1024 / 32)
+#define OPT_INTRVAL 25
 
 static void test_fatfs_act(MadVptr exData);
 
@@ -130,7 +131,7 @@ static void test_fatfs_act(MadVptr exData)
     
     while(1) {
         if(i++ < WRITE_CNT) {
-            madTimeDly(10);
+            madTimeDly(OPT_INTRVAL);
 #if 1
             fil = fopen("/sd/hello.md", "a");
             if(fil) {
@@ -150,7 +151,7 @@ static void test_fatfs_act(MadVptr exData)
 #endif
 
 #if 1
-            // madTimeDly(50);
+            madTimeDly(OPT_INTRVAL);
             fil = fopen("/sd/hello.md", "r");
             if(fil) {
                 buf = (MadU8*)malloc(BUFF_LEN);
