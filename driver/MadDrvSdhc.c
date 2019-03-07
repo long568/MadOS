@@ -197,8 +197,9 @@ static int mSpiSd_WaitIdle(mSpi_t *spi)
 {
     int count;
     MadU8 tmp;
-    count = CMD_RETRY_NUM;
+    count = IDLE_RETRY_NUM;
     do {
+        mSpiMulEmpty(spi, 3, DAT_TIME_OUT);
         mSpiRead8Bit(spi, &tmp);
     } while ((tmp != 0xFF) && (--count));
     if(tmp != 0xFF) {
@@ -308,7 +309,7 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpiSd_SetCmd(buf, CMD24, addr);
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiMulEmpty(spi, 6, DAT_TIME_OUT);
+            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             res = mSpiSd_WriteOneSector(spi, data, MFALSE);
         }
         mSpi_NSS_DISABLE(spi);
@@ -316,13 +317,13 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpiSd_SetCmd(buf, CMD25, addr);
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiMulEmpty(spi, 6, DAT_TIME_OUT);
+            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             do {
                 res   = mSpiSd_WriteOneSector(spi, data, MTRUE);
                 data += SECTOR_SIZE;
             } while((res == 1) && (--count));
             mSpiSend8Bit(spi, 0xFD);
-            mSpiSend8BitInvalid(spi);
+            // mSpiSend8BitInvalid(spi);
             mSpiSd_WaitIdle(spi);
         }
         mSpi_NSS_DISABLE(spi);
