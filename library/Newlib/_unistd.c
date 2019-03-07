@@ -5,9 +5,10 @@
 
 extern int std_fd_array[FIL_NUM_MAX];
 
-int (*MadFile_write) (int fd, const void *buf, size_t len) = 0;
-int (*MadFile_read)  (int fd, void *buf, size_t len)       = 0;
-int (*MadFile_close) (int fd)                              = 0;
+int   (*MadFile_write) (int fd, const void *buf, size_t len) = 0;
+int   (*MadFile_read)  (int fd, void *buf, size_t len)       = 0;
+int   (*MadFile_close) (int fd)                              = 0;
+off_t (*MadFile_lseek) (int fd, off_t ofs, int wce)          = 0;
 
 int isatty (int fd)
 {
@@ -78,6 +79,26 @@ int close (int fd)
             std_fd_array[index] = -1;
             madExitCritical(cpsr);
             res = MadFile_close(fd);
+        }
+    }
+    return res;
+}
+
+off_t lseek(int fd, off_t ofs, int wce)
+{
+    MadCpsr_t cpsr;
+    int res = -1;
+    if((MadU32)fd < DEV_FD_START) {
+        res = MadDev_lseek(TTY_DEV_INDEX, ofs, wce);
+    } else if((MadU32)fd < DEV_FD_END) {
+        fd -= DEV_FD_START;
+        res = MadDev_lseek(fd, ofs, wce);
+    } else {
+        if(MadFile_write) {
+            madEnterCritical(cpsr);
+            fd = std_fd_array[fd - DEV_FD_END];
+            madExitCritical(cpsr);
+            res = MadFile_lseek(fd, ofs, wce);
         }
     }
     return res;

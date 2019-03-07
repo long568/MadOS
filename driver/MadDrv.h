@@ -16,13 +16,14 @@ enum {
 };
 
 typedef struct {
-    int (*open)   (const char *, int, va_list);
-    int (*creat)  (const char *, mode_t);
-    int (*fcntl)  (int, int, va_list);
-    int (*write)  (int, const void *, size_t);
-    int (*read)   (int, void *, size_t);
-    int (*close)  (int);
-    int (*isatty) (int);
+    int   (*open)   (const char *, int, va_list);
+    int   (*creat)  (const char *, mode_t);
+    int   (*fcntl)  (int, int, va_list);
+    int   (*write)  (int, const void *, size_t);
+    int   (*read)   (int, void *, size_t);
+    int   (*close)  (int);
+    int   (*isatty) (int);
+    off_t (*lseek)  (int fd, off_t ofs, int wce);
 } MadDrv_t;
 
 extern const MadDrv_t MadDrvTty;

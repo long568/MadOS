@@ -5,12 +5,12 @@ MadU32 uIP_dev_read  (mEth_t *eth, MadU8 *buf);
 MadU32 uIP_dev_rxsize(mEth_t *eth);
 
 inline MadU32 uIP_dev_send(mEth_t *eth, MadU8 *buf, MadU32 len) {
-#if 0
+#if 1
+    MadU32 res = 0;
     if(eth->isLinked) {
-        return ETH_HandleTxPkt(buf, len);
-    } else {
-        return 0;
+        res = ETH_HandleTxPkt(buf, len);
     }
+    return res;
 #else
     (void)eth;
     return ETH_HandleTxPkt(buf, len);

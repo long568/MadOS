@@ -4,3 +4,4 @@ export MCU_PREFIX = stm32f10x
 export MCU_SUFFIX = cl
 
 export LIB_CJSON=yes
+export LIB_FATFS=yes

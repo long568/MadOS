@@ -253,6 +253,15 @@ newdata(void)
       htons(hdr->numextrarr));
   */
 
+  // MAD_LOG("ID %d\n", htons(hdr->id));
+  // MAD_LOG("Query %d\n", hdr->flags1 & DNS_FLAG1_RESPONSE);
+  // MAD_LOG("Error %d\n", hdr->flags2 & DNS_FLAG2_ERR_MASK);
+  // MAD_LOG("Num questions %d, answers %d, authrr %d, extrarr %d\n",
+  //   htons(hdr->numquestions),
+  //   htons(hdr->numanswers),
+  //   htons(hdr->numauthrr),
+  //   htons(hdr->numextrarr));
+
   /* The ID in the DNS header should be our entry into the name
      table. */
   i = htons(hdr->id);
@@ -401,21 +410,6 @@ resolv_query(char *name)
  * hostnames.
  */
 /*---------------------------------------------------------------------------*/
-static u8_t tmp_strcmp(char *dst, char *src)
-{
-  while(1) {
-    if(*dst < *src) {
-      return -1;
-    } else if (*dst > *src) {
-      return 1;
-    } else {
-      if(dst == 0)
-        return 0;
-      dst++;
-      src++;
-    }
-  }
-}
 u16_t *
 resolv_lookup(char *name)
 {
@@ -427,7 +421,7 @@ resolv_lookup(char *name)
   for(i = 0; i < RESOLV_ENTRIES; ++i) {
     nameptr = &names[i];
     if(nameptr->state == STATE_DONE &&
-        /*strcmp*/tmp_strcmp(name, nameptr->name) == 0) {
+        strcmp(name, nameptr->name) == 0) {
       return nameptr->ipaddr;
     }
   }

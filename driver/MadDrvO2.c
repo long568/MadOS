@@ -24,7 +24,8 @@ const MadDrv_t MadDrvO2 = {
     Drv_write,
     Drv_read,
     Drv_close,
-    Drv_isatty
+    Drv_isatty,
+    0
 };
 
 static int Drv_open(const char * file, int flag, va_list args)

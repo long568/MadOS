@@ -4,21 +4,23 @@
 #include <stdarg.h>
 #include "ff.h"
 
-extern int (*MadFile_open)  (const char * file, int flag, va_list args);
-extern int (*MadFile_creat) (const char * file, mode_t mode);
-extern int (*MadFile_fcntl) (int fd, int cmd, va_list args);
-extern int (*MadFile_write) (int fd, const void *buf, size_t len);
-extern int (*MadFile_read)  (int fd, void *buf, size_t len);
-extern int (*MadFile_close) (int fd);
+extern int   (*MadFile_open)  (const char * file, int flag, va_list args);
+extern int   (*MadFile_creat) (const char * file, mode_t mode);
+extern int   (*MadFile_fcntl) (int fd, int cmd, va_list args);
+extern int   (*MadFile_write) (int fd, const void *buf, size_t len);
+extern int   (*MadFile_read)  (int fd, void *buf, size_t len);
+extern int   (*MadFile_close) (int fd);
+extern off_t (*MadFile_lseek) (int fd, off_t ofs, int wce);
 
 static FATFS *fs_sd;
 
-static int FatFs_open  (const char * file, int flag, va_list args);
-static int FatFs_creat (const char * file, mode_t mode);
-static int FatFs_fcntl (int fd, int cmd, va_list args);
-static int FatFs_write (int fd, const void *buf, size_t len);
-static int FatFs_read  (int fd, void *buf, size_t len);
-static int FatFs_close (int fd);
+static int   FatFs_open  (const char * file, int flag, va_list args);
+static int   FatFs_creat (const char * file, mode_t mode);
+static int   FatFs_fcntl (int fd, int cmd, va_list args);
+static int   FatFs_write (int fd, const void *buf, size_t len);
+static int   FatFs_read  (int fd, void *buf, size_t len);
+static int   FatFs_close (int fd);
+static off_t FatFs_lseek (int fd, off_t ofs, int wce);
 
 MadBool FatFs_Init(void)
 {
@@ -36,6 +38,7 @@ MadBool FatFs_Init(void)
         MadFile_write = FatFs_write;
         MadFile_read  = FatFs_read;
         MadFile_close = FatFs_close;
+        MadFile_lseek = FatFs_lseek;
         madExitCritical(cpsr);
         MAD_LOG("[FatFs] /sd mounted\n");
         res = MTRUE;
@@ -65,6 +68,7 @@ MadBool FatFs_Init(void)
 // #define	O_EXCL		_FEXCL
 static int FatFs_open(const char * file, int flag, va_list args)
 {
+    int res;
     FIL *fp;
     MadU8 mode;
     (void)args;
@@ -90,10 +94,12 @@ static int FatFs_open(const char * file, int flag, va_list args)
 
     fp = (FIL*)malloc(sizeof(FIL));
     if(!fp) return -1;
-    if(FR_OK == f_open(fp, file, mode)) {
+    res = f_open(fp, file, mode);
+    if(FR_OK == res) {
         return (int)fp;
     } else {
         free(fp);
+        MAD_LOG("[ERROR] f_open [%d]\n", res);
         return -1;
     }
 }
@@ -112,22 +118,28 @@ static int FatFs_fcntl(int fd, int cmd, va_list args)
 
 static int FatFs_write(int fd, const void *buf, size_t len)
 {
+    int res;
     UINT bw;
     FIL *fp = (FIL*)fd;
-    if(FR_OK == f_write(fp, buf, len, &bw)) {
+    res = f_write(fp, buf, len, &bw);
+    if(FR_OK == res) {
         return (int)bw;
     } else {
+        MAD_LOG("[ERROR] FatFs_write [%d]\n", res);
         return -1;
     }
 }
 
 static int FatFs_read(int fd, void *buf, size_t len)
 {
+    int res;
     UINT br;
     FIL *fp = (FIL*)fd;
-    if(FR_OK == f_read(fp, buf, len, &br)) {
+    res = f_read(fp, buf, len, &br);
+    if(FR_OK == res) {
         return (int)br;
     } else {
+        MAD_LOG("[ERROR] FatFs_read [%d]\n", res);
         return -1;
     }
 }
@@ -138,4 +150,35 @@ static int FatFs_close(int fd)
     f_close(fp);
     free(fp);
     return 0;
+}
+
+off_t FatFs_lseek (int fd, off_t ofs, int wce)
+{
+    int res;
+    FIL *fp = (FIL*)fd;
+    switch (wce) {
+        case SEEK_SET:
+            break;
+        case SEEK_CUR:
+            ofs += fp->fptr;
+            break;
+        case SEEK_END: {
+            DWORD size = f_size(fp);
+            if(ofs > size){
+                return -1;
+            } else {
+                ofs = size - ofs;
+            }
+            break;
+        }
+        default: 
+            return -1;
+    }
+    res = f_lseek(fp, ofs);
+    if(FR_OK == res) {
+        return ofs;
+    } else {
+        MAD_LOG("[ERROR] FatFs_lseek [%d]\n", res);
+        return -1;
+    }
 }

@@ -2,19 +2,19 @@
 #include <stdarg.h>
 #include "MadDev.h"
 
-int MadDev_open(const char * file, int flag, va_list args)
+int MadDev_open(const char *file, int flag, va_list args)
 {
     MadCpsr_t cpsr;
     int       fd   = 0;
     MadDev_t  *dev = DevsList[fd];
-    
     while(dev) {
         if(0 == strcmp(file, dev->name)) {
             madEnterCritical(cpsr);
             if(dev->status == MAD_DEV_CLOSED) {
                 dev->status = MAD_DEV_OPTING;
                 madExitCritical(cpsr);
-                if(0 < dev->drv->open((const char *)fd, flag, args)) {
+                if((dev->drv->open) && 
+                   (0 < dev->drv->open((const char *)fd, flag, args))) {
                     madEnterCritical(cpsr);
                     dev->status = MAD_DEV_OPENED;
                     madExitCritical(cpsr);
@@ -22,9 +22,11 @@ int MadDev_open(const char * file, int flag, va_list args)
                 } else {
                     madEnterCritical(cpsr);
                     dev->status = MAD_DEV_CLOSED;
+                    madExitCritical(cpsr);
                 }
+            } else {
+                madExitCritical(cpsr);
             }
-            madExitCritical(cpsr);
         }
         fd++;
         dev = DevsList[fd];
@@ -42,49 +44,56 @@ int MadDev_fcntl (int fd, int cmd, va_list args)
     int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
+    res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);
-        if(dev->status == MAD_DEV_OPENED) {
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->fcntl)) {
             madExitCritical(cpsr);
             res = dev->drv->fcntl(fd, cmd, args);
-            return res;
+        } else {
+            madExitCritical(cpsr);
         }
-        madExitCritical(cpsr);
     }
-    return -1;
+    return res;
 }
 
 int MadDev_write(int fd, const void *buf, size_t len)
 {
+    int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
+    res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);
-        if(dev->status == MAD_DEV_OPENED) {
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->write)) {
             madExitCritical(cpsr);
-            return dev->drv->write(fd, buf, len);
+            res = dev->drv->write(fd, buf, len);
+        } else {
+            madExitCritical(cpsr);
         }
-        madExitCritical(cpsr);
     }
-    return -1;
+    return res;
 }
 
 int MadDev_read(int fd, void *buf, size_t len)
 {
+    int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
+    res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);
-        if(dev->status == MAD_DEV_OPENED) {
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->read)) {
             madExitCritical(cpsr);
-            return dev->drv->read(fd, buf, len);
+            res = dev->drv->read(fd, buf, len);
+        } else {
+            madExitCritical(cpsr);
         }
-        madExitCritical(cpsr);
     }
-    return -1;
+    return res;
 }
 
 int MadDev_close(int fd)
@@ -92,35 +101,58 @@ int MadDev_close(int fd)
     int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
+    res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);
-        if(dev->status == MAD_DEV_OPENED) {
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->close)) {
             dev->status = MAD_DEV_OPTING;
             madExitCritical(cpsr);
             res = dev->drv->close(fd);
             madEnterCritical(cpsr);
             dev->status = MAD_DEV_CLOSED;
             madExitCritical(cpsr);
-            return res;
+        } else {
+            madExitCritical(cpsr);
         }
-        madExitCritical(cpsr);
     }
-    return -1;
+    return res;
 }
 
 int MadDev_isatty(int fd)
 {
+    int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
+    res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);
-        if(dev->status == MAD_DEV_OPENED) {
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->isatty)) {
             madExitCritical(cpsr);
-            return dev->drv->isatty(fd);
+            res = dev->drv->isatty(fd);
+        } else {
+            madExitCritical(cpsr);
         }
-        madExitCritical(cpsr);
     }
-    return -1;
+    return res;
+}
+
+off_t MadDev_lseek(int fd, off_t ofs, int wce)
+{
+    int       res;
+    MadCpsr_t cpsr;
+    MadDev_t  *dev;
+    res = -1;
+    if(fd >= 0) {
+        dev = DevsList[fd];
+        madEnterCritical(cpsr);
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->lseek)) {
+            madExitCritical(cpsr);
+            res = dev->drv->lseek(fd, ofs, wce);
+        } else {
+            madExitCritical(cpsr);
+        }
+    }
+    return res;
 }

@@ -81,23 +81,24 @@ static void lora_thread(MadVptr exData)
         if(MFALSE == lora_joined) {
             lora_led_on();
             lora_fd = open("/dev/lora0", 0);
-            WD_FEED();
             lora_led_off();
+            WD_FEED();
 
             if (lora_fd > 0) {
-                MAD_LOG("Opening lora ... Done\n");
+                MAD_LOG("Lora ... Ready\n");
                 lora_joined = MTRUE;
                 err_cnt = 0;
             } else {
-                MAD_LOG("Opening lora ... Failed\n");
+                MAD_LOG("Lora ... Error\n");
             }
         } else {
             lora_led_on();
             out = ModNH3_GetData();
             err = write(lora_fd, out, strlen(out));
-            WD_FEED();
-            free(out);
             lora_led_off();
+            free(out);
+            WD_FEED();
+            
 
             if(0 > err) {
                 err_cnt++;

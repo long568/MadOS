@@ -293,6 +293,9 @@ void eth_driver_thread(MadVptr exData)
     MadUint event;
     MadTim_t dt;
     mEth_t *eth = (mEth_t*)exData;
+
+    event = mEth_PE_STATUS_CHANGED;
+    dt    = 0;
     
     while(1) {
         ok = madEventWait(&eth->Event, mEth_EVENT_TIMEOUT, &event);
@@ -315,8 +318,6 @@ void eth_driver_thread(MadVptr exData)
                 dt    = 0;
                 break;
         }
-        
-        //if(!event) continue;  // Should never happen...
         
         // Handle PHY-Event
         if(event & mEth_PE_STATUS_CHANGED) {

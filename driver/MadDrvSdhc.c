@@ -150,7 +150,7 @@ static int mSpiSd_Reset(mSpi_t *spi)
 {
     int i;
     MAD_LOG("[SD] mSpiSd_Reset\n");
-    mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_128); // 36MHz / 128 = 281.25KHz
+    mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_256); // 36MHz / 256 = 140.625KHz
     madTimeDly(100);
     for(i=0; i<10; i++) { // > 74 clks
         mSpiSend8BitInvalid(spi);
@@ -219,8 +219,7 @@ static int mSpiSd_ReadOneSector(mSpi_t *spi, MadU8 *buff)
     } while((tmp != 0xFE) && (--i));
     if(tmp == 0xFE) {
         if(MTRUE == mSpiReadBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
-            mSpiRead8Bit(spi, &tmp);
-            mSpiRead8Bit(spi, &tmp);
+            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             res = 1;
         }
     }
@@ -239,8 +238,7 @@ static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadBool isMul)
     }
     if(MTRUE == mSpiSend8Bit(spi, tmp)) {
         if(MTRUE == mSpiWriteBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
-            mSpiSend8BitInvalid(spi);
-            mSpiSend8BitInvalid(spi);
+            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             i = CMD_RETRY_NUM;
             do {
                 mSpiRead8Bit(spi, &tmp);
@@ -310,8 +308,7 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpiSd_SetCmd(buf, CMD24, addr);
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiSend8BitInvalid(spi);
-            mSpiSend8BitInvalid(spi);
+            mSpiMulEmpty(spi, 6, DAT_TIME_OUT);
             res = mSpiSd_WriteOneSector(spi, data, MFALSE);
         }
         mSpi_NSS_DISABLE(spi);
@@ -319,8 +316,7 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
         mSpiSd_SetCmd(buf, CMD25, addr);
         mSpi_NSS_ENABLE(spi);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiSend8BitInvalid(spi);
-            mSpiSend8BitInvalid(spi);
+            mSpiMulEmpty(spi, 6, DAT_TIME_OUT);
             do {
                 res   = mSpiSd_WriteOneSector(spi, data, MTRUE);
                 data += SECTOR_SIZE;
@@ -349,7 +345,8 @@ const MadDrv_t MadDrvSdhc = {
     Drv_write,
     Drv_read,
     Drv_close,
-    Drv_isatty
+    Drv_isatty,
+    0
 };
 
 static int Drv_open(const char * file, int flag, va_list args)
@@ -442,6 +439,7 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
         }
 
         default:
+            MAD_LOG("[Error] SDHC ... Unknown CMD");
             break;
     }
     return res;

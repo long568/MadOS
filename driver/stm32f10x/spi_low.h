@@ -12,6 +12,12 @@ typedef enum {
     mSpi_DW_16Bit,
 } mSpi_DataWidth_t;
 
+typedef enum {
+    mSpi_Opt_Read,
+    mSpi_Opt_Write,
+    mSpi_Opt_Empty,
+} mSpi_Opt_t;
+
 typedef struct __mSpi_InitData_t {
     struct {
         MadU32  remap;
@@ -61,7 +67,7 @@ typedef struct __mSpi_t {
 extern MadBool  mSpiInit           (mSpi_t *port, mSpi_InitData_t *initData);
 extern MadBool  mSpiDeInit         (mSpi_t *port);
 extern MadBool  mSpiTry2Send8Bit   (mSpi_t *port, MadU8 send, MadU8 *read, MadUint retry);
-extern MadBool  mSpiSwitchBuffer   (mSpi_t *port, MadU8 *buffer, MadUint len, MadBool is_read, MadUint to);
+extern MadBool  mSpiSwitchBuffer   (mSpi_t *port, MadU8 *buffer, MadUint len, mSpi_Opt_t opt, MadUint to);
 extern MadBool  mSpiSetClkPrescaler(mSpi_t *port, MadU16 p);
 
 extern void mSpiLow_SPI_IRQHandler(mSpi_t *port);
@@ -73,8 +79,12 @@ extern void mSpiLow_DMA_IRQHandler(mSpi_t *port);
 #define mSpiSend8BitRes(port, data, res) mSpiSwitch8Bit   (port, data, res)
 #define mSpiSend8BitInvalid(port)        mSpiSwitch8Bit   (port, mSpi_INVALID_DATA, MNULL)
 
-#define mSpiWriteBytes(port, data, len, to) mSpiSwitchBuffer (port, (MadU8*)data, len, MFALSE, to)
-#define mSpiReadBytes(port, data, len, to)  mSpiSwitchBuffer (port, (MadU8*)data, len, MTRUE, to)
+#define mSpiReadBytes(port, data, len, to)  mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Read, to)
+#define mSpiWriteBytes(port, data, len, to) mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Write, to)
+#define mSpiMulBytes(port, data, len, to)   mSpiSwitchBuffer (port, (MadU8*)data, len, mSpi_Opt_Empty, to)
+#define mSpiMulEmpty(port, len, to)         do { MadU8 _empty = mSpi_INVALID_DATA;     \
+                                                 mSpiMulBytes(port, &_empty, len, to); \
+                                            } while(0)
 
 #define mSpi_TRY(port, x)  do{ if(MFALSE == x) { mSpi_NSS_DISABLE(port); return MFALSE; } }while(0)
 
