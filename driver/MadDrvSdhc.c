@@ -375,7 +375,7 @@ static int Drv_open(const char * file, int flag, va_list args)
             if((0 > mSpiSd_InitSDC(spi)) && (0 > mSpiSd_Init(spi))) break;
             if(0 > mSpiSd_SetBlkSize(spi)) break;
             if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
-            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_4); // 36MHz / x
+            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2); // 36MHz / x
             MAD_LOG("[SD] Ready\n");
             return 1;
         } while(0);
