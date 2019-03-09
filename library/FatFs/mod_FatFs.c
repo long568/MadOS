@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include "ff.h"
@@ -31,6 +32,7 @@ MadBool FatFs_Init(void)
     MAD_LOG("[FatFs] Startup\n");
     res = f_mount(fs_sd, "/sd", 1);
     if(FR_OK == res) {
+        char buf[6] = { 0 };
         madEnterCritical(cpsr);
         MadFile_open  = FatFs_open;
         MadFile_creat = FatFs_creat;
@@ -40,11 +42,19 @@ MadBool FatFs_Init(void)
         MadFile_close = FatFs_close;
         MadFile_lseek = FatFs_lseek;
         madExitCritical(cpsr);
-        MAD_LOG("[FatFs] /sd mounted\n");
+        switch (fs_sd->fs_type)
+        {
+            case FS_FAT12: sprintf(buf, "%s", "FAT12"); break;
+            case FS_FAT16: sprintf(buf, "%s", "FAT16"); break;
+            case FS_FAT32: sprintf(buf, "%s", "FAT32"); break;
+            case FS_EXFAT: sprintf(buf, "%s", "exFAT"); break;
+            default: break;
+        }
+        MAD_LOG("[FatFs] /sd mounted as %s\n", buf);
         res = MTRUE;
     } else {
         free(fs_sd);
-        MAD_LOG("[FatFs] /sd error\n");
+        MAD_LOG("[FatFs] /sd mounted error\n");
         res = MFALSE;
     }
     return res;

@@ -20,7 +20,6 @@
 // 	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > FF_FS_LOCK */
 // 	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
 // } FRESULT;
-
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -34,7 +33,7 @@
 #define HELLO_LEN   sizeof(HELLO_MADOS)-1
 #define BUFF_LEN    HELLO_LEN + 8
 #define WRITE_CNT   (10 * 1024 * 1024 / 32)
-#define OPT_INTRVAL 25
+#define OPT_INTRVAL 5
 
 static void test_fatfs_act(MadVptr exData);
 

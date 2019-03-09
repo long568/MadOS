@@ -9,8 +9,15 @@
 #define CMD_TIME_OUT      1000 * 6
 #define DAT_TIME_OUT      1000 * 30
 
+typedef enum {
+    SdType_SC,
+    SdType_HC,
+    SdType_XC,
+} SdType_t;
+
 typedef struct{
-    MadU32 OCR;
+    MadU32   OCR;
+    SdType_t type;
 } SdInfo_t;
 
 #endif
