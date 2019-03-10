@@ -25,7 +25,7 @@
 
 static void mSpiSd_SetCmd(MadU8 *buf, MadU8 cmd, MadU32 arg)
 {
-    MadU8 i;
+    int i;
     MadU8 *parg = (MadU8*)(&arg);
     buf[0] = 0x40 | cmd;
     for(i=1; i<5; i++) {
@@ -43,7 +43,7 @@ static void mSpiSd_SetCmd(MadU8 *buf, MadU8 cmd, MadU32 arg)
     }
 }
 
-static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep)
+static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, MadU32 *rep)
 {
     int i;
     MadU8 *prep;
@@ -51,48 +51,21 @@ static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep
     res = mSpi_INVALID_DATA;
     prep = (MadU8*)rep;
     if(MTRUE == mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
-        for(i=0; i<CMD_RETRY_NUM; i++) {
+        r = 0xFF;
+        for(i=0; i<OPT_RETRY_NUM; i++) {
             mSpiRead8Bit(spi, &r);
             if(r & 0x80) {
                 continue;
             }
-            if(r == r1) {
-                if(rep) {
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[3])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[2])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[1])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[0])) break;
+            res = r;
+            if(rep) {
+                MadU8 tmp[4] = { 0 };
+                if(MTRUE == mSpiReadBytes(spi, tmp, 4, CMD_TIME_OUT)) {
+                    prep[3] = tmp[0];
+                    prep[2] = tmp[1];
+                    prep[1] = tmp[2];
+                    prep[0] = tmp[3];
                 }
-                res = r;
-            }
-            break;
-        }
-    }
-    return res;
-}
-
-static MadU8 mSpiSd_BootCmd2(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *rep)
-{ // For CMD12
-    int i;
-    MadU8 *prep;
-    MadU8 r, res;
-    res = mSpi_INVALID_DATA;
-    prep = (MadU8*)rep;
-    if(MTRUE == mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
-        mSpiRead8Bit(spi, &r);
-        for(i=0; i<CMD_RETRY_NUM; i++) {
-            mSpiRead8Bit(spi, &r);
-            if(r & 0x80) {
-                continue;
-            }
-            if(r == r1) {
-                if(rep) {
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[3])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[2])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[1])) break;
-                    if(MFALSE == mSpiRead8Bit(spi, &prep[0])) break;
-                }
-                res = r;
             }
             break;
         }
@@ -101,31 +74,26 @@ static MadU8 mSpiSd_BootCmd2(mSpi_t *spi, MadU8 *buf, const MadU8 r1, MadU32 *re
 }
 
 inline
-static MadU8 mSpiSd_SendCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, MadU32 *rep)
+static MadU8 mSpiSd_SendCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, MadU32 *rep)
 {
     MadU8 res;
     MadU8 buf[6];
     mSpiSd_SetCmd(buf, cmd, arg);
     mSpi_NSS_ENABLE(spi);
-    res = mSpiSd_BootCmd(spi, buf, r1, rep);
+    res = mSpiSd_BootCmd(spi, buf, rep);
     mSpi_NSS_DISABLE(spi);
     mSpiSend8BitInvalid(spi);
     return res;
 }
 
+inline
 static int mSpiSd_WriteCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, MadU32 *rep)
 {
-    int i, res;
-    MadU8 r;
-    i = STARTUP_RETRY_NUM;
-    res = 1;
-    do {
-        r = mSpiSd_SendCmd(spi, cmd, arg, r1, rep);
-    } while ((r == mSpi_INVALID_DATA) && (--i));
-    if(r == mSpi_INVALID_DATA) {
-        res = -1;
+    if(r1 == mSpiSd_SendCmd(spi, cmd, arg, rep)) {
+        return 1;
+    } else {
+        return -1;
     }
-    return res;
 }
 
 inline
@@ -147,7 +115,7 @@ static int mSpiSd_OCR(mSpi_t *spi, MadU32 *rep)
 inline
 static int mSpiSd_Init(mSpi_t *spi)
 {
-    int i, res;
+    int cnt, res;
     MadU32 rep;
     rep = 0;
     res = mSpiSd_WriteCmd(spi, CMD8, 0x000001AA, 0x01, &rep);
@@ -155,22 +123,20 @@ static int mSpiSd_Init(mSpi_t *spi)
         MAD_LOG("[SD] SDC v2+ 0x%08X\n", rep);
         rep &= 0x00000FFF;
         if(rep == 0x1AA){
-            i = CMD_RETRY_NUM;
-            do {
-                res = mSpiSd_WriteCmd(spi, CMD55, 0, 0x01, 0);
-                if(res > 0) {
-                    res = mSpiSd_WriteCmd(spi, ACMD41, 0x40000000, 0x00, 0);
+            for(cnt=0; cnt<OPT_RETRY_NUM; cnt++) {
+                if((0 < mSpiSd_WriteCmd(spi, CMD55,  0x00000000, 0x01, 0)) &&
+                   (0 < mSpiSd_WriteCmd(spi, ACMD41, 0x40000000, 0x00, 0))) {
+                    res = 1;
+                    break;
                 }
-            } while((res < 0) && (--i));
+            }
         }
     } else {
         MAD_LOG("[SD] SDC v1\n");
-        res = mSpiSd_WriteCmd(spi, CMD55, 0, 0x01, 0);
-        if(0 < res) {
-            res = mSpiSd_WriteCmd(spi, ACMD41, 0x00000000, 0x00, 0);
-            if(0 > res) {
-                res = mSpiSd_WriteCmd(spi, CMD1, 0, 0x00, 0);
-            }
+        if(((0 < mSpiSd_WriteCmd(spi, CMD55,  0x00000000, 0x01, 0)) &&
+            (0 < mSpiSd_WriteCmd(spi, ACMD41, 0x40000000, 0x00, 0)))||
+            (0 < mSpiSd_WriteCmd(spi, CMD1,   0x00000000, 0x00, 0))) {
+            res = 1;
         }
     }
     return res;
@@ -186,49 +152,52 @@ static int mSpiSd_SetBlkSize(mSpi_t *spi)
 inline
 static int mSpiSd_WaitIdle(mSpi_t *spi)
 {
-    int count;
-    MadU8 tmp;
-    count = IDLE_RETRY_NUM;
-    do {
+    int cnt;
+    MadU8 tmp = 0;
+    for(cnt=0; cnt<OPT_RETRY_NUM; cnt++) {
         mSpiMulRead(spi, &tmp, 8, DAT_TIME_OUT);
-    } while ((tmp != 0xFF) && (--count));
-    if(tmp != 0xFF) {
-        return -1;
-    } else {
-        return 1;
+        if(tmp == 0xFF) return 1;
     }
+    MAD_LOG("[SD] mSpiSd_WaitIdle ERROR\n");
+    return -1;
 }
 
 static int mSpiSd_ReadOneSector(mSpi_t *spi, MadU8 *buff)
 {
-    int i;
-    MadU8 res, tmp;
+    int cnt, res;
+    MadU8 tmp;
     res = -1;
-    i = CMD_RETRY_NUM;
-    do {
+    tmp = mSpi_INVALID_DATA;
+    for(cnt=0; cnt<OPT_RETRY_NUM; cnt++) {
         mSpiRead8Bit(spi, &tmp);
-    } while((tmp != 0xFE) && (--i));
+        if(tmp == 0xFE) break;
+    }
     if(tmp == 0xFE) {
         if(MTRUE == mSpiReadBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
             mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             res = 1;
+        } else {
+            MAD_LOG("[SD] ReadOneSector->ReadBytes ERROR\n");
         }
+    } else {
+        MAD_LOG("[SD] ReadOneSector->Read8Bit ERROR[%02X][%d]\n", tmp, cnt);
     }
     return res;
 }
 
 static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadU8 head)
 {
-    int i;
-    MadU8 res, tmp;
+    int cnt, res;
+    MadU8 tmp;
     res = -1;
     if(MTRUE == mSpiSend8Bit(spi, head)) {
         if(MTRUE == mSpiWriteBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
             mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
-            i = CMD_RETRY_NUM;
-            do {
+            tmp = mSpi_INVALID_DATA;
+            for(cnt=0; cnt<OPT_RETRY_NUM; cnt++) {
                 mSpiRead8Bit(spi, &tmp);
-            } while((tmp == 0xFF) && (--i));
+                if(tmp != 0xFF) break;
+            }
             switch (tmp & 0x1F)
             {
                 case 0x05:
@@ -237,17 +206,22 @@ static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadU8 head)
                 case 0x0B:
                 case 0x0D:
                 default:
+                    MAD_LOG("[SD] WriteOneSector->Read8Bit ERROR[%d]\n", tmp);
                     break;
             }
             mSpiSd_WaitIdle(spi);
+        } else {
+            MAD_LOG("[SD] WriteOneSector->WriteBytes ERROR\n");
         }
+    } else {
+        MAD_LOG("[SD] WriteOneSector->Send8Bit ERROR\n");
     }
     return res;
 }
 
 static int mSpiSd_read(mSpi_t *spi, MadU8 *data, MadU32 sector, MadU32 count, SdType_t type)
 {
-    MadU8 res;
+    int res;
     MadU8 buf[6];
     MadU32 addr;
     res = -1;
@@ -257,34 +231,35 @@ static int mSpiSd_read(mSpi_t *spi, MadU8 *data, MadU32 sector, MadU32 count, Sd
     } else {
         addr = sector;
     }
+    mSpi_NSS_ENABLE(spi);
     if(count == 1) {
         mSpiSd_SetCmd(buf, CMD17, addr);
-        mSpi_NSS_ENABLE(spi);
-        if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
+        if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
             res = mSpiSd_ReadOneSector(spi, data);
+        } else {
+            MAD_LOG("[SD] read(1)->BootCmd ERROR\n");
         }
-        mSpi_NSS_DISABLE(spi);
     } else {
         mSpiSd_SetCmd(buf, CMD18, addr);
-        mSpi_NSS_ENABLE(spi);
-        if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
+        if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
             do {
                 res   = mSpiSd_ReadOneSector(spi, data);
                 data += SECTOR_SIZE;
             } while ((res == 1) && (--count));
             mSpiSd_SetCmd(buf, CMD12, 0);
-            mSpiSd_BootCmd2(spi, buf, 0x00, 0);
+            mSpiSd_BootCmd(spi, buf, 0);
             mSpiSd_WaitIdle(spi);
+        } else {
+            MAD_LOG("[SD] read(n)->BootCmd ERROR\n");
         }
-        mSpi_NSS_DISABLE(spi);
     }
-    mSpiSend8BitInvalid(spi);
+    mSpi_NSS_DISABLE(spi);
     return res;
 }
 
 static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 count, SdType_t type)
 {
-    MadU8 res;
+    int res;
     MadU8 buf[6];
     MadU32 addr;
     res = -1;
@@ -294,29 +269,30 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
     } else {
         addr = sector;
     }
+    mSpi_NSS_ENABLE(spi);
     if(count == 1) {
         mSpiSd_SetCmd(buf, CMD24, addr);
-        mSpi_NSS_ENABLE(spi);
-        if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
+        if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
+            mSpiSend8BitInvalid(spi);
             res = mSpiSd_WriteOneSector(spi, data, 0xFE);
+        } else {
+            MAD_LOG("[SD] write(1)->BootCmd ERROR\n");
         }
-        mSpi_NSS_DISABLE(spi);
     } else {
         mSpiSd_SetCmd(buf, CMD25, addr);
-        mSpi_NSS_ENABLE(spi);
-        if(0x00 == mSpiSd_BootCmd(spi, buf, 0x00, 0)) {
-            mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
+        if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
+            mSpiSend8BitInvalid(spi);
             do {
                 res   = mSpiSd_WriteOneSector(spi, data, 0xFC);
                 data += SECTOR_SIZE;
             } while((res == 1) && (--count));
             mSpiSend8Bit(spi, 0xFD);
             mSpiSd_WaitIdle(spi);
+        } else {
+            MAD_LOG("[SD] write(n)->BootCmd ERROR\n");
         }
-        mSpi_NSS_DISABLE(spi);
     }
-    mSpiSend8BitInvalid(spi);
+    mSpi_NSS_DISABLE(spi);
     return res;
 }
 
@@ -364,7 +340,7 @@ static int Drv_open(const char * file, int flag, va_list args)
 
     i = 1;
     do {
-        madTimeDly(3000);
+        madTimeDly(1000);
         do {
             MAD_LOG("[SD] Startup ... [%d]\n", i);
             if(0 > mSpiSd_Reset(spi)) break;
@@ -381,7 +357,7 @@ static int Drv_open(const char * file, int flag, va_list args)
             MAD_LOG("[SD] Ready (%s)\n", (sd_info->type == SdType_SC) ? "SDSC" : "SDHC");
             return 1;
         } while(0);
-    } while(i++ < STARTUP_RETRY_NUM);
+    } while(i++ < 10);
 
     free(dev->ptr);
     mSpiDeInit(spi);
@@ -408,6 +384,8 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
     {
         case F_DISK_STATUS: {
             res = mSpiSd_OCR(spi, &sd_info->OCR);
+            if(res < 0) 
+                MAD_LOG("[SD] F_DISK_STATUS(%d) Error\n", res);
             break;
         }
 
@@ -419,6 +397,8 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
             sector = va_arg(args, MadU32);
             count  = va_arg(args, MadU32);
             res = mSpiSd_read(spi, buff, sector, count, sd_info->type);
+            if(res < 0) 
+                MAD_LOG("[SD] F_DISK_READ(%d, %d, %d) Error\n", res, sector, count);
             break;
         }
 
@@ -430,6 +410,8 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
             sector = va_arg(args, MadU32);
             count  = va_arg(args, MadU32);
             res = mSpiSd_write(spi, buff, sector, count, sd_info->type);
+            if(res < 0) 
+                MAD_LOG("[SD] F_DISK_WRITE(%d, %d, %d) Error\n", res, sector, count);
             break;
         }
 
@@ -439,7 +421,7 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
         }
 
         default:
-            MAD_LOG("[Error] SDHC ... Unknown CMD");
+            MAD_LOG("[SD] Unknown CMD (%d)\n", cmd);
             break;
     }
     return res;

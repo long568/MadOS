@@ -3,11 +3,9 @@
 
 #define SECTOR_ROLL       9
 #define SECTOR_SIZE       (1 << SECTOR_ROLL)
-#define STARTUP_RETRY_NUM 10
-#define CMD_RETRY_NUM     1000
-#define IDLE_RETRY_NUM    10000
-#define CMD_TIME_OUT      1000 * 6
-#define DAT_TIME_OUT      1000 * 30
+#define OPT_RETRY_NUM     10000
+#define CMD_TIME_OUT      600
+#define DAT_TIME_OUT      1000
 
 typedef enum {
     SdType_SC,

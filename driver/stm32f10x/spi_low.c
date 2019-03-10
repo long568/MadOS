@@ -43,7 +43,6 @@ MadBool initPort(mSpi_t *port, mSpi_InitData_t *initData)
     port->spi      = initData->spi;
     port->dmaRx    = initData->dmaRx;
     port->dmaTx    = initData->dmaTx;
-    port->retry    = initData->retry;
     port->dmaError = MAD_ERR_OK;
     port->data     = mSpi_INVALID_DATA;
     
@@ -163,28 +162,31 @@ MadBool mSpiDeInit(mSpi_t *port)
     return MTRUE;
 }
 
-MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read, MadUint retry)
+MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read)
 {
-    MadCpsr_t cpsr;
-    MadU8     res;
-    while(retry--) {
-        if(MTRUE == mSpi_IS_TXBUFFER_EMPTY(port)) {
-            mSpi_SEND(port, send);
-            mSpi_RX_ISR_ENABLE(port);
-            retry++;
-            res = madSemWait(&port->spiLock, retry);
-            if(MAD_ERR_OK == res){
-                if(MNULL != read) {
-                    madEnterCritical(cpsr);
-                    *read = port->data;
-                    madExitCritical(cpsr);
-                }
-                return MTRUE;
-            }
-            break;
-        }
+#if 0
+    while(MFALSE == mSpi_IS_TXBUFFER_READY(port));
+    mSpi_RX_ISR_ENABLE(port);
+    mSpi_SEND(port, send);
+    if(MAD_ERR_OK == madSemWait(&port->spiLock, mSpi_TIMEOUT)) {
+        if(read) *read = port->data;
+        return MTRUE;
+    } else {
+        return MFALSE;
     }
-    return MFALSE;
+#else
+    volatile MadU8 tmp;
+    do {
+        tmp = mSpi_IS_TXBUFFER_READY(port);
+    } while(tmp == RESET);
+    mSpi_SEND(port, send);
+    do {
+        tmp = mSpi_IS_RXBUFFER_READY(port);
+    } while(tmp == RESET);
+    tmp = mSpi_READ(port);
+    if(read) *read = tmp;
+    return MTRUE;
+#endif
 }
 
 MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, mSpi_Opt_t opt, MadUint to)
@@ -192,20 +194,6 @@ MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, mSpi_Opt_t op
     MadU8 res;
     MadU8 dma_err;
     MadU8 invalid = mSpi_INVALID_DATA;
-
-#if 0    
-   if(8 > len) {
-       MadUint i;
-       for(i=0; i<len; i++) {
-           if(MTRUE == is_read) {
-               MAD_TRY(mSpiRead8Bit(port, buffer + i));
-           } else {
-               MAD_TRY(mSpiSend8Bit(port, *(buffer + i)));
-           }
-       }
-       return MTRUE;
-   }
-#endif
 
     switch (opt)
     {

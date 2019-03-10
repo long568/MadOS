@@ -24,7 +24,6 @@ static const mSpi_InitData_t initData = {
     SPI3,
     DMA2_Channel2,
     DMA2_Channel1,
-    CMD_RETRY_NUM,
     Dev_Spi_Handler,
     Dev_Dma_Handler
 };

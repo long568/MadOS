@@ -39,7 +39,7 @@ static void test_fatfs_act(MadVptr exData);
 
 void Init_TestFatFs(void)
 {
-    madThreadCreate(test_fatfs_act, 0, 1024 * 8, THREAD_PRIO_TEST_FATFS);
+    madThreadCreate(test_fatfs_act, 0, 1024 * 12, THREAD_PRIO_TEST_FATFS);
 }
 
 static void test_fatfs_act(MadVptr exData)
@@ -130,8 +130,8 @@ static void test_fatfs_act(MadVptr exData)
     
     while(1) {
         if(i++ < WRITE_CNT) {
-            madTimeDly(OPT_INTRVAL);
 #if 1
+            madTimeDly(OPT_INTRVAL);
             fil = fopen("/sd/hello.md", "a");
             if(fil) {
                 cnt = fwrite(HELLO_MADOS, HELLO_LEN, 1, fil);
@@ -154,7 +154,12 @@ static void test_fatfs_act(MadVptr exData)
             fil = fopen("/sd/hello.md", "r");
             if(fil) {
                 buf = (MadU8*)malloc(BUFF_LEN);
-                cnt = fread(buf, HELLO_LEN, 1, fil);
+                if(buf) {
+                    cnt = fread(buf, HELLO_LEN, 1, fil);
+                } else {
+                    MAD_LOG("buf malloc failed [%d]\n", i);
+                    cnt = 0;
+                }
                 fclose(fil);
                 fil = 0;
                 free(buf);
