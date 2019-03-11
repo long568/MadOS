@@ -176,13 +176,9 @@ MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read)
     }
 #else
     volatile MadU8 tmp;
-    do {
-        tmp = mSpi_IS_TXBUFFER_READY(port);
-    } while(tmp == RESET);
+    while(MFALSE == mSpi_IS_TXBUFFER_READY(port));
     mSpi_SEND(port, send);
-    do {
-        tmp = mSpi_IS_RXBUFFER_READY(port);
-    } while(tmp == RESET);
+    while(MFALSE == mSpi_IS_RXBUFFER_READY(port));
     tmp = mSpi_READ(port);
     if(read) *read = tmp;
     return MTRUE;

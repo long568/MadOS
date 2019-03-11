@@ -99,8 +99,7 @@ static int mSpiSd_WriteCmd(mSpi_t *spi, MadU8 cmd, MadU32 arg, const MadU8 r1, M
 inline
 static int mSpiSd_Reset(mSpi_t *spi)
 {
-    MAD_LOG("[SD] mSpiSd_Reset\n");
-    mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_256); // 36MHz / x
+    MAD_LOG("[SD] Reset\n");
     madTimeDly(100);
     mSpiMulEmpty(spi, 10, DAT_TIME_OUT);
     return mSpiSd_WriteCmd(spi, CMD0, 0, 0x01, 0);
@@ -145,7 +144,7 @@ static int mSpiSd_Init(mSpi_t *spi)
 inline
 static int mSpiSd_SetBlkSize(mSpi_t *spi)
 {
-    MAD_LOG("[SD] mSpiSd_SetBlkSize\n");
+    MAD_LOG("[SD] SetBlkSize\n");
     return mSpiSd_WriteCmd(spi, CMD16, SECTOR_SIZE, 0x00, 0);
 }
 
@@ -158,7 +157,7 @@ static int mSpiSd_WaitIdle(mSpi_t *spi)
         mSpiMulRead(spi, &tmp, 8, DAT_TIME_OUT);
         if(tmp == 0xFF) return 1;
     }
-    MAD_LOG("[SD] mSpiSd_WaitIdle ERROR\n");
+    MAD_LOG("[SD] WaitIdle ERROR\n");
     return -1;
 }
 
@@ -221,7 +220,7 @@ static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadU8 head)
 
 static int mSpiSd_read(mSpi_t *spi, MadU8 *data, MadU32 sector, MadU32 count, SdType_t type)
 {
-    int res;
+    int i, res;
     MadU8 buf[6];
     MadU32 addr;
     res = -1;
@@ -242,10 +241,11 @@ static int mSpiSd_read(mSpi_t *spi, MadU8 *data, MadU32 sector, MadU32 count, Sd
     } else {
         mSpiSd_SetCmd(buf, CMD18, addr);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
-            do {
+            for(i=0; i<count; i++) {
                 res   = mSpiSd_ReadOneSector(spi, data);
                 data += SECTOR_SIZE;
-            } while ((res == 1) && (--count));
+                if(res < 0) break;
+            }
             mSpiSd_SetCmd(buf, CMD12, 0);
             mSpiSd_BootCmd(spi, buf, 0);
             mSpiSd_WaitIdle(spi);
@@ -259,7 +259,7 @@ static int mSpiSd_read(mSpi_t *spi, MadU8 *data, MadU32 sector, MadU32 count, Sd
 
 static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 count, SdType_t type)
 {
-    int res;
+    int i, res;
     MadU8 buf[6];
     MadU32 addr;
     res = -1;
@@ -281,11 +281,11 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
     } else {
         mSpiSd_SetCmd(buf, CMD25, addr);
         if(0x00 == mSpiSd_BootCmd(spi, buf, 0)) {
-            mSpiSend8BitInvalid(spi);
-            do {
+            for(i=0; i<count; i++) {
                 res   = mSpiSd_WriteOneSector(spi, data, 0xFC);
                 data += SECTOR_SIZE;
-            } while((res == 1) && (--count));
+                if(res < 0) break;
+            }
             mSpiSend8Bit(spi, 0xFD);
             mSpiSd_WaitIdle(spi);
         } else {
@@ -343,17 +343,19 @@ static int Drv_open(const char * file, int flag, va_list args)
         madTimeDly(1000);
         do {
             MAD_LOG("[SD] Startup ... [%d]\n", i);
+            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_256);
             if(0 > mSpiSd_Reset(spi)) break;
             if(0 > mSpiSd_Init(spi)) break;
+            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2);
+            madTimeDly(10);
             if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
             MAD_LOG("[SD] OCR = 0x%08X\n", sd_info->OCR);
             if(sd_info->OCR & 0x40000000) {
                 sd_info->type = SdType_HC;
             } else {
                 sd_info->type = SdType_SC;
+                if(0 > mSpiSd_SetBlkSize(spi)) break;
             }
-            if(0 > mSpiSd_SetBlkSize(spi)) break;
-            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2); // 36MHz / x
             MAD_LOG("[SD] Ready (%s)\n", (sd_info->type == SdType_SC) ? "SDSC" : "SDHC");
             return 1;
         } while(0);
@@ -383,9 +385,13 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
     switch (cmd)
     {
         case F_DISK_STATUS: {
+#if 0
             res = mSpiSd_OCR(spi, &sd_info->OCR);
             if(res < 0) 
                 MAD_LOG("[SD] F_DISK_STATUS(%d) Error\n", res);
+#else
+            res = 1;
+#endif
             break;
         }
 
