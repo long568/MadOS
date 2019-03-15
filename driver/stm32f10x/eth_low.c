@@ -134,7 +134,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     if((!eth->TxDscr) || (!eth->RxDscr) || (!eth->TxBuff) || (!eth->RxBuff)) {
         return MFALSE;
     }
-    eth->Event = madEventCreate(mEth_PE_STATUS_ALL, MEMODE_WAIT_ONE);
+    eth->Event = madEventCreate(mEth_PE_STATUS_ALL, MEMODE_WAIT_ONE, MEOPT_DELAY);
     if(MNULL == eth->Event) {
         return MFALSE;
     }
@@ -298,7 +298,7 @@ void eth_driver_thread(MadVptr exData)
     dt    = 0;
     
     while(1) {
-        ok = madEventWait(&eth->Event, mEth_EVENT_TIMEOUT, &event);
+        ok = madEventWait(&eth->Event, &event, mEth_EVENT_TIMEOUT);
         switch(ok) {
             case MAD_ERR_OK: {
                 MadCpsr_t cpsr;

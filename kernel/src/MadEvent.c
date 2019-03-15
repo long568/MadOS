@@ -1,6 +1,6 @@
 #include "MadOS.h"
 
-MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode)
+MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode, MadEventOpt opt)
 {
     MadUint      i;
     MadVptr      p;
@@ -13,9 +13,10 @@ MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode)
     
     if(ecb) {
         ecb->maskWait = mask;
-        ecb->maskGot = 0;
-        ecb->rdyg = 0;
-        ecb->mode = mode;
+        ecb->maskGot  = 0;
+        ecb->rdyg     = 0;
+        ecb->mode     = mode;
+        ecb->opt      = opt;
         for(i=0; i<MAD_THREAD_RDY_NUM; i++)
             ecb->rdy[i] = 0;
     }
@@ -23,7 +24,7 @@ MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode)
     return ecb;
 }
 
-MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to, MadUint *mask)
+MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
 {
     MadU8        res;
     MadU8        prio_h;
@@ -78,7 +79,7 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadTim_t to, MadUint *mask)
     return res;
 }
 
-MadU8 madEventCheck(MadEventCB_t **pEvent, MadUint *mask)
+MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
 {
     MadU8        res;
 	MadCpsr_t    cpsr;
@@ -94,8 +95,8 @@ MadU8 madEventCheck(MadEventCB_t **pEvent, MadUint *mask)
         res = MAD_ERR_EVENT_INVALID;
 	} else {
         res = MAD_ERR_OK;
-        if(mask)
-            *mask = event->maskGot;
+        if(mask) *mask = event->maskGot;
+        if(clear == MTRUE) event->maskGot = 0;
 	}
     madExitCritical(cpsr);
     return res;
@@ -124,7 +125,7 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
     }
     
 	event->maskGot |= mask & event->maskWait;
-    if(event->rdyg == 0) {
+    if((event->opt == MEOPT_DELAY) && (event->rdyg == 0)) {
         madExitCritical(cpsr);
         return;
     }
