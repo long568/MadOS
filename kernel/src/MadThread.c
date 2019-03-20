@@ -99,7 +99,11 @@ void madThreadResume(MadU8 threadPrio)
         madExitCritical(cpsr);
         return;
     }
-    
+
+    if(pTCB->err == MAD_ERR_EXITED) {
+        pTCB->msg = 0;
+        pTCB->err = MAD_ERR_OK;
+    }
     pTCB->state &= ~MAD_THREAD_PEND;
     if(!pTCB->state) {
         prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
@@ -141,6 +145,36 @@ void madThreadPend(MadU8 threadPrio)
     if(!MadThreadRdy[prio_h])
         MadThreadRdyGrp &= ~pTCB->rdyg_bit;
     
+    madExitCritical(cpsr);
+    if(flagSched) madSched();
+}
+
+void madThreadExit(MadUint code)
+{
+    MadCpsr_t cpsr;
+    MadTCB_t  *pTCB;
+    MadU8     prio_h;
+    MadU8     flagSched = MFALSE;
+    
+    madEnterCritical(cpsr);
+    
+    pTCB = MadTCBGrp[MadCurTCB->prio];
+    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
+       (pTCB->state & MAD_THREAD_KILLED)) {
+        madExitCritical(cpsr);
+        return;
+    }
+
+    flagSched = MTRUE;
+    prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
+    MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
+    if(!MadThreadRdy[prio_h])
+        MadThreadRdyGrp &= ~pTCB->rdyg_bit;
+
+    pTCB->msg   = (MadVptr)code;
+    pTCB->err   = MAD_ERR_EXITED;
+    pTCB->state = MAD_THREAD_PEND;
+
     madExitCritical(cpsr);
     if(flagSched) madSched();
 }

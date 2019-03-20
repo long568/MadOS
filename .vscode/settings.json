@@ -57,7 +57,8 @@
         "dirent.h": "c",
         "cdefs.h": "c",
         "eth_low.h": "c",
-        "eth_low_cfg.h": "c"
+        "eth_low_cfg.h": "c",
+        "climits": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -12,3 +12,8 @@ ifeq ($(LIB_CJSON), yes)
 export LIBS += -lcjson
 export INCS += -I$(ROOT)/library/cJSON
 endif
+
+ifeq ($(LIB_LUA), yes)
+export LIBS += -llua
+export INCS += -I$(ROOT)/library/Lua
+endif

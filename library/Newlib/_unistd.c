@@ -103,3 +103,8 @@ off_t lseek(int fd, off_t ofs, int wce)
     }
     return res;
 }
+
+void _exit(int __status) {
+    madThreadExit((MadUint)__status);
+    while(1);
+}

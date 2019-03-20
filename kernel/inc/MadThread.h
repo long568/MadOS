@@ -57,6 +57,7 @@ extern  MadStk_t*  madThreadStkInit                    (MadVptr pStk, MadThread_
 extern  MadTCB_t*  madThreadCreateCarefully            (MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio);
 extern  void       madThreadResume                     (MadU8 threadPrio);
 extern  void       madThreadPend                       (MadU8 threadPrio);
+extern  void       madThreadExit                       (MadUint code);
 #define            madThreadCreate(act, ed, sz, prio)  madThreadCreateCarefully(act, ed, sz, MNULL, prio)
 #ifdef MAD_AUTO_RECYCLE_RES
 extern  MadVptr    madThreadDoDelete                   (MadU8 threadPrio, MadBool autoClear);

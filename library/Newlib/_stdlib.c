@@ -31,6 +31,12 @@ void * malloc(size_t __size) {
 }
 
 inline
+void * realloc(void * __r, size_t __size) {
+    return madMemRealloc(__r, __size);
+}
+
+inline
 void free(void *p) {
     madMemFree(p);
 }
+

@@ -5,3 +5,4 @@ export MCU_SUFFIX = cl
 
 export LIB_UIP=yes
 export LIB_FATFS=yes
+export LIB_LUA=yes

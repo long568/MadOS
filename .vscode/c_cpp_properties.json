@@ -19,6 +19,7 @@
                 "${workspaceFolder}/library/uIP/uip-funs",
                 "${workspaceFolder}/library/FatFs",
                 "${workspaceFolder}/library/cJSON",
+                "${workspaceFolder}/library/Lua",
                 "${workspaceFolder}/app/test_uip"
             ],
             "defines": [

@@ -10,3 +10,6 @@ endif
 ifeq ($(LIB_CJSON), yes)
 	$(MAKE) -C $(ROOT)/library/cJSON
 endif
+ifeq ($(LIB_LUA), yes)
+	$(MAKE) -C $(ROOT)/library/Lua
+endif

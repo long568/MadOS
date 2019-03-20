@@ -6,6 +6,7 @@
 #include "CfgUser.h"
 #include "mod_uIP.h"
 #include "mod_FatFs.h"
+#include "mod_Lua.h"
 
 #include "testEth.h"
 #include "testFatFs.h"
@@ -76,8 +77,9 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 
-    FatFs_Init();
     uIP_Init();
+    FatFs_Init();
+    LuaParser_Init();
 /********************************************
  * User-Apps
  ********************************************/
