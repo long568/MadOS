@@ -10,8 +10,6 @@ static char *argv[] = {
     "MadLua"
 };
 
-char ttt_buffer[16];
-
 static void lua_parser_thread(MadVptr exData);
 
 MadBool LuaParser_Init(void)
@@ -28,7 +26,8 @@ static void lua_parser_thread(MadVptr exData)
     (void)exData;
     madTimeDly(1000);
     while(1) {
-        MAD_LOG("Float (%f)\n", 1.0f);
+        MAD_LOG("Float (%f)\n", 123.456f);
+        // MAD_LOG("Int (%d)\n", 123456);
         // lua_go(1, argv);
         madThreadPend(MAD_THREAD_SELF);
     }

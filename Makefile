@@ -53,13 +53,13 @@ export LIBS += -L$(BUILD_DIR)
 ifeq ($(BUILD_VER), debug)
 CXFLAGS += -g3
 endif
-CXFLAGS += $(DEFS) $(INCS) -Os \
+CXFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
 		   -Wall -Wshadow -Wpointer-arith \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 	       -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS) -std=c99
 export CPPFLAGS += $(CXFLAGS)
-export LDFLAGS  += $(LIBS) --specs=nano.specs \
+export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
     			   -Bstatic -Wl,--gc-sections \
 				   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
