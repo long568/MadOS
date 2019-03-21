@@ -71,8 +71,8 @@
 #define LUA_USE_READLINE	/* needs an extra library: -lreadline */
 #endif
 
-#define LUA_USE_MADOS       /* Added by long 20190320 */
-#if defined(DLUA_USE_MADOS)
+//#define LUA_USE_MADOS       /* Added by long 20190320 */
+#if defined(LUA_USE_MADOS)
 #define LUA_USE_POSIX
 #endif
 
@@ -305,7 +305,7 @@
 ** You can define it to get all options, or change specific options
 ** to fit your specific needs.
 */
-#define LUA_COMPAT_5_2 /* Added by long 20190320 */
+//#define LUA_COMPAT_5_2 /* Added by long 20190320 */
 #if defined(LUA_COMPAT_5_2)	/* { */
 
 /*

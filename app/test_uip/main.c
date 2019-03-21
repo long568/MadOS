@@ -77,14 +77,14 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 
-    uIP_Init();
-    FatFs_Init();
+    // uIP_Init();
+    // FatFs_Init();
     LuaParser_Init();
 /********************************************
  * User-Apps
  ********************************************/
-    Init_TestUIP();
-    Init_TestFatFs();
+    // Init_TestUIP();
+    // Init_TestFatFs();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -131,7 +131,7 @@ static void madSysRunning(MadVptr exData)
         idle_rate >>= 1;
         if(tmrSysReport > 10) {
             tmrSysReport = 0;
-            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
+            // MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
         }
 #endif
 	}

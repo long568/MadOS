@@ -1,7 +1,7 @@
 #include "MadISR.h"
 
 void HardFault_Handler(void) {
-    volatile int opps;
+    volatile int opps = 0;
 	while(1) {
         opps++;
     }

@@ -45,7 +45,7 @@ static int Drv_creat(const char * file, mode_t mode)
 
 static int Drv_fcntl(int fd, int cmd, va_list args)
 {
-    // MadDev_t *dev     = DevsList[fd];
+    // MadDev_t *dev = DevsList[fd];
     (void)args;
     switch(cmd) {
         case F_DEV_RST:
