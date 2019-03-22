@@ -5,22 +5,17 @@ extern MadU8 MadThreadClear;
 extern void madOSStartUp(void);
 extern void madThreadrRecyclingResources(void);
 
-#define MAD_REAL_IDLE_STK_SIZE    ((MAD_IDLE_STK_SIZE    + sizeof(MadTCB_t)) / MAD_MEM_ALIGN + 1)
-#if MAD_STATIST_STK_SIZE
-#define MAD_REAL_STATIST_STK_SIZE ((MAD_STATIST_STK_SIZE + sizeof(MadTCB_t)) / MAD_MEM_ALIGN + 1)
-#endif /* MAD_STATIST_STK_SIZE */
+#define  MAD_REAL_IDLE_STK_SIZE  MAD_ALIGNED_STK(MAD_IDLE_STK_SIZE)
+static   MadAligned_t            mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
+static   void madActIdle(MadVptr exData);
 
-static MadU32  mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
 #if MAD_STATIST_STK_SIZE
-static MadU32  mad_statist_stk[MAD_REAL_STATIST_STK_SIZE];
-static MadU32  mad_sys_cnt;
-static MadU32  mad_sys_cnt_res;
-static MadU32  mad_sys_cnt_max;
-#endif /* MAD_STATIST_STK_SIZE */
-
-static void madActIdle(MadVptr exData);
-#if MAD_STATIST_STK_SIZE
-static void madActStatist(MadVptr exData);
+#define MAD_REAL_STATIST_STK_SIZE  MAD_ALIGNED_STK(MAD_STATIST_STK_SIZE)
+static  MadAligned_t               mad_statist_stk[MAD_REAL_STATIST_STK_SIZE];
+static  MadU32                     mad_sys_cnt;
+static  MadU32                     mad_sys_cnt_res;
+static  MadU32                     mad_sys_cnt_max;
+static  void madActStatist(MadVptr exData);
 #endif /* MAD_STATIST_STK_SIZE */
 
 void madOSInit(MadVptr heap_head, MadSize_t heap_size)

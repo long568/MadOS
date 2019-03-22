@@ -124,6 +124,8 @@ static void test_fatfs_act(MadVptr exData)
     } while(0);
 #endif
 
+    madThreadPend(MAD_THREAD_SELF);
+
     i = 0;
     j = 0;
     err_code = 0;

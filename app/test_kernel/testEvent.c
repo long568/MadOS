@@ -7,7 +7,7 @@ void testEvent_t0(MadVptr exData);
 
 void initTestEvent(void)
 {
-    t_event = madEventCreate(0x11, MEMODE_WAIT_ONE);
+    t_event = madEventCreate(0x11, MEMODE_WAIT_ONE, MEOPT_DELAY);
     if(t_event) {
         madThreadCreate(testEvent_t, 0, 2048, THREAD_PRIO_TEST_MEM);
         madThreadCreate(testEvent_t0, &t_tim[0], 1024, THREAD_PRIO_TEST_MEM_0);
@@ -21,7 +21,7 @@ void testEvent_t(MadVptr exData)
     (void)exData;
 	while(1) {
         madTimeDly(2);
-        madEventWait(&t_event, 0, &mask);
+        madEventWait(&t_event, &mask, 0);
         t_unused_size = madMemUnusedSize();
         t_i++;
 	}

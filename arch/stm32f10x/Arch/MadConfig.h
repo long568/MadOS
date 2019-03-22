@@ -4,12 +4,6 @@
 #include "MadArch.h"
 
 /*
- * MadMemory
- */
-#define MAD_MEM_ALIGN_MASK  ((MadU32)0xFFFFFFFF << 2) // 4Bytes-Align
-#define MAD_MEM_ALIGN       ((~MAD_MEM_ALIGN_MASK) + 1)
-
-/*
  * MadThread
  */
 #define MAD_THREAD_NUM_MAX   (256)

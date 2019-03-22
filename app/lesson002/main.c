@@ -1,7 +1,8 @@
 #include "MadOS.h"                              // MadOS核心头文件
 #include "CfgUser.h"                            // 用户配置头文件
 
-MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 定义运行时堆栈
+// 定义运行时堆栈 (8Bytes-Align for Float)
+MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 static void madStartup(MadVptr exData);         // 函数声明
 
 int main()

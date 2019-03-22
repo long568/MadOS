@@ -5,7 +5,7 @@
 #include "ModNH3.h"
 #include "ModLora_IntoL6.h"
 
-MadU32 MadStack[MAD_OS_STACK_SIZE / 4] = { 0 }; // 4Bytes-Align
+MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 }; // 8Bytes-Align for Float
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);

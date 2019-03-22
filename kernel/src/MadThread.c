@@ -239,7 +239,7 @@ MadVptr madThreadDelete(MadU8 threadPrio)
 
 void madThreadrRecyclingResources(void) // Looped in madActIdle
 {
-    static MadU8 i = 0;
+    static MadU16 i = 0;
     MadU8     n;
     MadTCB_t *pTCB;
     MadCpsr_t cpsr;

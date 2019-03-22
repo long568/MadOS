@@ -14,7 +14,7 @@ static void lua_parser_thread(MadVptr exData);
 
 MadBool LuaParser_Init(void)
 {
-    if(MNULL == madThreadCreate(lua_parser_thread, MNULL, 1024 * 20, THREAD_PRIO_TEST_LUAPARSER)) {
+    if(MNULL == madThreadCreate(lua_parser_thread, MNULL, 1024 * 8, THREAD_PRIO_TEST_LUAPARSER)) {
         return MFALSE;
     } else {
         return MTRUE;
@@ -24,11 +24,9 @@ MadBool LuaParser_Init(void)
 static void lua_parser_thread(MadVptr exData)
 {
     (void)exData;
-    madTimeDly(1000);
+    madTimeDly(100);
     while(1) {
-        MAD_LOG("Float (%f)\n", 123.456f);
-        // MAD_LOG("Int (%d)\n", 123456);
-        // lua_go(1, argv);
+        lua_go(1, argv);
         madThreadPend(MAD_THREAD_SELF);
     }
 }

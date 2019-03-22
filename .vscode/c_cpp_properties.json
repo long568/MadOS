@@ -4,7 +4,7 @@
             "name": "MadOS",
             "includePath": [
                 "${env.MADOS_TOOLS_HOME}/arm-none-eabi/include",
-                "${env.MADOS_TOOLS_HOME}/lib/gcc/arm-none-eabi/7.3.0/include",
+                "${env.MADOS_TOOLS_HOME}/lib/gcc/arm-none-eabi/${env.MADOS_TOOLS_VER}/include",
                 "${workspaceFolder}/arch/stm32f10x/Arch",
                 "${workspaceFolder}/arch/stm32f10x/Startup",
                 "${workspaceFolder}/arch/stm32f10x/StdPeriph",
@@ -29,7 +29,7 @@
                 "USE_STDPERIPH_DRIVER",
                 "STM32F10X_CL"
             ],
-            "compilerPath": "{env.MADOS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
+            "compilerPath": "${env.MADOS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }

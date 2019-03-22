@@ -3,6 +3,10 @@
 
 #include "stm32f10x.h"
 
+#define MAD_MEM_ALIGN_ROLL  (3) // 3: 8Bytes-Align | 2: 4Bytes-Align
+#define MAD_MEM_ALIGN_MASK  ((MadU32)0xFFFFFFFF << MAD_MEM_ALIGN_ROLL)
+#define MAD_MEM_ALIGN       ((~MAD_MEM_ALIGN_MASK) + 1)
+
 #define MadVptr            void*
 
 typedef signed char        MadS8;
@@ -26,6 +30,14 @@ typedef MadU32             MadCpsr_t;
 typedef MadU32             MadStk_t;
 typedef MadU32             MadTim_t;
 typedef MadU8              MadFlag_t;
+
+#if   MAD_MEM_ALIGN_ROLL == 3
+typedef MadU64             MadAligned_t;
+#elif MAD_MEM_ALIGN_ROLL == 2
+typedef MadU32             MadAligned_t;
+#else
+#   error "MAD_MEM_ALIGN_ROLL selected has not been supported."
+#endif /* MAD_MEM_ALIGN_ROLL */
 
 #include "MadISR.h"
 

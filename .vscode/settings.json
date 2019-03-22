@@ -58,7 +58,14 @@
         "cdefs.h": "c",
         "eth_low.h": "c",
         "eth_low_cfg.h": "c",
-        "climits": "cpp"
+        "climits": "cpp",
+        "madthread.h": "c",
+        "madmemory.h": "c",
+        "madtimedly.h": "c",
+        "madsemaphore.h": "c",
+        "madmessage.h": "c",
+        "madevent.h": "c",
+        "errno.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

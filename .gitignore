@@ -84,5 +84,7 @@ $RECYCLE.BIN/
 
 # MadOS
 # =========================
-build/
 .vscode/.cortex-debug.*.state.json
+.vscode/ipch/
+build/
+

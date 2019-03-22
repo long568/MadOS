@@ -51,7 +51,6 @@ void SpiFlash_Init(void)
     init_dat.spi          = SPI3;
     init_dat.dmaTx        = DMA2_Channel2;
     init_dat.dmaRx        = DMA2_Channel1;
-    init_dat.retry        = mSpiFlash_SPI_TIMEOUT;
     init_dat.irqSpi       = mSpiFlash_SPI_IRQHandler;
     init_dat.irqDma       = mSpiFlash_DMA_IRQHandler;
 

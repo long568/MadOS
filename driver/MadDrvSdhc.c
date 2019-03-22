@@ -346,7 +346,7 @@ static int Drv_open(const char * file, int flag, va_list args)
             mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_256);
             if(0 > mSpiSd_Reset(spi)) break;
             if(0 > mSpiSd_Init(spi)) break;
-            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_2);
+            mSpiSetClkPrescaler(spi, SPI_BaudRatePrescaler_4);
             madTimeDly(10);
             if(0 > mSpiSd_OCR(spi, &sd_info->OCR)) break;
             MAD_LOG("[SD] OCR = 0x%08X\n", sd_info->OCR);
