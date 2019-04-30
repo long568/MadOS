@@ -404,6 +404,7 @@ uip_init(void)
 }
 /*---------------------------------------------------------------------------*/
 #if UIP_ACTIVE_OPEN
+#if 0 // Added by long
 struct uip_conn *uip_new(void)
 {
   register struct uip_conn *conn, *cconn;
@@ -475,70 +476,71 @@ void uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
   conn->rport = rport;
   uip_ipaddr_copy(&conn->ripaddr, ripaddr);
 }
+#else
+struct uip_conn *
+uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
+{
+ register struct uip_conn *conn, *cconn;
+ 
+ /* Find an unused local port. */
+again:
+ ++lastport;
 
-//struct uip_conn *
-//uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
-//{
-//  register struct uip_conn *conn, *cconn;
-//  
-//  /* Find an unused local port. */
-// again:
-//  ++lastport;
+ if(lastport >= 32000) {
+   lastport = 4096;
+ }
 
-//  if(lastport >= 32000) {
-//    lastport = 4096;
-//  }
+ /* Check if this port is already in use, and if so try to find
+    another one. */
+ for(c = 0; c < UIP_CONNS; ++c) {
+   conn = &uip_conns[c];
+   if(conn->tcpstateflags != UIP_CLOSED &&
+      conn->lport == htons(lastport)) {
+     goto again;
+   }
+ }
 
-//  /* Check if this port is already in use, and if so try to find
-//     another one. */
-//  for(c = 0; c < UIP_CONNS; ++c) {
-//    conn = &uip_conns[c];
-//    if(conn->tcpstateflags != UIP_CLOSED &&
-//       conn->lport == htons(lastport)) {
-//      goto again;
-//    }
-//  }
+ conn = 0;
+ for(c = 0; c < UIP_CONNS; ++c) {
+   cconn = &uip_conns[c];
+   if(cconn->tcpstateflags == UIP_CLOSED) {
+     conn = cconn;
+     break;
+   }
+   if(cconn->tcpstateflags == UIP_TIME_WAIT) {
+     if(conn == 0 ||
+	 cconn->timer > conn->timer) {
+	conn = cconn;
+     }
+   }
+ }
 
-//  conn = 0;
-//  for(c = 0; c < UIP_CONNS; ++c) {
-//    cconn = &uip_conns[c];
-//    if(cconn->tcpstateflags == UIP_CLOSED) {
-//      conn = cconn;
-//      break;
-//    }
-//    if(cconn->tcpstateflags == UIP_TIME_WAIT) {
-//      if(conn == 0 ||
-//	 cconn->timer > conn->timer) {
-//	conn = cconn;
-//      }
-//    }
-//  }
+ if(conn == 0) {
+   return 0;
+ }
+ 
+ conn->tcpstateflags = UIP_SYN_SENT;
 
-//  if(conn == 0) {
-//    return 0;
-//  }
-//  
-//  conn->tcpstateflags = UIP_SYN_SENT;
+ conn->snd_nxt[0] = iss[0];
+ conn->snd_nxt[1] = iss[1];
+ conn->snd_nxt[2] = iss[2];
+ conn->snd_nxt[3] = iss[3];
 
-//  conn->snd_nxt[0] = iss[0];
-//  conn->snd_nxt[1] = iss[1];
-//  conn->snd_nxt[2] = iss[2];
-//  conn->snd_nxt[3] = iss[3];
-
-//  conn->initialmss = conn->mss = UIP_TCP_MSS;
-//  
-//  conn->len = 1;   /* TCP length of the SYN is one. */
-//  conn->nrtx = 0;
-//  conn->timer = 1; /* Send the SYN next time around. */
-//  conn->rto = UIP_RTO;
-//  conn->sa = 0;
-//  conn->sv = 16;   /* Initial value of the RTT variance. */
-//  conn->lport = htons(lastport);
-//  conn->rport = rport;
-//  uip_ipaddr_copy(&conn->ripaddr, ripaddr);
-//  
-//  return conn;
-//}
+ conn->initialmss = conn->mss = UIP_TCP_MSS;
+ 
+ conn->len = 1;   /* TCP length of the SYN is one. */
+ conn->nrtx = 0;
+ conn->timer = 1; /* Send the SYN next time around. */
+ conn->rto = UIP_RTO;
+ conn->sa = 0;
+ conn->sv = 16;   /* Initial value of the RTT variance. */
+ conn->lport = htons(lastport);
+ conn->rport = rport;
+ uip_ipaddr_copy(&conn->ripaddr, ripaddr);
+ 
+ return conn;
+}
+#endif /* 0 */
 #endif /* UIP_ACTIVE_OPEN */
 /*---------------------------------------------------------------------------*/
 #if UIP_UDP
@@ -780,11 +782,11 @@ uip_process(u8_t flag)
   } else if(flag == UIP_TIMER) {
       
     /* Added by long */
-    if(uip_connr->tcpstateflags == UIP_START_UP) {
-        uip_flags = 0;
-        UIP_APPCALL();
-        return;
-    }
+    // if(uip_connr->tcpstateflags == UIP_START_UP) {
+    //     uip_flags = 0;
+    //     UIP_APPCALL();
+    //     return;
+    // }
       
 #if UIP_REASSEMBLY
     if(uip_reasstmr != 0) {

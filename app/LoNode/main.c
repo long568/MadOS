@@ -1,17 +1,11 @@
-#ifdef __cplusplus
-extern "C"{
 #include <stdio.h>
 #include <stdlib.h>
 #include "MadOS.h"
 #include "MadDrv.h"
 #include "CfgUser.h"
-#include "mod_uIP.h"
+#include "uTcp.h"
 #include "mod_FatFs.h"
 // #include "mod_Lua.h"
-} /* extern "C" */
-#endif
-
-#include "uTcp.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -87,9 +81,8 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    volatile uTcp *tcp = new uTcp(192, 168, 1, 105, 5685);
 
-    madThreadCreate(madSysRunning, 0, 600 * 10, THREAD_PRIO_SYS_RUNNING);
+    madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
 }
@@ -114,8 +107,6 @@ static void madSysRunning(MadVptr exData)
     madTimeDly(10);
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
 #endif
-
-    // volatile uTcp *tcp = new uTcp(192, 168, 1, 105, 5685);
     
 	while(1) {
         madTimeDly(500);

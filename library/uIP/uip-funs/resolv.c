@@ -337,11 +337,10 @@ newdata(void)
  * The main UDP function.
  */
 /*---------------------------------------------------------------------------*/
-void
-//resolv_appcall(void)
-resolv_appcall(MadVptr ep)
+char
+resolv_appcall(MadVptr p, MadVptr ep)
 {
-  (void)ep;
+  (void)p; (void)ep;
   if(uip_udp_conn->rport == HTONS(53)) {
     if(uip_poll()) {
       check_entries();
@@ -350,6 +349,7 @@ resolv_appcall(MadVptr ep)
       newdata();
     }
   }
+  return 0;
 }
 /*---------------------------------------------------------------------------*/
 /**
@@ -465,7 +465,7 @@ resolv_conf(u16_t *dnsserver)
  * Initalize the resolver.
  */
 /*---------------------------------------------------------------------------*/
-static void resolv_link_changed(MadVptr ep);
+static void resolv_link_changed(MadVptr p, MadVptr ep);
 void
 resolv_init(void)
 {
@@ -498,8 +498,9 @@ void resolv_linked_off(void)
     }
 }
 
-void resolv_link_changed(MadVptr ep)
+void resolv_link_changed(MadVptr p, MadVptr ep)
 {
+    (void)p;
     MadU32 flag = (MadU32)ep;
     if(flag == uIP_LINKED_OFF) {
         resolv_linked_off();

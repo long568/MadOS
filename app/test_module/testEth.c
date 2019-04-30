@@ -17,127 +17,64 @@ const char * const resolv_names[] = {
     "www.ti.com.cn"
 };
 
-static uIP_App     TestUIP;
-static timer       timer_tcp;
-static struct pt   pt_tcp;
-static uIP_TcpConn *conn_tcp;
-static MadU8       linked;
+static uTcp *sock;
+static MadUint cnt_acked  = 0;
+static MadUint cnt_rexmit = 0;
 
-static void tcp_link_changed(MadVptr ep);
-static void tcp_resolv_found(char *name, u16_t *ipaddr);
-static void tcp_start_up(void);
-static void tcp_shut_down(void);
-static void tcp_appcall(MadVptr ep);
+static void tcp_recv(MadU8 *data, MadU16 len);
+static void tcp_ack(MadBool flag);
+static void tcp_send(void);
+static void tcp_resolv_found(MadVptr p, char *name, u16_t *ipaddr);
 
 void Init_TestUIP(void)
 {
-    timer_init(&timer_tcp);
-    TestUIP.link_changed = tcp_link_changed;
-    TestUIP.resolv_found = tcp_resolv_found;
-    uIP_AppRegister(&TestUIP);
-}
-
-void tcp_link_changed(MadVptr ep)
-{
-    linked = (MadU32)ep;
-    if(uIP_LINKED_OFF == linked) {
-        tcp_shut_down();
-    } else {
-        tcp_start_up();
+    const MadU8 target_ip[4] = {192, 168, 1, 105};
+    sock = uTcp_Create(target_ip, 5685, tcp_recv, tcp_ack);
+    if(sock) {
+        uTcp_SetResolv(sock, tcp_resolv_found);
     }
 }
 
-void tcp_resolv_found(char *name, u16_t *ipaddr)
+void tcp_recv(MadU8 *data, MadU16 len)
 {
+    const char dst[] = "Hello MadOS";
+    if(0 == madMemCmp(dst, (const char *)uip_appdata, sizeof(dst) - 1)) {
+        tcp_send();
+    }
+}
+
+void tcp_ack(MadBool flag)
+{
+    if(MFALSE == flag) {
+        cnt_rexmit++;
+        tcp_send();
+    } else {
+        cnt_acked++;
+    }
+}
+
+void tcp_send(void)
+{
+    MadU8  *buf = (MadU8*)uip_appdata;
+    MadU32 len = sprintf((char*)buf, 
+                         "uIP -> Acked[%d], Rexmit[%d]",
+                         cnt_acked, cnt_rexmit);
+    uip_send(uip_appdata, len);
+    do {
+        static MadInt resolv_i = 0;
+        if(resolv_i < RESOLV_NUM) {
+            resolv_query((char*)resolv_names[resolv_i]);
+            resolv_i++;
+        }
+    } while(0);
+}
+
+void tcp_resolv_found(MadVptr p, char *name, u16_t *ipaddr)
+{
+    (void)p;
     MAD_LOG("%s -> %d.%d.%d.%d\n", name,
             uip_ipaddr1(ipaddr),
             uip_ipaddr2(ipaddr),
             uip_ipaddr3(ipaddr),
             uip_ipaddr4(ipaddr));
 }
-
-void tcp_start_up(void)
-{
-    conn_tcp = uip_new();
-    if(conn_tcp) {
-        timer_add(&timer_tcp, &uIP_Clocker);
-        uIP_SetTcpConn(conn_tcp, tcp_appcall);
-        PT_INIT(&pt_tcp);
-    }
-}
-
-void tcp_shut_down(void)
-{
-    uIP_SetTcpConn(conn_tcp, MNULL); 
-    uip_remove(conn_tcp);
-    timer_remove(&timer_tcp);
-}
-
-/*********************************************
- * tcp_appcall
- *********************************************/
-#define CHECK_IF_RESTART() \
-do {                                        \
-    if(TCP_FLAG_ERR == tcp_is_err()) {      \
-        uIP_SetTcpConn(conn_tcp, MNULL);    \
-        tcp_start_up();                     \
-        return PT_EXITED;                   \
-    }                                       \
-} while(0)
-
-static PT_THREAD(tcp_pt(MadVptr ep))
-{
-    static MadUint    cnt_acked  = 0;
-    static MadUint    cnt_rexmit = 0;
-    static struct pt  *pt        = &pt_tcp;
-    
-    PT_BEGIN(pt);
-    uip_ipaddr_t ipaddr;
-    SET_TARGET_IP(ipaddr);
-    uip_connect(&ipaddr, HTONS(5685));
-
-    PT_WAIT_UNTIL(pt, tcp_is_connected());
-    CHECK_IF_RESTART();
-
-    do {
-        PT_YIELD(pt);
-        MadU8 wait_send;
-        CHECK_IF_RESTART();
-        
-        wait_send = 0;
-        if(uip_acked()) {
-            cnt_acked++;
-        }
-        
-        if(uip_newdata()) {
-            const char dst[] = "Hello MadOS";
-            if(0 == madMemCmp(dst, (const char *)uip_appdata, sizeof(dst) - 1)) {
-                wait_send = 1;
-            }
-        }
-        
-        if(uip_rexmit()) {
-            wait_send = 1;
-            cnt_rexmit++;
-        }
-        
-        if(wait_send) {
-            MadU8  *ack_str = (MadU8*)uip_appdata;
-            MadU32 len = sprintf((char*)ack_str, 
-                                 "uIP -> Acked[%d], Rexmit[%d]",
-                                 cnt_acked, cnt_rexmit);
-            uip_send(uip_appdata, len);
-            do {
-                static MadInt resolv_i = 0;
-                if(resolv_i < RESOLV_NUM) {
-                    resolv_query((char*)resolv_names[resolv_i]);
-                    resolv_i++;
-                }
-            } while(0);
-        }
-    } while(1);
-    
-    PT_END(pt);
-}
-
-void tcp_appcall(MadVptr ep) { tcp_pt(ep); }

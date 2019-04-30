@@ -1,49 +1,43 @@
-/*
- * Example:
- *     uTcp *tcp = new uTcp(192, 168, 1, 103, 5685);
- */
-
 #ifndef __UIP_TCP__H__
 #define __UIP_TCP__H__
-
-#ifdef __cplusplus
-extern "C"{
 
 #include "pt.h"
 #include "mod_uIP.h"
 
-} /* extern "C" */
+enum {
+    TCP_FLAG_OK = 0,
+    TCP_FLAG_CON,
+    TCP_FLAG_ERR
+};
+
+typedef void (*uTcp_RecvCallback)(MadU8 *data, MadU16 len);
+typedef void (*uTcp_AckCallback)(MadBool flag);
+
+typedef struct {
+    uIP_App     app;
+    uIP_TcpConn *conn;
+    timer       timer;
+    struct pt   pt;
+    MadU8       isLinked;
+    MadU8       ip[4];
+    MadU16      port;
+    uTcp_RecvCallback recv;
+    uTcp_AckCallback  ack;
+} uTcp;
+
+extern uTcp* uTcp_Create     (const MadU8 ip[4], MadU16 port, 
+                              uTcp_RecvCallback recv, uTcp_AckCallback ack);
+extern void  uTcp_Init       (uTcp* s, const MadU8 ip[4], MadU16 port, 
+                              uTcp_RecvCallback recv, uTcp_AckCallback ack);
+extern MadU8 uTcp_isError    (void);
+extern MadU8 uTcp_isConnected(void);
+extern void  uTcp_Startup    (uTcp *s);
+extern void  uTcp_Shutdown   (uTcp *s);
+#if UIP_CORE_APP_DNS
+extern void  uTcp_SetResolv  (uTcp *s, uIP_DnsCallback dns);
 #endif
 
-class uTcp {
-public:
-    uTcp(MadU8 ip[4], MadU16 port);
-    uTcp(MadU8 ip0, MadU8 ip1, MadU8 ip2, MadU8 ip3, MadU16 port);
-
-protected:
-    enum {
-        TCP_FLAG_OK = 0,
-        TCP_FLAG_CON,
-        TCP_FLAG_ERR
-    };
-
-    MadU8 isError    (void);
-    MadU8 isConnected(void);
-    void  startup    (void);
-    void  shutdown   (void);
-
-    static void linkChanged(MadVptr p, MadVptr ep);
-    static PT_THREAD(appcall(MadVptr p, MadVptr ep));
-
-private:
-    uIP_App     m_app;
-    uIP_TcpConn *m_conn;
-    timer       m_timer;
-    struct pt   m_pt;
-    MadU8       m_isLinked;
-
-    MadU8       m_ip[4];
-    MadU16      m_port;
-};
+extern void uTcp_LinkChanged (MadVptr p, MadVptr ep);
+extern PT_THREAD(uTcp_Appcall(MadVptr p, MadVptr ep));
 
 #endif

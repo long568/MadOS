@@ -500,11 +500,13 @@ void uip_unlisten(u16_t port);
  * or NULL if no connection could be allocated.
  *
  */
-//struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
+#if 0 // Added by long
 struct uip_conn *uip_new(void);
 void uip_remove(struct uip_conn * conn);
 void uip_connect(uip_ipaddr_t *ripaddr, u16_t rport);
-
+#else
+struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, u16_t port);
+#endif
 
 /**
  * \internal
@@ -1387,7 +1389,7 @@ void uip_process(u8_t flag);
 #define UIP_LAST_ACK    8
 #define UIP_TS_MASK     15
 #define UIP_STOPPED     16
-#define UIP_START_UP    100  // Added by long
+// #define UIP_START_UP    100  // Added by long
 
 /* The TCP and IP headers. */
 struct uip_tcpip_hdr {

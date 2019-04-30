@@ -102,7 +102,6 @@ void resolv_found(char *name, u16_t *ipaddr) { APPLIST_LOOP(resolv_found, name, 
  *
  *****************************************************/
 #define APPLIST_LOOP_LINKCHANGED(x) APPLIST_LOOP(link_changed, (MadVptr)x)
-void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
 // void uIP_linked_on(void) {
 //     uIP_App *app_list = uIP_app_list;
 //     while(app_list) {
@@ -111,6 +110,7 @@ void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
 //         app_list = app_list->next;
 //     }
 // }
+void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
 void uIP_linked_off(void)  { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_OFF); }
 void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
 void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }

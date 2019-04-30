@@ -7,5 +7,5 @@ SRCS = $(wildcard *.c)  $(wildcard *.cpp)
 include $(RULES)
 
 after_all:
-	$(CPP) $(wildcard $(BUILD_DIR)/app/*.o) $(LDFLAGS) -o $(TARGET).elf
+	$(LD) $(wildcard $(BUILD_DIR)/app/*.o) $(LDFLAGS) -o $(TARGET).elf
 	$(OCPY) -O ihex $(TARGET).elf $(TARGET).hex

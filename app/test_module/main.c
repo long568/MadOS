@@ -79,8 +79,8 @@ static void madStartup(MadVptr exData)
     MAD_LOG("================================\n");
 #endif
 
-    uIP_Init();
     FatFs_Init();
+    uIP_Init();
     LuaParser_Init();
 /********************************************
  * User-Apps

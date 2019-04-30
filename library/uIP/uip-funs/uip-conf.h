@@ -29,20 +29,20 @@ extern u8_t *uip_buf;
 typedef void (*uIP_LinkCallback)(MadVptr p, MadVptr dp);
 typedef char (*uIP_AppCallback)(MadVptr p, MadVptr dp);
 #if UIP_CORE_APP_DNS
-typedef void (*uIP_Dns_Callback)(MadVptr p, char *name, u16_t *ipaddr);
+typedef void (*uIP_DnsCallback)(MadVptr p, char *name, u16_t *ipaddr);
 #endif
 
 struct _uIP_App {
     uIP_App          *next;         // Used by uIP-Core
     uIP_LinkCallback link_changed;  // NULL means ignored
 #if UIP_CORE_APP_DNS
-    Dns_Callback     resolv_found;  // NULL means ignored
+    uIP_DnsCallback  resolv_found;  // NULL means ignored
 #endif
     void *self;
 };
 
 struct _uIP_ConnState {
-    uIP_AppCallback app_call; // NULL means ignored
+    uIP_AppCallback app_call;  // NULL means ignored
     void *self;
 };
 
