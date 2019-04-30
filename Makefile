@@ -1,9 +1,9 @@
-# export APP        = test_kernel
-export APP        = test_uip
-# export APP        = test_fatfs
-# export APP        = lesson002
-# export APP        = LoArm
-# export APP        = LoIoT
+# export APP = test_kernel
+# export APP = test_module
+# export APP = lesson000
+# export APP = LoArm
+# export APP = LoIoT
+export APP = LoNode
 
 export BUILD_VER  = debug
 export TOOLCHAIN  = arm-none-eabi
@@ -58,7 +58,7 @@ CXFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
 	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
 	       -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS) -std=c99
-export CPPFLAGS += $(CXFLAGS)
+export CPPFLAGS += $(CXFLAGS) -std=c++11
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
     			   -Bstatic -Wl,--gc-sections \
 				   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \

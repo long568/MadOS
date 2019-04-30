@@ -276,9 +276,10 @@ static u8_t dhcpc_wait_ack(void) {
 }
 
 static
-PT_THREAD(handle_dhcp(void))
+PT_THREAD(dhcpc_appcall(MadVptr p, MadVptr ep))
 {
     u32_t lease_time;
+    (void)p; (void)ep;
     
     PT_BEGIN(&s.pt);
     /* try_again:*/
@@ -345,8 +346,9 @@ PT_THREAD(handle_dhcp(void))
 static void dhcpc_request(void);
 static void dhcpc_linked_on(const void *mac_addr, int mac_len);
 static void dhcpc_linked_off(void);
-static void dhcpc_link_changed(MadVptr ep);
-static void dhcpc_appcall(MadVptr ep);
+static void dhcpc_link_changed(MadVptr p, MadVptr ep);
+static char dhcpc_appcall(MadVptr p, MadVptr ep);
+
 void
 dhcpc_init()
 {
@@ -357,14 +359,7 @@ dhcpc_init()
 #endif
     uIP_AppRegister(&s.app);
 }
-/*---------------------------------------------------------------------------*/
-void
-dhcpc_appcall(MadVptr ep)
-{
-    (void)ep;
-    handle_dhcp();
-}
-/*---------------------------------------------------------------------------*/
+
 void
 dhcpc_request(void)
 {
@@ -405,8 +400,9 @@ void dhcpc_linked_off(void)
     timer_remove(&s.timer);
 }
 
-void dhcpc_link_changed(MadVptr ep)
+void dhcpc_link_changed(MadVptr p, MadVptr ep)
 {
+    (void)p;
     MadU32 flag = (MadU32)ep;
     if(flag == uIP_LINKED_OFF) {
         dhcpc_linked_off();

@@ -26,10 +26,10 @@ extern MadU32   uIP_dev_send  (mEth_t *eth, MadU8 *buf, MadU32 len);
 extern MadU32   uIP_dev_read  (mEth_t *eth, MadU8 *buf);
 extern MadU32   uIP_dev_rxsize(mEth_t *eth);
 
-extern void     uIP_AppRegister(uIP_App *app);                            // Do NOT modify an uIP_App has already registered.
-extern void     uIP_AppUnregister(uIP_App *app);                          // Want modify an uIP_App ? Unregister it first.
-extern void     uIP_SetTcpConn(uIP_TcpConn *conn, uIP_Callback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
-extern void     uIP_SetUdpConn(uIP_UdpConn *conn, uIP_Callback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
+extern void     uIP_AppRegister(uIP_App *app);                               // Do NOT modify an uIP_App has already registered.
+extern void     uIP_AppUnregister(uIP_App *app);                             // Want modify an uIP_App ? Unregister it first.
+extern void     uIP_SetTcpConn(uIP_TcpConn *conn, uIP_AppCallback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
+extern void     uIP_SetUdpConn(uIP_UdpConn *conn, uIP_AppCallback app_call); // NON-Thread-Safe, should be called in uIP-Thread.
 
 extern MadBool  uIP_preinit(mEth_t *eth);
 extern MadBool  uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt);

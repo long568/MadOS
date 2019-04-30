@@ -17,7 +17,7 @@ do {                                    \
     uIP_App *app_list = uIP_app_list;   \
     while(app_list) {                   \
         if(app_list->fun)               \
-            app_list->fun(__VA_ARGS__); \
+            app_list->fun(app_list->self, __VA_ARGS__); \
         app_list = app_list->next;      \
     }                                   \
 } while(0)
@@ -25,7 +25,7 @@ do {                                    \
 #define APPCONN_CALL(x) \
 do {                                        \
     if(x && x->appstate.app_call)           \
-        x->appstate.app_call((MadVptr)x);   \
+        x->appstate.app_call(x->appstate.self, (MadVptr)x);   \
 } while(0)
 
 /*****************************************************
@@ -77,12 +77,12 @@ void uIP_AppUnregister(uIP_App *app)
     madExitCritical(cpsr);
 }
 
-void uIP_SetTcpConn(uIP_TcpConn *conn, uIP_Callback app_call)
+void uIP_SetTcpConn(uIP_TcpConn *conn, uIP_AppCallback app_call)
 {
     conn->appstate.app_call = app_call;
 }
 
-void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_Callback app_call)
+void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_AppCallback app_call)
 {
     conn->appstate.app_call = app_call;
 }
@@ -103,6 +103,14 @@ void resolv_found(char *name, u16_t *ipaddr) { APPLIST_LOOP(resolv_found, name, 
  *****************************************************/
 #define APPLIST_LOOP_LINKCHANGED(x) APPLIST_LOOP(link_changed, (MadVptr)x)
 void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
+// void uIP_linked_on(void) {
+//     uIP_App *app_list = uIP_app_list;
+//     while(app_list) {
+//         if(app_list->link_changed)
+//             app_list->link_changed(app_list->self, (MadVptr)uIP_LINKED_ON);
+//         app_list = app_list->next;
+//     }
+// }
 void uIP_linked_off(void)  { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_OFF); }
 void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
 void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }

@@ -65,7 +65,11 @@
         "madsemaphore.h": "c",
         "madmessage.h": "c",
         "madevent.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "uipopt.h": "c",
+        "uip-conf.h": "c",
+        "cfguip.h": "c",
+        "functional": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
