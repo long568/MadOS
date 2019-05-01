@@ -7,6 +7,8 @@
 #include "mod_FatFs.h"
 // #include "mod_Lua.h"
 
+#include "testEth.h"
+
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
 #endif
@@ -81,6 +83,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    Init_TestUIP();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

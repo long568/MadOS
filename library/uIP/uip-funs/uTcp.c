@@ -29,6 +29,7 @@ void uTcp_Init(uTcp* s, const MadU8 ip[4], MadU16 port,
     s->port = port;
     timer_init(&s->timer);
     s->app.self = s;
+    s->app.is_linked = uIP_LINKED_OFF;
     s->app.link_changed = uTcp_LinkChanged;
 #if UIP_CORE_APP_DNS
     s->app.resolv_found = MNULL;
@@ -93,21 +94,20 @@ void uTcp_Shutdown(uTcp *s)
     uip_close();
 }
 
-void uTcp_LinkChanged(MadVptr p, MadVptr ep)
+void uTcp_LinkChanged(MadVptr self, MadVptr ep)
 {
-    uTcp *s = (uTcp*)p;
-    s->isLinked = (MadU32)ep;
-    if(uIP_LINKED_OFF == s->isLinked) {
+    uTcp *s = (uTcp*)self;
+    s->app.is_linked = (MadU32)ep;
+    if(uIP_LINKED_OFF == s->app.is_linked) {
         uTcp_Shutdown(s);
     } else {
         uTcp_Startup(s);
     }
 }
 
-PT_THREAD(uTcp_Appcall(MadVptr p, MadVptr ep))
+PT_THREAD(uTcp_Appcall(MadVptr self))
 {
-    uTcp *s = (uTcp*)p;
-    (void)ep;
+    uTcp *s = (uTcp*)self;
     PT_BEGIN(&s->pt);
     PT_WAIT_UNTIL(&s->pt, uTcp_isConnected());
     CHECK_IF_RESTART();

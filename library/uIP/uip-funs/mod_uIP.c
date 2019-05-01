@@ -23,9 +23,9 @@ do {                                    \
 } while(0)
 
 #define APPCONN_CALL(x) \
-do {                                        \
-    if(x && x->appstate.app_call)           \
-        x->appstate.app_call(x->appstate.self, (MadVptr)x);   \
+do {                                            \
+    if(x && x->appstate.app_call)               \
+        x->appstate.app_call(x->appstate.self); \
 } while(0)
 
 /*****************************************************
@@ -173,6 +173,17 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     if(event & mEth_PE_STATUS_CHANGED) {
         if(eth->isLinked) uIP_linked_on();
         else              uIP_linked_off();
+    }
+    
+    if(event & mEth_PE_STATUS_TIMEOUT) {
+        if(eth->isLinked) {
+            uIP_App *app_list = uIP_app_list;
+            while(app_list) {
+                if((app_list->is_linked == uIP_LINKED_OFF) && app_list->link_changed)
+                    app_list->link_changed(app_list->self, (MadVptr)uIP_LINKED_ON);
+                app_list = app_list->next;
+            }
+        }
     }
     
     if(event & mEth_PE_STATUS_RXPKT) {

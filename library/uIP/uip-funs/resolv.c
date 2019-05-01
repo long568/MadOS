@@ -338,9 +338,9 @@ newdata(void)
  */
 /*---------------------------------------------------------------------------*/
 char
-resolv_appcall(MadVptr p, MadVptr ep)
+resolv_appcall(MadVptr self)
 {
-  (void)p; (void)ep;
+  (void)self;
   if(uip_udp_conn->rport == HTONS(53)) {
     if(uip_poll()) {
       check_entries();
@@ -470,12 +470,12 @@ void
 resolv_init(void)
 {
     static u8_t i;
-
     for(i = 0; i < RESOLV_ENTRIES; ++i) {
         names[i].state = STATE_DONE;
     }
-    
     s.conn = NULL;
+    s.app.self = MNULL;
+    s.app.is_linked = uIP_LINKED_OFF;
     s.app.link_changed = resolv_link_changed;
     s.app.resolv_found = NULL;
     uIP_AppRegister(&s.app);
@@ -498,11 +498,11 @@ void resolv_linked_off(void)
     }
 }
 
-void resolv_link_changed(MadVptr p, MadVptr ep)
+void resolv_link_changed(MadVptr self, MadVptr ep)
 {
-    (void)p;
-    MadU32 flag = (MadU32)ep;
-    if(flag == uIP_LINKED_OFF) {
+    (void)self;
+    s.app.is_linked = (MadU32)ep;
+    if(uIP_LINKED_OFF == s.app.is_linked) {
         resolv_linked_off();
     } else {
         resolv_linked_on(uip_ethaddr.addr, 6);

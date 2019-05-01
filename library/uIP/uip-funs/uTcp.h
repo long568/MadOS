@@ -18,7 +18,6 @@ typedef struct {
     uIP_TcpConn *conn;
     timer       timer;
     struct pt   pt;
-    MadU8       isLinked;
     MadU8       ip[4];
     MadU16      port;
     uTcp_RecvCallback recv;
@@ -37,7 +36,7 @@ extern void  uTcp_Shutdown   (uTcp *s);
 extern void  uTcp_SetResolv  (uTcp *s, uIP_DnsCallback dns);
 #endif
 
-extern void uTcp_LinkChanged (MadVptr p, MadVptr ep);
-extern PT_THREAD(uTcp_Appcall(MadVptr p, MadVptr ep));
+extern void uTcp_LinkChanged (MadVptr self, MadVptr ep);
+extern PT_THREAD(uTcp_Appcall(MadVptr self));
 
 #endif
