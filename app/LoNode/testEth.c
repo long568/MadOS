@@ -13,7 +13,7 @@ static void tcp_send(void);
 
 void Init_TestUIP(void)
 {
-    const MadU8 target_ip[4] = {192, 168, 1, 105};
+    const MadU8 target_ip[4] = {192, 168, 1, 103};
     sock = uTcp_Create(target_ip, 5685, tcp_recv, tcp_ack);
 }
 

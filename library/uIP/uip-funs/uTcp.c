@@ -2,52 +2,43 @@
 #include <stdlib.h>
 #include "uTcp.h"
 
-#define CHECK_IF_RESTART() \
-do {                                     \
-    if(TCP_FLAG_ERR == uTcp_isError()) { \
-        uTcp_Shutdown(s);                \
-        uTcp_Startup(s);                 \
-        return PT_EXITED;                \
-    }                                    \
-} while(0)
-
 uTcp* uTcp_Create(const MadU8 ip[4], MadU16 port, 
-                  uTcp_RecvCallback recv, uTcp_AckCallback ack)
+                  uTcp_RecvCallback recv, 
+                  uTcp_AckCallback  ack)
 {
     uTcp *s = (uTcp*)malloc(sizeof(uTcp));
     if(MNULL != s) {
-        uTcp_Init(s, ip, port, recv, ack);
+        if(MFALSE == uTcp_Init(s, ip, port, recv, ack)) {
+            free(s);
+            s = 0;
+        }
     }
     return s;
 }
 
-void uTcp_Init(uTcp* s, const MadU8 ip[4], MadU16 port, 
-               uTcp_RecvCallback recv, uTcp_AckCallback ack)
+MadBool uTcp_Init(uTcp* s,
+                  const MadU8 ip[4], MadU16 port, 
+                  uTcp_RecvCallback recv, 
+                  uTcp_AckCallback  ack)
 {
-    for(int i = 0; i < 4; i++)
-        s->ip[i] = ip[i];
-    s->port = port;
-    timer_init(&s->timer);
-    s->app.self = s;
-    s->app.is_linked = uIP_LINKED_OFF;
-    s->app.link_changed = uTcp_LinkChanged;
-#if UIP_CORE_APP_DNS
-    s->app.resolv_found = MNULL;
-#endif
-    s->recv = recv;
-    s->ack  = ack;
-    uIP_AppRegister(&s->app);
+    MadBool res = MTRUE;
+    uIP_Lock();
+    s->conn = uip_new();
+    if(!s->conn) {
+        res = MFALSE;
+    } else {
+        PT_INIT(&s->pt);
+        for(int i = 0; i < 4; i++)
+            s->ip[i] = ip[i];
+        s->port = port;
+        s->recv = recv;
+        s->ack  = ack;
+        s->conn->appstate.app_call = uTcp_Appcall;
+        s->conn->appstate.ep       = s;
+    }
+    uIP_Unlock();
+    return res;
 }
-
-#if UIP_CORE_APP_DNS
-void  uTcp_SetResolv(uTcp *s, uIP_DnsCallback dns)
-{
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    s->app.resolv_found = dns;
-    madExitCritical(cpsr);
-}
-#endif
 
 MadU8 uTcp_isError(void)
 {
@@ -74,55 +65,51 @@ MadU8 uTcp_isConnected(void)
     return flag;
 }
 
-void uTcp_Startup(uTcp *s)
-{
-    uip_ipaddr_t ipaddr;
-    uip_ipaddr(&ipaddr, s->ip[0], s->ip[1], s->ip[2], s->ip[3]);
-    s->conn = uip_connect(&ipaddr, HTONS(s->port));
-    if(s->conn) {
-        s->conn->appstate.self = s;
-        timer_add(&s->timer, &uIP_Clocker);
-        uIP_SetTcpConn(s->conn, uTcp_Appcall);
-        PT_INIT(&s->pt);
-    }
-}
-
-void uTcp_Shutdown(uTcp *s)
-{
-    uIP_SetTcpConn(s->conn, MNULL);
-    timer_remove(&s->timer);
-    uip_close();
-}
-
-void uTcp_LinkChanged(MadVptr self, MadVptr ep)
-{
-    uTcp *s = (uTcp*)self;
-    s->app.is_linked = (MadU32)ep;
-    if(uIP_LINKED_OFF == s->app.is_linked) {
-        uTcp_Shutdown(s);
-    } else {
-        uTcp_Startup(s);
-    }
-}
-
 PT_THREAD(uTcp_Appcall(MadVptr self))
 {
     uTcp *s = (uTcp*)self;
+
     PT_BEGIN(&s->pt);
-    PT_WAIT_UNTIL(&s->pt, uTcp_isConnected());
-    CHECK_IF_RESTART();
-    do {
+    timer_init(&s->timer);
+    timer_add(&s->timer, &uIP_Clocker);
+    timer_set(&s->timer, MadTicksPerSec * 3);
+    MAD_LOG("[uTcp] Startup\n");
+    PT_WAIT_UNTIL(&s->pt, timer_expired(&s->timer) && uIP_is_configured);
+
+    uip_ipaddr_t ipaddr;
+    uip_ipaddr(&ipaddr, s->ip[0], s->ip[1], s->ip[2], s->ip[3]);
+    uip_connect(&ipaddr, HTONS(s->port));
+    MAD_LOG("[uTcp] Connecting...\n");
+    PT_YIELD(&s->pt);
+
+    PT_WAIT_UNTIL(&s->pt, uTcp_isConnected() || !uIP_is_configured);
+    if(uip_connected()) {
+        MAD_LOG("[uTcp] Connect... OK\n");
+    } else {
+        MAD_LOG("[uTcp] Connect... Error\n");
+        goto uTcp_Exit;
+    }
+
+    while(1) {
         PT_YIELD(&s->pt);
-        CHECK_IF_RESTART();
         if(uip_acked()) {
-            if(s->ack) s->ack(MTRUE);
+            if(s->ack) s->ack(s, MTRUE);
         }
         if(uip_rexmit()) {
-            if(s->ack) s->ack(MFALSE);
+            if(s->ack) s->ack(s, MFALSE);
         }
         if(uip_newdata()) {
-            if(s->recv) s->recv(uip_appdata, uip_len);
+            if(s->recv) s->recv(s, uip_appdata, uip_len);
         }
-    } while(1);
+        if(TCP_FLAG_ERR == uTcp_isError() || !uIP_is_configured) {
+            MAD_LOG("[uTcp] Communication... Error\n");
+            goto uTcp_Exit;
+        }
+    }
+
+uTcp_Exit:
+    timer_remove(&s->timer);
+    MAD_LOG("[uTcp] Closed\n");
+    uip_abort();
     PT_END(&s->pt);
 }

@@ -20,7 +20,7 @@
                 "${workspaceFolder}/library/FatFs",
                 "${workspaceFolder}/library/cJSON",
                 "${workspaceFolder}/library/Lua",
-                "${workspaceFolder}/app/LoNode"
+                "${workspaceFolder}/app/test_module"
             ],
             "defines": [
                 "MALLOC_PROVIDED",

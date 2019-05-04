@@ -52,14 +52,8 @@
 
 #if UIP_CORE_APP_DNS
 
-#define SET_DNS_HOST(addr) do { \
-		uip_gethostaddr(addr);  \
-		addr[1] = HTONS(((uip_ipaddr3(addr)) << 8) | (1)); \
-	} while(0)
-
 struct resolv_state {
-  uIP_UdpConn *conn;
-  uIP_App app;
+  	uIP_UdpConn *conn;
 };
 
 /**

@@ -5,27 +5,19 @@
 #include <stdlib.h>
 #include "mod_uIP.h"
 
-clocker  uIP_Clocker;
+clocker    uIP_Clocker;
+MadBool    uIP_is_linked;
+MadBool    uIP_is_configured;
 
-timer   uIP_periodic_timer;
-timer   uIP_arp_timer;
-uIP_App *uIP_app_list;
-u8_t    *uip_buf;
-
-#define APPLIST_LOOP(fun, ...) \
-do {                                    \
-    uIP_App *app_list = uIP_app_list;   \
-    while(app_list) {                   \
-        if(app_list->fun)               \
-            app_list->fun(app_list->self, __VA_ARGS__); \
-        app_list = app_list->next;      \
-    }                                   \
-} while(0)
+timer      uIP_periodic_timer;
+timer      uIP_arp_timer;
+u8_t       *uip_buf;
+MadSemCB_t *uIP_locker;
 
 #define APPCONN_CALL(x) \
-do {                                            \
-    if(x && x->appstate.app_call)               \
-        x->appstate.app_call(x->appstate.self); \
+do {                                          \
+    if(x && x->appstate.app_call)             \
+        x->appstate.app_call(x->appstate.ep); \
 } while(0)
 
 /*****************************************************
@@ -49,42 +41,12 @@ void tcpip_output(void)
  *  uIP Core Function
  *
  *****************************************************/
-
-void uIP_AppRegister(uIP_App *app) 
-{
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    app->next = uIP_app_list;
-    uIP_app_list = app;
-    madExitCritical(cpsr);
+inline void uIP_Lock(void) {
+    madSemWait(&uIP_locker, 0);
 }
 
-void uIP_AppUnregister(uIP_App *app)
-{
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    uIP_App *pre_app = 0;
-    uIP_App *cur_app = uIP_app_list;
-    while(cur_app) {
-        if(app == cur_app) {
-            if(pre_app) pre_app->next = cur_app->next;
-            else        uIP_app_list  = cur_app->next;
-            break;
-        }
-        pre_app = cur_app;
-        cur_app = cur_app->next;
-    }
-    madExitCritical(cpsr);
-}
-
-void uIP_SetTcpConn(uIP_TcpConn *conn, uIP_AppCallback app_call)
-{
-    conn->appstate.app_call = app_call;
-}
-
-void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_AppCallback app_call)
-{
-    conn->appstate.app_call = app_call;
+inline void uIP_Unlock(void) {
+    madSemRelease(&uIP_locker);
 }
 
 /*****************************************************
@@ -93,7 +55,21 @@ void uIP_SetUdpConn(uIP_UdpConn *conn, uIP_AppCallback app_call)
  *
  *****************************************************/
 #if UIP_CORE_APP_DNS
-void resolv_found(char *name, u16_t *ipaddr) { APPLIST_LOOP(resolv_found, name, ipaddr); }
+void resolv_found(char *name, u16_t *ipaddr) { 
+    int i;
+    for(i = 0; i < UIP_CONNS; i++) {
+        register struct uip_conn *conn = &uip_conns[i];
+        if(conn->appstate.status == uIP_CONN_WORKING && conn->appstate.dns_call){
+            conn->appstate.dns_call(conn->appstate.ep, name, ipaddr);
+        }
+    }
+    for(i = 0; i < UIP_UDP_CONNS; i++) {
+        register struct uip_udp_conn *conn = &uip_udp_conns[i];
+        if(conn->appstate.status == uIP_CONN_WORKING && conn->appstate.dns_call){
+            conn->appstate.dns_call(conn->appstate.ep, name, ipaddr);
+        }
+    }
+}
 #endif /* UIP_CORE_APP_DNS */
 
 /*****************************************************
@@ -101,17 +77,6 @@ void resolv_found(char *name, u16_t *ipaddr) { APPLIST_LOOP(resolv_found, name, 
  *  uIP Core Callback
  *
  *****************************************************/
-#define APPLIST_LOOP_LINKCHANGED(x) APPLIST_LOOP(link_changed, (MadVptr)x)
-// void uIP_linked_on(void) {
-//     uIP_App *app_list = uIP_app_list;
-//     while(app_list) {
-//         if(app_list->link_changed)
-//             app_list->link_changed(app_list->self, (MadVptr)uIP_LINKED_ON);
-//         app_list = app_list->next;
-//     }
-// }
-void uIP_linked_on(void)   { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_ON); }
-void uIP_linked_off(void)  { APPLIST_LOOP_LINKCHANGED(uIP_LINKED_OFF); }
 void uIP_tcp_appcall(void) { APPCONN_CALL(uip_conn); }
 void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
 
@@ -129,9 +94,16 @@ inline MadBool uIP_Init(void) {
 MadBool uIP_preinit(mEth_t *eth)
 {
     MadUint i;
-    uIP_app_list = 0;
     uip_buf = (u8_t*)malloc(UIP_CONF_BUFFER_SIZE);
-    if(!uip_buf) return MFALSE;
+    uIP_locker = madSemCreate(1);
+    if((!uip_buf) || (!uIP_locker)) {
+        free(uip_buf);
+        madSemDelete(&uIP_locker);
+        return MFALSE;
+    }
+    uIP_Lock();
+    uIP_is_linked = MFALSE;
+    uIP_is_configured = MFALSE;
     clocker_init(&uIP_Clocker);
     timer_init(&uIP_arp_timer);
     timer_init(&uIP_periodic_timer);
@@ -140,50 +112,46 @@ MadBool uIP_preinit(mEth_t *eth)
     timer_set(&uIP_arp_timer, MadTicksPerSec * 10);
     timer_set(&uIP_periodic_timer, MadTicksPerSec / 2);
     uip_init();
+    for(i=0; i<6; i++)
+        uip_ethaddr.addr[i] = eth->MAC_ADDRESS[i];
+    uIP_Unlock();
     do {
         uip_ipaddr_t ipaddr;
 #if UIP_CORE_APP_DHCP
+        uIP_Lock();
         uip_ipaddr(ipaddr, 0,0,0,0);
         uip_sethostaddr(ipaddr);
         uip_setdraddr(ipaddr);
         uip_setnetmask(ipaddr);
+        uip_setdnsaddr(ipaddr);
+        uIP_Unlock();
         dhcpc_init();
 #else
+        uIP_Lock();
         uip_ipaddr(ipaddr, 192,168,1,235);
         uip_sethostaddr(ipaddr);
         uip_ipaddr(ipaddr, 192,168,1,1);
         uip_setdraddr(ipaddr);
+        uip_setdnsaddr(ipaddr);
         uip_ipaddr(ipaddr, 255,255,255,0);
         uip_setnetmask(ipaddr);
+        uIP_is_configured = MTRUE;
+        uIP_Unlock();
 #endif
 #if UIP_CORE_APP_DNS
         resolv_init();
 #endif
     } while(0);
-    for(i=0; i<6; i++) {
-        uip_ethaddr.addr[i] = eth->MAC_ADDRESS[i];
-    }
     return MTRUE;
 }
 
 MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
 {
+    uIP_Lock();
     clocker_dt(&uIP_Clocker, dt);
-    
+
     if(event & mEth_PE_STATUS_CHANGED) {
-        if(eth->isLinked) uIP_linked_on();
-        else              uIP_linked_off();
-    }
-    
-    if(event & mEth_PE_STATUS_TIMEOUT) {
-        if(eth->isLinked) {
-            uIP_App *app_list = uIP_app_list;
-            while(app_list) {
-                if((app_list->is_linked == uIP_LINKED_OFF) && app_list->link_changed)
-                    app_list->link_changed(app_list->self, (MadVptr)uIP_LINKED_ON);
-                app_list = app_list->next;
-            }
-        }
+        uIP_is_linked = eth->isLinked;
     }
     
     if(event & mEth_PE_STATUS_RXPKT) {
@@ -241,5 +209,6 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
         }
     }
     
+    uIP_Unlock();
     return MTRUE;
 }

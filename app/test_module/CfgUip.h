@@ -2,7 +2,7 @@
 #define __CFG_UIP__H__
 
 #define UIP_CORE_APP_DHCP 1
-#define UIP_CORE_APP_DNS  1
+#define UIP_CORE_APP_DNS  0
 
 #define UIP_CONF_MAX_CONNECTIONS  3
 #define UIP_CONF_MAX_LISTENPORTS  1

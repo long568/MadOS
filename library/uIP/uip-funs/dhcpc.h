@@ -40,29 +40,28 @@
 
 #if UIP_CORE_APP_DHCP
 
-#define DHCP_SHOW_RESULT     0
 #define DHCP_RESTART_DIV     (5 * MadTicksPerSec / 10)
 #define DHCP_HOST_NAMES(buf) sprintf(buf, "MadOS v%d.%d", MAD_VER_MAJOR, MAD_VER_SUB)
 
-struct dhcpc_state {
-  struct pt pt;
-  char state;
-  uIP_UdpConn *conn;
-  timer timer;
-  u16_t ticks;
-  const void *mac_addr;
-  int mac_len;
-  
-  u8_t serverid[4];
+struct dhcpc_state
+{
+    struct pt pt;
+    char state;
+    uIP_UdpConn *conn;
+    timer timer;
+    u16_t ticks;
+    const void *mac_addr;
+    int mac_len;
 
-  u16_t lease_time[2];
-  u16_t ipaddr[2];
-  u16_t netmask[2];
-  u16_t dnsaddr[2];
-  u16_t default_router[2];
-    
-  u8_t data_ok; //Added by long
-  uIP_App app;  //Added by long
+    u8_t serverid[4];
+
+    u16_t lease_time[2];
+    u16_t ipaddr[2];
+    u16_t netmask[2];
+    u16_t dnsaddr[2];
+    u16_t default_router[2];
+
+    u8_t data_ok; //Added by long
 };
 
 void dhcpc_init(void);

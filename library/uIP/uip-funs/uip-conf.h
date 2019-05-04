@@ -26,25 +26,24 @@ extern u8_t *uip_buf;
 /*
  * uIP
  */
-typedef void (*uIP_LinkCallback)(MadVptr self, MadVptr dp);
 typedef char (*uIP_AppCallback)(MadVptr self);
 #if UIP_CORE_APP_DNS
 typedef void (*uIP_DnsCallback)(MadVptr self, char *name, u16_t *ipaddr);
 #endif
 
-struct _uIP_App {
-    uIP_App          *next;         // Used by uIP-Core
-    uIP_LinkCallback link_changed;  // NULL means ignored
-#if UIP_CORE_APP_DNS
-    uIP_DnsCallback  resolv_found;  // NULL means ignored
-#endif
-    MadU8   is_linked;
-    MadVptr self;
+enum {
+    uIP_CONN_FREE,
+    uIP_CONN_TAKEN,
+    uIP_CONN_WORKING
 };
 
 struct _uIP_ConnState {
-    uIP_AppCallback app_call;  // NULL means ignored
-    MadVptr self;
+    uIP_AppCallback  app_call;  // NULL means ignored
+#if UIP_CORE_APP_DNS
+    uIP_DnsCallback  dns_call;
+#endif
+    MadU8   status;
+    MadVptr ep;
 };
 
 /*

@@ -69,7 +69,9 @@
         "uipopt.h": "c",
         "uip-conf.h": "c",
         "cfguip.h": "c",
-        "functional": "cpp"
+        "functional": "cpp",
+        "mod_lua.h": "c",
+        "dhcpc.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -3,6 +3,7 @@
 #include "testEth.h"
 #include "uTcp.h"
 
+#if UIP_CORE_APP_DNS
 #define RESOLV_NUM   (10)
 const char * const resolv_names[] = {
     "www.baidu.com",
@@ -16,41 +17,52 @@ const char * const resolv_names[] = {
     "www.lua.org",
     "www.ti.com.cn"
 };
+#endif
 
 static uTcp *sock;
 static MadUint cnt_acked  = 0;
 static MadUint cnt_rexmit = 0;
 
-static void tcp_recv(MadU8 *data, MadU16 len);
-static void tcp_ack(MadBool flag);
+static int  tcp_recv(uTcp *s, MadU8 *data, MadU16 len);
+static int  tcp_ack (uTcp *s, MadBool flag);
 static void tcp_send(void);
+#if UIP_CORE_APP_DNS
 static void tcp_resolv_found(MadVptr p, char *name, u16_t *ipaddr);
+#endif
 
 void Init_TestUIP(void)
 {
-    const MadU8 target_ip[4] = {192, 168, 1, 105};
+    const MadU8 target_ip[4] = {192, 168, 1, 103};
     sock = uTcp_Create(target_ip, 5685, tcp_recv, tcp_ack);
     if(sock) {
-        uTcp_SetResolv(sock, tcp_resolv_found);
+        uIP_Lock();
+#if UIP_CORE_APP_DNS
+        sock->conn->appstate.dns_call = tcp_resolv_found;
+#endif
+        uIP_Unlock();
     }
 }
 
-void tcp_recv(MadU8 *data, MadU16 len)
+int tcp_recv(uTcp *s, MadU8 *data, MadU16 len)
 {
+    (void)s;
     const char dst[] = "Hello MadOS";
     if(0 == madMemCmp(dst, (const char *)uip_appdata, sizeof(dst) - 1)) {
         tcp_send();
     }
+    return 0;
 }
 
-void tcp_ack(MadBool flag)
+int tcp_ack(uTcp *s, MadBool flag)
 {
+    (void)s;
     if(MFALSE == flag) {
         cnt_rexmit++;
         tcp_send();
     } else {
         cnt_acked++;
     }
+    return 0;
 }
 
 void tcp_send(void)
@@ -60,6 +72,7 @@ void tcp_send(void)
                          "uIP -> Acked[%d], Rexmit[%d]",
                          cnt_acked, cnt_rexmit);
     uip_send(uip_appdata, len);
+#if UIP_CORE_APP_DNS
     do {
         static MadInt resolv_i = 0;
         if(resolv_i < RESOLV_NUM) {
@@ -67,8 +80,10 @@ void tcp_send(void)
             resolv_i++;
         }
     } while(0);
+#endif
 }
 
+#if UIP_CORE_APP_DNS
 void tcp_resolv_found(MadVptr p, char *name, u16_t *ipaddr)
 {
     (void)p;
@@ -78,3 +93,4 @@ void tcp_resolv_found(MadVptr p, char *name, u16_t *ipaddr)
             uip_ipaddr3(ipaddr),
             uip_ipaddr4(ipaddr));
 }
+#endif
