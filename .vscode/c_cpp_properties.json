@@ -30,8 +30,8 @@
                 "STM32F10X_CL"
             ],
             "compilerPath": "${env.MADOS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++17"
+            "cStandard": "c99",
+            "cppStandard": "c++11"
         }
     ],
     "version": 4

@@ -1,12 +1,7 @@
-# export APP = test_kernel
-# export APP = test_module
-# export APP = lesson000
-# export APP = LoArm
-# export APP = LoIoT
-export APP = LoNode
+export APP = test_module
+export BUILD_VER = debug
+export TOOLCHAIN = arm-none-eabi
 
-export BUILD_VER  = debug
-export TOOLCHAIN  = arm-none-eabi
 export AR    = $(TOOLCHAIN)-ar
 export CC    = $(TOOLCHAIN)-gcc
 export CPP   = $(TOOLCHAIN)-g++
@@ -26,25 +21,25 @@ export ELIBS     = $(ROOT)/elibs.mk
 include $(ROOT)/app/$(APP)/CfgApp.mk
 
 export DEFS += $(DEFS_FOR_APP) \
-			   -DMALLOC_PROVIDED \
-			   -DMISSING_SYSCALL_NAMES \
-			   -DREENTRANT_SYSCALLS_PROVIDED \
-			   -DUSE_STDPERIPH_DRIVER \
-			   -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
+               -DMALLOC_PROVIDED \
+               -DMISSING_SYSCALL_NAMES \
+               -DREENTRANT_SYSCALLS_PROVIDED \
+               -DUSE_STDPERIPH_DRIVER \
+               -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
 
 export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/app/$(APP) \
-			   -I$(ROOT)/app/$(APP)/inc \
+               -I$(ROOT)/app/$(APP)/inc \
                -I$(ROOT)/kernel/inc \
                -I$(ROOT)/kernel/lib/pt \
-			   -I$(ROOT)/kernel/lib/timer \
-			   -I$(ROOT)/library/Newlib \
-			   -I$(ROOT)/driver \
-			   -I$(ROOT)/driver/$(MCU_PREFIX) \
-			   -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
-			   -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
-			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
-			   -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
+               -I$(ROOT)/kernel/lib/timer \
+               -I$(ROOT)/library/Newlib \
+               -I$(ROOT)/driver \
+               -I$(ROOT)/driver/$(MCU_PREFIX) \
+               -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
+               -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
+               -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
+               -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
 include $(ELIBS)
 export LIBS += -ldrv -lkernel -larch
@@ -54,15 +49,15 @@ ifeq ($(BUILD_VER), debug)
 CXFLAGS += -g3
 endif
 CXFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
-		   -Wall -Wshadow -Wpointer-arith \
-	       -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-	       -ffunction-sections -fdata-sections
+           -Wall -Wshadow -Wpointer-arith \
+           -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+           -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS) -std=c99
 export CPPFLAGS += $(CXFLAGS) -std=c++11
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
-    			   -Bstatic -Wl,--gc-sections \
-				   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-	               -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
+                   -Bstatic -Wl,--gc-sections \
+                   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+                   -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
 
 all:
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
