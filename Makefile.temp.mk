@@ -1,4 +1,4 @@
-export APP = test_module
+export APP = test_kernel
 export BUILD_VER = debug
 export TOOLCHAIN = arm-none-eabi
 
