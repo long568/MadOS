@@ -1,9 +1,9 @@
 # export APP = test_kernel
-export APP = test_module
+# export APP = test_module
 # export APP = lesson000
 # export APP = LoArm
 # export APP = LoIoT
-# export APP = LoNode
+export APP = LoNode
 
 export BUILD_VER  = debug
 export TOOLCHAIN  = arm-none-eabi
