@@ -88,4 +88,4 @@ build/
 .vscode/.cortex-debug.*.state.json
 .vscode/c_cpp_properties.json
 .vscode/ipch/
-Makefile
+main.mk
