@@ -89,4 +89,3 @@ build/
 .vscode/c_cpp_properties.json
 .vscode/ipch/
 Makefile
-user_config.sh
