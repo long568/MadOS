@@ -6,7 +6,7 @@
         {
             "label": "config",
             "type": "shell",
-            "command": "sh config.sh",
+            "command": "sh tools/0init.sh",
             "auto": true
         },
         {
