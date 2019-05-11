@@ -1,6 +1,5 @@
-#!/bin/bash
-
-source config.sh
+#!/bin/sh
+source user_config.sh
 
 sed $"s/^export APP.*/export APP = $MADOS_WORKING_APP/" \
     tools/temp.Makefile > Makefile
