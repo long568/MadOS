@@ -45,7 +45,7 @@ int main()
 
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
+    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 3, 0);
     madOSRun();
 	while(1);
 }
