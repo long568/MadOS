@@ -14,16 +14,6 @@ int main()
 	while(1);                                   // !永远不该运行至此!
 } // 以上是MadOS的启动过程，初学者不必深究，随后的学习中会逐步了解其原理
 
-// static void madStartup(MadVptr exData)
-// {
-//     volatile int a;
-//     (void)exData;
-//     a = 0;
-//     while(1) {
-//         a++;
-//     }
-// }
-
 static void madStartup(MadVptr exData)
 {
     GPIO_InitTypeDef pin;  // GPIO临时变量

@@ -12,7 +12,7 @@
 #include "testFatFs.h"
 
 #if MAD_STATIST_STK_SIZE
-#define MAD_SHOW_IDLERATE
+// #define MAD_SHOW_IDLERATE
 #endif
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 }; // 8Bytes-Align for Float
@@ -109,24 +109,6 @@ static void madSysRunning(MadVptr exData)
     pin.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_0;
 	GPIO_Init(GPIOE, &pin);
 
-#if 0
-    MAD_LOG("\n\n");
-    MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
-    MAD_LOG("* MCU     : STM32F107VCT6\n");
-    MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
-    MAD_LOG("* FileSys : TF     + Fatfs(v0.13c)\n");
-    MAD_LOG("* Platform dependent data types :\n");
-    MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
-    MAD_LOG("    short     -> %d Bytes\n", sizeof(short));
-    MAD_LOG("    int       -> %d Bytes\n", sizeof(int));
-    MAD_LOG("    long      -> %d Bytes\n", sizeof(long));
-    MAD_LOG("    long long -> %d Bytes\n", sizeof(long long));
-    MAD_LOG("    float     -> %d Bytes\n", sizeof(float));
-    MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
-    // MAD_LOG("Float Test 123.456 = %f\n", 123.456f);
-    MAD_LOG("================================\n");
-#endif
-
 #if MAD_STATIST_STK_SIZE
     madTimeDly(10);
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
@@ -150,7 +132,7 @@ static void madSysRunning(MadVptr exData)
         idle_rate >>= 1;
         if(tmrSysReport > 10) {
             tmrSysReport = 0;
-            // MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
+            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
         }
 #endif
 	}

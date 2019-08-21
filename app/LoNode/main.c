@@ -10,7 +10,7 @@
 #include "testEth.h"
 
 #if MAD_STATIST_STK_SIZE
-#define MAD_SHOW_IDLERATE
+// #define MAD_SHOW_IDLERATE
 #endif
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 }; // 8Bytes-Align for Float
@@ -129,7 +129,7 @@ static void madSysRunning(MadVptr exData)
         idle_rate >>= 1;
         if(tmrSysReport > 10) {
             tmrSysReport = 0;
-            // MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
+            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
         }
 #endif
 	}
