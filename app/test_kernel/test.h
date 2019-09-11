@@ -21,5 +21,6 @@ extern void initTestMemory(void);
 extern void initTestMsgQ(void);
 extern void initTestEvent(void);
 extern void initTestFB(void);
+extern void initTestMutex(void);
 
 #endif

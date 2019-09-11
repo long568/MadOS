@@ -7,8 +7,9 @@
 #define MAD_THREAD_PEND       ((MadU8)0x01)
 #define MAD_THREAD_TIMEDLY    ((MadU8)0x02)
 #define MAD_THREAD_WAITSEM    ((MadU8)0x04)
-#define MAD_THREAD_WAITMSG    ((MadU8)0x08)
-#define MAD_THREAD_WAITEVENT  ((MadU8)0x10)
+#define MAD_THREAD_WAITMUTEX  ((MadU8)0x08)
+#define MAD_THREAD_WAITMSG    ((MadU8)0x10)
+#define MAD_THREAD_WAITEVENT  ((MadU8)0x20)
 #define MAD_THREAD_KILLED     ((MadU8)0x80)
 
 #define MAD_THREAD_SELF       ((MadU8)0xFF)

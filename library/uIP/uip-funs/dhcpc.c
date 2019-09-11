@@ -349,7 +349,7 @@ static PT_THREAD(dhcpc_appcall(MadVptr ep))
     MAD_LOG("[DHCP] Default router %d.%d.%d.%d\n",
             uip_ipaddr1(s.default_router), uip_ipaddr2(s.default_router),
             uip_ipaddr3(s.default_router), uip_ipaddr4(s.default_router));
-    MAD_LOG("[DHCP] Lease expires in %ld seconds\n", lease_time);
+    MAD_LOG("[DHCP] Lease expires in %d seconds\n", lease_time);
     dhcpc_configured((const struct dhcpc_state *)&s);
     uIP_is_configured = MTRUE;
 

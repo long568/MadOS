@@ -23,10 +23,10 @@
 /*
  * Print debug information
  */
-extern  int madLogInit (void);
-extern  int madLog     (const char * fmt, ...);
-#define MAD_LOG_INIT() do { if(MFALSE == madLogInit()) while(1); } while(0)
-#define MAD_LOG(...)   madLog(__VA_ARGS__)
+#include <stdio.h>
+#include <fcntl.h>
+#define MAD_LOG_INIT() do { if(0 > open("/dev/tty0", 0)) while(1); } while(0)
+#define MAD_LOG(...)   printf(__VA_ARGS__)
 
 /*
  * Use hooks to expand MadOS

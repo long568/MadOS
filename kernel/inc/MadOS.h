@@ -7,6 +7,7 @@
 #include "MadThread.h"
 #include "MadTimeDly.h"
 #include "MadSemaphore.h"
+#include "MadMutex.h"
 #include "MadMessage.h"
 #include "MadEvent.h"
 #include "MadFastBuffer.h"

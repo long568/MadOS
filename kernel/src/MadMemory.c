@@ -15,11 +15,11 @@ static MadU8        *mad_heap_head;
 static MadU8        *mad_heap_tail;
 static MadSize_t    mad_unused_size;
 static MadSize_t    mad_max_size;
-static MadSemCB_t   mad_mem_sem;
-static MadSemCB_t   *mad_mem_pSem;
+static MadMutexCB_t mad_mem_mutex;
+static MadMutexCB_t *mad_mem_pMutex;
 
-#define MAD_MEM_LOCK()     madSemWait(&mad_mem_pSem, 0);
-#define MAD_MEM_UNLOCK()   madSemRelease(&mad_mem_pSem);
+#define MAD_MEM_LOCK()     madMutexWait(&mad_mem_pMutex, 0);
+#define MAD_MEM_UNLOCK()   madMutexRelease(&mad_mem_pMutex);
 
 #define MAD_MEM_HEAD_SIZE  MAD_ALIGNED_SIZE(sizeof(MadMemHead_t))
 #define MAD_MEM_TARGET(p)  ((MadMemHead_t *)((MadU8*)p - MAD_MEM_HEAD_SIZE))
@@ -35,8 +35,8 @@ void madMemInit(MadVptr heap_head, MadSize_t heap_size)
     mad_heap_tail   = (MadU8*)heap_head + heap_size;
     mad_unused_size = heap_size;
     mad_max_size    = heap_size;
-	mad_mem_pSem    = &mad_mem_sem;
-    madSemInit(mad_mem_pSem, 1);
+	mad_mem_pMutex  = &mad_mem_mutex;
+    madMutexInit(mad_mem_pMutex);
 #ifdef MAD_CPY_MEM_BY_DMA
     madArchMemInit();
 #endif

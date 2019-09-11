@@ -71,7 +71,12 @@
         "cfguip.h": "c",
         "functional": "cpp",
         "mod_lua.h": "c",
-        "dhcpc.h": "c"
+        "dhcpc.h": "c",
+        "limits": "c",
+        "lock.h": "c",
+        "madglobal.h": "c",
+        "madconfig.h": "c",
+        "madarch.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

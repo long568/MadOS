@@ -5,5 +5,3 @@ export MCU_SUFFIX = cl
 
 export PRJ_CFLAGS  = -Os
 export PRJ_LDFLAGS = --specs=nano.specs
-
-export LIB_UIP=no

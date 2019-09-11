@@ -5,7 +5,6 @@
 #include "Stm32Tools.h"
 #include "CfgUser.h"
 
-static MadSemCB_t   *tty_tx_locker;
 static mUsartChar_t dev;
 
 static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
@@ -33,28 +32,3 @@ static const mUsartChar_InitData_t initData = {
 };
 
 MadDev_t Tty0 = { "tty0", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, NULL };
-
-int madLogInit(void)
-{
-    tty_tx_locker = madSemCreate(1); 
-    if(MNULL == tty_tx_locker) {
-        return -1;
-    }
-    if(0 > open("/dev/tty0", 0)) {
-        madSemDelete(&tty_tx_locker);
-        return -1;
-    }
-    return MTRUE;
-}
-
-int madLog(const char * fmt, ...)
-{
-    int res;
-    va_list args;
-    madSemWait(&tty_tx_locker, 0);
-    va_start(args, fmt);
-    res = vprintf(fmt, args); // NOT printf ...
-    va_end(args);
-    madSemRelease(&tty_tx_locker);
-    return res;
-}

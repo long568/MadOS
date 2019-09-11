@@ -8,4 +8,3 @@ export PRJ_LDFLAGS = --specs=nano.specs -u _printf_float
 
 export LIB_UIP=yes
 export LIB_FATFS=yes
-export LIB_LUA=no

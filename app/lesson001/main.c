@@ -1,3 +1,5 @@
+/* 第1课 - 初识源码 */
+
 #include "MadOS.h"                              // MadOS核心头文件
 #include "CfgUser.h"                            // 用户配置头文件
 
