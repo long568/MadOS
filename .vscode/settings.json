@@ -76,7 +76,8 @@
         "lock.h": "c",
         "madglobal.h": "c",
         "madconfig.h": "c",
-        "madarch.h": "c"
+        "madarch.h": "c",
+        "madmutex.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
