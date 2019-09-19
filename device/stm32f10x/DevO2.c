@@ -16,7 +16,7 @@ static const mUsartBlk_InitData_t initData = {
         { GPIOB, GPIO_Pin_6 },
         { GPIOB, GPIO_Pin_7 } 
     },
-    ISR_PRIO_CHAR_USART,
+    ISR_PRIO_DEV_USART,
     9600,
     USART_WordLength_8b,
     USART_StopBits_1,

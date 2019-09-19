@@ -17,7 +17,7 @@ static const mUsartChar_InitData_t initData = {
         { GPIOC, GPIO_Pin_10 },
         { GPIOC, GPIO_Pin_11 } 
     },
-    ISR_PRIO_CHAR_USART,
+    ISR_PRIO_DEV_USART,
     115200,
     USART_WordLength_8b,
     USART_StopBits_1,

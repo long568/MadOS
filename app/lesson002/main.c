@@ -43,7 +43,7 @@ static void madStartup(MadVptr exData)
     // 初始化SysTick，脉动间隔1ms。
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 
-    // 初始化 tty0 用作标准输出
+    // 初始化 tty 用作标准输出
     MAD_LOG_INIT();
     // 输出 Hello World !
     printf("Hello World !\n");

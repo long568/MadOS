@@ -17,3 +17,8 @@ ifeq ($(LIB_LUA), yes)
 export LIBS += -llua
 export INCS += -I$(ROOT)/library/Lua
 endif
+
+ifeq ($(LIB_MODBUS), yes)
+export LIBS += -lmodbus
+export INCS += -I$(ROOT)/library/modbus
+endif

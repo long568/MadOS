@@ -7,9 +7,9 @@ export TEMP = $(BUILD_DIR)/drv
 
 include $(RULES)
 
-after_all: gen_drv
+after_all: gen_depend
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)
 	$(ECHO) 'Creating $(LIBK) ... Done'
 
-gen_drv:
+gen_depend:
 	$(MAKE) -C $(ROOT)/driver/$(MCU_PREFIX)

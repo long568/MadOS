@@ -13,3 +13,6 @@ endif
 ifeq ($(LIB_LUA), yes)
 	$(MAKE) -C $(ROOT)/library/Lua
 endif
+ifeq ($(LIB_MODBUS), yes)
+	$(MAKE) -C $(ROOT)/library/modbus
+endif

@@ -1,9 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
-#include "CfgUser.h"
 #include "MadDev.h"
 #include "usart_char.h"
 #include "Stm32Tools.h"
+#include "CfgUser.h"
 
 static mUsartChar_t dev;
 
@@ -31,4 +31,4 @@ static const mUsartChar_InitData_t initData = {
     Dev_Irq_Handler
 };
 
-MadDev_t Tty0 = { "tty0", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, NULL };
+MadDev_t Tty = { "tty", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, NULL };

@@ -8,6 +8,7 @@
 // #include "mod_Lua.h"
 
 #include "testEth.h"
+#include "testModbus.h"
 
 #if MAD_STATIST_STK_SIZE
 // #define MAD_SHOW_IDLERATE
@@ -78,12 +79,14 @@ static void madStartup(MadVptr exData)
 #endif
 
     uIP_Init();
-    // FatFs_Init();
+    FatFs_Init();
     // LuaParser_Init();
+
 /********************************************
  * User-Apps
  ********************************************/
-    Init_TestUIP();
+    // Init_TestUIP();
+    Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

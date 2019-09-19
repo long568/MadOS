@@ -36,7 +36,7 @@ DSTATUS disk_status (
 		case DEV_SDC:
 			if(0 > dev_sd) {
 				res = STA_NOINIT;
-			} else if(0 > fcntl(dev_sd, F_DISK_STATUS)) {
+			} else if(0 > ioctl(dev_sd, F_DISK_STATUS)) {
 				res = STA_NODISK;
 			} else {
 				res = RES_OK;
@@ -114,7 +114,7 @@ DRESULT disk_read (
 			break;
 
 		case DEV_SDC:
-			if(0 > fcntl(dev_sd, F_DISK_READ, buff, sector, count)) {
+			if(0 > ioctl(dev_sd, F_DISK_READ, buff, sector, count)) {
 				res = RES_ERROR;
 			} else {
 				res = RES_OK;
@@ -156,7 +156,7 @@ DRESULT disk_write (
 			break;
 
 		case DEV_SDC:
-			if(0 > fcntl(dev_sd, F_DISK_WRITE, buff, sector, count)) {
+			if(0 > ioctl(dev_sd, F_DISK_WRITE, buff, sector, count)) {
 				res = RES_ERROR;
 			} else {
 				res = RES_OK;
@@ -196,7 +196,7 @@ DRESULT disk_ioctl (
 			break;
 
 		case DEV_SDC:
-			if(0 > fcntl(dev_sd, cmd, buff)) {
+			if(0 > ioctl(dev_sd, cmd, buff)) {
 				res = RES_ERROR;
 			} else {
 				res = RES_OK;

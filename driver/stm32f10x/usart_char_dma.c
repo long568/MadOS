@@ -15,6 +15,10 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     port->rxDma = initData->rxDma;
     port->rxCnt = initData->rxBuffSize;
     port->rxMax = initData->rxBuffSize;
+    port->info.baud      = initData->baud;
+    port->info.stop_bits = initData->stop_bits;
+    port->info.parity    = initData->parity;
+    port->info.hfc       = initData->hfc;
 
     switch((MadU32)(port->p)) {
         case (MadU32)(USART1):
@@ -204,4 +208,68 @@ inline void mUsartChar_ClearRecv(mUsartChar_t *port) {
 
 inline int mUsartChar_WaitRecv(mUsartChar_t *port, MadTim_t to) {
     return madSemWait(&port->rxLocker, to);
+}
+
+void mUsartChar_GetInfo(mUsartChar_t *port, mUsartChar_Info_t *info)
+{
+    info->baud      = port->info.baud;
+    info->stop_bits = port->info.stop_bits;
+    info->parity    = port->info.parity;
+    info->hfc       = port->info.hfc;
+}
+
+void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
+{
+    RCC_ClocksTypeDef RCC_ClocksStatus;
+    uint32_t tmpreg = 0;
+    uint32_t apbclock = 0;
+    uint32_t usartxbase = 0;
+    uint32_t integerdivider = 0x00;
+    uint32_t fractionaldivider = 0x00;
+    USART_TypeDef* USARTx = port->p;
+
+    port->info.baud      = info->baud;
+    port->info.stop_bits = info->stop_bits;
+    port->info.parity    = info->parity;
+    port->info.hfc       = info->hfc;
+
+    USART_Cmd(port->p, DISABLE);
+
+    tmpreg  = USARTx->CR2;
+    tmpreg &= 0xCFFF;//CR2_STOP_CLEAR_Mask;
+    tmpreg |= (uint32_t)info->stop_bits;
+    USARTx->CR2 = (uint16_t)tmpreg;
+
+    tmpreg  = USARTx->CR1;
+    tmpreg &= ~(USART_Parity_Even | USART_Parity_Odd);
+    tmpreg |= (uint32_t)info->parity;
+    USARTx->CR1 = (uint16_t)tmpreg;
+
+    tmpreg  = USARTx->CR3;
+    tmpreg &= ~USART_HardwareFlowControl_RTS_CTS;
+    tmpreg |= info->hfc;
+    USARTx->CR3 = (uint16_t)tmpreg;
+
+    usartxbase = (uint32_t)USARTx;
+    RCC_GetClocksFreq(&RCC_ClocksStatus);
+    if (usartxbase == USART1_BASE){
+        apbclock = RCC_ClocksStatus.PCLK2_Frequency;
+    } else {
+        apbclock = RCC_ClocksStatus.PCLK1_Frequency;
+    }
+    if ((USARTx->CR1 & 0x8000/*CR1_OVER8_Set*/) != 0) {
+        integerdivider = ((25 * apbclock) / (2 * (info->baud)));    
+    } else {
+        integerdivider = ((25 * apbclock) / (4 * (info->baud)));    
+    }
+    tmpreg = (integerdivider / 100) << 4;
+    fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
+    if ((USARTx->CR1 & 0x8000/*CR1_OVER8_Set*/) != 0) {
+        tmpreg |= ((((fractionaldivider * 8) + 50) / 100)) & ((uint8_t)0x07);
+    } else {
+        tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
+    }
+    USARTx->BRR = (uint16_t)tmpreg;
+
+    USART_Cmd(port->p, ENABLE);
 }

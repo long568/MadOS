@@ -34,6 +34,7 @@ export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/kernel/lib/pt \
                -I$(ROOT)/kernel/lib/timer \
                -I$(ROOT)/library/Newlib \
+               -I$(ROOT)/library/Newlib/include \
                -I$(ROOT)/driver \
                -I$(ROOT)/driver/$(MCU_PREFIX) \
                -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
@@ -42,7 +43,7 @@ export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
 include $(ELIBS)
-export LIBS += -ldrv -lkernel -larch
+export LIBS += -ldev -ldrv -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
@@ -62,6 +63,7 @@ export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
 all:
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
 	$(MAKE) -C $(ROOT)/driver
+	$(MAKE) -C $(ROOT)/device
 	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/library
 	$(MAKE) -C $(ROOT)/app/$(APP)

@@ -25,7 +25,7 @@
  */
 #include <stdio.h>
 #include <fcntl.h>
-#define MAD_LOG_INIT() do { if(0 > open("/dev/tty0", 0)) while(1); } while(0)
+#define MAD_LOG_INIT() do { if(0 > open("/dev/tty", 0)) while(1); } while(0)
 #define MAD_LOG(...)   printf(__VA_ARGS__)
 
 /*

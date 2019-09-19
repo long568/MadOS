@@ -78,7 +78,7 @@ MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t fn)
     initData.MAC_ADDRESS[4] = 0x13;
     initData.MAC_ADDRESS[5] = 0x00;
 #endif
-    initData.Priority       = ISR_PRIO_IP101A;
+    initData.Priority       = ISR_PRIO_ETH;
     initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
     initData.ThreadStkSize  = mEth_THREAD_STKSIZE;
     initData.MaxPktSize     = ETH_MAX_PACKET_SIZE;

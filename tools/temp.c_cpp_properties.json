@@ -10,6 +10,7 @@
                 "${workspaceFolder}/arch/stm32f10x/StdPeriph",
                 "${workspaceFolder}/arch/stm32f10x/StdPeriph/inc",
                 "${workspaceFolder}/library/Newlib",
+                "${workspaceFolder}/library/Newlib/include",
                 "${workspaceFolder}/driver",
                 "${workspaceFolder}/driver/stm32f10x",
                 "${workspaceFolder}/kernel/inc",
@@ -20,6 +21,7 @@
                 "${workspaceFolder}/library/FatFs",
                 "${workspaceFolder}/library/cJSON",
                 "${workspaceFolder}/library/Lua",
+                "${workspaceFolder}/library/modbus",
                 "${workspaceFolder}/app/test_kernel"
             ],
             "defines": [

@@ -3,21 +3,19 @@
 #include "MadDrvRfid.h"
 
 static int Drv_open   (const char *, int, va_list);
-static int Drv_creat  (const char *, mode_t);
-static int Drv_fcntl  (int fd, int cmd, va_list);
 static int Drv_write  (int fd, const void *buf, size_t len);
 static int Drv_read   (int fd, void *buf, size_t len);
 static int Drv_close  (int fd);
-static int Drv_isatty (int fd);
 
 const MadDrv_t MadDrvRfid = {
     Drv_open,
-    Drv_creat,
-    Drv_fcntl,
+    0,
+    0,
     Drv_write,
     Drv_read,
     Drv_close,
-    Drv_isatty,
+    0,
+    0,
     0
 };
 
@@ -35,21 +33,6 @@ static int Drv_open(const char * file, int flag, va_list args)
     } else {
         return -1;
     }
-}
-
-static int Drv_creat(const char * file, mode_t mode)
-{
-    (void)file;
-    (void)mode;
-    return -1;
-}
-
-static int Drv_fcntl(int fd, int cmd, va_list args)
-{
-    (void)fd;
-    (void)cmd;
-    (void)args;
-    return -1;
 }
 
 static int Drv_write(int fd, const void *buf, size_t len)
@@ -100,10 +83,4 @@ static int Drv_close(int fd)
 {
     (void)fd;
     return -1;
-}
-
-static int Drv_isatty(int fd)
-{
-    (void)fd;
-    return 0;
 }

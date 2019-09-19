@@ -29,6 +29,13 @@ typedef struct {
 } mUsartChar_InitData_t;
 
 typedef struct {
+    MadU32 baud;
+    MadU16 stop_bits;
+    MadU16 parity;
+    MadU16 hfc;
+} mUsartChar_Info_t;
+
+typedef struct {
     USART_TypeDef        *p;
     DMA_Channel_TypeDef  *txDma;
     DMA_Channel_TypeDef  *rxDma;
@@ -37,6 +44,7 @@ typedef struct {
     FIFO_U8              *rxBuff;
     MadU32               rxCnt;
     MadU32               rxMax;
+    mUsartChar_Info_t    info;
 } mUsartChar_t;
 
 extern MadBool mUsartChar_Init        (mUsartChar_t *port, mUsartChar_InitData_t *initData);
@@ -48,5 +56,7 @@ extern int     mUsartChar_ReadNBlock  (mUsartChar_t *port,       char *dat, size
 extern void    mUsartChar_ClearRecv   (mUsartChar_t *port);
 extern int     mUsartChar_WaitRecv    (mUsartChar_t *port, MadTim_t to);
 extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);
+extern void    mUsartChar_GetInfo     (mUsartChar_t *port,       mUsartChar_Info_t *info);
+extern void    mUsartChar_SetInfo     (mUsartChar_t *port, const mUsartChar_Info_t *info);
 
 #endif

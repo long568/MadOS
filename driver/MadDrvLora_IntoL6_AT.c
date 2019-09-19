@@ -313,22 +313,21 @@ static int lora_read(int fd, char *buf, size_t *len)
 }
 
 static int Drv_open   (const char *, int, va_list);
-static int Drv_creat  (const char *, mode_t);
-static int Drv_fcntl  (int fd, int cmd, va_list);
 static int Drv_write  (int fd, const void *buf, size_t len);
 static int Drv_read   (int fd, void *buf, size_t len);
 static int Drv_close  (int fd);
-static int Drv_isatty (int fd);
+static int Drv_ioctl (int fd, int request, va_list args);
 
 const MadDrv_t MadDrvLora_IntoL6_AT = {
     Drv_open,
-    Drv_creat,
-    Drv_fcntl,
+    0,
+    0,
     Drv_write,
     Drv_read,
     Drv_close,
-    Drv_isatty,
-    0
+    0,
+    0,
+    Drv_ioctl
 };
 
 static int Drv_open(const char * file, int flag, va_list args)
@@ -351,26 +350,6 @@ static int Drv_open(const char * file, int flag, va_list args)
     } else {
         return -1;
     }
-}
-
-static int Drv_creat(const char * file, mode_t mode)
-{
-    (void)file;
-    (void)mode;
-    return -1;
-}
-
-static int Drv_fcntl(int fd, int cmd, va_list args)
-{
-    (void)args;
-    switch(cmd) {
-        case F_DEV_RST:
-            lora_reset(fd);
-            return 1;
-        default:
-            break;
-    }
-    return -1;
 }
 
 static int Drv_write(int fd, const void *buf, size_t len)
@@ -400,8 +379,15 @@ static int Drv_close(int fd)
     return 0;
 }
 
-static int Drv_isatty(int fd)
+static int Drv_ioctl(int fd, int request, va_list args)
 {
-    (void)fd;
-    return 0;
+    (void)args;
+    switch(request) {
+        case F_DEV_RST:
+            lora_reset(fd);
+            return 1;
+        default:
+            break;
+    }
+    return -1;
 }

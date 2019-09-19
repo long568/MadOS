@@ -28,11 +28,19 @@ typedef struct {
 } mUsartBlk_InitData_t;
 
 typedef struct {
+    MadU32 baud;
+    MadU16 stop_bits;
+    MadU16 parity;
+    MadU16 hfc;
+} mUsartBlk_Info_t;
+
+typedef struct {
     USART_TypeDef        *p;
     DMA_Channel_TypeDef  *txDma;
     DMA_Channel_TypeDef  *rxDma;
     MadSemCB_t           *txLocker;
     MadSemCB_t           *rxLocker;
+    mUsartBlk_Info_t     info;
 } mUsartBlk_t;
 
 extern MadBool mUsartBlk_Init        (mUsartBlk_t *port, mUsartBlk_InitData_t *initData);
@@ -41,5 +49,7 @@ extern int     mUsartBlk_Write       (mUsartBlk_t *port, const char *dat, size_t
 extern int     mUsartBlk_WriteNBlock (mUsartBlk_t *port, const char *dat, size_t len);
 extern int     mUsartBlk_Read        (mUsartBlk_t *port,       char *dat, size_t len, MadTim_t to);
 extern void    mUsartBlk_Irq_Handler (mUsartBlk_t *port);
+extern void    mUsartBlk_GetInfo     (mUsartBlk_t *port,       mUsartBlk_Info_t *info);
+extern void    mUsartBlk_SetInfo     (mUsartBlk_t *port, const mUsartBlk_Info_t *info);
 
 #endif

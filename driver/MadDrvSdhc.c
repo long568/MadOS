@@ -296,23 +296,21 @@ static int mSpiSd_write(mSpi_t *spi, const MadU8 *data, MadU32 sector, MadU32 co
     return res;
 }
 
-static int Drv_open   (const char *, int, va_list);
-static int Drv_creat  (const char *, mode_t);
-static int Drv_fcntl  (int fd, int cmd, va_list);
-static int Drv_write  (int fd, const void *buf, size_t len);
-static int Drv_read   (int fd, void *buf, size_t len);
-static int Drv_close  (int fd);
-static int Drv_isatty (int fd);
+static int Drv_open  (const char *, int, va_list);
+static int Drv_close (int fd);
+static int Drv_ioctl (int fd, int request, va_list args);
+
 
 const MadDrv_t MadDrvSdhc = {
     Drv_open,
-    Drv_creat,
-    Drv_fcntl,
-    Drv_write,
-    Drv_read,
+    0,
+    0,
+    0,
+    0,
     Drv_close,
-    Drv_isatty,
-    0
+    0,
+    0,
+    Drv_ioctl
 };
 
 static int Drv_open(const char * file, int flag, va_list args)
@@ -367,14 +365,17 @@ static int Drv_open(const char * file, int flag, va_list args)
     return -1;
 }
 
-static int Drv_creat(const char * file, mode_t mode)
+static int Drv_close(int fd)
 {
-    (void)file;
-    (void)mode;
-    return -1;
+    MadDev_t *dev = DevsList[fd];
+    mSpi_t   *spi = (mSpi_t *)(dev->dev);
+    free(dev->ptr);
+    mSpiDeInit(spi);
+    MAD_LOG("[SD]...Closed\n");
+    return 0;
 }
 
-static int Drv_fcntl(int fd, int cmd, va_list args)
+static int Drv_ioctl(int fd, int request, va_list args)
 {
     int res;
     MadDev_t *dev     = DevsList[fd];
@@ -382,7 +383,7 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
     SdInfo_t *sd_info = (SdInfo_t*)(dev->ptr);
 
     res = -1;
-    switch (cmd)
+    switch (request)
     {
         case F_DISK_STATUS: {
 #if 0
@@ -427,40 +428,8 @@ static int Drv_fcntl(int fd, int cmd, va_list args)
         }
 
         default:
-            MAD_LOG("[SD] Unknown CMD (%d)\n", cmd);
+            MAD_LOG("[SD] Unknown CMD (%d)\n", request);
             break;
     }
     return res;
-}
-
-static int Drv_write(int fd, const void *buf, size_t len)
-{
-    (void)fd;
-    (void)buf;
-    (void)len;
-    return -1;
-}
-
-static int Drv_read(int fd, void *buf, size_t len)
-{
-    (void)fd;
-    (void)buf;
-    (void)len;
-    return -1;
-}
-
-static int Drv_close(int fd)
-{
-    MadDev_t *dev = DevsList[fd];
-    mSpi_t   *spi = (mSpi_t *)(dev->dev);
-    free(dev->ptr);
-    mSpiDeInit(spi);
-    MAD_LOG("[SD]...Closed\n");
-    return 0;
-}
-
-static int Drv_isatty(int fd)
-{
-    (void)fd;
-    return 0;
 }

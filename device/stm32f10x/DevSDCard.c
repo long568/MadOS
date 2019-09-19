@@ -19,7 +19,7 @@ static const mSpi_InitData_t initData = {
         {GPIOC, GPIO_Pin_11},
         {GPIOC, GPIO_Pin_12},
     },
-    ISR_PRIO_SDCARD,
+    ISR_PRIO_DISK,
     mSpi_DW_8Bit,
     SPI3,
     DMA2_Channel2,

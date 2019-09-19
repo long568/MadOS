@@ -156,3 +156,22 @@ off_t MadDev_lseek(int fd, off_t ofs, int wce)
     }
     return res;
 }
+
+int MadDev_ioctl (int fd, int request, va_list args)
+{
+    int       res;
+    MadCpsr_t cpsr;
+    MadDev_t  *dev;
+    res = -1;
+    if(fd >= 0) {
+        dev = DevsList[fd];
+        madEnterCritical(cpsr);
+        if((dev->status == MAD_DEV_OPENED) && (dev->drv->ioctl)) {
+            madExitCritical(cpsr);
+            res = dev->drv->ioctl(fd, request, args);
+        } else {
+            madExitCritical(cpsr);
+        }
+    }
+    return res;
+}

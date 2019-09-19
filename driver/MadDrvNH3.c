@@ -10,21 +10,18 @@
 static MadU8 const CMD_READALL[] = { 0x01, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08 };
 
 static int Drv_open   (const char *, int, va_list);
-static int Drv_creat  (const char *, mode_t);
-static int Drv_fcntl  (int fd, int cmd, va_list);
-static int Drv_write  (int fd, const void *buf, size_t len);
 static int Drv_read   (int fd, void *buf, size_t len);
 static int Drv_close  (int fd);
-static int Drv_isatty (int fd);
 
 const MadDrv_t MadDrvNH3 = {
     Drv_open,
-    Drv_creat,
-    Drv_fcntl,
-    Drv_write,
+    0,
+    0,
+    0,
     Drv_read,
     Drv_close,
-    Drv_isatty,
+    0,
+    0,
     0
 };
 
@@ -42,29 +39,6 @@ static int Drv_open(const char * file, int flag, va_list args)
     } else {
         return -1;
     }
-}
-
-static int Drv_creat(const char * file, mode_t mode)
-{
-    (void)file;
-    (void)mode;
-    return -1;
-}
-
-static int Drv_fcntl(int fd, int cmd, va_list args)
-{
-    (void)fd;
-    (void)cmd;
-    (void)args;
-    return -1;
-}
-
-static int Drv_write(int fd, const void *buf, size_t len)
-{
-    (void)fd;
-    (void)buf;
-    (void)len;
-    return -1;
 }
 
 static int get_data(mUsartBlk_t* urt, const MadU8* cmd, char* cache)
@@ -111,11 +85,5 @@ static int Drv_close(int fd)
 {
     MadDev_t *dev = DevsList[fd];
     mUsartBlk_DeInit((mUsartBlk_t*)(dev->dev));
-    return 0;
-}
-
-static int Drv_isatty(int fd)
-{
-    (void)fd;
     return 0;
 }
