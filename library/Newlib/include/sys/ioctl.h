@@ -111,10 +111,11 @@ struct ttysize {
 #define	TIOCSIG		_IO('t', 95)		/* pty: generate signal */
 #define TIOCDRAIN	_IO('t', 94)		/* wait till output drained */
 
+#define TIOSELECT   _IOR('t', 124, int)
+
 #define TTYDISC		0		/* termios tty line discipline */
 #define	TABLDISC	3		/* tablet discipline */
 #define	SLIPDISC	4		/* serial IP discipline */
-
 
 #define	FIOCLEX		_IO('f', 1)		/* set close on exec on fd */
 #define	FIONCLEX	_IO('f', 2)		/* remove close on exec */

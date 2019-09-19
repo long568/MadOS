@@ -337,6 +337,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     StmPIN    *rst_pin = (StmPIN*)(dev->ptr);
     StmPIN_DefInitOPP(rst_pin);
     StmPIN_SetHigh(rst_pin);
+    dev->flag     = flag;
     dev->txBuff   = 0;
     dev->rxBuff   = (MadU8*)malloc(((mUsartChar_InitData_t*)(dev->args))->rxBuffSize);
     dev->txLocker = 0;

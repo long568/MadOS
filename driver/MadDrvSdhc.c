@@ -324,6 +324,7 @@ static int Drv_open(const char * file, int flag, va_list args)
 
     (void)args;
 
+    dev->flag     = flag;
     dev->ptr      = malloc(sizeof(SdInfo_t));
     dev->txBuff   = 0;
     dev->rxBuff   = 0;

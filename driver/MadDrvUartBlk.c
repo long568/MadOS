@@ -27,6 +27,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
     (void)args;
+    dev->flag     = flag;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
     dev->txLocker = 0;
@@ -54,7 +55,7 @@ static int Drv_read(int fd, void *buf, size_t len)
 
 static int Drv_close(int fd)
 {
-    MadDev_t  *dev = DevsList[fd];
+    MadDev_t    *dev = DevsList[fd];
     mUsartBlk_t *urt = dev->dev;
     mUsartBlk_DeInit(urt);
     return 1;

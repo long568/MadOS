@@ -124,7 +124,7 @@ int MadDev_isatty(int fd)
     int       res;
     MadCpsr_t cpsr;
     MadDev_t  *dev;
-    res = -1;
+    res = 0;
     if(fd >= 0) {
         dev = DevsList[fd];
         madEnterCritical(cpsr);

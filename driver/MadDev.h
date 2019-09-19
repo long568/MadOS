@@ -18,6 +18,7 @@ typedef struct _MadDev_t {
     MadU8          status;
     MadVptr        ptr;
     // Automatic initialization
+    int            flag;
     MadU8          *txBuff;
     MadU8          *rxBuff;
     MadSemCB_t     *txLocker;

@@ -65,12 +65,15 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
 
     port->txLocker = madSemCreateCarefully(0, 1);
     port->rxLocker = madSemCreateCarefully(0, 1);
+    port->txBuff   = madMemMalloc(initData->txBuffSize);
     port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
     if((MNULL == port->txLocker) || 
        (MNULL == port->rxLocker) ||
+       (MNULL == port->txBuff && 0 != initData->txBuffSize) ||
        (MNULL == port->rxBuff)) {
         madSemDelete(&port->txLocker);
         madSemDelete(&port->rxLocker);
+        madMemFree(port->txBuff);
         FIFO_U8_Delete(port->rxBuff);
         return MFALSE;
     }
@@ -131,6 +134,7 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
     USART_DeInit(port->p);
     madSemDelete(&port->txLocker);
     madSemDelete(&port->rxLocker);
+    madMemFree(port->txBuff);
     FIFO_U8_Delete(port->rxBuff);
     return MTRUE;
 }
@@ -177,7 +181,8 @@ int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len, MadTim_t t
 int mUsartChar_WriteNBlock(mUsartChar_t *port, const char *dat, size_t len)
 {
     if(len > 0) {
-        port->txDma->CMAR = (MadU32)dat;
+        madMemCpy(port->txBuff, dat, len);
+        port->txDma->CMAR = (MadU32)(port->txBuff);
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
         return len;

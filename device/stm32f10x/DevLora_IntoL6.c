@@ -26,6 +26,7 @@ static const mUsartChar_InitData_t initData = {
     USART_HardwareFlowControl_None,
     DMA_Priority_Medium,
     DMA_Priority_Medium,
+    0,
     LORA_RX_BUFF_SIZE,
     Dev_Irq_Handler
 };

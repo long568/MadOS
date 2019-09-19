@@ -87,5 +87,6 @@ $RECYCLE.BIN/
 build/
 .vscode/.cortex-debug.*.state.json
 .vscode/c_cpp_properties.json
+.vscode/settings.json
 .vscode/ipch/
 main.mk

@@ -30,6 +30,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
     (void)args;
+    dev->flag     = flag;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
     dev->txLocker = 0;

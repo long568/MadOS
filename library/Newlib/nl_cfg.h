@@ -27,7 +27,7 @@ MISSING_SYSCALL_NAMES
 #define TTY_DEV_INDEX     (0)
 #define MEM_OPT_THRESHOLD (30)
 #define DEV_FD_START      (3)
-#define DEV_FD_END        (1000)
+#define DEV_FD_END        (20)
 #define FIL_NUM_MAX       (10)
 
 #endif

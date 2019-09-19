@@ -24,6 +24,7 @@ typedef struct {
     MadU16               hfc;
     MadU32               tx_dma_priority;
     MadU32               rx_dma_priority;
+    MadSize_t            txBuffSize;
     MadSize_t            rxBuffSize;
     xIRQ_Handler         IRQh;
 } mUsartChar_InitData_t;
@@ -41,6 +42,7 @@ typedef struct {
     DMA_Channel_TypeDef  *rxDma;
     MadSemCB_t           *txLocker;
     MadSemCB_t           *rxLocker;
+    MadU8                *txBuff;
     FIFO_U8              *rxBuff;
     MadU32               rxCnt;
     MadU32               rxMax;

@@ -1,15 +1,15 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "MadDev.h"
-#include "usart_blk.h"
+#include "usart_char.h"
 #include "Stm32Tools.h"
 #include "CfgUser.h"
 
-static mUsartBlk_t dev;
+static mUsartChar_t dev;
 
-static void Dev_Irq_Handler(void) { mUsartBlk_Irq_Handler(&dev); }
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
 
-static const mUsartBlk_InitData_t initData = {
+static const mUsartChar_InitData_t initData = {
     USART1,
     DMA1_Channel4,
     DMA1_Channel5,
@@ -27,7 +27,9 @@ static const mUsartBlk_InitData_t initData = {
     USART_HardwareFlowControl_None,
     DMA_Priority_Low,
     DMA_Priority_Low,
+    32,
+    128,
     Dev_Irq_Handler
 };
 
-MadDev_t Tty1 = { "tty1", &dev, &initData, &MadDrvUartBlk, MAD_DEV_CLOSED, NULL };
+MadDev_t Tty1 = { "tty1", &dev, &initData, &MadDrvUartChar, MAD_DEV_CLOSED, NULL };

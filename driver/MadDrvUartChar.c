@@ -2,7 +2,7 @@
 #include <sys/ioctl.h>
 #include "MadDev.h"
 #include "usart_char.h"
-#include "MadDrvTty.h"
+#include "MadDrvUartChar.h"
 
 static int Drv_open   (const char *, int, va_list);
 static int Drv_write  (int fd, const void *buf, size_t len);
@@ -11,7 +11,7 @@ static int Drv_close  (int fd);
 static int Drv_isatty (int fd);
 static int Drv_ioctl (int fd, int request, va_list args);
 
-const MadDrv_t MadDrvTty = {
+const MadDrv_t MadDrvUartChar = {
     Drv_open,
     0,
     0,
@@ -28,6 +28,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
     (void)args;
+    dev->flag     = flag;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
     dev->txLocker = 0;
@@ -40,29 +41,47 @@ static int Drv_open(const char * file, int flag, va_list args)
 
 static int Drv_write(int fd, const void *buf, size_t len)
 {
+    int res;
     MadDev_t     *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
-    return mUsartChar_Write(urt, buf, len, TTY_TX_TIMEOUT);
+    if(dev->flag & O_NDELAY) {
+        res = mUsartChar_WriteNBlock(urt, buf, len);
+    } else {
+        res = mUsartChar_Write(urt, buf, len, TTY_TX_TIMEOUT);
+    }
+    return res;
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
 {
+    int res;
     char      *dat = (char*)buf;
     MadDev_t  *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
-    return mUsartChar_Read(urt, dat, len, TTY_RX_TIMEOUT);
+    if(dev->flag & O_NDELAY) {
+        res = mUsartChar_ReadNBlock(urt, buf, len);
+    } else {
+        res = mUsartChar_Read(urt, dat, len, TTY_RX_TIMEOUT);
+    }
+    return res;
 }
 
 static int Drv_close(int fd)
 {
-    (void)fd;
-    return -1;
+    MadDev_t     *dev = DevsList[fd];
+    mUsartChar_t *urt = dev->dev;
+    mUsartChar_DeInit(urt);
+    return 1;
 }
 
 static int Drv_isatty(int fd)
 {
-    (void)fd;
-    return 1;
+    MadDev_t *dev = DevsList[fd];
+    if(dev->flag & O_NOCTTY) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 static int Drv_ioctl(int fd, int request, va_list args)
@@ -111,6 +130,14 @@ static int Drv_ioctl(int fd, int request, va_list args)
             info.hfc |= (cflag & CRTS_IFLOW) ? USART_HardwareFlowControl_RTS : 0;
             info.hfc |= (cflag & CCTS_OFLOW) ? USART_HardwareFlowControl_CTS : 0;
             mUsartChar_SetInfo(urt, &info);
+            break;
+        }
+
+        case TIOSELECT: {
+            int t = va_arg(args, int);
+            if(MAD_ERR_OK != mUsartChar_WaitRecv(urt, t)) {
+                res = -1;
+            }
             break;
         }
 

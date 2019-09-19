@@ -1,11 +1,22 @@
 #include <sys/select.h>
+#include <sys/ioctl.h>
 #include "MadOS.h"
 
 int select(int __n, fd_set *__readfds, fd_set *__writefds, fd_set *__exceptfds, struct timeval *__timeout)
 {
-    (void) __readfds;
+    int i;
+    int t;
     (void) __writefds;
     (void) __exceptfds;
-    (void) __timeout;
-    return __n - 1;
+    
+    t = (int)(__timeout->tv_sec * 1000 + ((__timeout->tv_usec > 500) ? 1 : 0));
+    if(MNULL != __readfds) {
+        for(i=0; i<__n; i++) {
+            if(FD_ISSET(i, __readfds) && ioctl(i, TIOSELECT, t) > 0) {
+                return i;
+            }
+        }
+    }
+
+    return -1;
 }

@@ -27,8 +27,9 @@ static const mUsartChar_InitData_t initData = {
     USART_HardwareFlowControl_None,
     DMA_Priority_Low,
     DMA_Priority_Low,
+    0,
     128,
     Dev_Irq_Handler
 };
 
-MadDev_t Tty = { "tty", &dev, &initData, &MadDrvTty, MAD_DEV_CLOSED, NULL };
+MadDev_t Tty = { "tty", &dev, &initData, &MadDrvUartChar, MAD_DEV_CLOSED, NULL };
