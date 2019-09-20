@@ -135,9 +135,7 @@ static int Drv_ioctl(int fd, int request, va_list args)
 
         case TIOSELECT: {
             int t = va_arg(args, int);
-            if(MAD_ERR_OK != mUsartChar_WaitRecv(urt, t)) {
-                res = -1;
-            }
+            res = mUsartChar_WaitRecv(urt, t);
             break;
         }
 

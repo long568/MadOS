@@ -1,4 +1,5 @@
-static int err = 0;
-int *__errno(void) {
-    return &err;
+#include "MadOS.h"
+
+inline int *__errno(void) {
+    return &MadCurTCB->posix_errno;
 }

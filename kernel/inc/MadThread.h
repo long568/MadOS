@@ -31,6 +31,7 @@ typedef struct _MadRdyG_t {
 } MadRdyG_t;
 
 typedef struct _MadTCB_t {
+    // Kernel
     MadStk_t  *pStk;
     MadU8     prio;
     MadU8     state;
@@ -42,6 +43,8 @@ typedef struct _MadTCB_t {
     MadU16    rdy_bit;
     MadRdyG_t *xCB;
     MadU8     err;
+    // Posix
+    int       posix_errno;
 } MadTCB_t;
 
 typedef void (*MadThread_t)(MadVptr);

@@ -212,7 +212,15 @@ inline void mUsartChar_ClearRecv(mUsartChar_t *port) {
 }
 
 inline int mUsartChar_WaitRecv(mUsartChar_t *port, MadTim_t to) {
-    return madSemWait(&port->rxLocker, to);
+    int cnt, res;
+    RX_BUFF_LOCK();
+    cnt = FIFO_U8_Cnt(port->rxBuff);
+    RX_BUFF_UNLOCK();
+    res = -1;
+    if(cnt > 0 || MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
+        res = 1;
+    }
+    return res;
 }
 
 void mUsartChar_GetInfo(mUsartChar_t *port, mUsartChar_Info_t *info)
