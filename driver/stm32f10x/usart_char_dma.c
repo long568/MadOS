@@ -123,7 +123,6 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }
 
-    madSemWait(&port->txLocker, 0); // Fix bug in STM32
     return MTRUE;
 }
 
@@ -166,16 +165,17 @@ inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
 
 int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len, MadTim_t to)
 {
+    int res = -1;
     if(len > 0) {
         madSemCheck(&port->txLocker);
         port->txDma->CMAR = (MadU32)dat;
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
         if(MAD_ERR_OK == madSemWait(&port->txLocker, to)) {
-            return len - port->txDma->CNDTR;
+            res = len - port->txDma->CNDTR;
         }
     }
-    return -1;
+    return res;
 }
 
 int mUsartChar_WriteNBlock(mUsartChar_t *port, const char *dat, size_t len)
@@ -201,8 +201,15 @@ int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len, MadTim_t to)
 
 int mUsartChar_ReadNBlock(mUsartChar_t *port, char *dat, size_t len)
 {
-    FIFO_U8_DMA_Get(port->rxBuff, dat, len);
-    return len;
+    int cnt;
+    RX_BUFF_LOCK();
+    cnt = FIFO_U8_Cnt(port->rxBuff);
+    RX_BUFF_UNLOCK();
+    if(cnt > 0) {
+        FIFO_U8_DMA_Get(port->rxBuff, dat, len);
+        return len;
+    }
+    return -1;
 }
 
 inline void mUsartChar_ClearRecv(mUsartChar_t *port) {

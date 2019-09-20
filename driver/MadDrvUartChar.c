@@ -133,11 +133,19 @@ static int Drv_ioctl(int fd, int request, va_list args)
             break;
         }
 
-        case TIOSELECT: {
+        case TIOSELRD: {
             int t = va_arg(args, int);
             res = mUsartChar_WaitRecv(urt, t);
             break;
         }
+
+        // case TIOSELWR: {
+        //     break;
+        // }
+
+        // case TIOSELEX: {
+        //     break;
+        // }
 
         default:
             res = -1;

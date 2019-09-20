@@ -73,33 +73,7 @@ extern  FIFO_U8* FIFO_U8_Create(MadU16 size);
     }                                                                      \
 } while(0)
 
-#if 0
-#  define FIFO_U8_DMA_Get(fifo, dat, len) do { /*Called in User-Mode*/ \
-    if(fifo->cnt > 0) {                                     \
-        MadCpsr_t cpsr;                                     \
-        size_t n = len;                                     \
-        madEnterCritical(cpsr);                             \
-        if((n == 0) || (n > fifo->cnt)) len = n = fifo->cnt;\
-        madExitCritical(cpsr);                              \
-        if(fifo->head + n < fifo->end)  {                   \
-            if(0 == memcpy(dat, fifo->head, n)) len = 0;    \
-            fifo->head += n;                                \
-        } else {                                            \
-            MadU32 ofs = fifo->end - fifo->head;            \
-            if((0 == memcpy(dat,     fifo->head, ofs)) ||   \
-               (0 == memcpy(dat+ofs, fifo->buf,  n - ofs))) \
-               len = 0;                                     \
-            fifo->head = fifo->buf + n - ofs;               \
-        }                                                   \
-        madEnterCritical(cpsr);                             \
-        fifo->cnt -= n;                                     \
-        madExitCritical(cpsr);                              \
-    } else {                                                \
-        len = 0;                                            \
-    }                                                       \
-} while(0)
-#else
-#  define FIFO_U8_DMA_Get(fifo, dat, n) do { /*Called in User-Mode*/ \
+#define FIFO_U8_DMA_Get(fifo, dat, n) do { /*Called in User-Mode*/ \
     if(fifo->cnt > 0) {                                     \
         MadCpsr_t cpsr;                                     \
         madEnterCritical(cpsr);                             \
@@ -121,6 +95,5 @@ extern  FIFO_U8* FIFO_U8_Create(MadU16 size);
         n = 0;                                              \
     }                                                       \
 } while(0)
-#endif
 
 #endif

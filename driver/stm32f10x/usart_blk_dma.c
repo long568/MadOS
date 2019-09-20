@@ -112,7 +112,6 @@ MadBool mUsartBlk_Init(mUsartBlk_t *port, mUsartBlk_InitData_t *initData)
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }
 
-    madSemWait(&port->txLocker, 0); // Fix bug in STM32
     return MTRUE;
 }
 
@@ -144,16 +143,17 @@ inline void mUsartBlk_Irq_Handler(mUsartBlk_t *port)
 
 int mUsartBlk_Write(mUsartBlk_t *port, const char *dat, size_t len, MadTim_t to)
 {
+    int res = -1;
     if(len > 0) {
         madSemCheck(&port->txLocker);
         port->txDma->CMAR = (MadU32)dat;
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
         if(MAD_ERR_OK == madSemWait(&port->txLocker, to)) {
-            return len - port->txDma->CNDTR;
+            res = len - port->txDma->CNDTR;
         }
     }
-    return -1;
+    return res;
 }
 
 int mUsartBlk_WriteNBlock(mUsartBlk_t *port, const char *dat, size_t len)
@@ -169,15 +169,16 @@ int mUsartBlk_WriteNBlock(mUsartBlk_t *port, const char *dat, size_t len)
 
 int mUsartBlk_Read(mUsartBlk_t *port, char *dat, size_t len, MadTim_t to)
 {
+    int res = -1;
     if(len > 0) {
         port->rxDma->CMAR = (MadU32)dat;
         port->rxDma->CNDTR = len;
         DMA_Cmd(port->rxDma, ENABLE);
         if(MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
-            return len - port->rxDma->CNDTR;
+            res = len - port->rxDma->CNDTR;
         }
     }
-    return -1;
+    return res;
 }
 
 void mUsartBlk_GetInfo(mUsartBlk_t *port, mUsartBlk_Info_t *info)
