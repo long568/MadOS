@@ -9,6 +9,7 @@ all: prebuild
 	$(AR) rcs $(BUILD_DIR)/$(LIBK) $(wildcard $(TEMP)/*.o)
 	$(MAKE) -C $(PACH)
 	$(MAKE) -C $(PSTA)
+	@$(ROOT)/arch/$(MCU_PREFIX)/gen_ldscript.sh
 	$(ECHO) 'Creating $(LIBK) ... Done'
 
 prebuild:

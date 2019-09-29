@@ -5,9 +5,9 @@
 
 typedef void (*xIRQ_Handler)(void);
 
-#ifdef STM32F10X_CL
-#   define VECTOR_NUMBER 121
-#   define VECTOR_EX_OFS 16
+#define VECTOR_EX_OFS 16
+#if defined STM32F10X_CL || defined STM32F10X_HD
+#   define VECTOR_NUMBER 120
 #else
 #   error Unknown MCU !
 #endif

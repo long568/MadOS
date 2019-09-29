@@ -37,6 +37,7 @@ export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/library/Newlib/include \
                -I$(ROOT)/driver \
                -I$(ROOT)/driver/$(MCU_PREFIX) \
+               -I$(ROOT)/driver/$(MCU_PREFIX)/eth \
                -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
                -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
                -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
@@ -58,7 +59,7 @@ export CPPFLAGS += $(CXFLAGS) -std=c++11
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
                    -Bstatic -Wl,--gc-sections \
                    -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-                   -T$(ROOT)/arch/$(MCU_PREFIX)/$(MCU_PREFIX)_$(MCU_SUFFIX).ld
+                   -T$(BUILD_DIR)/HiMadOS.ld
 
 all:
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)

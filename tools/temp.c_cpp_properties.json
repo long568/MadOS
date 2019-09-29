@@ -13,6 +13,7 @@
                 "${workspaceFolder}/library/Newlib/include",
                 "${workspaceFolder}/driver",
                 "${workspaceFolder}/driver/stm32f10x",
+                "${workspaceFolder}/driver/stm32f10x/eth",
                 "${workspaceFolder}/kernel/inc",
                 "${workspaceFolder}/kernel/lib/pt",
                 "${workspaceFolder}/kernel/lib/timer",
