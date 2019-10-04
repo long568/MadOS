@@ -5,8 +5,10 @@
 
 extern MadTim_t MadSysTickFreq;
 extern MadTim_t MadTicksPerSec;
+extern MadTim_t MadTicksNow;
 
-extern  void  madInitSysTick  (MadTim_t freq, MadTim_t ticks);
-extern  void  madTimeDly      (MadTim_t timeCnt);
+extern  void     madInitSysTick (MadTim_t freq, MadTim_t ticks);
+extern  void     madTimeDly     (MadTim_t timeCnt);
+extern  MadTim_t madTimeNow     (void);
 
 #endif

@@ -22,7 +22,7 @@ extern  void       madMemClearRes         (const MadU8 owner);
 #endif /* MAD_AUTO_RECYCLE_RES */
 
 #ifdef MAD_CPY_MEM_BY_DMA
-#include "ArchMemCpy.h"
+#include "MadArchMem.h"
 #define            madMemCpyByDMA(dst, src, len)   madArchMemCpy(dst, src, len)
 #define            madMemSetByDMA(dst, val, len)   madArchMemSet(dst, val, len)
 #else  /* MAD_CPY_MEM_BY_DMA */

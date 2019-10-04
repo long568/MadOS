@@ -16,3 +16,6 @@ endif
 ifeq ($(LIB_MODBUS), yes)
 	$(MAKE) -C $(ROOT)/library/modbus
 endif
+ifeq ($(LIB_LWIP), yes)
+	$(MAKE) -C $(ROOT)/library/LwIP
+endif

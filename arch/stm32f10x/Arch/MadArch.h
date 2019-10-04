@@ -4,8 +4,8 @@
 #include "stm32f10x.h"
 
 #define MAD_MEM_ALIGN_ROLL  (3) // 3: 8Bytes-Align | 2: 4Bytes-Align
-#define MAD_MEM_ALIGN_MASK  ((MadU32)0xFFFFFFFF << MAD_MEM_ALIGN_ROLL)
-#define MAD_MEM_ALIGN       ((~MAD_MEM_ALIGN_MASK) + 1)
+#define MAD_MEM_ALIGN_MASK  ((0xFFFFFFFF << MAD_MEM_ALIGN_ROLL) & 0xFFFFFFFF)
+#define MAD_MEM_ALIGN       (((~MAD_MEM_ALIGN_MASK) + 1)        & 0xFFFFFFFF)
 
 #define MadVptr            void*
 
@@ -47,6 +47,7 @@ typedef MadU32             MadAligned_t;
 #define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 #define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); } while(0)
 #define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); } while(0)
+#define madInCritical()        ((0x10 == __get_BASEPRI()) ? MTRUE : MFALSE)
 #if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/
 #define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; \
                                    __asm{ rbit t, t; clz t, t; }; \
@@ -58,9 +59,6 @@ typedef MadU32             MadAligned_t;
 								                   : [t] "+r" (t) ); \
 								   res = (MadU8)(t & 0x000000FF); }while(0)
 #endif
-
-#define WATCHDOG_3MIN  IWDG_Prescaler_256, 28125
-#define WATCHDOG_5MIN  IWDG_Prescaler_256, 46875
 
 extern MadU8*  madChipId         (void);
 extern void    madWatchDog_Start (MadU8 prer, MadU16 rlr);

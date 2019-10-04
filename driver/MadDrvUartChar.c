@@ -31,7 +31,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     dev->flag     = flag;
     dev->txBuff   = 0;
     dev->rxBuff   = 0;
-    dev->txLocker = 0;
+    dev->txLocker = madSemCreate(1);
     dev->rxLocker = 0;
     if(MTRUE != mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
         return -1;
@@ -44,11 +44,15 @@ static int Drv_write(int fd, const void *buf, size_t len)
     int res;
     MadDev_t     *dev = DevsList[fd];
     mUsartChar_t *urt = dev->dev;
+    if(MAD_ERR_OK != madSemWait(&dev->txLocker, 0)) {
+        return -1;
+    }
     if(dev->flag & O_NDELAY) {
         res = mUsartChar_WriteNBlock(urt, buf, len);
     } else {
         res = mUsartChar_Write(urt, buf, len, TTY_TX_TIMEOUT);
     }
+    madSemRelease(&dev->txLocker);
     return res;
 }
 

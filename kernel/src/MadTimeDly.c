@@ -2,6 +2,7 @@
 
 MadTim_t MadSysTickFreq;
 MadTim_t MadTicksPerSec;
+MadTim_t MadTicksNow;
 
 void madTimeDly(MadTim_t timeCnt)
 {
@@ -20,6 +21,16 @@ void madTimeDly(MadTim_t timeCnt)
     madSched();
 }
 
+MadTim_t madTimeNow(void)
+{
+    MadCpsr_t cpsr;
+    MadTim_t  res;
+    madEnterCritical(cpsr);
+    res = MadTicksNow;
+    madExitCritical(cpsr);
+    return res;
+}
+
 MadUint madSysTick(void)
 {
     MadCpsr_t cpsr;
@@ -29,6 +40,7 @@ MadUint madSysTick(void)
     MadUint   res = 0;
     
     madEnterCritical(cpsr);
+    MadTicksNow++;
     for(i=0; i<MAD_THREAD_NUM_MAX; i++) {
         pTCB = MadTCBGrp[i];
         if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) || (!pTCB->timeCnt))

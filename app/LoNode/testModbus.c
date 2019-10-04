@@ -13,7 +13,7 @@ static void modbus_write(int fun, modbus_t *ctx, int addr, int val, uint16_t *bu
 
 void Init_TestModbus(void)
 {
-    madThreadCreate(modbus_client, 0, 2048, THREAD_PRIO_TEST_MODBUS);
+    madThreadCreate(modbus_client, 0, 1024, THREAD_PRIO_TEST_MODBUS);
 }
 
 static void modbus_client(MadVptr exData)

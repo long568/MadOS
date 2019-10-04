@@ -1,4 +1,4 @@
-# $(ROOT)/driver/$(MCU_PREFIX)
+# $(ROOT)/driver/$(MCU_PREFIX)/eth
 ASMS =
 SRCS = $(wildcard *.c)
 

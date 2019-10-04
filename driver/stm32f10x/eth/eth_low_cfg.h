@@ -1,38 +1,18 @@
 #ifndef __ETH_LOW_CFG__H__
 #define __ETH_LOW_CFG__H__
 
-#include "stm32_eth.h"
+#include "eth_low_reg.h"
 
 #define mEth_CHECKSUM_BY_HARDWARE 1
 
 #define mEth_TIMEOUT_TICKS  (888) // ticks
-#define mEth_EVENT_TIMEOUT  (100) // ms
-#define mEth_THREAD_STKSIZE (2 * 1024)
+#define mEth_EVENT_TIMEOUT  (100) // ms, not use for lwip.
+#define mEth_THREAD_STKSIZE (1 * 1024)
 #define mEth_TXBUFNB        ((MadU8)2)
 #define mEth_RXBUFNB        ((MadU8)2)
 
 #define mEth_PHY_WT(c, t) do { MadUint n = 0; while((!(c)) && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
 #define mEth_PHY_WF(c, t) do { MadUint n = 0; while(  (c)  && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
-
-typedef enum {
-    mEth_PR_CTRL = 0,
-    mEth_PR_STAT,
-    mEth_PR_ID1,
-    mEth_PR_ID2,
-    mEth_PR_ANAR,
-    mEth_PR_ANLPAR,
-    mEth_PR_ANER,
-#ifdef USE_IP101A
-    mEth_PR_SPECTRL = 16,
-    mEth_PR_INTR,
-#endif
-} mEth_PHY_REG;
-
-#ifdef USE_IP101A
-typedef enum {
-    mEth_PF_ISR = 0x8600, // 1000_0110_0000_0000
-} mEth_PHY_FLAG;
-#endif
 
 typedef enum {
     mEth_PE_STATUS_CHANGED = 0x0001,
@@ -44,9 +24,6 @@ typedef enum {
 
 struct _mEth_InitData_t;
 struct _mEth_t;
-
-typedef MadBool(*mEth_Preinit_t) (struct _mEth_t *eth);
-typedef MadBool(*mEth_Callback_t)(struct _mEth_t *eth, MadUint event, MadTim_t dt);
 
 typedef struct _mEth_InitData_t {
     struct {
@@ -72,12 +49,9 @@ typedef struct _mEth_InitData_t {
     MadU8           MAC_ADDRESS[6];
     MadU8           Priority;
     MadU8           ThreadID;
-    MadSize_t       ThreadStkSize;
     MadU16          MaxPktSize;
     MadU8           TxDscrNum;
     MadU8           RxDscrNum;
-    mEth_Preinit_t  infn;
-    mEth_Callback_t fn;
 } mEth_InitData_t;
 
 typedef struct _mEth_t {
@@ -91,7 +65,6 @@ typedef struct _mEth_t {
     MadU8              TxDscrNum;
     MadU8              RxDscrNum;
     MadEventCB_t       *Event;
-    mEth_Callback_t    fn;
     ETH_DMADESCTypeDef *TxDscr;
     ETH_DMADESCTypeDef *RxDscr;
     MadU8              *TxBuff;

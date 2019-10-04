@@ -31,6 +31,7 @@ void madInitSysTick(MadTim_t freq, MadTim_t ticks)
 {
     MadSysTickFreq = freq;
     MadTicksPerSec = ticks;
+    MadTicksNow    = 0;
     SysTick_Config(MadSysTickFreq / MadTicksPerSec);
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);

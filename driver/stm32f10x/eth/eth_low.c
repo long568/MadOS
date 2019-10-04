@@ -1,109 +1,24 @@
 #include "eth_low.h"
-#include "CfgUser.h"
-
-static MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData);
-static MadBool eth_phy_init(mEth_t *eth);
-static void    eth_init_failed(mEth_t *eth);
-static MadBool eth_mac_deinit(mEth_t *eth);
-static MadBool eth_mac_init(mEth_t *eth);
-static MadBool eth_mac_start(mEth_t *eth);
-static void    eth_driver_thread(MadVptr exData);
-
-/******************************************
- *
- * For StmEth, instance of the only eth.
- *
- ******************************************/
-static mEth_t StmEth;
 
 //void ETH_WKUP_IRQHandler(void)
 //void ETH_IRQHandler(void)
 
-void mEth_ExtEvent(void)
+void eth_low_ExtEvent(mEth_t *eth)
 {
-    if(EXTI_GetITStatus(StmEth.EXIT_Line) != RESET) {
-        madEventTrigger(&StmEth.Event, mEth_PE_STATUS_CHANGED);
-        EXTI_ClearITPendingBit(StmEth.EXIT_Line);
+    if(EXTI_GetITStatus(eth->EXIT_Line) != RESET) {
+        madEventTrigger(&eth->Event, mEth_PE_STATUS_CHANGED);
+        EXTI_ClearITPendingBit(eth->EXIT_Line);
     }
 }
 
-void mEth_PhyEvent(void)
+void eth_low_PhyEvent(mEth_t *eth)
 {
     if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_R)) {
-        madEventTrigger(&StmEth.Event, mEth_PE_STATUS_RXPKT);
+        madEventTrigger(&eth->Event, mEth_PE_STATUS_RXPKT);
         ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
     }
     ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
 }
-
-MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t fn)
-{
-    mEth_InitData_t initData;
-    
-    GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
-    
-    StmPIN_SetIO(&initData.RMII.MDC,    GPIOC, GPIO_Pin_1);
-    StmPIN_SetIO(&initData.RMII.MDIO,   GPIOA, GPIO_Pin_2);
-    StmPIN_SetIO(&initData.RMII.C50M,   GPIOA, GPIO_Pin_1);
-    StmPIN_SetIO(&initData.RMII.TXEN,   GPIOB, GPIO_Pin_11);
-    StmPIN_SetIO(&initData.RMII.TXD0,   GPIOB, GPIO_Pin_12);
-    StmPIN_SetIO(&initData.RMII.TXD1,   GPIOB, GPIO_Pin_13);
-    StmPIN_SetIO(&initData.RMII.CSR_DV, GPIOD, GPIO_Pin_8);
-    StmPIN_SetIO(&initData.RMII.RXD0,   GPIOD, GPIO_Pin_9);
-    StmPIN_SetIO(&initData.RMII.RXD1,   GPIOD, GPIO_Pin_10);
-    StmPIN_SetIO(&initData.RMII.INTR,   GPIOD, GPIO_Pin_11);
-    
-    initData.Event.PORT              = GPIO_PortSourceGPIOD;
-    initData.Event.LINE              = GPIO_PinSource11;
-    initData.Event.EXIT.EXTI_Line    = EXTI_Line11;
-    initData.Event.EXIT.EXTI_Mode    = EXTI_Mode_Interrupt;
-    initData.Event.EXIT.EXTI_Trigger = EXTI_Trigger_Falling;
-    initData.Event.IRQn              = EXTI15_10_IRQn;
-    
-    initData.Enable         = ENABLE;
-    initData.PHY_ADDRESS    = 0x00;
-#if 1
-    do {
-        MadU8 i;
-        MadU8 *chip_id = madChipId();
-        for(i=0; i<6; i++) {
-            initData.MAC_ADDRESS[i] = chip_id[i];
-        }
-    } while(0);
-#else
-    initData.MAC_ADDRESS[0] = 0x4D;
-    initData.MAC_ADDRESS[1] = 0x61;
-    initData.MAC_ADDRESS[2] = 0x64;
-    initData.MAC_ADDRESS[3] = 0x43;
-    initData.MAC_ADDRESS[4] = 0x13;
-    initData.MAC_ADDRESS[5] = 0x00;
-#endif
-    initData.Priority       = ISR_PRIO_ETH;
-    initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
-    initData.ThreadStkSize  = mEth_THREAD_STKSIZE;
-    initData.MaxPktSize     = ETH_MAX_PACKET_SIZE;
-    initData.TxDscrNum      = mEth_TXBUFNB;
-    initData.RxDscrNum      = mEth_RXBUFNB;
-    initData.infn           = infn;
-    initData.fn             = fn;
-
-    madInstallExIrq(mEth_ExtEvent, EXTI15_10_IRQn);
-    madInstallExIrq(mEth_PhyEvent, ETH_IRQn);
-    
-    if(eth_low_init(&StmEth, &initData)) { 
-        if(eth_phy_init(&StmEth)) {
-            return MTRUE; // Success
-        }
-    }
-    eth_init_failed(&StmEth);
-    return MFALSE; // Failed
-}
-
-/******************************************
- *
- * For ETH-Class, Object-Oriented
- *
- ******************************************/
 
 MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
 {
@@ -116,7 +31,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     enable = initData->Enable;
     
     eth->isLinked    = MFALSE;
-    eth->ThreadID    = 0;
+    eth->ThreadID    = initData->ThreadID;
     eth->PHY_ADDRESS = initData->PHY_ADDRESS;
     for(i=0; i<6; i++)
         eth->MAC_ADDRESS[i] = initData->MAC_ADDRESS[i];
@@ -136,13 +51,6 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     }
     eth->Event = madEventCreate(mEth_PE_STATUS_ALL, MEMODE_WAIT_ONE, MEOPT_DELAY);
     if(MNULL == eth->Event) {
-        return MFALSE;
-    }
-    if(initData->infn(eth) &&
-       madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
-        eth->ThreadID = initData->ThreadID;
-        eth->fn       = initData->fn;
-    } else {
         return MFALSE;
     }
     
@@ -178,17 +86,19 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     NVIC_Init(&NVIC_InitStructure);
     
     GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
-    return MTRUE;
+
+    return eth_phy_init(eth);
 }
 
 void eth_init_failed(mEth_t *eth)
 {
     if(eth) {
+        eth_mac_deinit(eth);
         madMemFree(eth->TxDscr);
         madMemFree(eth->RxDscr);
         madMemFree(eth->TxBuff);
         madMemFree(eth->RxBuff);
-        madEventDelete(&StmEth.Event);
+        madEventDelete(&eth->Event);
     }
 }
 
@@ -208,7 +118,12 @@ MadBool eth_phy_init(mEth_t *eth)
     // Configure interrupt of IP101A
     ETH_WritePHYRegister(phy_addr, mEth_PR_INTR, mEth_PF_ISR);
     ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
+#if 0
+    _eth_delay_(PHY_ResetDelay);
+    return eth_mac_init(eth);
+#else
     return MTRUE;
+#endif
 }
 
 MadBool eth_mac_deinit(mEth_t *eth)
@@ -216,7 +131,6 @@ MadBool eth_mac_deinit(mEth_t *eth)
     ETH_DeInit();
     ETH_SoftwareReset();
     while (ETH_GetSoftwareResetStatus() == SET);
-    eth->isLinked = MFALSE;
     return MTRUE;
 }
 
@@ -227,6 +141,8 @@ MadBool eth_mac_init(mEth_t *eth)
     
     phy_addr = eth->PHY_ADDRESS;
     ETH_StructInit(&ETH_InitStructure);
+
+    ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
     
     /* Fill ETH_InitStructure parametrs */
     /*------------------------   MAC   -----------------------------------*/
@@ -263,7 +179,6 @@ MadBool eth_mac_init(mEth_t *eth)
         ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
         ETH_MACAddressConfig(ETH_MAC_Address0, eth->MAC_ADDRESS);
         eth_mac_start(eth);
-        eth->isLinked = MTRUE;
         return MTRUE;
     } else {
         return MFALSE;
@@ -285,61 +200,4 @@ MadBool eth_mac_start(mEth_t *eth)
 #endif
     ETH_Start();
     return MTRUE;
-}
-
-void eth_driver_thread(MadVptr exData)
-{
-    MadU8 ok;
-    MadUint event;
-    MadTim_t dt;
-    mEth_t *eth = (mEth_t*)exData;
-
-    event = mEth_PE_STATUS_CHANGED;
-    dt    = 0;
-    
-    while(1) {
-        ok = madEventWait(&eth->Event, &event, mEth_EVENT_TIMEOUT);
-        switch(ok) {
-            case MAD_ERR_OK: {
-                MadCpsr_t cpsr;
-                MadTim_t  remain;
-                madEnterCritical(cpsr);
-                remain = MadCurTCB->timeCntRemain;
-                madExitCritical(cpsr);
-                dt = mEth_EVENT_TIMEOUT - remain;
-                break;
-            }
-            case MAD_ERR_TIMEOUT:
-                event = mEth_PE_STATUS_TIMEOUT;
-                dt = mEth_EVENT_TIMEOUT;
-                break;
-            default:
-                event = 0;
-                dt    = 0;
-                break;
-        }
-        
-        // Handle PHY-Event
-        if(event & mEth_PE_STATUS_CHANGED) {
-            madTimeDly(10);
-            dt += 10;
-            if(0 == StmPIN_ReadInValue(&eth->INTP)) {
-                MadU16 phy_reg;
-                MadU16 phy_addr = eth->PHY_ADDRESS;
-                // Read 2 times to make sure we got real value of the reg.
-                // This maybe a bug of IP101A
-                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
-                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
-                ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
-                phy_reg = ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
-                eth_mac_deinit(eth);
-                if(phy_reg & PHY_Linked_Status) {
-                    eth_mac_init(eth);
-                }
-            }
-        }
-        
-        // Handle App
-        if(eth->fn) eth->fn(eth, event, dt);
-    }
 }

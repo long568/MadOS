@@ -22,3 +22,8 @@ ifeq ($(LIB_MODBUS), yes)
 export LIBS += -lmodbus
 export INCS += -I$(ROOT)/library/modbus
 endif
+
+ifeq ($(LIB_LWIP), yes)
+export LIBS += -llwip
+export INCS += -I$(ROOT)/library/LwIP/include -I$(ROOT)/library/LwIP/include/compat/posix
+endif

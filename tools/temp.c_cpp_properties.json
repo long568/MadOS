@@ -19,6 +19,8 @@
                 "${workspaceFolder}/kernel/lib/timer",
                 "${workspaceFolder}/library/uIP/uip",
                 "${workspaceFolder}/library/uIP/uip-funs",
+                "${workspaceFolder}/library/LwIP/include",
+                "${workspaceFolder}/library/LwIP/include/compat/posix",
                 "${workspaceFolder}/library/FatFs",
                 "${workspaceFolder}/library/cJSON",
                 "${workspaceFolder}/library/Lua",

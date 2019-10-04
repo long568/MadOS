@@ -3,12 +3,11 @@
 #include "MadOS.h"
 #include "MadDrv.h"
 #include "CfgUser.h"
-#include "uTcp.h"
 #include "mod_FatFs.h"
 // #include "mod_Lua.h"
 
-#include "testEth.h"
 #include "testModbus.h"
+#include "testLwIP.h"
 
 #if MAD_STATIST_STK_SIZE
 // #define MAD_SHOW_IDLERATE
@@ -65,7 +64,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("\n\n");
     MAD_LOG("========  MadOS v%d.%d  ========\n", MAD_VER_MAJOR, MAD_VER_SUB);
     MAD_LOG("* MCU     : STM32F107VCT6\n");
-    MAD_LOG("* Network : IP101A + uIP(v1.0)\n");
+    MAD_LOG("* Network : IP101A + LwIP(v2.1.2)\n");
     MAD_LOG("* FileSys : TF     + Fatfs(v0.13c)\n");
     MAD_LOG("* Platform dependent data types :\n");
     MAD_LOG("    char      -> %d Bytes\n", sizeof(char));
@@ -78,15 +77,14 @@ static void madStartup(MadVptr exData)
     MAD_LOG("================================\n");
 #endif
 
-    uIP_Init();
     FatFs_Init();
     // LuaParser_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
-    // Init_TestUIP();
-    Init_TestModbus();
+    // Init_TestModbus();
+    Init_TestLwIP();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
