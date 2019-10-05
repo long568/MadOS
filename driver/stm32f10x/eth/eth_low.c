@@ -53,6 +53,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     if(MNULL == eth->Event) {
         return MFALSE;
     }
+    eth->flag = 0;
     
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ETH_MAC | 
                           RCC_AHBPeriph_ETH_MAC_Tx | 
@@ -141,8 +142,6 @@ MadBool eth_mac_init(mEth_t *eth)
     
     phy_addr = eth->PHY_ADDRESS;
     ETH_StructInit(&ETH_InitStructure);
-
-    ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
     
     /* Fill ETH_InitStructure parametrs */
     /*------------------------   MAC   -----------------------------------*/

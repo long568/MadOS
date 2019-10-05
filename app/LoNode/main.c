@@ -125,10 +125,10 @@ static void madSysRunning(MadVptr exData)
         }
         
 #ifdef MAD_SHOW_IDLERATE
-        tmrSysReport ++;
+        tmrSysReport++;
         idle_rate += madIdleRate();
         idle_rate >>= 1;
-        if(tmrSysReport > 10) {
+        if(tmrSysReport > 60) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
         }

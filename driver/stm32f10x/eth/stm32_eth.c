@@ -574,38 +574,19 @@ uint8_t* ETH_TxPktAddr(void)
 
 void ETH_TxPktSend(uint16_t FrameLength)
 { 
-  /* Setting the Frame Length: bits[12:0] */
   DMATxDescToSet->ControlBufferSize = (FrameLength & ETH_DMATxDesc_TBS1);
-  /* Setting the last segment and first segment bits (in this case a frame is transmitted in one descriptor) */    
   DMATxDescToSet->Status |= ETH_DMATxDesc_LS | ETH_DMATxDesc_FS;
-  /* Set Own bit of the Tx descriptor Status: gives the buffer back to ETHERNET DMA */
   DMATxDescToSet->Status |= ETH_DMATxDesc_OWN;
-  /* When Tx Buffer unavailable flag is set: clear it and resume transmission */
-  if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET)
-  {
-    /* Clear TBUS ETHERNET DMA flag */
+  if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET) {
     ETH->DMASR = ETH_DMASR_TBUS;
-    /* Resume DMA transmission*/
     ETH->DMATPDR = 0;
   }
-  
-  /* Update the ETHERNET DMA global Tx descriptor with next Tx decriptor */  
-  /* Chained Mode */
-  if((DMATxDescToSet->Status & ETH_DMATxDesc_TCH) != (uint32_t)RESET)
-  {     
-    /* Selects the next DMA Tx descriptor list for next buffer to send */ 
+  if((DMATxDescToSet->Status & ETH_DMATxDesc_TCH) != (uint32_t)RESET) {     
     DMATxDescToSet = (ETH_DMADESCTypeDef*) (DMATxDescToSet->Buffer2NextDescAddr);    
-  }
-  else /* Ring Mode */
-  {  
-    if((DMATxDescToSet->Status & ETH_DMATxDesc_TER) != (uint32_t)RESET)
-    {
-      /* Selects the first DMA Tx descriptor for next buffer to send: last Tx descriptor was used */
+  } else {  
+    if((DMATxDescToSet->Status & ETH_DMATxDesc_TER) != (uint32_t)RESET) {
       DMATxDescToSet = (ETH_DMADESCTypeDef*) (ETH->DMATDLAR);      
-    }
-    else
-    {  
-      /* Selects the next DMA Tx descriptor list for next buffer to send */
+    } else {  
       DMATxDescToSet = (ETH_DMADESCTypeDef*) ((uint32_t)DMATxDescToSet + 0x10 + ((ETH->DMABMR & ETH_DMABMR_DSL) >> 2));      
     }
   }
@@ -688,44 +669,57 @@ uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
   return (framelength);  
 }
 
-uint8_t* ETH_RxPktAddr(void)
-{    
-  return (uint8_t *)(DMARxDescToGet->Buffer1Addr);
+uint8_t ETH_RxPktRdy(void)
+{
+  if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (uint32_t)RESET) {
+    return ETH_ERROR; 
+  }
+  return ETH_SUCCESS;
+}
+
+uint8_t* ETH_RxPktAddr(uint32_t *FrameLength)
+{
+  uint32_t fl;
+  uint8_t *rp;
+  if(((DMARxDescToGet->Status & ETH_DMARxDesc_ES) == (uint32_t)RESET) && 
+     ((DMARxDescToGet->Status & ETH_DMARxDesc_LS) != (uint32_t)RESET) &&  
+     ((DMARxDescToGet->Status & ETH_DMARxDesc_FS) != (uint32_t)RESET))  
+  {      
+    fl = (DMARxDescToGet->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT;
+    rp = (uint8_t *)(DMARxDescToGet->Buffer1Addr);
+  } else {
+    fl = 0;
+    rp = 0;
+  }
+  if(FrameLength) {
+    *FrameLength = fl;
+  }
+  return rp;
 }
 
 void ETH_RxPktRecv(void)
 {
-  /* Set Own bit of the Rx descriptor Status: gives the buffer back to ETHERNET DMA */
   DMARxDescToGet->Status = ETH_DMARxDesc_OWN; 
- 
-  /* When Rx Buffer unavailable flag is set: clear it and resume reception */
-  if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET)  
-  {
-    /* Clear RBUS ETHERNET DMA flag */
+  if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
     ETH->DMASR = ETH_DMASR_RBUS;
-    /* Resume DMA reception */
     ETH->DMARPDR = 0;
   }
-  
-  /* Update the ETHERNET DMA global Rx descriptor with next Rx decriptor */      
-  /* Chained Mode */
-  if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RCH) != (uint32_t)RESET)
-  {     
-    /* Selects the next DMA Rx descriptor list for next buffer to read */ 
+  if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RCH) != (uint32_t)RESET) {     
     DMARxDescToGet = (ETH_DMADESCTypeDef*) (DMARxDescToGet->Buffer2NextDescAddr);    
-  }
-  else /* Ring Mode */
-  {   
-    if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RER) != (uint32_t)RESET)
-    {
-      /* Selects the first DMA Rx descriptor for next buffer to read: last Rx descriptor was used */
+  } else {   
+    if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RER) != (uint32_t)RESET) {
       DMARxDescToGet = (ETH_DMADESCTypeDef*) (ETH->DMARDLAR);      
-    }
-    else
-    { 
-      /* Selects the next DMA Rx descriptor list for next buffer to read */
+    } else { 
       DMARxDescToGet = (ETH_DMADESCTypeDef*) ((uint32_t)DMARxDescToGet + 0x10 + ((ETH->DMABMR & ETH_DMABMR_DSL) >> 2));      
     }
+  }
+}
+
+void ETH_RxPktStart(void)
+{
+  if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
+    ETH->DMASR = ETH_DMASR_RBUS;
+    ETH->DMARPDR = 0;
   }
 }
 

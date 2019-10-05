@@ -50,20 +50,20 @@
 #define LWIP_COMPAT_SOCKETS             0
 #define LWIP_TIMEVAL_PRIVATE            0
 
-#define MEM_LIBC_MALLOC                 1
+#define ETH_PAD_SIZE                    2
 #define MEM_ALIGNMENT                   MAD_MEM_ALIGN
+#define MEM_LIBC_MALLOC                 1
 #define MEMP_NUM_PBUF                   8
 #define PBUF_POOL_SIZE                  8
-#define ETH_PAD_SIZE                    2
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
 
 #define TCPIP_MBOX_SIZE                 6
-#define DEFAULT_RAW_RECVMBOX_SIZE       6
-#define DEFAULT_UDP_RECVMBOX_SIZE       6
-#define DEFAULT_TCP_RECVMBOX_SIZE       6
-#define DEFAULT_ACCEPTMBOX_SIZE         6
+#define DEFAULT_RAW_RECVMBOX_SIZE       3
+#define DEFAULT_UDP_RECVMBOX_SIZE       3
+#define DEFAULT_TCP_RECVMBOX_SIZE       3
+#define DEFAULT_ACCEPTMBOX_SIZE         3
 
 #define TCPIP_THREAD_PRIO               THREAD_PRIO_LWIP_TCPIP
 #define TCPIP_THREAD_STACKSIZE          1024

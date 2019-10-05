@@ -69,6 +69,7 @@ typedef struct _mEth_t {
     ETH_DMADESCTypeDef *RxDscr;
     MadU8              *TxBuff;
     MadU8              *RxBuff;
+    MadU8              flag;
 } mEth_t;
 
 #endif

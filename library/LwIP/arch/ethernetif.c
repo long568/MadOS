@@ -51,7 +51,6 @@ low_level_output(struct netif *netif, struct pbuf *p)
 #if ETH_PAD_SIZE
 	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
-
 	len = 0;
 	buf = ETH_TxPktAddr();
 	for(q = p; q != NULL; q = q->next) {
@@ -60,7 +59,6 @@ low_level_output(struct netif *netif, struct pbuf *p)
 		buf += q->len;
 	}
 	ETH_TxPktSend(len);
-
 #if ETH_PAD_SIZE
 	pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
@@ -72,15 +70,16 @@ low_level_output(struct netif *netif, struct pbuf *p)
 static struct pbuf *
 low_level_input(struct netif *netif)
 {
-#ifdef EJ_DEV_DEBUG
-    MadU8 tmp;
-#endif
 	struct pbuf *p, *q;
 	uint32_t len;
     uint8_t *buf;
 
-	len = ETH_GetRxPktSize();
+	if(0 == ETH_RxPktRdy()) {
+		return 0;
+	}
+	buf = ETH_RxPktAddr(&len);
 	if(len == 0) {
+		ETH_RxPktRecv();
 		return 0;
 	}
 
@@ -92,14 +91,10 @@ low_level_input(struct netif *netif)
 #if ETH_PAD_SIZE
 		pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
-
-		buf = ETH_RxPktAddr();
 		for(q = p; q != NULL; q = q->next) {
 			ether_memcpy(q->payload, buf, q->len);
 			buf += q->len;
 		}
-		ETH_RxPktRecv();
-		
 #if ETH_PAD_SIZE
 		pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
@@ -109,6 +104,7 @@ low_level_input(struct netif *netif)
 		LINK_STATS_INC(link.drop);
 	}
 
+	ETH_RxPktRecv();
 	return p;
 }
 
@@ -117,8 +113,10 @@ ethernetif_input(struct netif *netif)
 {
 	struct eth_hdr *ethhdr;
 	struct pbuf *p;
+	uint8_t flag;
 
-	while(1) {
+	do {
+		flag = 0;
 		/* move received packet into a new pbuf */
 		p = low_level_input(netif);
 		/* no packet could be read, silently ignore this */
@@ -140,6 +138,8 @@ ethernetif_input(struct netif *netif)
 				LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
 				pbuf_free(p);
 				p = NULL;
+			} else {
+				flag = 1;
 			}
 			break;
 
@@ -148,7 +148,7 @@ ethernetif_input(struct netif *netif)
 			p = NULL;
 			break;
 		}
-	}
+	} while(flag);
 }
 
 void ethernetif_thread(MadVptr exData)
