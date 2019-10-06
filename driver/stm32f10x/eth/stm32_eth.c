@@ -555,10 +555,10 @@ uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
 uint8_t ETH_TxPktRdy(void)
 {
   if((DMATxDescToSet->Status & ETH_DMATxDesc_OWN) != (uint32_t)RESET) {
-    if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET) {
+    /*if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET) {
       ETH->DMASR = ETH_DMASR_TBUS;
       ETH->DMATPDR = 0;
-    }
+    }*/
     return ETH_ERROR;
   }
   return ETH_SUCCESS;

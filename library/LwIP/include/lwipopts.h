@@ -56,17 +56,15 @@
 #define PBUF_POOL_SIZE                  8
 #define MEM_LIBC_MALLOC                 1
 #define MEMP_MEM_MALLOC                 1
-#define MEM_SANITY_CHECK                1
-#define MEMP_SANITY_CHECK               1
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
 
-#define TCPIP_MBOX_SIZE                 16
-#define DEFAULT_RAW_RECVMBOX_SIZE       8
-#define DEFAULT_UDP_RECVMBOX_SIZE       8
-#define DEFAULT_TCP_RECVMBOX_SIZE       8
-#define DEFAULT_ACCEPTMBOX_SIZE         8
+#define TCPIP_MBOX_SIZE                 12
+#define DEFAULT_RAW_RECVMBOX_SIZE       6
+#define DEFAULT_UDP_RECVMBOX_SIZE       6
+#define DEFAULT_TCP_RECVMBOX_SIZE       6
+#define DEFAULT_ACCEPTMBOX_SIZE         6
 
 #define TCPIP_THREAD_PRIO               THREAD_PRIO_LWIP_TCPIP
 #define TCPIP_THREAD_STACKSIZE          1024
@@ -98,12 +96,15 @@
 
 // #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
-  #define NETIF_DEBUG        LWIP_DBG_ON
-  #define ICMP_DEBUG         LWIP_DBG_ON
-  #define IP_DEBUG           LWIP_DBG_ON
-  #define TCPIP_DEBUG        LWIP_DBG_ON
-  #define UDP_DEBUG          LWIP_DBG_ON
-  #define DHCP_DEBUG         LWIP_DBG_ON
+  #define PBUF_DEBUG         LWIP_DBG_ON
+  // #define MEM_DEBUG          LWIP_DBG_ON
+  // #define MEMP_DEBUG         LWIP_DBG_ON
+  // #define NETIF_DEBUG        LWIP_DBG_ON
+  // #define ICMP_DEBUG         LWIP_DBG_ON
+  // #define IP_DEBUG           LWIP_DBG_ON
+  // #define TCPIP_DEBUG        LWIP_DBG_ON
+  // #define UDP_DEBUG          LWIP_DBG_ON
+  // #define DHCP_DEBUG         LWIP_DBG_ON
 #endif
 
 #endif /* LWIP_HDR_LWIPOPTS_H */

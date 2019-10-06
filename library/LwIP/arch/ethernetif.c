@@ -32,7 +32,7 @@ low_level_init(struct netif *netif)
 
 	/* device capabilities */
 	/* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;// | NETIF_FLAG_LINK_UP;
+	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
  
 	/* Do whatever else is needed to initialize interface. */
 }
@@ -45,9 +45,9 @@ low_level_output(struct netif *netif, struct pbuf *p)
 	uint8_t *buf;
 	int res;
 
-	if(0 == ETH_TxPktRdy()) {
-		return ERR_MEM;
-	}
+	// if(0 == ETH_TxPktRdy()) {
+	// 	return ERR_MEM;
+	// }
 
 #if ETH_PAD_SIZE
 	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
@@ -112,7 +112,9 @@ static void
 ethernetif_input(struct netif *netif)
 {
 	struct pbuf *p;
-	while(1) {
+	struct ethernetif *eth = netif->state;
+	int num = eth->RxDscrNum;
+	while(num--) {
 		p = low_level_input(netif);
 		if (p == NULL) return;
 		if (netif->input(p, netif) != ERR_OK) {
