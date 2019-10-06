@@ -1625,13 +1625,9 @@ uint32_t ETH_HandleRxPkt(u8 *ppkt);
 uint32_t ETH_GetRxPktSize(void);
 void ETH_DropRxPkt(void);
 
-uint8_t  ETH_TxPktRdy  (void);
-uint8_t* ETH_TxPktAddr (void);
-void     ETH_TxPktSend (uint16_t FrameLength);
-uint8_t  ETH_RxPktRdy  (void);
-uint8_t* ETH_RxPktAddr (uint32_t *FrameLength);
-void     ETH_RxPktRecv (void);
-void     ETH_RxPktStart(void);
+/* Added by long 20191006*/
+uint8_t ETH_TxPktRdy   (void);
+void    ETH_RxPktResume(ETH_DMADESCTypeDef *descriptor);
 
 /** 
   * @brief  PHY  

@@ -92,9 +92,9 @@ MadVptr madMemMallocCarefully(MadSize_t size, MadSize_t *nReal)
     return res;
 }
 
-MadVptr madMemCalloc(MadSize_t size, MadSize_t n)
+MadVptr madMemCalloc(MadSize_t num, MadSize_t size)
 {
-    MadSize_t t_size = size * n;
+    MadSize_t t_size = num * size;
     MadSize_t r_size = 0;
     void *p = madMemMallocCarefully(t_size, &r_size);
     if(p) madMemSetByDMA(p, 0, r_size);

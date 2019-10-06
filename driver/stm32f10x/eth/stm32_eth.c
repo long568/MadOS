@@ -27,7 +27,6 @@
   * @brief ETH driver modules
   * @{
   */
-#define ETH_COPY_OBO 1
 
 /** @defgroup ETH_Private_TypesDefinitions
   * @{
@@ -499,9 +498,7 @@ void ETH_Start(void)
   */
 uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
 { 
-#if ETH_COPY_OBO
   uint32_t offset = 0;
-#endif
     
   /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU (when reset) */
   if((DMATxDescToSet->Status & ETH_DMATxDesc_OWN) != (uint32_t)RESET)
@@ -511,14 +508,10 @@ uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
   }
   
   /* Copy the frame to be sent into memory pointed by the current ETHERNET DMA Tx descriptor */
-#if ETH_COPY_OBO // Modified by long 20190123
   for(offset=0; offset<FrameLength; offset++)       
   {
     (*(__IO uint8_t *)((DMATxDescToSet->Buffer1Addr) + offset)) = (*(ppkt + offset));
   }
-#else
-  memcpy((MadU8*)(DMATxDescToSet->Buffer1Addr), (const MadU8*)ppkt, FrameLength);
-#endif
         
   /* Setting the Frame Length: bits[12:0] */
   DMATxDescToSet->ControlBufferSize = (FrameLength & ETH_DMATxDesc_TBS1);
@@ -562,34 +555,13 @@ uint32_t ETH_HandleTxPkt(uint8_t *ppkt, uint16_t FrameLength)
 uint8_t ETH_TxPktRdy(void)
 {
   if((DMATxDescToSet->Status & ETH_DMATxDesc_OWN) != (uint32_t)RESET) {
+    if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET) {
+      ETH->DMASR = ETH_DMASR_TBUS;
+      ETH->DMATPDR = 0;
+    }
     return ETH_ERROR;
   }
   return ETH_SUCCESS;
-}
-
-uint8_t* ETH_TxPktAddr(void)
-{
-  return (uint8_t *)(DMATxDescToSet->Buffer1Addr);
-}
-
-void ETH_TxPktSend(uint16_t FrameLength)
-{ 
-  DMATxDescToSet->ControlBufferSize = (FrameLength & ETH_DMATxDesc_TBS1);
-  DMATxDescToSet->Status |= ETH_DMATxDesc_LS | ETH_DMATxDesc_FS;
-  DMATxDescToSet->Status |= ETH_DMATxDesc_OWN;
-  if ((ETH->DMASR & ETH_DMASR_TBUS) != (uint32_t)RESET) {
-    ETH->DMASR = ETH_DMASR_TBUS;
-    ETH->DMATPDR = 0;
-  }
-  if((DMATxDescToSet->Status & ETH_DMATxDesc_TCH) != (uint32_t)RESET) {     
-    DMATxDescToSet = (ETH_DMADESCTypeDef*) (DMATxDescToSet->Buffer2NextDescAddr);    
-  } else {  
-    if((DMATxDescToSet->Status & ETH_DMATxDesc_TER) != (uint32_t)RESET) {
-      DMATxDescToSet = (ETH_DMADESCTypeDef*) (ETH->DMATDLAR);      
-    } else {  
-      DMATxDescToSet = (ETH_DMADESCTypeDef*) ((uint32_t)DMATxDescToSet + 0x10 + ((ETH->DMABMR & ETH_DMABMR_DSL) >> 2));      
-    }
-  }
 }
 
 /**
@@ -600,9 +572,7 @@ void ETH_TxPktSend(uint16_t FrameLength)
   */
 uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
 { 
-#if ETH_COPY_OBO
   uint32_t offset = 0;
-#endif
   uint32_t framelength = 0;
   /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU (when reset) */
   if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (uint32_t)RESET)
@@ -618,14 +588,10 @@ uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
     /* Get the Frame Length of the received packet: substruct 4 bytes of the CRC */
     framelength = ((DMARxDescToGet->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT) - 4;
     /* Copy the received frame into buffer from memory pointed by the current ETHERNET DMA Rx descriptor */
-#if ETH_COPY_OBO // Modified by long 20190123
     for(offset=0; offset<framelength; offset++)       
     {
       (*(ppkt + offset)) = (*(__IO uint8_t *)((DMARxDescToGet->Buffer1Addr) + offset));
     }
-#else
-    memcpy(ppkt, (const MadU8*)(DMARxDescToGet->Buffer1Addr), framelength);
-#endif
   }
   else
   {
@@ -669,54 +635,9 @@ uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
   return (framelength);  
 }
 
-uint8_t ETH_RxPktRdy(void)
+void ETH_RxPktResume(ETH_DMADESCTypeDef *descriptor)
 {
-  if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (uint32_t)RESET) {
-    return ETH_ERROR; 
-  }
-  return ETH_SUCCESS;
-}
-
-uint8_t* ETH_RxPktAddr(uint32_t *FrameLength)
-{
-  uint32_t fl;
-  uint8_t *rp;
-  if(((DMARxDescToGet->Status & ETH_DMARxDesc_ES) == (uint32_t)RESET) && 
-     ((DMARxDescToGet->Status & ETH_DMARxDesc_LS) != (uint32_t)RESET) &&  
-     ((DMARxDescToGet->Status & ETH_DMARxDesc_FS) != (uint32_t)RESET))  
-  {      
-    fl = (DMARxDescToGet->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT;
-    rp = (uint8_t *)(DMARxDescToGet->Buffer1Addr);
-  } else {
-    fl = 0;
-    rp = 0;
-  }
-  if(FrameLength) {
-    *FrameLength = fl;
-  }
-  return rp;
-}
-
-void ETH_RxPktRecv(void)
-{
-  DMARxDescToGet->Status = ETH_DMARxDesc_OWN; 
-  if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
-    ETH->DMASR = ETH_DMASR_RBUS;
-    ETH->DMARPDR = 0;
-  }
-  if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RCH) != (uint32_t)RESET) {     
-    DMARxDescToGet = (ETH_DMADESCTypeDef*) (DMARxDescToGet->Buffer2NextDescAddr);    
-  } else {   
-    if((DMARxDescToGet->ControlBufferSize & ETH_DMARxDesc_RER) != (uint32_t)RESET) {
-      DMARxDescToGet = (ETH_DMADESCTypeDef*) (ETH->DMARDLAR);      
-    } else { 
-      DMARxDescToGet = (ETH_DMADESCTypeDef*) ((uint32_t)DMARxDescToGet + 0x10 + ((ETH->DMABMR & ETH_DMABMR_DSL) >> 2));      
-    }
-  }
-}
-
-void ETH_RxPktStart(void)
-{
+  descriptor->Status = ETH_DMARxDesc_OWN; 
   if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
     ETH->DMASR = ETH_DMASR_RBUS;
     ETH->DMARPDR = 0;

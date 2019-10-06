@@ -5,7 +5,7 @@
 
 extern  void       madMemInit             (MadVptr heap_head, MadSize_t heap_size);
 extern  MadVptr    madMemMallocCarefully  (MadSize_t size, MadSize_t *nReal);
-extern  MadVptr    madMemCalloc           (MadSize_t size, MadSize_t n);
+extern  MadVptr    madMemCalloc           (MadSize_t num, MadSize_t size);
 extern  MadVptr    madMemRealloc          (MadVptr p, MadSize_t size);
 extern  void       madMemFree             (MadVptr p);
 extern  MadSize_t  madMemUnusedSize       (void);

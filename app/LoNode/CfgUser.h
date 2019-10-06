@@ -24,6 +24,6 @@ enum {
 };
 
 #define SYS_RUNNING_INTERVAL_MSECS (500)
-#define MAD_OS_STACK_SIZE          (42 * 1024) // 56
+#define MAD_OS_STACK_SIZE          (58 * 1024)
 
 #endif

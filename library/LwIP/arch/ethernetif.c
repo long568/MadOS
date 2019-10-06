@@ -41,8 +41,9 @@ static err_t
 low_level_output(struct netif *netif, struct pbuf *p)
 {
 	struct pbuf *q;
-	uint8_t *buf;
 	uint32_t len;
+	uint8_t *buf;
+	int res;
 
 	if(0 == ETH_TxPktRdy()) {
 		return ERR_MEM;
@@ -51,37 +52,36 @@ low_level_output(struct netif *netif, struct pbuf *p)
 #if ETH_PAD_SIZE
 	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
-	len = 0;
-	buf = ETH_TxPktAddr();
+	len = p->tot_len;
+	buf = (uint8_t *)ETH_GetCurrentTxBuffer();
+	res = ERR_OK;
 	for(q = p; q != NULL; q = q->next) {
 		ether_memcpy(buf, q->payload, q->len);
-		len += q->len;
 		buf += q->len;
 	}
-	ETH_TxPktSend(len);
+	ETH_TxPkt_ChainMode(len);
 #if ETH_PAD_SIZE
 	pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
-	LINK_STATS_INC(link.xmit);
 
-	return ERR_OK;
+	LINK_STATS_INC(link.xmit);
+	return res;
 }
 
 static struct pbuf *
 low_level_input(struct netif *netif)
 {
 	struct pbuf *p, *q;
+	FrameTypeDef frame;
 	uint32_t len;
     uint8_t *buf;
 
-	if(0 == ETH_RxPktRdy()) {
+	frame = ETH_RxPkt_ChainMode();
+	if(frame.length == 0) {
 		return 0;
 	}
-	buf = ETH_RxPktAddr(&len);
-	if(len == 0) {
-		ETH_RxPktRecv();
-		return 0;
-	}
+	buf = (uint8_t *)frame.buffer;
+	len = frame.length;
 
 #if ETH_PAD_SIZE
 	len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
@@ -104,51 +104,24 @@ low_level_input(struct netif *netif)
 		LINK_STATS_INC(link.drop);
 	}
 
-	ETH_RxPktRecv();
+	ETH_RxPktResume(frame.descriptor);
 	return p;
 }
 
 static void
 ethernetif_input(struct netif *netif)
 {
-	struct eth_hdr *ethhdr;
 	struct pbuf *p;
-	uint8_t flag;
-
-	do {
-		flag = 0;
-		/* move received packet into a new pbuf */
+	while(1) {
 		p = low_level_input(netif);
-		/* no packet could be read, silently ignore this */
 		if (p == NULL) return;
-		/* points to packet payload, which starts with an Ethernet header */
-		ethhdr = p->payload;
-
-		switch (htons(ethhdr->type)) {
-		/* IP or ARP packet? */
-		case ETHTYPE_IP:
-		case ETHTYPE_ARP:
-		#if PPPOE_SUPPORT
-		/* PPPoE packet? */
-		case ETHTYPE_PPPOEDISC:
-		case ETHTYPE_PPPOE:
-		#endif /* PPPOE_SUPPORT */
-			/* full packet send to tcpip_thread to process */
-			if (netif->input(p, netif) != ERR_OK) {
-				LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-				pbuf_free(p);
-				p = NULL;
-			} else {
-				flag = 1;
-			}
-			break;
-
-		default:
+		if (netif->input(p, netif) != ERR_OK) {
+			LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
 			pbuf_free(p);
 			p = NULL;
-			break;
+			return;
 		}
-	} while(flag);
+	}
 }
 
 void ethernetif_thread(MadVptr exData)

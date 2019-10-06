@@ -39,16 +39,14 @@ typedef MadMutexCB_t* sys_mutex_t;
 typedef MadMsgQCB_t*  sys_mbox_t;
 typedef MadTCB_t*     sys_thread_t;
 
-#define SYS_MBOX_NULL NULL
-
 #define sys_sem_valid(sema)      (*(sema)  != NULL)
 #define sys_mutex_valid(mutex)   (*(mutex) != NULL)
 #define sys_mbox_valid(mbox)     (*(mbox)  != NULL)
 #define sys_mbox_valid_val(mbox) ( (mbox)  != NULL)
 
-#define SYS_ARCH_DECL_PROTECT(lev) MadCpsr_t cpsr
-#define SYS_ARCH_PROTECT(lev)      madEnterCritical(cpsr)
-#define SYS_ARCH_UNPROTECT(lev)    madExitCritical(cpsr)
+#define SYS_ARCH_DECL_PROTECT(lev) MadCpsr_t lev
+#define SYS_ARCH_PROTECT(lev)      madEnterCritical(lev)
+#define SYS_ARCH_UNPROTECT(lev)    madExitCritical(lev)
 
 #endif /* LWIP_HDR_TEST_SYS_ARCH_H */
 
