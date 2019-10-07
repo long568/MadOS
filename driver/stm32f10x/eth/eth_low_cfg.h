@@ -6,10 +6,10 @@
 #define mEth_CHECKSUM_BY_HARDWARE 1
 
 #define mEth_TIMEOUT_TICKS  (888) // ticks
-#define mEth_EVENT_TIMEOUT  (100) // ms, not use for lwip.
+#define mEth_EVENT_TIMEOUT  (100) // ms, LwIP: 0, uIP: 100
 #define mEth_THREAD_STKSIZE (1 * 1024)
-#define mEth_TXBUFNB        ((MadU8)2)
-#define mEth_RXBUFNB        ((MadU8)2)
+#define mEth_TXBUFNB        ((MadU8)3)
+#define mEth_RXBUFNB        ((MadU8)3)
 
 #define mEth_PHY_WT(c, t) do { MadUint n = 0; while((!(c)) && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
 #define mEth_PHY_WF(c, t) do { MadUint n = 0; while(  (c)  && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
@@ -24,6 +24,9 @@ typedef enum {
 
 struct _mEth_InitData_t;
 struct _mEth_t;
+
+typedef MadBool(*mEth_Preinit_t) (struct _mEth_t *eth);
+typedef MadBool(*mEth_Callback_t)(struct _mEth_t *eth, MadUint event, MadTim_t dt);
 
 typedef struct _mEth_InitData_t {
     struct {
@@ -49,9 +52,17 @@ typedef struct _mEth_InitData_t {
     MadU8           MAC_ADDRESS[6];
     MadU8           Priority;
     MadU8           ThreadID;
+    MadSize_t       ThreadStkSize;
     MadU16          MaxPktSize;
     MadU8           TxDscrNum;
     MadU8           RxDscrNum;
+    mEth_Preinit_t  infn;
+    mEth_Callback_t cbfn;
+    xIRQ_Handler    extIRQh;
+    xIRQ_Handler    ethIRQh;
+    MadU32          extIRQn;
+    MadU32          ethIRQn;
+    MadVptr         ep;
 } mEth_InitData_t;
 
 typedef struct _mEth_t {
@@ -64,12 +75,13 @@ typedef struct _mEth_t {
     MadU16             MaxPktSize;
     MadU8              TxDscrNum;
     MadU8              RxDscrNum;
+    mEth_Callback_t    fn;
     MadEventCB_t       *Event;
     ETH_DMADESCTypeDef *TxDscr;
     ETH_DMADESCTypeDef *RxDscr;
     MadU8              *TxBuff;
     MadU8              *RxBuff;
-    MadU8              flag;
+    MadVptr            ep;
 } mEth_t;
 
 #endif

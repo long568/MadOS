@@ -23,12 +23,11 @@ extern clocker  uIP_Clocker;
 extern MadBool  uIP_is_linked;
 extern MadBool  uIP_is_configured;
 
-extern MadBool  uIP_Init      (void); // The module using uIP should be initialized after uIP_Init().
-extern MadU32   uIP_dev_send  (mEth_t *eth, MadU8 *buf, MadU32 len);
-extern MadU32   uIP_dev_read  (mEth_t *eth, MadU8 *buf);
-extern MadU32   uIP_dev_rxsize(mEth_t *eth);
+extern MadBool  uIP_Init    (void); // The module using uIP should be initialized after uIP_Init().
+extern MadU32   uIP_dev_send(mEth_t *eth, MadU8 *buf, MadU16  len);
+extern MadU32   uIP_dev_read(mEth_t *eth, MadU8 *buf, MadU16 *len);
 
-extern void     uIP_Lock(void);
+extern void     uIP_Lock  (void);
 extern void     uIP_Unlock(void);
 
 extern MadBool  uIP_preinit(mEth_t *eth);

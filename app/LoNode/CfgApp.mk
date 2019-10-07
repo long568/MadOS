@@ -11,3 +11,4 @@ export PRJ_LDFLAGS = --specs=nano.specs -u _printf_float
 export LIB_FATFS  = yes
 export LIB_MODBUS = yes
 export LIB_LWIP   = yes
+# export LIB_UIP    = yes

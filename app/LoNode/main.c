@@ -8,6 +8,7 @@
 
 #include "testModbus.h"
 #include "testLwIP.h"
+#include "testUIP.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -76,7 +77,6 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-
     FatFs_Init();
     // LuaParser_Init();
 
@@ -85,6 +85,7 @@ static void madStartup(MadVptr exData)
  ********************************************/
     // Init_TestModbus();
     Init_TestLwIP();
+    // Init_TestUIP();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
@@ -94,8 +95,11 @@ static void madStartup(MadVptr exData)
 static void madSysRunning(MadVptr exData)
 {
 #ifdef MAD_SHOW_IDLERATE
+    int tmrLED = 0;
     int tmrSysReport = 0;
     int idle_rate = 100;
+    MadSize_t min_mem = 0xFFFFFFFF;
+    MadSize_t cur_mem = 0;
 #endif
     GPIO_InitTypeDef pin;
     MadBool flag = MFALSE;
@@ -108,29 +112,33 @@ static void madSysRunning(MadVptr exData)
 	GPIO_Init(GPIOE, &pin);
 
 #if MAD_STATIST_STK_SIZE
-    madTimeDly(10);
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
 #endif
     
 	while(1) {
-        madTimeDly(500);
+        madTimeDly(100);
         
-        flag = !flag;
-        if(flag) {
-            GPIO_ResetBits(GPIOE, GPIO_Pin_1);
-            GPIO_SetBits  (GPIOE, GPIO_Pin_0);
-        } else {
-            GPIO_SetBits  (GPIOE, GPIO_Pin_1);
-            GPIO_ResetBits(GPIOE, GPIO_Pin_0);
+        if(++tmrLED > 5) {
+            tmrLED = 0;
+            flag = !flag;
+            if(flag) {
+                GPIO_ResetBits(GPIOE, GPIO_Pin_1);
+                GPIO_SetBits  (GPIOE, GPIO_Pin_0);
+            } else {
+                GPIO_SetBits  (GPIOE, GPIO_Pin_1);
+                GPIO_ResetBits(GPIOE, GPIO_Pin_0);
+            }
         }
         
 #ifdef MAD_SHOW_IDLERATE
-        tmrSysReport++;
         idle_rate += madIdleRate();
         idle_rate >>= 1;
-        if(tmrSysReport > 60) {
+        cur_mem = madMemUnusedSize();
+        min_mem = (min_mem > cur_mem) ? cur_mem : min_mem;
+        if(++tmrSysReport > 300) {
             tmrSysReport = 0;
-            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", idle_rate, madMemUnusedSize(), madMemMaxSize());
+            MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u / %u\n", 
+                    idle_rate, min_mem, cur_mem, madMemMaxSize());
         }
 #endif
 	}

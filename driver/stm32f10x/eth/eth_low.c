@@ -1,5 +1,7 @@
 #include "eth_low.h"
 
+static void eth_driver_thread(MadVptr exData);
+
 //void ETH_WKUP_IRQHandler(void)
 //void ETH_IRQHandler(void)
 
@@ -31,7 +33,9 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     enable = initData->Enable;
     
     eth->isLinked    = MFALSE;
-    eth->ThreadID    = initData->ThreadID;
+    eth->ThreadID    = 0;
+    eth->fn          = 0;
+    eth->ep          = initData->ep;
     eth->PHY_ADDRESS = initData->PHY_ADDRESS;
     for(i=0; i<6; i++)
         eth->MAC_ADDRESS[i] = initData->MAC_ADDRESS[i];
@@ -53,7 +57,15 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     if(MNULL == eth->Event) {
         return MFALSE;
     }
-    eth->flag = 0;
+    if(initData->infn(eth) &&
+       madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
+        madInstallExIrq(initData->extIRQh, initData->extIRQn);
+        madInstallExIrq(initData->ethIRQh, initData->ethIRQn);
+        eth->ThreadID = initData->ThreadID;
+        eth->fn       = initData->cbfn;
+    } else {
+        return MFALSE;
+    }
     
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ETH_MAC | 
                           RCC_AHBPeriph_ETH_MAC_Tx | 
@@ -172,7 +184,7 @@ MadBool eth_mac_init(mEth_t *eth)
     ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;                
     ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
     ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
-    ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
+    ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_1_1; //ETH_DMAArbitration_RoundRobin_RxTx_2_1;
 
     if(ETH_Init(&ETH_InitStructure, phy_addr)) {
         ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
@@ -199,4 +211,74 @@ MadBool eth_mac_start(mEth_t *eth)
 #endif
     ETH_Start();
     return MTRUE;
+}
+
+void eth_driver_thread(MadVptr exData)
+{
+    MadU8 ok;
+    MadUint event;
+    MadTim_t dt;
+    mEth_t *eth = (mEth_t*)exData;
+
+    event = mEth_PE_STATUS_CHANGED;
+    dt    = 0;
+    
+    while(1) {
+        ok = madEventWait(&eth->Event, &event, mEth_EVENT_TIMEOUT);
+        switch(ok) {
+            case MAD_ERR_OK: {
+                MadCpsr_t cpsr;
+                MadTim_t  remain;
+                madEnterCritical(cpsr);
+                remain = MadCurTCB->timeCntRemain;
+                madExitCritical(cpsr);
+                dt = mEth_EVENT_TIMEOUT - remain;
+                break;
+            }
+            case MAD_ERR_TIMEOUT:
+                event = mEth_PE_STATUS_TIMEOUT;
+                dt = mEth_EVENT_TIMEOUT;
+                break;
+            default:
+                event = 0;
+                dt    = 0;
+                break;
+        }
+        
+        // Handle PHY-Event
+        if(event & mEth_PE_STATUS_CHANGED) {
+            int i;
+			uint8_t flag = MTRUE;
+			for(i=0; i<4; i++) {
+				madTimeDly(5);
+                dt += 5;
+				if(0 != StmPIN_ReadInValue(&eth->INTP)) {
+					flag = MFALSE;
+					break;
+				}
+			}
+            if(MTRUE == flag) {
+                MadU16 phy_reg;
+                MadU16 phy_addr = eth->PHY_ADDRESS;
+                // Read 2 times to make sure we got real value of the reg.
+                // This maybe a bug of IP101A
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
+                ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
+                phy_reg = ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
+                eth_mac_deinit(eth);
+                if(phy_reg & PHY_Linked_Status) {
+                    eth_mac_init(eth);
+                    eth->isLinked = MTRUE;
+                    MAD_LOG("[ETH] Link up\n");
+                } else {
+                    eth->isLinked = MFALSE;
+                    MAD_LOG("[ETH] Link down\n");
+                }
+            }
+        }
+        
+        // Handle App
+        if(eth->fn) eth->fn(eth, event, dt);
+    }
 }

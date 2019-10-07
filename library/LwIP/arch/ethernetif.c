@@ -1,3 +1,4 @@
+#include "lwip/tcpip.h"
 #include "arch/ethernetif.h"
 #include "CfgUser.h"
 
@@ -11,21 +12,21 @@
 #define ether_memcpy memcpy
 #endif
 
-static void
-low_level_init(struct netif *netif)
+static MadBool
+low_level_init(struct ethernetif *eth)
 {
-	struct ethernetif *ethif = netif->state;
+	struct netif *netif = (struct netif *)(eth->ep);
 
 	/* set MAC hardware address length */
 	netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
 	/* set MAC hardware address */
-	netif->hwaddr[0] = ethif->MAC_ADDRESS[0];
-	netif->hwaddr[1] = ethif->MAC_ADDRESS[1];
-	netif->hwaddr[2] = ethif->MAC_ADDRESS[2];
-	netif->hwaddr[3] = ethif->MAC_ADDRESS[3];
-	netif->hwaddr[4] = ethif->MAC_ADDRESS[4];
-	netif->hwaddr[5] = ethif->MAC_ADDRESS[5];
+	netif->hwaddr[0] = eth->MAC_ADDRESS[0];
+	netif->hwaddr[1] = eth->MAC_ADDRESS[1];
+	netif->hwaddr[2] = eth->MAC_ADDRESS[2];
+	netif->hwaddr[3] = eth->MAC_ADDRESS[3];
+	netif->hwaddr[4] = eth->MAC_ADDRESS[4];
+	netif->hwaddr[5] = eth->MAC_ADDRESS[5];
 
 	/* maximum transfer unit */
 	netif->mtu = 1500;
@@ -35,6 +36,7 @@ low_level_init(struct netif *netif)
 	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
  
 	/* Do whatever else is needed to initialize interface. */
+	return MTRUE;
 }
 
 static err_t
@@ -45,9 +47,10 @@ low_level_output(struct netif *netif, struct pbuf *p)
 	uint8_t *buf;
 	int res;
 
-	// if(0 == ETH_TxPktRdy()) {
-	// 	return ERR_MEM;
-	// }
+	if(0 == ETH_TxPktRdy()) {
+		MAD_LOG("[LwIP] 0 == ETH_TxPktRdy()\n");
+		return ERR_MEM;
+	}
 
 #if ETH_PAD_SIZE
 	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
@@ -112,72 +115,42 @@ static void
 ethernetif_input(struct netif *netif)
 {
 	struct pbuf *p;
-	struct ethernetif *eth = netif->state;
-	int num = eth->RxDscrNum;
-	while(num--) {
+	do {
+		LOCK_TCPIP_CORE();
 		p = low_level_input(netif);
-		if (p == NULL) return;
-		if (netif->input(p, netif) != ERR_OK) {
-			LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-			pbuf_free(p);
-			p = NULL;
-			return;
+		if (p != NULL) {
+			if (netif->input(p, netif) != ERR_OK) {
+				LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+				pbuf_free(p);
+				p = NULL;
+			}
 		}
-	}
+		UNLOCK_TCPIP_CORE();
+	} while(p != NULL);
 }
 
-void ethernetif_thread(MadVptr exData)
+MadBool ethernetif_callback(struct ethernetif *eth, MadUint event, MadTim_t dt)
 {
-	MadU8 ok;
-	MadUint event = 0;
-	struct netif *netif = (struct netif *)exData;
-	struct ethernetif *eth = netif->state;
+	struct netif *netif = (struct netif *)(eth->ep);
 
-	while (1) {
-		ok = madEventWait(&eth->Event, &event, 0);
-		if(ok != MAD_ERR_OK) continue;
+	if(event & mEth_PE_STATUS_RXPKT) {
+		ethernetif_input(netif);
+	}
 
-		if(event & mEth_PE_STATUS_RXPKT) {
-			ethernetif_input(netif);
-		}
-
-		if(event & mEth_PE_STATUS_CHANGED) {
-			int i;
-			uint8_t flag = MTRUE;
-			for(i=0; i<4; i++) {
-				madTimeDly(5);
-				if(0 != StmPIN_ReadInValue(&eth->INTP)) {
-					flag = MFALSE;
-					break;
-				}
-			}
-			if(MTRUE == flag) {
-				MadU16 phy_reg;
-				MadU16 phy_addr = eth->PHY_ADDRESS;
-				// Read 2 times to make sure we got real value of the reg.
-				// This maybe a bug of IP101A
-				ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
-				ETH_ReadPHYRegister(phy_addr, mEth_PR_INTR);
-				ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
-				phy_reg = ETH_ReadPHYRegister(phy_addr, mEth_PR_STAT);
-				eth_mac_deinit(eth);
-				if(phy_reg & PHY_Linked_Status) {
-					MAD_LOG("[LwIP] Link up\n");
-					eth_mac_init(eth);
-					netif_set_link_up(netif);
-				} else {
-					MAD_LOG("[LwIP] Link down\n");
-					netif_set_link_down(netif);
-				}
-			}
+	if(event & mEth_PE_STATUS_CHANGED) {
+		if(eth->isLinked) {
+			netif_set_link_up(netif);
+		} else {
+			netif_set_link_down(netif);
 		}
 	}
+
+	return MTRUE;
 }
 
 err_t
 ethernetif_init(struct netif *netif)
 {
-	struct ethernetif *ethif = netif->state;
 	LWIP_ASSERT("netif != NULL", (netif != NULL));
 
 	#if LWIP_NETIF_HOSTNAME
@@ -201,9 +174,10 @@ ethernetif_init(struct netif *netif)
 	netif->output = etharp_output;
 	netif->linkoutput = low_level_output;
 
-	/* initialize the hardware */	
-	low_level_init(netif);
-	madThreadCreate(ethernetif_thread, (void *)netif, ETHERNETIF_THREAD_STKSIZE, ethif->ThreadID);
-
-	return ERR_OK;
+	/* initialize the hardware */
+	if(MTRUE == mEth_Init(low_level_init, ethernetif_callback, netif)) {
+		return ERR_OK;
+	} else {
+		return ERR_MEM;
+	}
 }

@@ -12,6 +12,6 @@
 #define UIP_CONF_BROADCAST  1
 
 #define UIP_CONF_LOGGING  0
-#define DEBUG_PRINTF(...) //MAD_LOG(__VA_ARGS__)
+#define DEBUG_PRINTF(...) // MAD_LOG(__VA_ARGS__)
 
 #endif

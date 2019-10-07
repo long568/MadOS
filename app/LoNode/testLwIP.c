@@ -1,10 +1,11 @@
 #include "testLwIP.h"
-#include "CfgUser.h"
+#if LO_TEST_LWIP
 
 #include "lwip/tcpip.h"
 #include "lwip/dhcp.h"
 #include "lwip/sockets.h"
 #include "arch/ethernetif.h"
+#include "CfgUser.h"
 
 #define BUFF_SIZ 64
 
@@ -30,17 +31,13 @@ void Init_TestLwIP(void)
 
     tcpip_init(0, 0);
 
-    if(MTRUE == mEth_Init()) {
-        nif = malloc(sizeof(struct netif));
-        netif_add(nif, &ipaddr, &netmask, &gw, &StmEth, ethernetif_init, tcpip_input);
-        netif_set_default(nif);
-        netif_set_up(nif);
+    nif = malloc(sizeof(struct netif));
+    netif_add(nif, &ipaddr, &netmask, &gw, &StmEth, ethernetif_init, tcpip_input);
+    netif_set_default(nif);
+    netif_set_up(nif);
 #if LWIP_DHCP
-        dhcp_start(nif);
+    dhcp_start(nif);
 #endif
-    } else {
-        MAD_LOG("mEth_Init() ... Failed\n");
-    }
 
     madThreadCreate(udp_thread,  0, 1024, THREAD_PRIO_TEST_LWIP_UDP);
     madThreadCreate(tcpc_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_TCPC);
@@ -108,3 +105,5 @@ static void tcpc_thread(MadVptr exData)
         lwip_write(s, buf, len);
     }
 }
+
+#endif

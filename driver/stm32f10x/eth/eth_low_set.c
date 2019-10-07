@@ -6,7 +6,7 @@ mEth_t StmEth;
 void mEth_ExtEvent(void) { eth_low_ExtEvent(&StmEth); }
 void mEth_PhyEvent(void) { eth_low_PhyEvent(&StmEth); }
 
-MadBool mEth_Init(void)
+MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t cbfn, MadVptr ep)
 {
     mEth_InitData_t initData;
     
@@ -50,12 +50,17 @@ MadBool mEth_Init(void)
 #endif
     initData.Priority       = ISR_PRIO_ETH;
     initData.ThreadID       = THREAD_PRIO_DRIVER_ETH;
+    initData.ThreadStkSize  = mEth_THREAD_STKSIZE;
     initData.MaxPktSize     = ETH_MAX_PACKET_SIZE;
     initData.TxDscrNum      = mEth_TXBUFNB;
     initData.RxDscrNum      = mEth_RXBUFNB;
-
-    madInstallExIrq(mEth_ExtEvent, EXTI15_10_IRQn);
-    madInstallExIrq(mEth_PhyEvent, ETH_IRQn);
+    initData.infn           = infn;
+    initData.cbfn           = cbfn;
+    initData.extIRQh        = mEth_ExtEvent;
+    initData.ethIRQh        = mEth_PhyEvent;
+    initData.extIRQn        = EXTI15_10_IRQn;
+    initData.ethIRQn        = ETH_IRQn;
+    initData.ep             = ep;
     
     if(eth_low_init(&StmEth, &initData)) { 
         return MTRUE; // Success

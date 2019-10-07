@@ -1,6 +1,8 @@
+#include "testUIP.h"
+#if LO_TEST_UIP
+
 #include <stdio.h>
 #include <string.h>
-#include "testEth.h"
 #include "uTcp.h"
 
 static uTcp *sock;
@@ -13,8 +15,9 @@ static void tcp_send(void);
 
 void Init_TestUIP(void)
 {
-    const MadU8 target_ip[4] = {192, 168, 1, 103};
-    sock = uTcp_Create(target_ip, 5685, tcp_recv, tcp_ack);
+    const MadU8 target_ip[4] = {192, 168, 1, 101};
+    uIP_Init();
+    sock = uTcp_Create(target_ip, 5688, tcp_recv, tcp_ack);
 }
 
 int tcp_recv(uTcp *s, MadU8 *data, MadU16 len)
@@ -47,3 +50,5 @@ void tcp_send(void)
                          cnt_acked, cnt_rexmit);
     uip_send(uip_appdata, len);
 }
+
+#endif

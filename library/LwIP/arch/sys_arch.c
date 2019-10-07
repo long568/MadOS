@@ -42,13 +42,13 @@
 
 #include <string.h>
 
-// u32_t lwip_sys_now;
-
-// u32_t
-// sys_jiffies(void)
-// {
-//     return lwip_sys_now;
-// }
+#ifndef sys_jiffies
+inline u32_t
+sys_jiffies(void)
+{
+    return madTimeNow();
+}
+#endif
 
 inline u32_t
 sys_now(void)

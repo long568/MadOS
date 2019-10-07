@@ -15,6 +15,6 @@ void    eth_low_ExtEvent(mEth_t *eth);
 void    eth_low_PhyEvent(mEth_t *eth);
 
 extern mEth_t StmEth;
-extern MadBool mEth_Init(void);
+extern MadBool mEth_Init(mEth_Preinit_t infn, mEth_Callback_t cbfn, MadVptr ep);
 
 #endif

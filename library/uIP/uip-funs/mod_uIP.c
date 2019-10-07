@@ -88,7 +88,7 @@ void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 inline MadBool uIP_Init(void) {
-    return mEth_Init(uIP_preinit, uIP_handler);
+    return mEth_Init(uIP_preinit, uIP_handler, 0);
 }
 
 MadBool uIP_preinit(mEth_t *eth)
@@ -155,8 +155,7 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     }
     
     if(event & mEth_PE_STATUS_RXPKT) {
-        while(uIP_dev_rxsize(eth)) {
-            uip_len = (MadU16)uIP_dev_read(eth, uip_buf);
+        while(uIP_dev_read(eth, uip_buf, &uip_len)) {
             if(uip_len > 0) {
                 if(BUF->type == htons(UIP_ETHTYPE_IP)) {
                     uip_arp_ipin();
