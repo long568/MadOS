@@ -5,11 +5,11 @@
 
 #define mEth_CHECKSUM_BY_HARDWARE 1
 
-#define mEth_TIMEOUT_TICKS  (888) // ticks
-#define mEth_EVENT_TIMEOUT  (100) // ms, LwIP: 0, uIP: 100
+#define mEth_EVENT_TIMEOUT  (100) // LwIP: 0, uIP: 100
+#define mEth_TIMEOUT_TICKS  (888)
 #define mEth_THREAD_STKSIZE (1 * 1024)
-#define mEth_TXBUFNB        ((MadU8)3)
-#define mEth_RXBUFNB        ((MadU8)3)
+#define mEth_TXBUFNB        ((MadU8)2)
+#define mEth_RXBUFNB        ((MadU8)2)
 
 #define mEth_PHY_WT(c, t) do { MadUint n = 0; while((!(c)) && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
 #define mEth_PHY_WF(c, t) do { MadUint n = 0; while(  (c)  && (++n < (t))); if(n == (t)) return MFALSE; } while(0)

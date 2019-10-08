@@ -155,26 +155,24 @@ MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
     }
     
     if(event & mEth_PE_STATUS_RXPKT) {
-        while(uIP_dev_read(eth, uip_buf, &uip_len)) {
-            if(uip_len > 0) {
-                if(BUF->type == htons(UIP_ETHTYPE_IP)) {
-                    uip_arp_ipin();
-                    uip_input();
-                    /* If the above function invocation resulted in data that
-                       should be sent out on the network, the global variable
-                       uip_len is set to a value > 0. */
-                    if(uip_len > 0) {
-                        uip_arp_out();
-                        uIP_dev_send(eth, uip_buf, uip_len);
-                    }
-                } else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
-                    uip_arp_arpin();
-                    /* If the above function invocation resulted in data that
-                       should be sent out on the network, the global variable
-                       uip_len is set to a value > 0. */
-                    if(uip_len > 0) {
-                        uIP_dev_send(eth, uip_buf, uip_len);
-                    }
+        while(uIP_dev_read(eth, uip_buf, &uip_len) > 0) {
+            if(BUF->type == htons(UIP_ETHTYPE_IP)) {
+                uip_arp_ipin();
+                uip_input();
+                /* If the above function invocation resulted in data that
+                    should be sent out on the network, the global variable
+                    uip_len is set to a value > 0. */
+                if(uip_len > 0) {
+                    uip_arp_out();
+                    uIP_dev_send(eth, uip_buf, uip_len);
+                }
+            } else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
+                uip_arp_arpin();
+                /* If the above function invocation resulted in data that
+                    should be sent out on the network, the global variable
+                    uip_len is set to a value > 0. */
+                if(uip_len > 0) {
+                    uIP_dev_send(eth, uip_buf, uip_len);
                 }
             }
         }

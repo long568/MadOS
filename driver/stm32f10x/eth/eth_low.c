@@ -248,16 +248,15 @@ void eth_driver_thread(MadVptr exData)
         // Handle PHY-Event
         if(event & mEth_PE_STATUS_CHANGED) {
             int i;
-			uint8_t flag = MTRUE;
 			for(i=0; i<4; i++) {
 				madTimeDly(5);
                 dt += 5;
 				if(0 != StmPIN_ReadInValue(&eth->INTP)) {
-					flag = MFALSE;
+                    event &= ~mEth_PE_STATUS_CHANGED;
 					break;
 				}
 			}
-            if(MTRUE == flag) {
+            if(event & mEth_PE_STATUS_CHANGED) {
                 MadU16 phy_reg;
                 MadU16 phy_addr = eth->PHY_ADDRESS;
                 // Read 2 times to make sure we got real value of the reg.
