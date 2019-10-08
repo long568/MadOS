@@ -9,7 +9,7 @@ all: gen_objs
 
 gen_objs:
 	$(MAKE) -C $(ROOT)/library/LwIP/api
-	$(MAKE) -C $(ROOT)/library/LwIP/arch
+	$(MAKE) -C $(ROOT)/library/LwIP/port
 	$(MAKE) -C $(ROOT)/library/LwIP/core
 	$(MAKE) -C $(ROOT)/library/LwIP/core/ipv4
 	$(MAKE) -C $(ROOT)/library/LwIP/netif

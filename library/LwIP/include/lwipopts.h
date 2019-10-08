@@ -47,8 +47,8 @@
 #define LWIP_DNS                        1
 #define LWIP_NETIF_LINK_CALLBACK        1
 #define LWIP_NETIF_HOSTNAME             1
-#define LWIP_COMPAT_SOCKETS             0
 #define LWIP_TIMEVAL_PRIVATE            0
+#define LWIP_COMPAT_SOCKETS             3
 
 #define ETH_PAD_SIZE                    2
 #define MEM_ALIGNMENT                   MAD_MEM_ALIGN

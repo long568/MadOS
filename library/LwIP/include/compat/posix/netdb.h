@@ -30,4 +30,11 @@
  *
  */
 
+#ifndef __NETDB__H__
+#define __NETDB__H__
+
 #include "lwip/netdb.h"
+
+char *gai_strerror(int error);
+
+#endif

@@ -7,8 +7,6 @@
 #include "lwip/etharp.h"
 #include "eth_low.h"
 
-#define ETHERNETIF_THREAD_STKSIZE 1024
-
 err_t ethernetif_init(struct netif *netif);
 
 #endif

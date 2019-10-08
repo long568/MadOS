@@ -10,91 +10,69 @@
 #include <string.h>
 #include <stdarg.h>
 #include "MadDev.h"
-#include "nl_cfg.h"
-
-int std_fd_array[FIL_NUM_MAX] = { -1 };
-
-int (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
-int (*MadFile_creat) (const char * file, mode_t mode)            = 0;
-int (*MadFile_fcntl) (int fd, int cmd, va_list args)             = 0;
+#include "mod_Newlib.h"
 
 int open (const char * file, int flag, ...)
 {
-    MadCpsr_t cpsr;
-    int fd = -1;
+    char tp;
+    int rc, fd;
     va_list args;
     const char *name;
+
+    fd = NL_FD_Get();
+    if(fd < 0) return -1;
+
+    rc = -1;
+    tp = MAD_FDTYPE_UNK;
     va_start(args, flag);
     if(0 == strncmp("/dev/", file, 5)) {
         name = &file[5];
-        fd = MadDev_open(name, flag, args);
-        if(fd >= 0) fd += DEV_FD_START;
+        rc = MadDev_open(name, flag, args);
+        tp = MAD_FDTYPE_DEV;
     } else {
         if(MadFile_open) {
-            int i;
-            for(i=0; i<FIL_NUM_MAX; i++) {
-                madEnterCritical(cpsr);
-                if(-1 == std_fd_array[i]) {
-                    std_fd_array[i] = 0;
-                    madExitCritical(cpsr);
-                    break;
-                }
-                madExitCritical(cpsr);
-            }
-            if(i < FIL_NUM_MAX) {
-                fd = MadFile_open(file, flag, args);
-                if(fd != -1) {
-                    madEnterCritical(cpsr);
-                    std_fd_array[i] = fd;
-                    madExitCritical(cpsr);
-                    fd = i + DEV_FD_END;
-                } else {
-                    madEnterCritical(cpsr);
-                    std_fd_array[i] = -1;
-                    madExitCritical(cpsr);
-                }
-            }
+            rc = MadFile_open(file, flag, args);
+            tp = MAD_FDTYPE_FIL;
         }
     }
     va_end(args);
+
+    if(rc > -1) {
+        NL_FD_Set(fd, rc, tp);
+    } else {
+        NL_FD_Put(fd);
+        fd = -1;
+    }
     return fd;
 }
 
 int creat (const char * file, mode_t mode)
 {
-    MadCpsr_t cpsr;
-    int fd = -1;
+    char tp;
+    int rc, fd;
     const char *name;
+
+    fd = NL_FD_Get();
+    if(fd < 0) return -1;
+
+    rc = -1;
+    tp = MAD_FDTYPE_UNK;
     if(0 == strncmp("/dev/", file, 5)) {
         name = &file[5];
-        fd = MadDev_creat(name, mode);
-        if(fd >= 0) fd += DEV_FD_START;
+        rc = MadDev_creat(name, mode);
+        tp = MAD_FDTYPE_DEV;
     } else {
         if(MadFile_creat) {
-            int i;
-            for(i=0; i<FIL_NUM_MAX; i++) {
-                madEnterCritical(cpsr);
-                if(-1 == std_fd_array[i]) {
-                    std_fd_array[i] = 0;
-                    madExitCritical(cpsr);
-                    break;
-                }
-                madExitCritical(cpsr);
-            }
-            if(i < FIL_NUM_MAX) {
-                fd = MadFile_creat(file, mode);
-                if(fd != -1) {
-                    madEnterCritical(cpsr);
-                    std_fd_array[i] = fd;
-                    madExitCritical(cpsr);
-                    fd = i + DEV_FD_END;
-                } else {
-                    madEnterCritical(cpsr);
-                    std_fd_array[i] = -1;
-                    madExitCritical(cpsr);
-                }
-            }
+            rc = MadFile_creat(file, mode);
+            tp = MAD_FDTYPE_FIL;
         }
+    }
+
+    if(rc > -1) {
+        NL_FD_Set(fd, rc, tp);
+    } else {
+        NL_FD_Put(fd);
+        fd = -1;
     }
     return fd;
 }
@@ -111,21 +89,28 @@ int creat (const char * file, mode_t mode)
  */
 int fcntl (int fd, int cmd, ...)
 {
-    MadCpsr_t cpsr;
-    int res = -1;
     va_list args;
+    int res = -1;
+    if(fd < 0) return -1;
     va_start(args, cmd);
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < NEW_FD_START) {
         res = MadDev_fcntl(TTY_DEV_INDEX, cmd, args);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_fcntl(fd, cmd, args);
     } else {
-        if(MadFile_fcntl) {
-            madEnterCritical(cpsr);
-            fd = std_fd_array[fd - DEV_FD_END];
-            madExitCritical(cpsr);
-            res = MadFile_fcntl(fd, cmd, args);
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_fcntl(seed, cmd, args); 
+                break;
+            case MAD_FDTYPE_FIL:
+                if(MadFile_fcntl) 
+                    res = MadFile_fcntl(seed, cmd, args);
+                break;
+            case MAD_FDTYPE_SOC:
+                if(MadSoc_fcntl) 
+                    res = MadSoc_fcntl(seed, cmd, args);
+                break;
+            default:
+                break;
         }
     }
     va_end(args);

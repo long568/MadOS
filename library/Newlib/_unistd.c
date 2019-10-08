@@ -1,42 +1,49 @@
 #include <unistd.h>
 #include "MadOS.h"
 #include "MadDev.h"
-#include "nl_cfg.h"
-
-extern int std_fd_array[FIL_NUM_MAX];
-
-int   (*MadFile_write) (int fd, const void *buf, size_t len) = 0;
-int   (*MadFile_read)  (int fd, void *buf, size_t len)       = 0;
-int   (*MadFile_close) (int fd)                              = 0;
-off_t (*MadFile_lseek) (int fd, off_t ofs, int wce)          = 0;
+#include "mod_Newlib.h"
 
 int isatty (int fd)
 {
     int res = 0;
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < 0) return 0;
+    if(fd < NEW_FD_START) {
         res = MadDev_isatty(TTY_DEV_INDEX);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_isatty(fd);
+    } else {
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_isatty(seed); 
+                break;
+            default:
+                break;
+        }
     }
     return res;
 }
 
 int read (int fd, void *buf, size_t nbyte)
 {
-    MadCpsr_t cpsr;
     int res = -1;
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < 0) return -1;
+    if(fd < NEW_FD_START) {
         res = MadDev_read(TTY_DEV_INDEX, buf, nbyte);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_read(fd, buf, nbyte);
     } else {
-        if(MadFile_read) {
-            madEnterCritical(cpsr);
-            fd = std_fd_array[fd - DEV_FD_END];
-            madExitCritical(cpsr);
-            res = MadFile_read(fd, buf, nbyte);
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_read(seed, buf, nbyte); 
+                break;
+            case MAD_FDTYPE_FIL:
+                if(MadFile_fcntl) 
+                    res = MadFile_read(seed, buf, nbyte);
+                break;
+            case MAD_FDTYPE_SOC:
+                if(MadSoc_fcntl) 
+                    res = MadSoc_read(seed, buf, nbyte);
+                break;
+            default:
+                break;
         }
     }
     return res;
@@ -44,19 +51,26 @@ int read (int fd, void *buf, size_t nbyte)
 
 int write (int fd, const void *buf, size_t nbyte)
 {
-    MadCpsr_t cpsr;
     int res = -1;
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < 0) return -1;
+    if(fd < NEW_FD_START) {
         res = MadDev_write(TTY_DEV_INDEX, buf, nbyte);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_write(fd, buf, nbyte);
     } else {
-        if(MadFile_write) {
-            madEnterCritical(cpsr);
-            fd = std_fd_array[fd - DEV_FD_END];
-            madExitCritical(cpsr);
-            res = MadFile_write(fd, buf, nbyte);
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_write(seed, buf, nbyte); 
+                break;
+            case MAD_FDTYPE_FIL:
+                if(MadFile_fcntl) 
+                    res = MadFile_write(seed, buf, nbyte);
+                break;
+            case MAD_FDTYPE_SOC:
+                if(MadSoc_fcntl) 
+                    res = MadSoc_write(seed, buf, nbyte);
+                break;
+            default:
+                break;
         }
     }
     return res;
@@ -64,41 +78,50 @@ int write (int fd, const void *buf, size_t nbyte)
 
 int close (int fd)
 {
-    MadCpsr_t cpsr;
     int res = -1;
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < 0) return -1;
+    if(fd < NEW_FD_START) {
         res = MadDev_close(TTY_DEV_INDEX);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_close(fd);
     } else {
-        if(MadFile_close) {
-            int index = fd - DEV_FD_END;
-            madEnterCritical(cpsr);
-            fd = std_fd_array[index];
-            std_fd_array[index] = -1;
-            madExitCritical(cpsr);
-            res = MadFile_close(fd);
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_close(seed); 
+                break;
+            case MAD_FDTYPE_FIL:
+                if(MadFile_fcntl) 
+                    res = MadFile_close(seed);
+                break;
+            case MAD_FDTYPE_SOC:
+                if(MadSoc_fcntl) 
+                    res = MadSoc_close(seed);
+                break;
+            default:
+                break;
         }
+        NL_FD_Put(fd);
     }
     return res;
 }
 
 off_t lseek(int fd, off_t ofs, int wce)
 {
-    MadCpsr_t cpsr;
     int res = -1;
-    if((MadU32)fd < DEV_FD_START) {
+    if(fd < 0) return -1;
+    if(fd < NEW_FD_START) {
         res = MadDev_lseek(TTY_DEV_INDEX, ofs, wce);
-    } else if((MadU32)fd < DEV_FD_END) {
-        fd -= DEV_FD_START;
-        res = MadDev_lseek(fd, ofs, wce);
     } else {
-        if(MadFile_write) {
-            madEnterCritical(cpsr);
-            fd = std_fd_array[fd - DEV_FD_END];
-            madExitCritical(cpsr);
-            res = MadFile_lseek(fd, ofs, wce);
+        int seed = NL_FD_Seed(fd);
+        switch(NL_FD_Type(fd)) {
+            case MAD_FDTYPE_DEV: 
+                res = MadDev_lseek(seed, ofs, wce); 
+                break;
+            case MAD_FDTYPE_FIL:
+                if(MadFile_fcntl) 
+                    res = MadFile_lseek(seed, ofs, wce);
+                break;
+            default:
+                break;
         }
     }
     return res;

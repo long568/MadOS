@@ -4,7 +4,7 @@
 #include "MadConfig.h"
 
 #define MAD_VER_MAJOR  (2)
-#define MAD_VER_SUB    (50)
+#define MAD_VER_SUB    (51)
 
 #define MTRUE  (1)
 #define MFALSE (0)

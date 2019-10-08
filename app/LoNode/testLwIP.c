@@ -1,6 +1,7 @@
 #include "testLwIP.h"
 #if LO_TEST_LWIP
 
+#include <unistd.h>
 #include "lwip/tcpip.h"
 #include "lwip/dhcp.h"
 #include "lwip/sockets.h"
@@ -29,6 +30,7 @@ void Init_TestLwIP(void)
 	IP4_ADDR(&netmask, 255,255,255,0);
 #endif
 
+    LwIP_Init();
     tcpip_init(0, 0);
 
     nif = malloc(sizeof(struct netif));
@@ -53,12 +55,12 @@ static void udp_thread(MadVptr exData)
     madTimeDly(3000);
     MAD_LOG("[LwIP] udp_thread ...\n");
 
-    s = lwip_socket(AF_INET, SOCK_DGRAM, 0);
+    s = socket(AF_INET, SOCK_DGRAM, 0);
 
     addr_recv.sin_family      = AF_INET;
     addr_recv.sin_port        = htons(5685);
     addr_recv.sin_addr.s_addr = htonl(INADDR_ANY);
-    lwip_bind(s, (struct sockaddr*)&addr_recv, sizeof(struct sockaddr));
+    bind(s, (struct sockaddr*)&addr_recv, sizeof(struct sockaddr));
 
     addr_send.sin_family      = AF_INET;
     addr_send.sin_port        = htons(5685);
@@ -67,9 +69,9 @@ static void udp_thread(MadVptr exData)
     i = 0;
     while (1) {
         len = sizeof(struct sockaddr);
-        lwip_recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
+        recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
         len = sprintf(buf, "Hello, UDP ! [%d]", ++i);
-        lwip_sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
+        sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
     }
 }
 
@@ -82,17 +84,17 @@ static void tcpc_thread(MadVptr exData)
     madTimeDly(5000);
     MAD_LOG("[LwIP] tcpc_thread ...\n");
 
-    s = lwip_socket(AF_INET, SOCK_STREAM, 0);
+    s = socket(AF_INET, SOCK_STREAM, 0);
 
     addr.sin_family =AF_INET;
     addr.sin_port =htons(0);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    lwip_bind(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
+    bind(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
 
     addr.sin_family =AF_INET;
     addr.sin_port =htons(5688);
     addr.sin_addr.s_addr = inet_addr("192.168.1.101");
-    rc = lwip_connect(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
+    rc = connect(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
     if(rc < 0) {
         MAD_LOG("[LwIP] lwip_connect ... Failed\n");
         madThreadPend(MAD_THREAD_SELF);
@@ -100,9 +102,9 @@ static void tcpc_thread(MadVptr exData)
 
     i = 0;
     while(1) {
-        lwip_read(s, buf, BUFF_SIZ);
+        read(s, buf, BUFF_SIZ);
         len = sprintf(buf, "Hello, TCPC ! [%d]", ++i);
-        lwip_write(s, buf, len);
+        write(s, buf, len);
     }
 }
 

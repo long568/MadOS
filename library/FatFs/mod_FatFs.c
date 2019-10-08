@@ -4,14 +4,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "ff.h"
-
-extern int   (*MadFile_open)  (const char * file, int flag, va_list args);
-extern int   (*MadFile_creat) (const char * file, mode_t mode);
-extern int   (*MadFile_fcntl) (int fd, int cmd, va_list args);
-extern int   (*MadFile_write) (int fd, const void *buf, size_t len);
-extern int   (*MadFile_read)  (int fd, void *buf, size_t len);
-extern int   (*MadFile_close) (int fd);
-extern off_t (*MadFile_lseek) (int fd, off_t ofs, int wce);
+#include "mod_Newlib.h"
 
 static FATFS *fs_sd;
 

@@ -51,6 +51,10 @@
 
 #include <string.h>
 
+/* Added by long 20191008 */
+#include <sys/select.h> 
+#include <sys/ioctl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -608,8 +612,9 @@ int lwip_fcntl(int s, int cmd, int val);
 const char *lwip_inet_ntop(int af, const void *src, char *dst, socklen_t size);
 int lwip_inet_pton(int af, const char *src, void *dst);
 
+/* Modified by long 20191008 */
 #if LWIP_COMPAT_SOCKETS
-#if LWIP_COMPAT_SOCKETS != 2
+#if LWIP_COMPAT_SOCKETS == 1
 /** @ingroup socket */
 #define accept(s,addr,addrlen)                    lwip_accept(s,addr,addrlen)
 /** @ingroup socket */
@@ -675,8 +680,9 @@ int lwip_inet_pton(int af, const char *src, void *dst);
 /** @ingroup socket */
 #define ioctl(s,cmd,argp)                         lwip_ioctl(s,cmd,argp)
 #endif /* LWIP_POSIX_SOCKETS_IO_NAMES */
-#endif /* LWIP_COMPAT_SOCKETS != 2 */
-
+#elif LWIP_COMPAT_SOCKETS == 3
+#include "arch/_sockets.h"
+#endif /* LWIP_COMPAT_SOCKETS == ? */
 #endif /* LWIP_COMPAT_SOCKETS */
 
 #ifdef __cplusplus

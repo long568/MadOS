@@ -1,6 +1,6 @@
 #include <string.h>
 #include "MadOS.h"
-#include "nl_cfg.h"
+#include "mod_Newlib.h"
 
 inline
 void * memcpy(void *dst, const void *src, size_t n) {
