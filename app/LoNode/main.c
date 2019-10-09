@@ -83,9 +83,9 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    // Init_TestModbus();
-    Init_TestLwIP();
     // Init_TestUIP();
+    Init_TestLwIP();
+    Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

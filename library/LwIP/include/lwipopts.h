@@ -96,7 +96,7 @@
 
 // #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
-  #define PBUF_DEBUG         LWIP_DBG_ON
+  // #define PBUF_DEBUG         LWIP_DBG_ON
   // #define MEM_DEBUG          LWIP_DBG_ON
   // #define MEMP_DEBUG         LWIP_DBG_ON
   // #define NETIF_DEBUG        LWIP_DBG_ON

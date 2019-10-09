@@ -13,29 +13,32 @@ static void modbus_write(int fun, modbus_t *ctx, int addr, int val, uint16_t *bu
 
 void Init_TestModbus(void)
 {
-    madThreadCreate(modbus_client, 0, 1024, THREAD_PRIO_TEST_MODBUS);
+    madThreadCreate(modbus_client, 0, 1024 * 2, THREAD_PRIO_TEST_MODBUS);
 }
 
 static void modbus_client(MadVptr exData)
 {
-    int i, v;
+    int i, v, rc;
     modbus_t *ctx;
     MadU16   *reg_buf;
 
-    ctx = modbus_new_rtu("/dev/tty1", 9600, 'N', 8, 1);
-    modbus_set_debug(ctx, OFF);
-    modbus_set_slave(ctx, 1);
+    madTimeDly(5000);
 
+    do {
+        rc = 0;
+        // ctx = modbus_new_rtu("/dev/tty1", 9600, 'N', 8, 1);
+        ctx = modbus_new_tcp("192.168.1.103", 502);
+        modbus_set_debug(ctx, OFF);
+        modbus_set_slave(ctx, 1);
+        if (modbus_connect(ctx) == -1) {
+            MAD_LOG("[Modbus]Connection failed: %s\n", modbus_strerror(errno));
+            modbus_free(ctx);
+            madTimeDly(2000);
+            rc = 1;
+        }
+    } while(rc);
     reg_buf = malloc(sizeof(MadU16) * MODBUS_REG_LEN);
-
-    if (modbus_connect(ctx) == -1) {
-        MAD_LOG("[Modbus]Connection failed: %s\n", modbus_strerror(errno));
-        modbus_free(ctx);
-        free(reg_buf);
-        while(1);
-    } else {
-        MAD_LOG("[Modbus]Ready...\n");
-    }
+    MAD_LOG("[Modbus]Ready...\n");
 
     i = 0;
     v = 0;

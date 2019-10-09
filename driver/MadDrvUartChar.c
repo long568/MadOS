@@ -138,8 +138,8 @@ static int Drv_ioctl(int fd, int request, va_list args)
         }
 
         case TIOSELRD: {
-            int t = va_arg(args, int);
-            res = mUsartChar_WaitRecv(urt, t);
+            MadSemCB_t **psem = va_arg(args, MadSemCB_t**);
+            res = mUsartChar_rselect(urt, psem);
             break;
         }
 

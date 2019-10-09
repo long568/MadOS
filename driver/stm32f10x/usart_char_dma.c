@@ -67,6 +67,8 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     port->rxLocker = madSemCreateCarefully(0, 1);
     port->txBuff   = madMemMalloc(initData->txBuffSize);
     port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
+    port->srLocker = 0;
+    port->stLocker = 0;
     if((MNULL == port->txLocker) || 
        (MNULL == port->rxLocker) ||
        (MNULL == port->txBuff && 0 != initData->txBuffSize) ||
@@ -155,10 +157,12 @@ inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
         port->rxCnt = dma_cnt;
         FIFO_U8_DMA_Put(port->rxBuff, offset);
         madSemRelease(&port->rxLocker);
+        madSemRelease(port->srLocker);
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
         madSemRelease(&port->txLocker);
+        madSemRelease(port->stLocker);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
 }
@@ -227,6 +231,21 @@ inline int mUsartChar_WaitRecv(mUsartChar_t *port, MadTim_t to) {
     if(cnt > 0 || MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
         res = 1;
     }
+    return res;
+}
+
+inline int mUsartChar_rselect(mUsartChar_t *port, MadSemCB_t **psem) {
+    int cnt, res;
+    RX_BUFF_LOCK();
+    cnt = FIFO_U8_Cnt(port->rxBuff);
+    if(cnt > 0) {
+        port->srLocker = 0;
+        res = 1;
+    } else {
+        port->srLocker = psem;
+        res = -1;
+    }
+    RX_BUFF_UNLOCK();
     return res;
 }
 

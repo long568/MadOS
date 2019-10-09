@@ -47,6 +47,10 @@ typedef struct {
     MadU32               rxCnt;
     MadU32               rxMax;
     mUsartChar_Info_t    info;
+    // Posix
+    MadSemCB_t           **srLocker;
+    MadSemCB_t           **stLocker;
+    MadSemCB_t           **seLocker;
 } mUsartChar_t;
 
 extern MadBool mUsartChar_Init        (mUsartChar_t *port, mUsartChar_InitData_t *initData);
@@ -57,6 +61,7 @@ extern int     mUsartChar_Read        (mUsartChar_t *port,       char *dat, size
 extern int     mUsartChar_ReadNBlock  (mUsartChar_t *port,       char *dat, size_t len);
 extern void    mUsartChar_ClearRecv   (mUsartChar_t *port);
 extern int     mUsartChar_WaitRecv    (mUsartChar_t *port, MadTim_t to);
+extern int     mUsartChar_rselect     (mUsartChar_t *port, MadSemCB_t **psem);
 extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);
 extern void    mUsartChar_GetInfo     (mUsartChar_t *port,       mUsartChar_Info_t *info);
 extern void    mUsartChar_SetInfo     (mUsartChar_t *port, const mUsartChar_Info_t *info);

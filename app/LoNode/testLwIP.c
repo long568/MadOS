@@ -81,7 +81,7 @@ static void tcpc_thread(MadVptr exData)
     int rc, s, i, len;
     char buf[BUFF_SIZ];
     
-    madTimeDly(5000);
+    madTimeDly(4000);
     MAD_LOG("[LwIP] tcpc_thread ...\n");
 
     s = socket(AF_INET, SOCK_STREAM, 0);
