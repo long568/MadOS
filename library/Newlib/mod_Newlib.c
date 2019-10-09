@@ -76,13 +76,23 @@ void NL_FD_Set(int fd, int seed, char type)
 inline
 int NL_FD_Seed(int fd)
 {
+    int rc;
+    MadCpsr_t cpsr;
     fd -= NEW_FD_START;
-    return NL_FD_ARRAY[fd].seed;
+    madEnterCritical(cpsr);
+    rc = NL_FD_ARRAY[fd].seed;
+    madExitCritical(cpsr);
+    return rc;
 }
 
 inline
 char NL_FD_Type(int fd)
 {
+    char rc;
+    MadCpsr_t cpsr;
     fd -= NEW_FD_START;
-    return NL_FD_ARRAY[fd].type;
+    madEnterCritical(cpsr);
+    rc = NL_FD_ARRAY[fd].type;
+    madExitCritical(cpsr);
+    return rc;
 }

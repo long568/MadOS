@@ -23,11 +23,11 @@ static void __nl_sort_fd_set(int n, fd_set *src, fd_set *dev, fd_set *soc, char 
     }
 }
 
-static int __nl_select_dev(int __n, fd_set *__fds, int req, int to)
+static int __nl_select_dev(int n, fd_set *fds, int req, int to)
 {
     int i;
-    for(i=0; i<__n; i++) {
-        if(FD_ISSET(i, __fds)) {
+    for(i=n-1; i>-1; i--) {
+        if(FD_ISSET(i, fds)) {
             if(ioctl(i, req, to) > 0) {
                 errno = 0;
                 return i;
