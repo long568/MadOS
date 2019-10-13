@@ -11,6 +11,7 @@
 #include "MadMessage.h"
 #include "MadEvent.h"
 #include "MadFastBuffer.h"
+#include "MadWaitQueue.h"
 // MACRO
 #include "MadTools.h"
 

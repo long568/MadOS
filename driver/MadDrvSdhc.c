@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "MadDev.h"
 #include "spi_low.h"
-#include "MadDrvSdhc.h"
 #include "mstd_crc.h"
 #include "../library/FatFs/diskio.h"
 
@@ -22,6 +21,23 @@
 #define CMD55  55
 #define CMD58  58
 #define ACMD41 41
+
+#define SECTOR_ROLL   9
+#define SECTOR_SIZE   (1 << SECTOR_ROLL)
+#define OPT_RETRY_NUM 10000
+#define CMD_TIME_OUT  600
+#define DAT_TIME_OUT  1000
+
+typedef enum {
+    SdType_SC,
+    SdType_HC,
+    SdType_XC,
+} SdType_t;
+
+typedef struct{
+    MadU32   OCR;
+    SdType_t type;
+} SdInfo_t;
 
 static void mSpiSd_SetCmd(MadU8 *buf, MadU8 cmd, MadU32 arg)
 {
@@ -309,7 +325,6 @@ const MadDrv_t MadDrvSdhc = {
     0,
     Drv_close,
     0,
-    0,
     Drv_ioctl
 };
 
@@ -319,21 +334,15 @@ static int Drv_open(const char * file, int flag, va_list args)
     SdInfo_t *sd_info;
     int      fd   = (int)file;
     MadDev_t *dev = DevsList[fd];
-    mSpi_t   *spi = (mSpi_t *)(dev->dev);
-    mSpi_InitData_t *initData = (mSpi_InitData_t*)(dev->args);
+    mSpi_t   *spi = (mSpi_t *)(dev->port);
+    mSpi_InitData_t *initData = (mSpi_InitData_t*)(dev->args->lowArgs);
 
     (void)args;
-
-    dev->flag     = flag;
-    dev->ptr      = malloc(sizeof(SdInfo_t));
-    dev->txBuff   = 0;
-    dev->rxBuff   = 0;
-    dev->txLocker = 0;
-    dev->rxLocker = 0;
-    if(0 == dev->ptr) return -1;
-    sd_info = (SdInfo_t*)(dev->ptr);
+    dev->ep = malloc(sizeof(SdInfo_t));
+    if(0 == dev->ep) return -1;
+    sd_info = (SdInfo_t*)(dev->ep);
     if(MFALSE == mSpiInit(spi, initData)) {
-        free(dev->ptr);
+        free(dev->ep);
         return -1;
     }
 
@@ -360,7 +369,7 @@ static int Drv_open(const char * file, int flag, va_list args)
         } while(0);
     } while(i++ < 10);
 
-    free(dev->ptr);
+    free(dev->ep);
     mSpiDeInit(spi);
     MAD_LOG("[SD] Error\n");
     return -1;
@@ -369,8 +378,8 @@ static int Drv_open(const char * file, int flag, va_list args)
 static int Drv_close(int fd)
 {
     MadDev_t *dev = DevsList[fd];
-    mSpi_t   *spi = (mSpi_t *)(dev->dev);
-    free(dev->ptr);
+    mSpi_t   *spi = (mSpi_t *)(dev->port);
+    free(dev->ep);
     mSpiDeInit(spi);
     MAD_LOG("[SD]...Closed\n");
     return 0;
@@ -380,24 +389,23 @@ static int Drv_ioctl(int fd, int request, va_list args)
 {
     int res;
     MadDev_t *dev     = DevsList[fd];
-    mSpi_t   *spi     = (mSpi_t*)(dev->dev);
-    SdInfo_t *sd_info = (SdInfo_t*)(dev->ptr);
+    mSpi_t   *spi     = (mSpi_t*)(dev->port);
+    SdInfo_t *sd_info = (SdInfo_t*)(dev->ep);
 
     res = -1;
     switch (request)
     {
-        case F_DISK_STATUS: {
+        case FIOSTATUS: {
 #if 0
             res = mSpiSd_OCR(spi, &sd_info->OCR);
-            if(res < 0) 
-                MAD_LOG("[SD] F_DISK_STATUS(%d) Error\n", res);
+            if(res < 0) MAD_LOG("[SD] FIOSTATUS(%d) Error\n", res);
 #else
             res = 1;
 #endif
             break;
         }
 
-        case F_DISK_READ: {
+        case FIOREAD: {
             MadU8* buff;
             MadU32 sector;
             MadU32 count;
@@ -406,11 +414,11 @@ static int Drv_ioctl(int fd, int request, va_list args)
             count  = va_arg(args, MadU32);
             res = mSpiSd_read(spi, buff, sector, count, sd_info->type);
             if(res < 0) 
-                MAD_LOG("[SD] F_DISK_READ(%d, %d, %d) Error\n", res, sector, count);
+                MAD_LOG("[SD] FIOREAD(%d, %d, %d) Error\n", res, sector, count);
             break;
         }
 
-        case F_DISK_WRITE: {
+        case FIOWRITE: {
             const MadU8* buff;
             MadU32 sector;
             MadU32 count;
@@ -419,7 +427,7 @@ static int Drv_ioctl(int fd, int request, va_list args)
             count  = va_arg(args, MadU32);
             res = mSpiSd_write(spi, buff, sector, count, sd_info->type);
             if(res < 0) 
-                MAD_LOG("[SD] F_DISK_WRITE(%d, %d, %d) Error\n", res, sector, count);
+                MAD_LOG("[SD] FIOWRITE(%d, %d, %d) Error\n", res, sector, count);
             break;
         }
 

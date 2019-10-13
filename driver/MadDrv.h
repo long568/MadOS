@@ -9,13 +9,6 @@
 #include <sys/ioctl.h>
 #include "MadOS.h"
 
-enum {
-    F_DEV_RST = 60,
-    F_DISK_STATUS,
-    F_DISK_READ,
-    F_DISK_WRITE
-};
-
 typedef struct {
     int   (*open)   (const char *, int, va_list);
     int   (*creat)  (const char *, mode_t);
@@ -23,7 +16,6 @@ typedef struct {
     int   (*write)  (int, const void *, size_t);
     int   (*read)   (int,       void *, size_t);
     int   (*close)  (int);
-    int   (*isatty) (int);
     off_t (*lseek)  (int, off_t, int);
     int   (*ioctl)  (int, int, va_list);
 } MadDrv_t;

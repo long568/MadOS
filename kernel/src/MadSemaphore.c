@@ -1,10 +1,5 @@
 #include "MadOS.h"
 
-MadSemCB_t* madSemCreate(MadU16 cnt)
-{
-    return madSemCreateCarefully(cnt, cnt);
-}
-
 MadSemCB_t* madSemCreateCarefully(MadU16 cnt, MadU16 max)
 {
     MadSemCB_t *p;
@@ -15,11 +10,6 @@ MadSemCB_t* madSemCreateCarefully(MadU16 cnt, MadU16 max)
         madSemInitCarefully(p, cnt, max);
     }
     return p;
-}
-
-MadBool madSemInit(MadSemCB_t *sem, MadU16 cnt)
-{
-    return madSemInitCarefully(sem, cnt, cnt);
 }
 
 MadBool madSemInitCarefully(MadSemCB_t *sem, MadU16 cnt, MadU16 max)
@@ -195,25 +185,31 @@ MadBool madSemCheck(MadSemCB_t **pSem)
     return res;
 }
 
-void madDoSemDelete(MadSemCB_t **pSem, MadBool opt)
+MadSemCB_t* madDoSemShut(MadSemCB_t **pSem, MadBool opt)
 {
-	MadCpsr_t  cpsr;
+    MadCpsr_t  cpsr;
 	MadSemCB_t *sem;
     
-    if(pSem == MNULL) return;
+    if(pSem == MNULL) return MNULL;
 	
     madEnterCritical(cpsr);
 	sem = *pSem;
     *pSem = MNULL;
     madExitCritical(cpsr);
     
-    if(!sem) return;
+    if(!sem) return MNULL;
     
     if(opt) {
         while(sem->rdyg) {
             madDoSemRelease(&sem, MAD_ERR_SEM_INVALID);
         }
     }
-    
+
+    return sem;
+}
+
+void madDoSemDelete(MadSemCB_t **pSem, MadBool opt)
+{
+    MadSemCB_t *sem = madDoSemShut(pSem, opt);
     madMemFreeNull(sem);
 }

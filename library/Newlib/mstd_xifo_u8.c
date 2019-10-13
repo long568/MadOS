@@ -31,7 +31,7 @@ FIFO_U8 *FIFO_U8_Create(MadU16 size)
 {
     FIFO_U8 *fifo;
     MadU16  head_size;
-    head_size = MAD_ALIGNED_SIZE(sizeof(LIFO_U8));
+    head_size = MAD_ALIGNED_SIZE(sizeof(FIFO_U8));
     fifo = (FIFO_U8*)madMemMalloc(head_size + size);
     if(fifo == 0) return 0;
     fifo->buf  = (MadU8*)fifo + head_size;
@@ -41,4 +41,30 @@ FIFO_U8 *FIFO_U8_Create(MadU16 size)
     fifo->cnt  = 0;
     fifo->max  = size;
     return fifo;
+}
+
+void FIFO_U8_Init(FIFO_U8 *fifo, void *buf, MadU16 size)
+{
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    fifo->buf  = (MadU8*)buf;
+    fifo->head = fifo->buf;
+    fifo->tail = fifo->buf;
+    fifo->end  = fifo->buf + size;
+    fifo->cnt  = 0;
+    fifo->max  = size;
+    madExitCritical(cpsr);
+}
+
+void FIFO_U8_Shut(FIFO_U8 *fifo)
+{
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    fifo->buf  = 0;
+    fifo->head = 0;
+    fifo->tail = 0;
+    fifo->end  = 0;
+    fifo->cnt  = 0;
+    fifo->max  = 0;
+    madExitCritical(cpsr);
 }

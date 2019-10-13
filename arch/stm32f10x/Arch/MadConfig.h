@@ -24,8 +24,8 @@
  * Print debug information
  */
 #include <stdio.h>
-#include <fcntl.h>
-#define MAD_LOG_INIT() do { if(0 > open("/dev/tty", 0)) while(1); } while(0)
+extern int NL_Log_Init(void);
+#define MAD_LOG_INIT() do { if(0 > NL_Log_Init()) while(1); } while(0)
 #define MAD_LOG(...)   printf(__VA_ARGS__)
 
 /*

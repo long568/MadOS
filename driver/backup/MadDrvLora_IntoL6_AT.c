@@ -384,7 +384,7 @@ static int Drv_ioctl(int fd, int request, va_list args)
 {
     (void)args;
     switch(request) {
-        case F_DEV_RST:
+        case FIORST:
             lora_reset(fd);
             return 1;
         default:

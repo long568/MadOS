@@ -136,9 +136,9 @@ trace_write(const char* buf __attribute__((unused)),
 inline int
 __attribute__((always_inline))
 trace_printf(const char* format __attribute__((unused)), ...)
-  {
-    return 0;
-  }
+{
+  return 0;
+}
 
 inline int
 __attribute__((always_inline))

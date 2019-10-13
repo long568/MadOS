@@ -30,22 +30,25 @@ MISSING_SYSCALL_NAMES
 #include <sys/select.h>
 #include "MadOS.h"
 
-#define TTY_DEV_INDEX     (0)
 #define MEM_OPT_THRESHOLD (64)
-#define NEW_FD_START      (3)
-#define MAX_FD_SIZE       (FD_SETSIZE - NEW_FD_START)
+#define STD_FD_TIMEOUT    (30 * 1000)
+#define STD_FD_IN         (0)
+#define STD_FD_OUT        (1)
+#define STD_FD_ERR        (2)
+#define STD_FD_END        (3)
+#define MAX_FD_SIZE       (FD_SETSIZE)
+
+#define MAD_FD_CLOSED  0x00
+#define MAD_FD_OPENED  0x01
+#define MAD_FD_OPTING  0x02
+#define MAD_FD_CLOSING 0x04
 
 enum {
-    MAD_FDTYPE_UNK = 1,
+    MAD_FDTYPE_UNK = 0,
     MAD_FDTYPE_DEV,
     MAD_FDTYPE_FIL,
     MAD_FDTYPE_SOC
 };
-
-typedef struct {
-    int  seed;
-    char type;
-} MadFD_t;
 
 extern int   (*MadFile_open)  (const char * file, int flag, va_list args);
 extern int   (*MadFile_creat) (const char * file, mode_t mode);
@@ -62,10 +65,18 @@ extern int (*MadSoc_write) (int fd, const void *buf, size_t nbyte);
 extern int (*MadSoc_close) (int fd);
 extern int (*MadSoc_select)(int n, fd_set *rfds, fd_set *wfds, fd_set *efds, struct timeval *to);
 
-extern void Newlib_Init(void);
-extern int  NL_FD_Get  (void);
-extern void NL_FD_Put  (int fd);
-extern void NL_FD_Set  (int fd, int seed, char type);
-extern int  NL_FD_Seed (int fd);
-extern char NL_FD_Type (int fd);
+extern MadBool        Newlib_Init      (void);
+extern int            NL_Log_Init      (void);
+
+extern void           NL_FD_Cpy        (int dst, int src);
+extern int            NL_FD_Get        (void);
+extern void           NL_FD_Put        (int fd);
+extern void           NL_FD_Set        (int fd, int flag, int seed, char type);
+extern int            NL_FD_Flag       (int fd);
+extern int            NL_FD_Seed       (int fd);
+extern char           NL_FD_Type       (int fd);
+extern int            NL_FD_Closing    (int fd);
+extern int            NL_FD_OptBegin   (int fd);
+extern void           NL_FD_OptEnd     (int fd);
+
 #endif

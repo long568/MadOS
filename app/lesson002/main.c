@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "MadOS.h"                              // MadOS核心头文件
 #include "CfgUser.h"                            // 用户配置头文件
+#include "mod_Newlib.h"                         // 标准C库模块头文件
 
 // 定义运行时堆栈 (8Bytes-Align for Float)
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
@@ -42,7 +43,8 @@ static void madStartup(MadVptr exData)
 {
     // 初始化SysTick，脉动间隔1ms。
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
-
+    // 初始化标准C库
+    Newlib_Init();
     // 初始化 tty 用作标准输出
     MAD_LOG_INIT();
     // 输出 Hello World !

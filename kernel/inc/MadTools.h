@@ -8,8 +8,12 @@
 #define MAD_ALIGNED_SIZE(s) (((s) & MAD_MEM_ALIGN_MASK) + (((s) & (~MAD_MEM_ALIGN_MASK)) ? MAD_MEM_ALIGN : 0))
 #define MAD_ALIGNED_STK(s)  ((s + sizeof(MadTCB_t)) / MAD_MEM_ALIGN + 1)
 
-#define MAD_OPT(opt)  do{MadCpsr_t cpsr; madEnterCritical(cpsr); opt; madExitCritical(cpsr);}while(0)
-#define MAD_TRY(x)    do{if(MFALSE == x) return MFALSE;}while(0)
-#define MAD_TRY_2(x, res, con, fun)  do{res = x; if(0 con res) {fun;}}while(0)
+#define MAD_PROTECT_OPT(opt) \
+    do{                         \
+        MadCpsr_t cpsr;         \
+        madEnterCritical(cpsr); \
+        opt;                    \
+        madExitCritical(cpsr);  \
+    } while(0)
 
 #endif

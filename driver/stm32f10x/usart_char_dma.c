@@ -4,17 +4,19 @@
 #define RX_BUFF_LOCK()    do { MadCpsr_t cpsr; madEnterCritical(cpsr);
 #define RX_BUFF_UNLOCK()  madExitCritical(cpsr); } while(0)
 
+static void eventcall(mUsartChar_t *port, int event);
+
 MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
 {
     MadU8             usart_irqn;
     DMA_InitTypeDef   DMA_InitStructure;
     USART_InitTypeDef USART_InitStructure;
     
-    port->p     = initData->p;
-    port->txDma = initData->txDma;
-    port->rxDma = initData->rxDma;
-    port->rxCnt = initData->rxBuffSize;
-    port->rxMax = initData->rxBuffSize;
+    port->p       = initData->p;
+    port->txDma   = initData->txDma;
+    port->rxDma   = initData->rxDma;
+    port->wrEvent = 0;
+    port->rdEvent = 0;
     port->info.baud      = initData->baud;
     port->info.stop_bits = initData->stop_bits;
     port->info.parity    = initData->parity;
@@ -63,23 +65,6 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
         NVIC_Init(&NVIC_InitStructure);
     } while(0);
 
-    port->txLocker = madSemCreateCarefully(0, 1);
-    port->rxLocker = madSemCreateCarefully(0, 1);
-    port->txBuff   = madMemMalloc(initData->txBuffSize);
-    port->rxBuff   = FIFO_U8_Create(initData->rxBuffSize);
-    port->srLocker = 0;
-    port->stLocker = 0;
-    if((MNULL == port->txLocker) || 
-       (MNULL == port->rxLocker) ||
-       (MNULL == port->txBuff && 0 != initData->txBuffSize) ||
-       (MNULL == port->rxBuff)) {
-        madSemDelete(&port->txLocker);
-        madSemDelete(&port->rxLocker);
-        madMemFree(port->txBuff);
-        FIFO_U8_Delete(port->rxBuff);
-        return MFALSE;
-    }
-
     // Tx DMA
     DMA_InitStructure.DMA_PeripheralBaseAddr  = (MadU32)(&port->p->DR);
     DMA_InitStructure.DMA_MemoryBaseAddr      = 0;
@@ -97,9 +82,9 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     DMA_Cmd(port->txDma, DISABLE);
 
     // Rx DMA
-    DMA_InitStructure.DMA_MemoryBaseAddr      = (MadU32)(port->rxBuff->buf);
+    DMA_InitStructure.DMA_MemoryBaseAddr      = (MadU32)(port->rxBuff.buf);
     DMA_InitStructure.DMA_DIR                 = DMA_DIR_PeripheralSRC;
-    DMA_InitStructure.DMA_BufferSize          = initData->rxBuffSize;
+    DMA_InitStructure.DMA_BufferSize          = port->rxMax;
     DMA_InitStructure.DMA_Mode                = DMA_Mode_Circular;
     DMA_InitStructure.DMA_Priority            = initData->rx_dma_priority;
     DMA_DeInit(port->rxDma);
@@ -133,21 +118,20 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
     DMA_DeInit(port->txDma);
     DMA_DeInit(port->rxDma);
     USART_DeInit(port->p);
-    madSemDelete(&port->txLocker);
-    madSemDelete(&port->rxLocker);
-    madMemFree(port->txBuff);
-    FIFO_U8_Delete(port->rxBuff);
+    FIFO_U8_Shut(&port->rxBuff);
     return MTRUE;
 }
 
-inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
+void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
     if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
         volatile MadU32 data;
         MadU32 offset;
         MadU32 dma_cnt;
         (void)data;
-        data = port->p->DR;
+        if(FIFO_U8_Cnt(&port->rxBuff) == 0) {
+            eventcall(port, MAD_WAIT_EVENT_READ);
+        }
         dma_cnt = port->rxDma->CNDTR;
         if(dma_cnt < port->rxCnt) {
             offset = port->rxCnt - dma_cnt;
@@ -155,98 +139,40 @@ inline void mUsartChar_Irq_Handler(mUsartChar_t *port)
             offset = port->rxCnt + port->rxMax - dma_cnt;
         }
         port->rxCnt = dma_cnt;
-        FIFO_U8_DMA_Put(port->rxBuff, offset);
-        madSemRelease(&port->rxLocker);
-        madSemRelease(port->srLocker);
+        FIFO_U8_DMA_Put(&port->rxBuff, offset);
+        data = port->p->DR;
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
-        madSemRelease(&port->txLocker);
-        madSemRelease(port->stLocker);
+        eventcall(port, MAD_WAIT_EVENT_WRITE);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
 }
 
-int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len, MadTim_t to)
-{
-    int res = -1;
-    if(len > 0) {
-        madSemCheck(&port->txLocker);
-        port->txDma->CMAR = (MadU32)dat;
-        port->txDma->CNDTR = len;
-        DMA_Cmd(port->txDma, ENABLE);
-        if(MAD_ERR_OK == madSemWait(&port->txLocker, to)) {
-            res = len - port->txDma->CNDTR;
-        }
-    }
-    return res;
-}
-
-int mUsartChar_WriteNBlock(mUsartChar_t *port, const char *dat, size_t len)
+int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len)
 {
     if(len > 0) {
-        madMemCpy(port->txBuff, dat, len);
-        port->txDma->CMAR = (MadU32)(port->txBuff);
+        port->txDma->CMAR  = (MadU32)dat;
         port->txDma->CNDTR = len;
         DMA_Cmd(port->txDma, ENABLE);
-        return len;
     }
-    return -1;
+    return len;
 }
 
-int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len, MadTim_t to)
+int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len)
 {
-    if(MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
-        FIFO_U8_DMA_Get(port->rxBuff, dat, len);
-        return len;
+    MadU8 empty;
+    FIFO_U8_DMA_Get(&port->rxBuff, dat, len, empty);
+    if(empty == 0) {
+        eventcall(port, MAD_WAIT_EVENT_READ);
     }
-    return -1;
+    return len;
 }
 
-int mUsartChar_ReadNBlock(mUsartChar_t *port, char *dat, size_t len)
-{
-    int cnt;
+void mUsartChar_ClrRxBuff(mUsartChar_t *port) {
     RX_BUFF_LOCK();
-    cnt = FIFO_U8_Cnt(port->rxBuff);
+    FIFO_U8_Clear(&port->rxBuff);
     RX_BUFF_UNLOCK();
-    if(cnt > 0) {
-        FIFO_U8_DMA_Get(port->rxBuff, dat, len);
-        return len;
-    }
-    return -1;
-}
-
-inline void mUsartChar_ClearRecv(mUsartChar_t *port) {
-    RX_BUFF_LOCK();
-    FIFO_U8_Clear(port->rxBuff);
-    RX_BUFF_UNLOCK();
-}
-
-inline int mUsartChar_WaitRecv(mUsartChar_t *port, MadTim_t to) {
-    int cnt, res;
-    RX_BUFF_LOCK();
-    cnt = FIFO_U8_Cnt(port->rxBuff);
-    RX_BUFF_UNLOCK();
-    res = -1;
-    if(cnt > 0 || MAD_ERR_OK == madSemWait(&port->rxLocker, to)) {
-        res = 1;
-    }
-    return res;
-}
-
-inline int mUsartChar_rselect(mUsartChar_t *port, MadSemCB_t **psem) {
-    int cnt, res;
-    RX_BUFF_LOCK();
-    cnt = FIFO_U8_Cnt(port->rxBuff);
-    if(cnt > 0) {
-        port->srLocker = 0;
-        res = 1;
-    } else {
-        port->srLocker = psem;
-        res = -1;
-    }
-    RX_BUFF_UNLOCK();
-    return res;
 }
 
 void mUsartChar_GetInfo(mUsartChar_t *port, mUsartChar_Info_t *info)
@@ -311,4 +237,92 @@ void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
     USARTx->BRR = (uint16_t)tmpreg;
 
     USART_Cmd(port->p, ENABLE);
+}
+
+static void eventcall(mUsartChar_t *port, int event)
+{
+    MadBool    rc;
+    MadCpsr_t  cpsr;
+    MadWait_t  rw;
+    madEnterCritical(cpsr);
+    rc = madWaitQScanEvent(port->waitQ, event, &rw);
+    switch(event) {
+        case MAD_WAIT_EVENT_WRITE: {
+            port->wrEvent--;
+            break;
+        }
+        case MAD_WAIT_EVENT_READ: {
+            if(rc == MFALSE) {
+                port->rdEvent = 0;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    madExitCritical(cpsr);
+    if(rc) madSemRelease(rw.locker);
+}
+
+int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
+{
+    int rc = -1;
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    switch (event)
+    {
+    case MAD_WAIT_EVENT_WRITE:{
+        if(port->wrEvent == 0) {
+            rc = 1;
+        } else if(!locker || MTRUE == madWaitQAdd(port->waitQ, locker, event)) {
+            rc = 0;
+        }
+        if(rc > -1) {
+            port->wrEvent++;
+        }
+        break;
+    }        
+    case MAD_WAIT_EVENT_READ:{
+        if(port->rdEvent == 0 && FIFO_U8_Cnt(&port->rxBuff) > 0) {
+            rc = 1;
+        } else if(!locker || MTRUE == madWaitQAdd(port->waitQ, locker, event)) {
+            rc = 0;
+        }
+        if(rc > -1) {
+            port->rdEvent = 1;
+        }
+        break;
+    } 
+    default:
+        break;
+    }
+    madExitCritical(cpsr);
+    return rc;
+}
+
+int mUsartChar_SelectClr(mUsartChar_t *port, MadSemCB_t **locker, int event)
+{
+    int rc = 1;
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    switch (event)
+    {
+    case MAD_WAIT_EVENT_WRITE:{
+        if(MTRUE == madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+            port->wrEvent--;
+        }
+        break;
+    }        
+    case MAD_WAIT_EVENT_READ:{
+        madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_READ);
+        if(port->waitQ->l1 == 0) {
+            port->rdEvent = 0;
+        }
+        break;
+    } 
+    default:
+        break;
+    }
+    madExitCritical(cpsr);
+    return rc;
 }

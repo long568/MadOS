@@ -1,6 +1,6 @@
 #include "MadOS.h"
 
-MadMutexCB_t* madDoMutexCreate(MadU8 type)
+MadMutexCB_t* madDoMutexCreate(MadU8 type, MadU8 flag)
 {
     MadMutexCB_t *p;
     if(type > MAD_MUTEX_RECURSIVE) {
@@ -8,18 +8,18 @@ MadMutexCB_t* madDoMutexCreate(MadU8 type)
     }
     p = (MadMutexCB_t *)madMemMalloc(sizeof(MadMutexCB_t));
     if(p) {
-        madDoMutexInit(p, type);
+        madDoMutexInit(p, type, flag);
     }
     return p;
 }
 
-MadBool madDoMutexInit(MadMutexCB_t *mutex, MadU8 type)
+MadBool madDoMutexInit(MadMutexCB_t *mutex, MadU8 type, MadU8 flag)
 {
     MadUint i;
     if(type > MAD_MUTEX_RECURSIVE) {
         return MFALSE;
     }
-    mutex->cnt  = 1;
+    mutex->cnt  = (flag > 0) ? 1 : 0;
     mutex->type = type;
     mutex->curt = MNULL;
     mutex->rdyg = 0;

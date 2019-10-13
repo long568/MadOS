@@ -438,6 +438,7 @@ tryget_socket_unconn(int fd)
 }
 
 /* Like tryget_socket_unconn(), but called under SYS_ARCH_PROTECT lock. */
+#if LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL /* Added by long 20191010 */
 static struct lwip_sock *
 tryget_socket_unconn_locked(int fd)
 {
@@ -449,6 +450,7 @@ tryget_socket_unconn_locked(int fd)
   }
   return ret;
 }
+#endif
 
 /**
  * Same as get_socket but doesn't set errno

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "MadOS.h"
-#include "MadDrv.h"
 #include "CfgUser.h"
+#include "mod_Newlib.h"
 #include "mod_FatFs.h"
 // #include "mod_Lua.h"
 
@@ -60,6 +60,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * Core-Modules
  ********************************************/
+    Newlib_Init();
     MAD_LOG_INIT();
 #if 1
     MAD_LOG("\n\n");

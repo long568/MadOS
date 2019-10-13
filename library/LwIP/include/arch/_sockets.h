@@ -4,7 +4,7 @@
 #include "lwip/sockets.h"
 #include "mod_Newlib.h"
 
-#define LWIP_REALS(s) ((((s) > NEW_FD_START - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
+#define LWIP_REALS(s) ((((s) > STD_FD_END - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
 
 extern MadBool LwIP_Init(void);
 extern int     socket   (int domain, int type, int protocol);

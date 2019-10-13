@@ -2,7 +2,6 @@
 #include <sys/ioctl.h>
 #include "MadDev.h"
 #include "usart_blk.h"
-#include "MadDrvUartBlk.h"
 
 static int Drv_open (const char *, int, va_list);
 static int Drv_write(int fd, const void *buf, size_t len);
@@ -18,21 +17,29 @@ const MadDrv_t MadDrvUartBlk = {
     Drv_read,
     Drv_close,
     0,
-    0,
     Drv_ioctl
 };
 
 static int Drv_open(const char * file, int flag, va_list args)
 {
-    int      fd   = (int)file;
-    MadDev_t *dev = DevsList[fd];
+    // int      fd   = (int)file;
+    // MadDev_t *dev = DevsList[fd];
+    // (void)args;
+    // dev->flag     = flag;
+    // dev->txBuff   = 0;
+    // dev->rxBuff   = 0;
+    // dev->txLocker = 0;
+    // dev->rxLocker = 0;
+
+    int                  fd       = (int)file;
+    MadDev_t             *dev     = DevsList[fd];
+    mUsartBlk_t          *port    = (mUsartBlk_t*)(dev->port);        
+    mUsartBlk_InitData_t *lowArgs = (mUsartBlk_InitData_t*)(dev->args->lowArgs);
+
     (void)args;
-    dev->flag     = flag;
-    dev->txBuff   = 0;
-    dev->rxBuff   = 0;
-    dev->txLocker = 0;
-    dev->rxLocker = 0;
-    if(MTRUE != mUsartBlk_Init((mUsartBlk_t*)(dev->dev), (mUsartBlk_InitData_t*)(dev->args))) {
+    lowArgs->waitQ      = &dev->waitQ;
+
+    if(MTRUE != mUsartBlk_Init(port, lowArgs)) {
         return -1;
     }
     return 1;
@@ -40,17 +47,16 @@ static int Drv_open(const char * file, int flag, va_list args)
 
 static int Drv_write(int fd, const void *buf, size_t len)
 {
-    MadDev_t    *dev = DevsList[fd];
-    mUsartBlk_t *urt = dev->dev;
-    return mUsartBlk_Write(urt, buf, len, UART_BLK_TX_TIMEOUT);
+    MadDev_t    *dev  = DevsList[fd];
+    mUsartBlk_t *port = dev->port;
+    return mUsartBlk_Write(port, buf, len);
 }
 
 static int Drv_read(int fd, void *buf, size_t len)
 {
-    char        *dat = (char*)buf;
-    MadDev_t    *dev = DevsList[fd];
-    mUsartBlk_t *urt = dev->dev;
-    return mUsartBlk_Read(urt, dat, len, UART_BLK_RX_TIMEOUT);
+    MadDev_t    *dev  = DevsList[fd];
+    mUsartBlk_t *port = dev->port;
+    return mUsartBlk_Read(port, buf, len);
 }
 
 static int Drv_close(int fd)
@@ -75,7 +81,7 @@ static int Drv_ioctl(int fd, int request, va_list args)
     mUsartBlk_t *urt = dev->dev;
     (void)args;
     switch(request) {
-        case F_DEV_RST:
+        case FIORST:
             break;
 
         case TIOCGETA: {

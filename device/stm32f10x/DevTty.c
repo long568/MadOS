@@ -2,14 +2,13 @@
 #include <stdio.h>
 #include "MadDev.h"
 #include "usart_char.h"
-#include "Stm32Tools.h"
 #include "CfgUser.h"
 
-static mUsartChar_t dev;
+static mUsartChar_t port;
 
-static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&dev); }
+static void Dev_Irq_Handler(void) { mUsartChar_Irq_Handler(&port); }
 
-static const mUsartChar_InitData_t initData = {
+static const mUsartChar_InitData_t LowArgs = {
     USART2,
     DMA1_Channel7,
     DMA1_Channel6,
@@ -27,9 +26,14 @@ static const mUsartChar_InitData_t initData = {
     USART_HardwareFlowControl_None,
     DMA_Priority_Low,
     DMA_Priority_Low,
-    0,
-    128,
     Dev_Irq_Handler
 };
 
-MadDev_t Tty = { "tty", &dev, &initData, &MadDrvUartChar, MAD_DEV_CLOSED, NULL };
+static const MadDevArgs_t Args = {
+    MAD_WAITQ_DEFAULT_SIZE,
+    128,
+    128,
+    &LowArgs
+};
+
+MadDev_t Tty = { "tty", &port, &Args, &MadDrvUartChar, NULL };

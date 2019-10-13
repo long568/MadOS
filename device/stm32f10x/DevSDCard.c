@@ -1,17 +1,15 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "MadDev.h"
-#include "MadDrvSdhc.h"
 #include "spi_low.h"
-#include "Stm32Tools.h"
 #include "CfgUser.h"
 
-static mSpi_t dev;
+static mSpi_t port;
 
-static void Dev_Spi_Handler(void) { mSpiLow_SPI_IRQHandler(&dev); }
-static void Dev_Dma_Handler(void) { mSpiLow_DMA_IRQHandler(&dev); }
+static void Dev_Spi_Handler(void) { mSpiLow_SPI_IRQHandler(&port); }
+static void Dev_Dma_Handler(void) { mSpiLow_DMA_IRQHandler(&port); }
 
-static const mSpi_InitData_t initData = {
+static const mSpi_InitData_t LowArgs = {
     {
         GPIO_Remap_SPI3,
         {GPIOD, GPIO_Pin_2},
@@ -28,4 +26,11 @@ static const mSpi_InitData_t initData = {
     Dev_Dma_Handler
 };
 
-MadDev_t Sd0 = { "sd0", &dev, &initData, &MadDrvSdhc, MAD_DEV_CLOSED, NULL };
+static const MadDevArgs_t Args = {
+    0,
+    0,
+    0,
+    &LowArgs
+};
+
+MadDev_t Sd0 = { "sd0", &port, &Args, &MadDrvSdhc, MNULL };

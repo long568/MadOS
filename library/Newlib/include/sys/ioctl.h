@@ -111,10 +111,6 @@ struct ttysize {
 #define	TIOCSIG		_IO('t', 95)		/* pty: generate signal */
 #define TIOCDRAIN	_IO('t', 94)		/* wait till output drained */
 
-#define TIOSELRD   _IOR('t', 124, int)
-#define TIOSELWR   _IOR('t', 125, int)
-#define TIOSELEX   _IOR('t', 126, int)
-
 #define TTYDISC		0		/* termios tty line discipline */
 #define	TABLDISC	3		/* tablet discipline */
 #define	SLIPDISC	4		/* serial IP discipline */
@@ -164,6 +160,18 @@ struct ttysize {
 #define	OSIOCGARP	_IOWR('i',31, struct arpreq)	/* get arp entry */
 #define	SIOCGARP	_IOWR('i',38, struct arpreq)	/* get arp entry */
 #define	SIOCDARP	_IOW('i', 32, struct arpreq)	/* delete arp entry */
+
+/* Added by long 20191011 */
+#define  FIOSELSETWR _IOR('f', 128, int)
+#define  FIOSELCLRWR _IOR('f', 129, int)
+#define  FIOSELSETRD _IOR('f', 130, int)
+#define  FIOSELCLRRD _IOR('f', 131, int)
+#define  FIOSELSETER _IOR('f', 132, int)
+#define  FIOSELCLRER _IOR('f', 133, int)
+#define  FIORST      _IOR('f', 140, int)
+#define  FIOSTATUS   _IOR('f', 141, int)
+#define  FIOWRITE    _IOR('f', 142, int)
+#define  FIOREAD     _IOR('f', 143, int)
 
 extern int ioctl(int fd, int request, ...);
 

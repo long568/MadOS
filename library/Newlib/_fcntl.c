@@ -38,7 +38,7 @@ int open (const char * file, int flag, ...)
     va_end(args);
 
     if(rc > -1) {
-        NL_FD_Set(fd, rc, tp);
+        NL_FD_Set(fd, flag, rc, tp);
     } else {
         NL_FD_Put(fd);
         fd = -1;
@@ -69,7 +69,7 @@ int creat (const char * file, mode_t mode)
     }
 
     if(rc > -1) {
-        NL_FD_Set(fd, rc, tp);
+        NL_FD_Set(fd, 0, rc, tp);
     } else {
         NL_FD_Put(fd);
         fd = -1;
@@ -90,29 +90,27 @@ int creat (const char * file, mode_t mode)
 int fcntl (int fd, int cmd, ...)
 {
     va_list args;
+    int seed;
     int res = -1;
-    if(fd < 0) return -1;
+    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
     va_start(args, cmd);
-    if(fd < NEW_FD_START) {
-        res = MadDev_fcntl(TTY_DEV_INDEX, cmd, args);
-    } else {
-        int seed = NL_FD_Seed(fd);
-        switch(NL_FD_Type(fd)) {
-            case MAD_FDTYPE_DEV: 
-                res = MadDev_fcntl(seed, cmd, args); 
-                break;
-            case MAD_FDTYPE_FIL:
-                if(MadFile_fcntl) 
-                    res = MadFile_fcntl(seed, cmd, args);
-                break;
-            case MAD_FDTYPE_SOC:
-                if(MadSoc_fcntl) 
-                    res = MadSoc_fcntl(seed, cmd, args);
-                break;
-            default:
-                break;
-        }
+    seed = NL_FD_Seed(fd);
+    switch(NL_FD_Type(fd)) {
+        case MAD_FDTYPE_DEV: 
+            res = MadDev_fcntl(seed, cmd, args); 
+            break;
+        case MAD_FDTYPE_FIL:
+            if(MadFile_fcntl) 
+                res = MadFile_fcntl(seed, cmd, args);
+            break;
+        case MAD_FDTYPE_SOC:
+            if(MadSoc_fcntl) 
+                res = MadSoc_fcntl(seed, cmd, args);
+            break;
+        default:
+            break;
     }
     va_end(args);
+    NL_FD_OptEnd(fd);
     return res;
 }
