@@ -2,6 +2,25 @@
 #include <stdarg.h>
 #include "MadDev.h"
 
+void MadDev_Init(void)
+{
+    int      fd   = 0;
+    MadDev_t *dev = DevsList[fd];
+    while(dev && dev != -1) {
+        dev->opened     = MFALSE;
+        dev->flag       = 0;
+        dev->waitQ.l0   = 0;
+        dev->waitQ.l1   = 0;
+        dev->waitQ.p    = 0;
+        dev->txBuff     = 0;
+        dev->rxBuff     = 0;
+        dev->txBuffSize = 0;
+        dev->rxBuffSize = 0;
+        fd++;
+        dev = DevsList[fd];
+    }
+}
+
 int MadDev_open(const char *file, int flag, va_list args)
 {
     int      fd   = 0;
@@ -9,38 +28,54 @@ int MadDev_open(const char *file, int flag, va_list args)
     MadDev_t *dev = DevsList[fd];
     const MadDevArgs_t *dargs = dev->args;
 
-    while(dev) {
+    while(dev && dev != -1) {
         if(0 == strcmp(file, dev->name)) {
+            MAD_PROTECT_OPT(
+                if(dev->opened == MFALSE) {
+                    dev->opened = MTRUE;
+                    rc = 0;
+                } else {
+                    rc = 1;
+                }
+            );
+            if(rc > 0) {
+                return -1;
+            }
+
             rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
             dev->txBuff = madMemMalloc(dargs->txBuffSize);
             dev->rxBuff = madMemMalloc(dargs->rxBuffSize);
             if((dargs->waitQSize  > 0 && MFALSE == rc)          ||
-                (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
-                (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
-                if(dev->drv->close) {
-                    dev->drv->close(fd);
-                }
+               (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
+               (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
                 goto open_failed;
             }
+
             dev->txBuffSize = dargs->txBuffSize;
             dev->rxBuffSize = dargs->rxBuffSize;
             dev->flag = flag;
-            
             if((dev->drv->open) && 
                (0 < dev->drv->open((const char *)fd, flag, args))) {
                 return fd;
+            } else {
+                goto open_failed;
             }
         }
         fd++;
         dev = DevsList[fd];
     }
+    return -1;
 
 open_failed:
     dev->txBuffSize = 0;
     dev->rxBuffSize = 0;
+    dev->flag = 0;
     madWaitQShut(&dev->waitQ);
     madMemFree(dev->txBuff);
     madMemFree(dev->rxBuff);
+    MAD_PROTECT_OPT(
+        dev->opened = MFALSE;
+    );
     return -1;
 }
 

@@ -1,4 +1,5 @@
 #include "mod_Newlib.h"
+#include "MadDev.h"
 
 int   (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
 int   (*MadFile_creat) (const char * file, mode_t mode)            = 0;
@@ -32,6 +33,7 @@ static MadFD_t NL_FD_ARRAY[MAX_FD_SIZE] = { 0 };
 MadBool Newlib_Init(void)
 {
     int i;
+    MadDev_Init();
     for(i=0; i<MAX_FD_SIZE; i++) {
         NL_FD_ARRAY[i].org  = -1;
         NL_FD_ARRAY[i].seed = -1;
@@ -70,7 +72,6 @@ int NL_FD_Get(void)
 {
     int i, rc;
     MadCpsr_t cpsr;
-
     rc = -1;
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
         madEnterCritical(cpsr);

@@ -18,6 +18,7 @@ typedef struct _MadDev_t {
     const MadDrv_t     *drv;
     MadVptr            ep;
     // Automatic initialization
+    MadU8      opened;
     int        flag;
     MadWaitQ_t waitQ;
     MadU8      *txBuff;
@@ -27,6 +28,8 @@ typedef struct _MadDev_t {
 } MadDev_t;
 
 extern MadDev_t *DevsList[];
+
+extern void MadDev_Init(void);
 
 extern int   MadDev_open  (const char *file, int flag, va_list args);
 extern int   MadDev_creat (const char *file, mode_t mode);
