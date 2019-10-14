@@ -40,7 +40,6 @@ typedef struct {
     DMA_Channel_TypeDef  *txDma;
     DMA_Channel_TypeDef  *rxDma;
     MadU8                wrEvent;
-    MadU8                rdEvent;
     mUsartChar_Info_t    info;
     MadU32               rxCnt;
     MadU32               rxMax;

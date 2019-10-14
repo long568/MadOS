@@ -77,12 +77,11 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
 } while(0)
 
 /* Called in User-Mode */
-#define FIFO_U8_DMA_Get(fifo, dat, n, empty) do { \
+#define FIFO_U8_DMA_Get(fifo, dat, n) do { \
     MadCpsr_t cpsr;                                         \
     madEnterCritical(cpsr);                                 \
     if((fifo)->cnt > 0) {                                   \
-        if(n < (fifo)->cnt) { empty = 0; }                  \
-        else                { n = (fifo)->cnt; empty = 1; } \
+        if(n > (fifo)->cnt) { n = (fifo)->cnt; }            \
         (fifo)->cnt -= n;                                   \
         madExitCritical(cpsr);                              \
         if((fifo)->head + n < (fifo)->end)  {               \
@@ -96,7 +95,6 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
         }                                                   \
     } else {                                                \
         madExitCritical(cpsr);                              \
-        empty = 1;                                          \
         n = 0;                                              \
     }                                                       \
 } while(0)

@@ -16,7 +16,6 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     port->txDma   = initData->txDma;
     port->rxDma   = initData->rxDma;
     port->wrEvent = 0;
-    port->rdEvent = 0;
     port->info.baud      = initData->baud;
     port->info.stop_bits = initData->stop_bits;
     port->info.parity    = initData->parity;
@@ -129,9 +128,6 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         MadU32 offset;
         MadU32 dma_cnt;
         (void)data;
-        if(FIFO_U8_Cnt(&port->rxBuff) == 0) {
-            eventcall(port, MAD_WAIT_EVENT_READ);
-        }
         dma_cnt = port->rxDma->CNDTR;
         if(dma_cnt < port->rxCnt) {
             offset = port->rxCnt - dma_cnt;
@@ -140,6 +136,7 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         }
         port->rxCnt = dma_cnt;
         FIFO_U8_DMA_Put(&port->rxBuff, offset);
+        eventcall(port, MAD_WAIT_EVENT_READ);
         data = port->p->DR;
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
@@ -161,11 +158,7 @@ int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len)
 
 int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len)
 {
-    MadU8 empty;
-    FIFO_U8_DMA_Get(&port->rxBuff, dat, len, empty);
-    if(empty == 0) {
-        eventcall(port, MAD_WAIT_EVENT_READ);
-    }
+    FIFO_U8_DMA_Get(&port->rxBuff, dat, len);
     return len;
 }
 
@@ -248,13 +241,7 @@ static void eventcall(mUsartChar_t *port, int event)
     rc = madWaitQScanEvent(port->waitQ, event, &rw);
     switch(event) {
         case MAD_WAIT_EVENT_WRITE: {
-            port->wrEvent--;
-            break;
-        }
-        case MAD_WAIT_EVENT_READ: {
-            if(rc == MFALSE) {
-                port->rdEvent = 0;
-            }
+            if(port->wrEvent > 0) port->wrEvent--;
             break;
         }
         default:
@@ -283,13 +270,10 @@ int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
         break;
     }        
     case MAD_WAIT_EVENT_READ:{
-        if(port->rdEvent == 0 && FIFO_U8_Cnt(&port->rxBuff) > 0) {
+        if(FIFO_U8_Cnt(&port->rxBuff) > 0) {
             rc = 1;
         } else if(!locker || MTRUE == madWaitQAdd(port->waitQ, locker, event)) {
             rc = 0;
-        }
-        if(rc > -1) {
-            port->rdEvent = 1;
         }
         break;
     } 
@@ -315,9 +299,6 @@ int mUsartChar_SelectClr(mUsartChar_t *port, MadSemCB_t **locker, int event)
     }        
     case MAD_WAIT_EVENT_READ:{
         madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_READ);
-        if(port->waitQ->l1 == 0) {
-            port->rdEvent = 0;
-        }
         break;
     } 
     default:

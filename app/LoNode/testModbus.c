@@ -26,8 +26,8 @@ static void modbus_client(MadVptr exData)
 
     do {
         rc = 0;
-        // ctx = modbus_new_rtu("/dev/tty1", 9600, 'N', 8, 1);
-        ctx = modbus_new_tcp("192.168.1.103", 502);
+        ctx = modbus_new_rtu("/dev/tty1", 9600, 'N', 8, 1);
+        // ctx = modbus_new_tcp("192.168.1.103", 502);
         modbus_set_debug(ctx, OFF);
         modbus_set_slave(ctx, 1);
         if (modbus_connect(ctx) == -1) {

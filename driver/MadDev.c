@@ -9,20 +9,23 @@ int MadDev_open(const char *file, int flag, va_list args)
     MadDev_t *dev = DevsList[fd];
     const MadDevArgs_t *dargs = dev->args;
 
-    rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
-    dev->txBuff = madMemMalloc(dargs->txBuffSize);
-    dev->rxBuff = madMemMalloc(dargs->rxBuffSize);
-    dev->txBuffSize = dargs->txBuffSize;
-    dev->rxBuffSize = dargs->rxBuffSize;
-    if((dargs->waitQSize  > 0 && MFALSE == rc)          ||
-       (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
-       (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
-        goto open_failed;
-    }
-    dev->flag = flag;
-
     while(dev) {
         if(0 == strcmp(file, dev->name)) {
+            rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
+            dev->txBuff = madMemMalloc(dargs->txBuffSize);
+            dev->rxBuff = madMemMalloc(dargs->rxBuffSize);
+            if((dargs->waitQSize  > 0 && MFALSE == rc)          ||
+                (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
+                (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
+                if(dev->drv->close) {
+                    dev->drv->close(fd);
+                }
+                goto open_failed;
+            }
+            dev->txBuffSize = dargs->txBuffSize;
+            dev->rxBuffSize = dargs->rxBuffSize;
+            dev->flag = flag;
+            
             if((dev->drv->open) && 
                (0 < dev->drv->open((const char *)fd, flag, args))) {
                 return fd;

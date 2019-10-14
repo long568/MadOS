@@ -78,14 +78,14 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-    FatFs_Init();
+    // FatFs_Init();
     // LuaParser_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
     // Init_TestUIP();
-    Init_TestLwIP();
+    // Init_TestLwIP();
     Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
