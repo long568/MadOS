@@ -63,7 +63,6 @@ extern int (*MadSoc_ioctl) (int fd, int request, va_list args);
 extern int (*MadSoc_read)  (int fd, void *buf, size_t nbyte);
 extern int (*MadSoc_write) (int fd, const void *buf, size_t nbyte);
 extern int (*MadSoc_close) (int fd);
-extern int (*MadSoc_select)(int n, fd_set *rfds, fd_set *wfds, fd_set *efds, struct timeval *to);
 
 extern MadBool        Newlib_Init      (void);
 extern int            NL_Log_Init      (void);

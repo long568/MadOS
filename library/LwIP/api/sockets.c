@@ -438,8 +438,8 @@ tryget_socket_unconn(int fd)
 }
 
 /* Like tryget_socket_unconn(), but called under SYS_ARCH_PROTECT lock. */
-#if LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL /* Added by long 20191010 */
-static struct lwip_sock *
+/* Modified by long 20191014 */
+/*static*/ struct lwip_sock *
 tryget_socket_unconn_locked(int fd)
 {
   struct lwip_sock *ret = tryget_socket_unconn_nouse(fd);
@@ -450,7 +450,6 @@ tryget_socket_unconn_locked(int fd)
   }
   return ret;
 }
-#endif
 
 /**
  * Same as get_socket but doesn't set errno
@@ -1737,6 +1736,18 @@ lwip_socket(int domain, int type, int protocol)
     set_errno(ENFILE);
     return -1;
   }
+
+  /* Added by long 20191014 */
+  do {
+    struct lwip_sock* _sock = get_socket(i);
+    if(MFALSE == madWaitQInit(&_sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+      netconn_delete(conn);
+      free_socket(_sock, 0);
+      set_errno(ENFILE);
+      return -1;
+    }
+  } while(0);
+
   conn->socket = i;
   done_socket(&sockets[i - LWIP_SOCKET_OFFSET]);
   LWIP_DEBUGF(SOCKETS_DEBUG, ("%d\n", i));
@@ -2475,6 +2486,7 @@ lwip_poll_should_wake(const struct lwip_select_cb *scb, int fd, int has_recveven
  *   NETCONN_EVT_ERROR
  * This requirement will be asserted in select_check_waiters()
  */
+extern void lwip_select_callback(struct lwip_sock* sock, int has_recvevent, int has_sendevent, int has_errevent);
 static void
 event_callback(struct netconn *conn, enum netconn_evt evt, u16_t len)
 {
@@ -2554,8 +2566,13 @@ event_callback(struct netconn *conn, enum netconn_evt evt, u16_t len)
     has_sendevent = sock->sendevent != 0;
     has_errevent = sock->errevent != 0;
     SYS_ARCH_UNPROTECT(lev);
+
     /* Check any select calls waiting on this socket */
-    select_check_waiters(s, has_recvevent, has_sendevent, has_errevent);
+    /* Modified by long 20191014 */
+    // select_check_waiters(s, has_recvevent, has_sendevent, has_errevent);
+    (void)select_check_waiters;
+    lwip_select_callback(sock, has_recvevent, has_sendevent, has_errevent);
+    
   } else {
     SYS_ARCH_UNPROTECT(lev);
   }

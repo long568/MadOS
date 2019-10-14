@@ -1,7 +1,6 @@
 #ifndef __MADOS__SOCKETS__H__
 #define __MADOS__SOCKETS__H__
 
-#include "lwip/sockets.h"
 #include "mod_Newlib.h"
 
 #define LWIP_REALS(s) ((((s) > STD_FD_END - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
@@ -27,8 +26,5 @@ extern int     socket   (int domain, int type, int protocol);
 #define ioctlsocket(s,cmd,argp)                   lwip_ioctl(LWIP_REALS(s),cmd,argp)
 #define inet_ntop(af,src,dst,size)                lwip_inet_ntop(af,src,dst,size)
 #define inet_pton(af,src,dst)                     lwip_inet_pton(af,src,dst)
-#if LWIP_SOCKET_POLL
-extern int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-#endif
 
 #endif

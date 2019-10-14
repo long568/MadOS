@@ -13,7 +13,6 @@ int (*MadSoc_ioctl) (int fd, int request, va_list args)     = 0;
 int (*MadSoc_read)  (int fd, void *buf, size_t nbyte)       = 0;
 int (*MadSoc_write) (int fd, const void *buf, size_t nbyte) = 0;
 int (*MadSoc_close) (int fd)                                = 0;
-int (*MadSoc_select)(int n, fd_set *rfds, fd_set *wfds, fd_set *efds, struct timeval *to) = 0;
 
 #define NL_FD_REAL_FD(fd) \
     if(NL_FD_ARRAY[fd].org > -1) { \

@@ -85,7 +85,7 @@ static void madStartup(MadVptr exData)
  * User-Apps
  ********************************************/
     // Init_TestUIP();
-    // Init_TestLwIP();
+    Init_TestLwIP();
     Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);

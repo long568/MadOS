@@ -50,7 +50,7 @@
 #define LWIP_TIMEVAL_PRIVATE            0
 #define LWIP_COMPAT_SOCKETS             3
 #define LWIP_SOCKET_POLL                0
-#define LWIP_SOCKET_SELECT              0 // Implemented by MadOS
+#define LWIP_SOCKET_SELECT              1 // Implemented by MadOS
 
 #define ETH_PAD_SIZE                    2
 #define MEM_ALIGNMENT                   MAD_MEM_ALIGN

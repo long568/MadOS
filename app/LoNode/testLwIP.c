@@ -58,13 +58,13 @@ static void udp_thread(MadVptr exData)
     s = socket(AF_INET, SOCK_DGRAM, 0);
 
     addr_recv.sin_family      = AF_INET;
-    addr_recv.sin_port        = htons(5685);
+    addr_recv.sin_port        = htons(5688);
     addr_recv.sin_addr.s_addr = htonl(INADDR_ANY);
     bind(s, (struct sockaddr*)&addr_recv, sizeof(struct sockaddr));
 
     addr_send.sin_family      = AF_INET;
-    addr_send.sin_port        = htons(5685);
-    addr_send.sin_addr.s_addr = inet_addr("192.168.1.101");
+    addr_send.sin_port        = htons(5688);
+    addr_send.sin_addr.s_addr = inet_addr("192.168.1.103");
 
     i = 0;
     while (1) {
@@ -93,7 +93,7 @@ static void tcpc_thread(MadVptr exData)
 
     addr.sin_family =AF_INET;
     addr.sin_port =htons(5688);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.101");
+    addr.sin_addr.s_addr = inet_addr("192.168.1.103");
     rc = connect(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
     if(rc < 0) {
         MAD_LOG("[LwIP] lwip_connect ... Failed\n");
@@ -102,8 +102,8 @@ static void tcpc_thread(MadVptr exData)
 
     i = 0;
     while(1) {
-        read(s, buf, BUFF_SIZ);
-        len = sprintf(buf, "Hello, TCPC ! [%d]", ++i);
+        rc = read(s, buf, BUFF_SIZ);
+        len = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i);
         write(s, buf, len);
     }
 }
