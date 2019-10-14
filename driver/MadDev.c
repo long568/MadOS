@@ -6,7 +6,7 @@ void MadDev_Init(void)
 {
     int      fd   = 0;
     MadDev_t *dev = DevsList[fd];
-    while(dev && dev != -1) {
+    while(dev && (int)dev != -1) {
         dev->opened     = MFALSE;
         dev->flag       = 0;
         dev->waitQ.l0   = 0;
@@ -28,7 +28,7 @@ int MadDev_open(const char *file, int flag, va_list args)
     MadDev_t *dev = DevsList[fd];
     const MadDevArgs_t *dargs = dev->args;
 
-    while(dev && dev != -1) {
+    while(dev && (int)dev != -1) {
         if(0 == strcmp(file, dev->name)) {
             MAD_PROTECT_OPT(
                 if(dev->opened == MFALSE) {
