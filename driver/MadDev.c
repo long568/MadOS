@@ -141,6 +141,9 @@ int MadDev_close(int fd)
             madWaitQShut(&dev->waitQ);
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
+            MAD_PROTECT_OPT(
+                dev->opened = MFALSE;
+            );
         }
     }
     return res;
