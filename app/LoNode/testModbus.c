@@ -70,6 +70,7 @@ static void modbus_client(MadVptr exData)
         }
         modbus_close(ctx);
         modbus_free(ctx);
+        free(reg_buf);
         madTimeDly(6000);
     }
 }
