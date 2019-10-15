@@ -21,27 +21,29 @@ static int  modbus_write(int fun, modbus_t *ctx, int addr, int val, uint16_t *bu
 
 void Init_TestModbus(void)
 {
-    madThreadCreate(modbus_client, MODBUS_RTU, 1024 * 2, THREAD_PRIO_TEST_MODBUS_RTU);
-    madThreadCreate(modbus_client, MODBUS_TCP, 1024 * 2, THREAD_PRIO_TEST_MODBUS_TCP);
+    madThreadCreate(modbus_client, (MadVptr)MODBUS_RTU, 1024 * 2, THREAD_PRIO_TEST_MODBUS_RTU);
+    madThreadCreate(modbus_client, (MadVptr)MODBUS_TCP, 1024 * 2, THREAD_PRIO_TEST_MODBUS_TCP);
 }
 
 static void modbus_client(MadVptr exData)
 {
-    int i, v, rc;
-    modbus_t *ctx;
+    int i, v, rc, type;
     MadU16   *reg_buf;
-    MadU8    type = (MadU8)exData;
+    modbus_t *ctx;
     const char *head;
 
     madTimeDly(5000);
 
+    ctx  = 0;
+    head = 0;
+    type = (int)exData;
     while(1) {
         do {
             rc = 0;
             switch(type) {
                 case MODBUS_RTU: ctx = modbus_new_rtu("/dev/tty1", 9600, 'N', 8, 1); head = MODBUS_RTU_HEAD; break;
                 case MODBUS_TCP: ctx = modbus_new_tcp("192.168.1.103", 502);         head = MODBUS_TCP_HEAD; break;
-                default: madThreadPend(MAD_THREAD_SELF);
+                default: madThreadPend(MAD_THREAD_SELF); break;
             }
             modbus_set_debug(ctx, OFF);
             modbus_set_slave(ctx, 1);
@@ -66,6 +68,7 @@ static void modbus_client(MadVptr exData)
             if(++i > 9) i = 0;
             v++;
         }
+        modbus_close(ctx);
         modbus_free(ctx);
         madTimeDly(6000);
     }
