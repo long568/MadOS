@@ -25,9 +25,9 @@ int main()
     
     do { // 25MHz-Output For IP101A
         GPIO_InitTypeDef gpio;
-        gpio.GPIO_Mode = GPIO_Mode_AF_PP;
+        gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
         gpio.GPIO_Speed = GPIO_Speed_50MHz;
-        gpio.GPIO_Pin = GPIO_Pin_8;
+        gpio.GPIO_Pin   = GPIO_Pin_8;
         GPIO_Init(GPIOA, &gpio);
         RCC_MCOConfig(RCC_MCO_HSE);
     } while(0);
@@ -49,8 +49,9 @@ static void madStartup(MadVptr exData)
     MAD_LOG_INIT();
     // 输出 Hello World !
     printf("Hello World !\n");
-    
-    while(1) { // 线程主循环
-        madTimeDly(0xFFFFFFFF); // 近乎无限休眠
+    // 线程主循环
+    while(1) {
+        // 近乎无限休眠
+        madTimeDly(0xFFFFFFFF);
 	}
 }

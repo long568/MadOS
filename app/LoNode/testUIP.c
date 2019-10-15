@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "MadOS.h"
 #include "uTcp.h"
 
 static uTcp *sock;

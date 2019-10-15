@@ -2,6 +2,7 @@
 #if LO_TEST_LWIP
 
 #include <unistd.h>
+#include "MadOS.h"
 #include "lwip/tcpip.h"
 #include "lwip/dhcp.h"
 #include "lwip/sockets.h"

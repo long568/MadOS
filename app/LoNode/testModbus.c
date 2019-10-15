@@ -1,3 +1,6 @@
+#include "testModbus.h"
+#if LO_TEST_MODBUS
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -147,3 +150,5 @@ static int modbus_write(int fun, modbus_t *ctx, int addr, int val, uint16_t *buf
     }
     return rc;
 }
+
+#endif

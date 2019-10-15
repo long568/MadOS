@@ -6,6 +6,7 @@
 #include "mod_FatFs.h"
 // #include "mod_Lua.h"
 
+#include "testFatFs.h"
 #include "testModbus.h"
 #include "testLwIP.h"
 #include "testUIP.h"
@@ -78,12 +79,13 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-    // FatFs_Init();
+    FatFs_Init();
     // LuaParser_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
+    // Init_TestFatFs();
     // Init_TestUIP();
     Init_TestLwIP();
     Init_TestModbus();

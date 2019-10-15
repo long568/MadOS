@@ -6,7 +6,7 @@ extern MadDev_t O20;
 extern MadDev_t NH30;
 
 MadDev_t *DevsList[] = {
-    &Tty, // Tty must be the FIRST element of the DevsList.
+    &Tty,
     &Lora0,
     &O20,
     &NH30,

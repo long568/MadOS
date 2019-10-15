@@ -20,6 +20,9 @@
 // 	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > FF_FS_LOCK */
 // 	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
 // } FRESULT;
+#include "testFatFs.h"
+#if LO_TEST_FATFS
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -27,7 +30,6 @@
 #include "MadOS.h"
 #include "CfgUser.h"
 #include "ff.h"
-#include "testFatFs.h"
 
 #define HELLO_MADOS "Hello MadOS\nNow, we are ONE !!!\n"
 #define HELLO_LEN   sizeof(HELLO_MADOS)-1
@@ -187,3 +189,5 @@ static void test_fatfs_act(MadVptr exData)
         }
     }
 }
+
+#endif
