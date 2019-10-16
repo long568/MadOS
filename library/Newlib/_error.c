@@ -1,5 +1,9 @@
 #include "MadOS.h"
 
-inline int *__errno(void) {
-    return &MadCurTCB->posix_errno;
+int *__errno(void) {
+    int *rc;
+    MAD_PROTECT_OPT(
+        rc = &MadCurTCB->posix_errno;
+    );
+    return rc;
 }
