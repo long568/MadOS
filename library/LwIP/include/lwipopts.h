@@ -61,13 +61,12 @@
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
-#define TCP_SND_BUF                     (4 * TCP_MSS)
 
-#define TCPIP_MBOX_SIZE                 3
-#define DEFAULT_RAW_RECVMBOX_SIZE       3
-#define DEFAULT_UDP_RECVMBOX_SIZE       3
-#define DEFAULT_TCP_RECVMBOX_SIZE       3
-#define DEFAULT_ACCEPTMBOX_SIZE         3
+#define TCPIP_MBOX_SIZE                 4
+#define DEFAULT_RAW_RECVMBOX_SIZE       2
+#define DEFAULT_UDP_RECVMBOX_SIZE       2
+#define DEFAULT_TCP_RECVMBOX_SIZE       2
+#define DEFAULT_ACCEPTMBOX_SIZE         2
 
 #define TCPIP_THREAD_PRIO               THREAD_PRIO_LWIP_TCPIP
 #define TCPIP_THREAD_STACKSIZE          1024

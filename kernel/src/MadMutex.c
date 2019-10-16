@@ -193,24 +193,30 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *
     return res;
 }
 
-MadBool madMutexCheck(MadMutexCB_t **pMutex)
+MadU8 madMutexCheck(MadMutexCB_t **pMutex)
 {
 	MadCpsr_t    cpsr;
     MadBool      res;
 	MadMutexCB_t *mutex;
     
     if(pMutex == MNULL) {
-        return MFALSE;
+        return MAD_ERR_MUTEX_INVALID;
+    }
+
+    madEnterCritical(cpsr);
+	mutex = *pMutex;
+    if(mutex == MNULL) {
+        madExitCritical(cpsr);
+        return MAD_ERR_MUTEX_INVALID;
     }
     
-    res = MFALSE;
-	madEnterCritical(cpsr);
-	mutex = *pMutex;
-    if(mutex && (mutex->cnt > 0)) {
+    res = MAD_ERR_TIMEOUT;
+    if(mutex->cnt > 0) {
         mutex->cnt  = 0;
         mutex->curt = MadCurTCB;
-        res = MTRUE;
+        res = MAD_ERR_OK;
     }
+    
     madExitCritical(cpsr);
     return res;
 }
@@ -221,12 +227,12 @@ void madDoMutexDelete(MadMutexCB_t **pMutex, MadBool opt)
 	MadMutexCB_t *mutex;
     
     if(pMutex == MNULL) return;
-	
+
     madEnterCritical(cpsr);
-	mutex = *pMutex;
+	mutex   = *pMutex;
     *pMutex = MNULL;
     madExitCritical(cpsr);
-    
+
     if(!mutex) return;
     
     if(opt) {

@@ -164,23 +164,29 @@ MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr)
     return res;
 }
 
-MadBool madSemCheck(MadSemCB_t **pSem)
+MadU8 madSemCheck(MadSemCB_t **pSem)
 {
 	MadCpsr_t  cpsr;
-    MadBool    res;
+    MadU8      res;
 	MadSemCB_t *sem;
     
     if(pSem == MNULL) {
-        return MFALSE;
+        return MAD_ERR_SEM_INVALID;
     }
     
-    res = MFALSE;
-	madEnterCritical(cpsr);
+    madEnterCritical(cpsr);
 	sem = *pSem;
-    if(sem && (sem->cnt > 0)) {
-        sem->cnt--;
-        res = MTRUE;
+    if(sem == MNULL) {
+        madExitCritical(cpsr);
+        return MAD_ERR_SEM_INVALID;
     }
+    
+    res = MAD_ERR_TIMEOUT;
+    if(sem->cnt > 0) {
+        sem->cnt--;
+        res = MAD_ERR_OK;
+    }
+
     madExitCritical(cpsr);
     return res;
 }
@@ -191,9 +197,9 @@ MadSemCB_t* madDoSemShut(MadSemCB_t **pSem, MadBool opt)
 	MadSemCB_t *sem;
     
     if(pSem == MNULL) return MNULL;
-	
+
     madEnterCritical(cpsr);
-	sem = *pSem;
+	sem   = *pSem;
     *pSem = MNULL;
     madExitCritical(cpsr);
     

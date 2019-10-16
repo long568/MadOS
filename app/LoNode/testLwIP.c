@@ -9,7 +9,8 @@
 #include "arch/ethernetif.h"
 #include "CfgUser.h"
 
-#define BUFF_SIZ 64
+#define BUFF_SIZ  64
+#define TAGGET_IP "192.168.1.101"
 
 static struct netif *nif;
 static void udp_thread(MadVptr exData);
@@ -65,7 +66,7 @@ static void udp_thread(MadVptr exData)
 
     addr_send.sin_family      = AF_INET;
     addr_send.sin_port        = htons(5688);
-    addr_send.sin_addr.s_addr = inet_addr("192.168.1.103");
+    addr_send.sin_addr.s_addr = inet_addr(TAGGET_IP);
 
     i = 0;
     while (1) {
@@ -94,7 +95,7 @@ static void tcpc_thread(MadVptr exData)
 
     addr.sin_family =AF_INET;
     addr.sin_port =htons(5688);
-    addr.sin_addr.s_addr = inet_addr("192.168.1.103");
+    addr.sin_addr.s_addr = inet_addr(TAGGET_IP);
     rc = connect(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
     if(rc < 0) {
         MAD_LOG("[LwIP] lwip_connect ... Failed\n");

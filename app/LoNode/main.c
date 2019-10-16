@@ -3,7 +3,7 @@
 #include "MadOS.h"
 #include "CfgUser.h"
 #include "mod_Newlib.h"
-#include "mod_FatFs.h"
+// #include "mod_FatFs.h"
 // #include "mod_Lua.h"
 
 #include "testFatFs.h"
@@ -79,7 +79,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-    FatFs_Init();
+    // FatFs_Init();
     // LuaParser_Init();
 
 /********************************************
@@ -88,7 +88,7 @@ static void madStartup(MadVptr exData)
     // Init_TestFatFs();
     // Init_TestUIP();
     Init_TestLwIP();
-    Init_TestModbus();
+    // Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);

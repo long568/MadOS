@@ -36,13 +36,12 @@ static MadBool mad_dma_init(MadMemDMA_t *d, DMA_Channel_TypeDef *chl,
 
     d->chl    = chl;
     d->it_tc  = it_tc;
-    d->locker = madMutexCreate();
+    d->locker = madMutexCreateN();
     d->opting = MFALSE;
     if(MNULL == d->locker) {
         MAD_LOG("[ArchMem] mad_dma_init(%d) ... Failed\n", irqn);
         return MFALSE;
     }
-    madMutexCheck(&d->locker);
 
     dma.DMA_PeripheralBaseAddr = 0;  // Configured by app.
     dma.DMA_MemoryBaseAddr     = 0;  // Configured by app.
@@ -75,7 +74,7 @@ static MadMemDMA_t* mad_dma_search(void)
 {
     int i;
     MadCpsr_t cpsr;
-    if(MFALSE == madSemCheck(&mad_archm_locker)) {
+    if(MAD_ERR_OK != madSemCheck(&mad_archm_locker)) {
         return 0;
     }
     for(i=0; i<DMA_NUM; i++) {

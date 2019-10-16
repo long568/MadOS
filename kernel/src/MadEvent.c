@@ -173,12 +173,12 @@ void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
     if(pEvent == MNULL) return;
     
     madEnterCritical(cpsr);
-	event = *pEvent;
+	event   = *pEvent;
     *pEvent = MNULL;
     madExitCritical(cpsr);
-    
+
 	if(!event) return;
-    
+
     if(opt) {
         madDoEventTrigger(&event, MAD_EVENT_TRIGALL, MAD_ERR_EVENT_INVALID);
     }
