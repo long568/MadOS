@@ -30,7 +30,7 @@ static const mUsartChar_InitData_t LowArgs = {
 };
 
 static const MadDevArgs_t Args = {
-    MAD_WAITQ_DEFAULT_SIZE,
+    MAD_WAITQ_DEFAULT_SIZE * 2,
     128,
     128,
     &LowArgs

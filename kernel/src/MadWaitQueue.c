@@ -130,10 +130,14 @@ MadBool madWaitQScan(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event, MadWait_t
     return rc;
 }
 
-void madWaitQSignal(MadWaitQ_t *wq, MadU8 event)
+MadBool madWaitQSignal(MadWaitQ_t *wq, MadU8 event)
 {
+    MadBool rc;
     MadWait_t rw;
-    if(MTRUE == madWaitQScan(wq, 0, event, &rw)) {
-        madSemRelease(rw.locker);
-    }
+    MadCpsr_t cpsr;
+    madEnterCritical(cpsr);
+    rc = madWaitQScan(wq, 0, event, &rw);
+    if(MTRUE == rc) madSemRelease(rw.locker);
+    madExitCritical(cpsr);
+    return rc;
 }

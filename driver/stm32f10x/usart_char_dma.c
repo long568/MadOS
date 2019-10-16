@@ -234,21 +234,20 @@ void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
 
 static void eventcall(mUsartChar_t *port, int event)
 {
-    MadBool    rc;
     MadCpsr_t  cpsr;
-    MadWait_t  rw;
     madEnterCritical(cpsr);
-    rc = madWaitQScanEvent(port->waitQ, event, &rw);
+    madWaitQSignal(port->waitQ, event);
     switch(event) {
         case MAD_WAIT_EVENT_WRITE: {
-            if(port->wrEvent > 0) port->wrEvent--;
+            if(port->wrEvent > 0) {
+                port->wrEvent--;
+            }
             break;
         }
         default:
             break;
     }
     madExitCritical(cpsr);
-    if(rc) madSemRelease(rw.locker);
 }
 
 int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)

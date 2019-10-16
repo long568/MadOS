@@ -30,33 +30,21 @@ void lwip_select_callback(struct lwip_sock* sock, int has_recvevent, int has_sen
 {
     int cnt;
     MadCpsr_t  cpsr;
-    MadWait_t  rw;
     MadWaitQ_t *waitQ;
-    MadSemCB_t **rlocker, **wlocker, **elocker;
-
     cnt = 0;
-    rlocker = wlocker = elocker = 0;
     madEnterCritical(cpsr);
-
     waitQ = &sock->waitQ;
-    if(has_recvevent && MTRUE == madWaitQScanEvent(waitQ, MAD_WAIT_EVENT_READ, &rw)) {
-        rlocker = rw.locker;
+    if(has_recvevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_READ)) {
         cnt++;
     }
-    if(has_sendevent && MTRUE == madWaitQScanEvent(waitQ, MAD_WAIT_EVENT_WRITE, &rw)) {
-        wlocker = rw.locker;
+    if(has_sendevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_WRITE)) {
         cnt++;
     }
-    if(has_errevent && MTRUE == madWaitQScanEvent(waitQ, MAD_WAIT_EVENT_ERR, &rw)) {
-        elocker = rw.locker;
+    if(has_errevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_ERR)) {
         cnt++;
     }
     sock->select_waiting -= cnt;
-
     madExitCritical(cpsr);
-    if(rlocker) madSemRelease(rlocker);
-    if(wlocker) madSemRelease(wlocker);
-    if(elocker) madSemRelease(elocker);
 }
 
 static int LwIP_fcntl (int s, int cmd, va_list args)

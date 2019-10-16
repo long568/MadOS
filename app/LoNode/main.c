@@ -102,6 +102,7 @@ static void madSysRunning(MadVptr exData)
     int tmrSysReport = 0;
     int idle_rate = 100;
     MadSize_t min_mem = 0xFFFFFFFF;
+    MadSize_t max_mem = 0;
     MadSize_t cur_mem = 0;
 #endif
     GPIO_InitTypeDef pin;
@@ -116,6 +117,7 @@ static void madSysRunning(MadVptr exData)
 
 #if MAD_STATIST_STK_SIZE
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
+    madTimeDly(10 * 1000);
 #endif
     
 	while(1) {
@@ -138,10 +140,11 @@ static void madSysRunning(MadVptr exData)
         idle_rate >>= 1;
         cur_mem = madMemUnusedSize();
         min_mem = (min_mem > cur_mem) ? cur_mem : min_mem;
+        max_mem = (max_mem < cur_mem) ? cur_mem : max_mem;
         if(++tmrSysReport > 300) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u / %u\n", 
-                    idle_rate, min_mem, cur_mem, madMemMaxSize());
+                    idle_rate, min_mem, cur_mem, max_mem);
         }
 #endif
 	}
