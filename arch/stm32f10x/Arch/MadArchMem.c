@@ -9,20 +9,20 @@
 
 typedef struct {
     DMA_Channel_TypeDef *chl;
-    u32                 it_tc;
     MadMutexCB_t        *locker;
+    u32                 it_tc;
     u8                  opting;
 } MadMemDMA_t;
 
 static MadSemCB_t  *mad_archm_locker;
 static MadMemDMA_t mad_dma[DMA_NUM];
 
-static void mad_dma_IRQ_Handler(MadMemDMA_t *dma)
+static void mad_dma_IRQ_Handler(MadMemDMA_t *d)
 {
-    if(SET == DMA_GetITStatus(dma->it_tc)) {
-        DMA_Cmd(dma->chl, DISABLE);
-        madMutexRelease(&dma->locker);
-        DMA_ClearITPendingBit(dma->it_tc);
+    if(SET == DMA_GetITStatus(d->it_tc)) {
+        DMA_Cmd(d->chl, DISABLE);
+        madMutexRelease(&d->locker);
+        DMA_ClearITPendingBit(d->it_tc);
     }
 }
 static void mad_dma_IRQ_Handler_0(void) { mad_dma_IRQ_Handler(&mad_dma[0]); }
@@ -32,7 +32,6 @@ static MadBool mad_dma_init(MadMemDMA_t *d, DMA_Channel_TypeDef *chl,
                             u32 it_tc, void (irq_fn)(void), enum IRQn irqn)
 {
     NVIC_InitTypeDef nvic;
-    DMA_InitTypeDef  dma;
 
     d->chl    = chl;
     d->it_tc  = it_tc;
@@ -43,30 +42,14 @@ static MadBool mad_dma_init(MadMemDMA_t *d, DMA_Channel_TypeDef *chl,
         return MFALSE;
     }
 
-    dma.DMA_PeripheralBaseAddr = 0;  // Configured by app.
-    dma.DMA_MemoryBaseAddr     = 0;  // Configured by app.
-    dma.DMA_DIR                = DMA_DIR_PeripheralDST;
-    dma.DMA_BufferSize         = 0;  // Configured by app.
-    dma.DMA_PeripheralInc      = DMA_PeripheralInc_Enable;
-    dma.DMA_MemoryInc          = 0;  // Configured by app.
-    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    dma.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
-    dma.DMA_Mode               = DMA_Mode_Normal;
-    dma.DMA_Priority           = DMA_Priority_Medium;
-    dma.DMA_M2M                = DMA_M2M_Enable;
-
     nvic.NVIC_IRQChannel                   = irqn;
     nvic.NVIC_IRQChannelPreemptionPriority = ISR_PRIO_ARCH_MEM;
     nvic.NVIC_IRQChannelSubPriority        = 0;
     nvic.NVIC_IRQChannelCmd                = ENABLE;
 
     DMA_DeInit(chl);
-    DMA_Init(chl, &dma);
-    DMA_ITConfig(chl, it_tc, ENABLE);
-
     NVIC_Init(&nvic);
     madInstallExIrq(irq_fn, irqn);
-
     return MTRUE;
 }
 
@@ -77,15 +60,15 @@ static MadMemDMA_t* mad_dma_search(void)
     if(MAD_ERR_OK != madSemCheck(&mad_archm_locker)) {
         return 0;
     }
+    // madSemWait(&mad_archm_locker, 0);
+    madEnterCritical(cpsr);
     for(i=0; i<DMA_NUM; i++) {
-        madEnterCritical(cpsr);
         if(mad_dma[i].opting == MFALSE) {
             mad_dma[i].opting = MTRUE;
-            madExitCritical(cpsr);
             break;
         }
-        madExitCritical(cpsr);
     }
+    madExitCritical(cpsr);
     return &mad_dma[i];
 }
 
@@ -101,10 +84,28 @@ static void mad_dma_release(MadMemDMA_t *d)
 static u8 mad_mem_cpy(MadMemDMA_t *d, MadVptr dst, const MadVptr src, MadSize_t size)
 {
     u8 rc;
+#if 1
     d->chl->CPAR  = (MadU32)dst;
     d->chl->CMAR  = (MadU32)src;
     d->chl->CNDTR = size;
-    d->chl->CCR  |= 0x81;
+    d->chl->CCR   = 0x000050D3;
+#else
+    DMA_InitTypeDef dma;
+    dma.DMA_PeripheralBaseAddr = (MadU32)dst;
+    dma.DMA_MemoryBaseAddr     = (MadU32)src;
+    dma.DMA_DIR                = DMA_DIR_PeripheralDST;
+    dma.DMA_BufferSize         = size;
+    dma.DMA_PeripheralInc      = DMA_PeripheralInc_Enable;
+    dma.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    dma.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    dma.DMA_Mode               = DMA_Mode_Normal;
+    dma.DMA_Priority           = DMA_Priority_Medium;
+    dma.DMA_M2M                = DMA_M2M_Enable;
+    DMA_Init(d->chl, &dma);
+    DMA_ITConfig(d->chl, d->it_tc, ENABLE);
+    DMA_Cmd(d->chl, ENABLE);
+#endif
     rc = madMutexWait(&d->locker, DMA_TIMEOUT);
     return rc;
 }
@@ -112,11 +113,28 @@ static u8 mad_mem_cpy(MadMemDMA_t *d, MadVptr dst, const MadVptr src, MadSize_t 
 static u8 mad_mem_set(MadMemDMA_t *d, MadVptr dst, u8 value, MadSize_t size)
 {
     u8 rc;
+#if 1
     d->chl->CPAR  = (MadU32)dst;
     d->chl->CMAR  = (MadU32)(&value);
     d->chl->CNDTR = size;
-    d->chl->CCR  &= ~0x80;
-    d->chl->CCR  |= 0x01;
+    d->chl->CCR   = 0x00005053;
+#else
+    DMA_InitTypeDef dma;
+    dma.DMA_PeripheralBaseAddr = (MadU32)dst;
+    dma.DMA_MemoryBaseAddr     = (MadU32)(&value);
+    dma.DMA_DIR                = DMA_DIR_PeripheralDST;
+    dma.DMA_BufferSize         = size;
+    dma.DMA_PeripheralInc      = DMA_PeripheralInc_Enable;
+    dma.DMA_MemoryInc          = DMA_MemoryInc_Disable;
+    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    dma.DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte;
+    dma.DMA_Mode               = DMA_Mode_Normal;
+    dma.DMA_Priority           = DMA_Priority_Medium;
+    dma.DMA_M2M                = DMA_M2M_Enable;
+    DMA_Init(d->chl, &dma);
+    DMA_ITConfig(d->chl, d->it_tc, ENABLE);
+    DMA_Cmd(d->chl, ENABLE);
+#endif
     rc = madMutexWait(&d->locker, DMA_TIMEOUT);
     return rc;
 }
@@ -130,7 +148,7 @@ MadBool madArchMemInit(void)
         MAD_LOG("[ArchMem] madArchMemInit ... Failed\n");
         madSemDelete(&mad_archm_locker);
         mad_archm_locker = 0;
-        return MFALSE;;
+        return MFALSE;
     } else {
         return MTRUE;
     }

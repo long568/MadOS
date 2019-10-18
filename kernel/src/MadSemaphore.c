@@ -41,7 +41,6 @@ void madDoSemRelease(MadSemCB_t **pSem, MadU8 err)
 	
 	madEnterCritical(cpsr);
 	sem = *pSem;
-    
     if(!sem) {
         madExitCritical(cpsr);
         return;
@@ -98,9 +97,9 @@ MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
         return MAD_ERR_SEM_INVALID;
     } 
     
-    res = MAD_ERR_OK;
     if(sem->cnt > 0) {
         sem->cnt--;
+        res = MAD_ERR_OK;
     } else {
         sem->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
@@ -136,11 +135,11 @@ MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr)
         return MAD_ERR_SEM_INVALID;
     }
     
-    sem = *pSem;
+    sem  = *pSem;
     cpsr = *pCpsr;
-    res = MAD_ERR_OK;
     if(sem->cnt > 0) {
         sem->cnt--;
+        res = MAD_ERR_OK;
     } else {
         sem->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
@@ -160,6 +159,7 @@ MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr)
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
+
     *pCpsr = cpsr;
     return res;
 }
@@ -169,24 +169,21 @@ MadU8 madSemCheck(MadSemCB_t **pSem)
 	MadCpsr_t  cpsr;
     MadU8      res;
 	MadSemCB_t *sem;
-    
+
     if(pSem == MNULL) {
         return MAD_ERR_SEM_INVALID;
     }
-    
+    res = MAD_ERR_TIMEOUT;
     madEnterCritical(cpsr);
+
 	sem = *pSem;
     if(sem == MNULL) {
-        madExitCritical(cpsr);
-        return MAD_ERR_SEM_INVALID;
-    }
-    
-    res = MAD_ERR_TIMEOUT;
-    if(sem->cnt > 0) {
+        res = MAD_ERR_SEM_INVALID;
+    } else if(sem->cnt > 0) {
         sem->cnt--;
         res = MAD_ERR_OK;
     }
-
+    
     madExitCritical(cpsr);
     return res;
 }

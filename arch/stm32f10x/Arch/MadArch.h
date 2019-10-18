@@ -44,10 +44,11 @@ typedef MadU32             MadAligned_t;
 #define DEF_SYS_TICK_FREQ (9000000)
 #define DEF_TICKS_PER_SEC (1000)
 
-#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 #define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); } while(0)
 #define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); } while(0)
 #define madInCritical()        ((0x10 == __get_BASEPRI()) ? MTRUE : MFALSE)
+#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; \
+								    __NOP(); __NOP(); } while(0)
 #if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/
 #define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; \
                                    __asm{ rbit t, t; clz t, t; }; \

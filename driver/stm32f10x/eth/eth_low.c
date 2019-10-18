@@ -17,9 +17,12 @@ void eth_low_PhyEvent(mEth_t *eth)
 {
     if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_R)) {
         madEventTrigger(&eth->Event, mEth_PE_STATUS_RXPKT);
-        ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
+        ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS | ETH_DMA_IT_R);
     }
-    ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
+    // if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_RO)) {
+    //     madEventTrigger(&eth->Event, mEth_PE_STATUS_RXOVR);
+    //     ETH_DMAClearITPendingBit(ETH_DMA_IT_AIS | ETH_DMA_IT_RO);
+    // }
 }
 
 MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
@@ -58,7 +61,7 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
         return MFALSE;
     }
     if(initData->infn(eth) &&
-       madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
+        madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
         madInstallExIrq(initData->extIRQh, initData->extIRQn);
         madInstallExIrq(initData->ethIRQh, initData->ethIRQn);
         eth->ThreadID = initData->ThreadID;
@@ -184,10 +187,11 @@ MadBool eth_mac_init(mEth_t *eth)
     ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;                
     ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
     ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
-    ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_1_1; //ETH_DMAArbitration_RoundRobin_RxTx_2_1;
+    ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
 
     if(ETH_Init(&ETH_InitStructure, phy_addr)) {
-        ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
+        ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R /*| 
+                        ETH_DMA_IT_AIS | ETH_DMA_IT_RO*/, ENABLE);
         ETH_MACAddressConfig(ETH_MAC_Address0, eth->MAC_ADDRESS);
         eth_mac_start(eth);
         return MTRUE;
@@ -204,7 +208,7 @@ MadBool eth_mac_start(mEth_t *eth)
     for(i=0; i<eth->RxDscrNum; i++) {
         ETH_DMARxDescReceiveITConfig(&eth->RxDscr[i], ENABLE);
     }
-#if  mEth_CHECKSUM_BY_HARDWARE
+#if mEth_CHECKSUM_BY_HARDWARE
     for(i=0; i<eth->TxDscrNum; i++) {
         ETH_DMATxDescChecksumInsertionConfig(&eth->TxDscr[i], ETH_DMATxDesc_ChecksumTCPUDPICMPFull);
     }
@@ -220,7 +224,7 @@ void eth_driver_thread(MadVptr exData)
     MadTim_t dt;
     mEth_t *eth = (mEth_t*)exData;
 
-    event = mEth_PE_STATUS_CHANGED;
+    event = 0;
     dt    = 0;
     
     while(1) {
@@ -275,6 +279,11 @@ void eth_driver_thread(MadVptr exData)
                     MAD_LOG("[ETH] Link down\n");
                 }
             }
+        }
+
+        // Rx Overflow
+        if(event & mEth_PE_STATUS_RXOVR) {
+            ETH_RxPktOverflow();
         }
         
         // Handle App

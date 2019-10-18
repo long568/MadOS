@@ -12,6 +12,11 @@
 #define ether_memcpy memcpy
 #endif
 
+inline static void low_free_pbuf(struct pbuf *p)
+{
+	free((void*)p);
+}
+
 static MadBool
 low_level_init(struct ethernetif *eth)
 {
@@ -46,27 +51,18 @@ low_level_output(struct netif *netif, struct pbuf *p)
 	uint32_t len;
 	uint8_t *buf;
 	int res;
-
 	if(0 == ETH_TxPktRdy()) {
 		MAD_LOG("[LwIP] 0 == ETH_TxPktRdy()\n");
 		return ERR_MEM;
 	}
-
-#if ETH_PAD_SIZE
-	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
-#endif
+	res = ERR_OK;
 	len = p->tot_len;
 	buf = (uint8_t *)ETH_GetCurrentTxBuffer();
-	res = ERR_OK;
 	for(q = p; q != NULL; q = q->next) {
 		ether_memcpy(buf, q->payload, q->len);
 		buf += q->len;
 	}
 	ETH_TxPkt_ChainMode(len);
-#if ETH_PAD_SIZE
-	pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
-#endif
-
 	LINK_STATS_INC(link.xmit);
 	return res;
 }
@@ -74,40 +70,52 @@ low_level_output(struct netif *netif, struct pbuf *p)
 static struct pbuf *
 low_level_input(struct netif *netif)
 {
-	struct pbuf *p, *q;
+	struct pbuf  *p;
 	FrameTypeDef frame;
-	uint32_t len;
-    uint8_t *buf;
+	uint32_t     len;
+    uint8_t      *buf;
 
 	frame = ETH_RxPkt_ChainMode();
 	if(frame.length == 0) {
-		return 0;
+		return NULL;
 	}
 	buf = (uint8_t *)frame.buffer;
 	len = frame.length;
 
-#if ETH_PAD_SIZE
-	len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
-#endif
-	p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
-	if (p != NULL) {
-#if ETH_PAD_SIZE
-		pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
-#endif
+#if 0
+	do {
+		struct pbuf *q;
+		p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
+		if (p == NULL) {
+			LINK_STATS_INC(link.memerr);
+			LINK_STATS_INC(link.drop);
+			return NULL;
+		}
 		for(q = p; q != NULL; q = q->next) {
 			ether_memcpy(q->payload, buf, q->len);
 			buf += q->len;
 		}
-#if ETH_PAD_SIZE
-		pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
+	} while(0);
+#else
+	do {
+		uint8_t *tmp;
+		struct  pbuf_custom *cp;
+		tmp = (uint8_t*)malloc(MAD_ALIGNED_SIZE(sizeof(struct pbuf_custom)) + len);
+		cp  = (struct pbuf_custom*)tmp;
+		if(cp == NULL) {
+			LINK_STATS_INC(link.memerr);
+			LINK_STATS_INC(link.drop);
+			return NULL;
+		}
+		cp->custom_free_function = low_free_pbuf;
+		tmp += MAD_ALIGNED_SIZE(sizeof(struct pbuf_custom));
+		ether_memcpy(tmp, buf, len);
+		p = pbuf_alloced_custom(PBUF_RAW, len, PBUF_REF, cp, tmp, len);
+	} while(0);
 #endif
-		LINK_STATS_INC(link.recv);
-	} else {
-		LINK_STATS_INC(link.memerr);
-		LINK_STATS_INC(link.drop);
-	}
 
 	ETH_RxPktResume(frame.descriptor);
+	LINK_STATS_INC(link.recv);
 	return p;
 }
 
@@ -116,17 +124,13 @@ ethernetif_input(struct netif *netif)
 {
 	struct pbuf *p;
 	do {
-		LOCK_TCPIP_CORE();
 		p = low_level_input(netif);
-		if (p != NULL) {
-			if (netif->input(p, netif) != ERR_OK) {
-				LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-				pbuf_free(p);
-				p = NULL;
-			}
+		if(p == NULL) break;
+		if (netif->input(p, netif) != ERR_OK) {
+			LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+			pbuf_free(p);
 		}
-		UNLOCK_TCPIP_CORE();
-	} while(p != NULL);
+	} while(1);
 }
 
 MadBool ethernetif_callback(struct ethernetif *eth, MadUint event, MadTim_t dt)

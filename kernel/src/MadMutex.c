@@ -61,7 +61,7 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
     mutex->curt = MNULL;
 
     if(!mutex->rdyg) {
-        mutex->cnt  = 1;
+        mutex->cnt = 1;
         madExitCritical(cpsr);
         return;
     }
@@ -80,6 +80,8 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
     tcb->xCB = 0;
     tcb->state &= ~MAD_THREAD_WAITMUTEX;
     tcb->err = err;
+    
+    mutex->curt = tcb;
     
     if(!tcb->state) {
         MadThreadRdyGrp |= tcb->rdyg_bit;
@@ -115,10 +117,10 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
         return MAD_ERR_OK;
     }
 
-    res = MAD_ERR_OK;
     if(mutex->cnt > 0) {
         mutex->cnt  = 0;
         mutex->curt = MadCurTCB;
+        res = MAD_ERR_OK;
     } else {
         mutex->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
@@ -136,9 +138,6 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
         madSched();
         madEnterCritical(cpsr);
         res = MadCurTCB->err;
-        if(res == MAD_ERR_OK) {
-            mutex->curt = MadCurTCB;
-        }
         MadCurTCB->err = MAD_ERR_OK;
     }
     
@@ -158,15 +157,15 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *
     }
 
     mutex = *pMutex;
-    cpsr = *pCpsr;
+    cpsr  = *pCpsr;
     if((mutex->type == MAD_MUTEX_RECURSIVE) && (mutex->curt == MadCurTCB)) {
         return MAD_ERR_OK;
     }
     
-    res = MAD_ERR_OK;
     if(mutex->cnt > 0) {
         mutex->cnt  = 0;
         mutex->curt = MadCurTCB;
+        res = MAD_ERR_OK;
     } else {
         mutex->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
@@ -184,11 +183,9 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *
         madSched();
         madEnterCritical(cpsr);
         res = MadCurTCB->err;
-        if(res == MAD_ERR_OK) {
-            mutex->curt = MadCurTCB;
-        }
         MadCurTCB->err = MAD_ERR_OK;
     }
+
     *pCpsr = cpsr;
     return res;
 }
@@ -198,20 +195,17 @@ MadU8 madMutexCheck(MadMutexCB_t **pMutex)
 	MadCpsr_t    cpsr;
     MadBool      res;
 	MadMutexCB_t *mutex;
-    
+
     if(pMutex == MNULL) {
         return MAD_ERR_MUTEX_INVALID;
     }
-
+    res = MAD_ERR_TIMEOUT;
     madEnterCritical(cpsr);
+
 	mutex = *pMutex;
     if(mutex == MNULL) {
-        madExitCritical(cpsr);
-        return MAD_ERR_MUTEX_INVALID;
-    }
-    
-    res = MAD_ERR_TIMEOUT;
-    if(mutex->cnt > 0) {
+        res = MAD_ERR_MUTEX_INVALID;
+    } else if(mutex->cnt > 0) {
         mutex->cnt  = 0;
         mutex->curt = MadCurTCB;
         res = MAD_ERR_OK;

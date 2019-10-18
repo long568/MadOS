@@ -63,24 +63,25 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
 {
 	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
-    MadU8       res = MAD_ERR_MSGQ_EMPTY;
-	
+    MadU8       res;
+
     if(pMsgQ == MNULL) {
         return MAD_ERR_MSGQ_INVALID;
     }
-    
-	madEnterCritical(cpsr);   
+    res = MAD_ERR_MSGQ_EMPTY;
+	madEnterCritical(cpsr); 
+
 	msgQ = *pMsgQ;
-    
-    if(msgQ && (msgQ->cnt > 0)) {
-        if(msg)
-            *msg = *msgQ->head;
+    if(msgQ == MNULL) {
+        res = MAD_ERR_MSGQ_INVALID;
+    } else if(msgQ->cnt > 0) {
+        if(msg) *msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
         msgQ->cnt--;
-        madSemRelease(&msgQ->sem);
         res = MAD_ERR_OK;
+        madSemRelease(&msgQ->sem);
     }
     
     madExitCritical(cpsr);
@@ -92,7 +93,7 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
 	MadCpsr_t   cpsr;
 	MadMsgQCB_t *msgQ;
     MadU8       prio_h;
-    MadU8       res = MAD_ERR_MSGQ_EMPTY;
+    MadU8       res;
 	
     if(pMsgQ == MNULL) {
         return MAD_ERR_MSGQ_INVALID;
@@ -100,20 +101,20 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
     
 	madEnterCritical(cpsr);
 	msgQ = *pMsgQ;
-    
     if(!msgQ) {
         madExitCritical(cpsr);
         return MAD_ERR_MSGQ_INVALID;
     }
     
+    res = MAD_ERR_MSGQ_EMPTY;
     if(msgQ->cnt > 0) {
-        if(msg)
-            *msg = *msgQ->head;
+        if(msg) *msg = *msgQ->head;
         msgQ->head++;
         if(msgQ->head == msgQ->bottom)
             msgQ->head = msgQ->top;
         msgQ->cnt--;
         res = MAD_ERR_OK;
+        madSemRelease(&msgQ->sem);
     } else {
         msgQ->rdyg |= MadCurTCB->rdyg_bit;
         prio_h = MadCurTCB->prio >> 4;
@@ -131,16 +132,12 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
         madExitCritical(cpsr);
         madSched();
         madEnterCritical(cpsr);
-        if(msg)
-            *msg = MadCurTCB->msg;
+        if(msg) *msg = MadCurTCB->msg;
         MadCurTCB->msg = 0;
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
     
-    if(res == MAD_ERR_OK) {
-        madSemRelease(&msgQ->sem);
-    }
     madExitCritical(cpsr);
     return res;
 }
@@ -204,6 +201,8 @@ MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to,
         tcb->xCB = 0;
         tcb->state &= ~MAD_THREAD_WAITMSG;
         tcb->err = err;
+
+        madSemRelease(&msgQ->sem);
         
         if(!tcb->state) {
             MadThreadRdyGrp |= tcb->rdyg_bit;

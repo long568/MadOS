@@ -644,6 +644,34 @@ void ETH_RxPktResume(ETH_DMADESCTypeDef *descriptor)
   }
 }
 
+void ETH_RxPktOverflow(void)
+{
+#if 0
+  DMARxDescToGet->Status = ETH_DMARxDesc_OWN; 
+  if ((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
+    ETH->DMASR = ETH_DMASR_RBUS;
+    ETH->DMARPDR = 0;
+  }
+  DMARxDescToGet = (ETH_DMADESCTypeDef*) (DMARxDescToGet->Buffer2NextDescAddr);
+#else
+  while(1) {
+    if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (uint32_t)RESET){
+      break;
+    }
+    if(DMARxDescToGet->Status & ETH_DMARxDesc_OE) {
+      DMARxDescToGet->Status = ETH_DMARxDesc_OWN;
+      if((ETH->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
+        ETH->DMASR = ETH_DMASR_RBUS;
+        ETH->DMARPDR = 0;
+      }
+      DMARxDescToGet = (ETH_DMADESCTypeDef*) (DMARxDescToGet->Buffer2NextDescAddr);
+    } else {
+      break;
+    }
+  }
+#endif
+}
+
 /**
   * @brief  Get the size of received the received packet.
   * @param  None
@@ -3073,8 +3101,7 @@ FrameTypeDef ETH_RxPkt_ChainMode(void)
   /* Check if the descriptor is owned by the ETHERNET DMA (when set) or CPU (when reset) */
   if((DMARxDescToGet->Status & ETH_DMARxDesc_OWN) != (u32)RESET)
   {	
-	frame.length = ETH_ERROR;
-
+	  frame.length = ETH_ERROR;
     if ((ETH->DMASR & ETH_DMASR_RBUS) != (u32)RESET)  
     {
       /* Clear RBUS ETHERNET DMA flag */
@@ -3093,19 +3120,15 @@ FrameTypeDef ETH_RxPkt_ChainMode(void)
   {      
     /* Get the Frame Length of the received packet: substruct 4 bytes of the CRC */
     framelength = ((DMARxDescToGet->Status & ETH_DMARxDesc_FL) >> ETH_DMARxDesc_FrameLengthShift) - 4;
-	
-	/* Get the addrees of the actual buffer */
-	frame.buffer = DMARxDescToGet->Buffer1Addr;	
+	  /* Get the addrees of the actual buffer */
+	  frame.buffer = DMARxDescToGet->Buffer1Addr;	
   }
   else
   {
     /* Return ERROR */
     framelength = ETH_ERROR;
   }
-
   frame.length = framelength;
-
-
   frame.descriptor = DMARxDescToGet;
   
   /* Update the ETHERNET DMA global Rx descriptor with next Rx decriptor */      
@@ -3156,7 +3179,6 @@ u32 ETH_TxPkt_ChainMode(u16 FrameLength)
   /* Chained Mode */
   /* Selects the next DMA Tx descriptor list for next buffer to send */ 
   DMATxDescToSet = (ETH_DMADESCTypeDef*) (DMATxDescToSet->Buffer2NextDescAddr);    
-
 
   /* Return SUCCESS */
   return ETH_SUCCESS;   

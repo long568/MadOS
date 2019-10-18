@@ -1626,8 +1626,9 @@ uint32_t ETH_GetRxPktSize(void);
 void ETH_DropRxPkt(void);
 
 /* Added by long 20191006*/
-uint8_t ETH_TxPktRdy   (void);
-void    ETH_RxPktResume(ETH_DMADESCTypeDef *descriptor);
+uint8_t ETH_TxPktRdy     (void);
+void    ETH_RxPktResume  (ETH_DMADESCTypeDef *descriptor);
+void    ETH_RxPktOverflow(void);
 
 /** 
   * @brief  PHY  

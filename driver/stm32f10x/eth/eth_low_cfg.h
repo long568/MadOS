@@ -5,11 +5,11 @@
 
 #define mEth_CHECKSUM_BY_HARDWARE 1
 
-#define mEth_EVENT_TIMEOUT  (100) // LwIP: 0, uIP: 100
+#define mEth_EVENT_TIMEOUT  (0) // LwIP: 0, uIP: 100
 #define mEth_TIMEOUT_TICKS  (888)
 #define mEth_THREAD_STKSIZE (1 * 1024)
-#define mEth_TXBUFNB        ((MadU8)2)
-#define mEth_RXBUFNB        ((MadU8)2)
+#define mEth_TXBUFNB        ((MadU8)3)
+#define mEth_RXBUFNB        ((MadU8)3)
 
 #define mEth_PHY_WT(c, t) do { MadUint n = 0; while((!(c)) && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
 #define mEth_PHY_WF(c, t) do { MadUint n = 0; while(  (c)  && (++n < (t))); if(n == (t)) return MFALSE; } while(0)
@@ -17,9 +17,12 @@
 typedef enum {
     mEth_PE_STATUS_CHANGED = 0x0001,
     mEth_PE_STATUS_TIMEOUT = 0x0002,
-    mEth_PE_STATUS_RXPKT   = 0x0004,
-    mEth_PE_STATUS_TXPKT   = 0x0008,
-    mEth_PE_STATUS_ALL     = mEth_PE_STATUS_CHANGED | mEth_PE_STATUS_RXPKT | mEth_PE_STATUS_TIMEOUT,
+    mEth_PE_STATUS_RXPKT   = 0x0010,
+    mEth_PE_STATUS_RXOVR   = 0x0020,
+    mEth_PE_STATUS_TXPKT   = 0x0100,
+    mEth_PE_STATUS_ALL     = mEth_PE_STATUS_CHANGED | mEth_PE_STATUS_TIMEOUT | 
+                             mEth_PE_STATUS_RXPKT   | mEth_PE_STATUS_RXOVR   |
+                             mEth_PE_STATUS_TXPKT,
 } mEth_PHY_EVENT;
 
 struct _mEth_InitData_t;

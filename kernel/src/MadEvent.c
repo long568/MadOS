@@ -37,7 +37,6 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
 	
 	madEnterCritical(cpsr);
 	event = *pEvent;
-    
     if(!event) {
         madExitCritical(cpsr);
         return MAD_ERR_EVENT_INVALID;
@@ -72,8 +71,7 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
         MadCurTCB->err = MAD_ERR_OK;
     }
 
-    if(mask)
-        *mask = MadCurTCB->eventMask;
+    if(mask) *mask = MadCurTCB->eventMask;
     MadCurTCB->eventMask = 0;
     madExitCritical(cpsr);
     return res;
@@ -84,12 +82,12 @@ MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
     MadU8        res;
 	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
-    
+
     if(pEvent == MNULL) {
         return MAD_ERR_EVENT_INVALID;
     }
-    
     madEnterCritical(cpsr);
+
 	event = *pEvent;
     if(!event) {
         res = MAD_ERR_EVENT_INVALID;
@@ -98,6 +96,7 @@ MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
         if(mask) *mask = event->maskGot;
         if(clear == MTRUE) event->maskGot = 0;
 	}
+    
     madExitCritical(cpsr);
     return res;
 }
@@ -118,7 +117,6 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
 	
 	madEnterCritical(cpsr);
 	event = *pEvent;
-    
     if(!event) {
         madExitCritical(cpsr);
         return;

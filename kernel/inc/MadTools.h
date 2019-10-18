@@ -12,7 +12,7 @@
     do{                         \
         MadCpsr_t cpsr;         \
         madEnterCritical(cpsr); \
-        opt;                    \
+        { opt; }                \
         madExitCritical(cpsr);  \
     } while(0)
 

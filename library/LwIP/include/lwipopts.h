@@ -40,8 +40,10 @@
 #define LWIP_STATS                      0
 #define LWIP_NETCONN                    !NO_SYS
 #define LWIP_SOCKET                     !NO_SYS
-#define LWIP_NETBUF_RECVINFO            1
 #define LWIP_HAVE_LOOPIF                1
+#define LWIP_NETBUF_RECVINFO            0
+#define LWIP_TCPIP_CORE_LOCKING         1
+#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
 
 #define LWIP_DHCP                       1
 #define LWIP_DNS                        1
@@ -52,21 +54,23 @@
 #define LWIP_SOCKET_POLL                0
 #define LWIP_SOCKET_SELECT              1 // Implemented by MadOS
 
-#define ETH_PAD_SIZE                    2
 #define MEM_ALIGNMENT                   MAD_MEM_ALIGN
 #define MEMP_NUM_PBUF                   8
 #define PBUF_POOL_SIZE                  8
 #define MEM_LIBC_MALLOC                 1
 #define MEMP_MEM_MALLOC                 1
+#define MEM_USE_POOLS                   0
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
+#define TCP_WND                         (4 * TCP_MSS)
+#define TCP_SND_BUF                     (4 * TCP_MSS)
 
-#define TCPIP_MBOX_SIZE                 4
-#define DEFAULT_RAW_RECVMBOX_SIZE       2
-#define DEFAULT_UDP_RECVMBOX_SIZE       2
-#define DEFAULT_TCP_RECVMBOX_SIZE       2
-#define DEFAULT_ACCEPTMBOX_SIZE         2
+#define TCPIP_MBOX_SIZE                 6
+#define DEFAULT_RAW_RECVMBOX_SIZE       6
+#define DEFAULT_UDP_RECVMBOX_SIZE       6
+#define DEFAULT_TCP_RECVMBOX_SIZE       6
+#define DEFAULT_ACCEPTMBOX_SIZE         6
 
 #define TCPIP_THREAD_PRIO               THREAD_PRIO_LWIP_TCPIP
 #define TCPIP_THREAD_STACKSIZE          1024
