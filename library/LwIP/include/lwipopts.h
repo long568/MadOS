@@ -38,12 +38,13 @@
 
 #define NO_SYS                          0
 #define LWIP_STATS                      0
-#define LWIP_NETCONN                    !NO_SYS
 #define LWIP_SOCKET                     !NO_SYS
+#define LWIP_NETCONN                    !NO_SYS
 #define LWIP_HAVE_LOOPIF                1
+#define LWIP_TCP_KEEPALIVE              0
 #define LWIP_NETBUF_RECVINFO            0
 #define LWIP_TCPIP_CORE_LOCKING         1
-#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
+#define LWIP_TCPIP_CORE_LOCKING_INPUT   1
 
 #define LWIP_DHCP                       1
 #define LWIP_DNS                        1
@@ -63,8 +64,8 @@
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
-#define TCP_WND                         (4 * TCP_MSS)
 #define TCP_SND_BUF                     (4 * TCP_MSS)
+#define TCP_WND                         (8 * TCP_MSS)
 
 #define TCPIP_MBOX_SIZE                 6
 #define DEFAULT_RAW_RECVMBOX_SIZE       6

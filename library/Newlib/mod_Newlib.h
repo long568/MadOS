@@ -30,13 +30,14 @@ MISSING_SYSCALL_NAMES
 #include <sys/select.h>
 #include "MadOS.h"
 
-#define MEM_OPT_THRESHOLD (64)
-#define STD_FD_TIMEOUT    (30 * 1000)
-#define STD_FD_IN         (0)
-#define STD_FD_OUT        (1)
-#define STD_FD_ERR        (2)
-#define STD_FD_END        (3)
-#define MAX_FD_SIZE       (FD_SETSIZE)
+#define ARCH_MEM_THRESHOLD (64)
+
+#define STD_FD_TIMEOUT (30 * 1000)
+#define STD_FD_IN      (0)
+#define STD_FD_OUT     (1)
+#define STD_FD_ERR     (2)
+#define STD_FD_END     (STD_FD_ERR + 1)
+#define MAX_FD_SIZE    (FD_SETSIZE)
 
 #define MAD_FD_CLOSED  0x00
 #define MAD_FD_OPENED  0x01

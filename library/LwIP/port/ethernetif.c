@@ -12,9 +12,8 @@
 #define ether_memcpy memcpy
 #endif
 
-inline static void low_free_pbuf(struct pbuf *p)
-{
-	free((void*)p);
+inline static void low_free_pbuf(struct pbuf *p) {
+	free((void*)p); 
 }
 
 static MadBool

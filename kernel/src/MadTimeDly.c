@@ -33,23 +33,21 @@ MadTim_t madTimeNow(void)
 
 MadUint madSysTick(void)
 {
-    MadCpsr_t cpsr;
     MadUint   i;
     MadTCB_t  *pTCB;
     MadU8     prio_h;
     MadUint   res = 0;
     
-    madEnterCritical(cpsr);
-    MadTicksNow++;
     for(i=0; i<MAD_THREAD_NUM_MAX; i++) {
         pTCB = MadTCBGrp[i];
-        if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) || (!pTCB->timeCnt))
+        if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) || (!pTCB->timeCnt)) {
             continue;
+        }
         
         pTCB->timeCnt--;
         if(!pTCB->timeCnt) {
             prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);
-            if(!(pTCB->state & MAD_THREAD_TIMEDLY)) {
+            if(pTCB->xCB) {
                 pTCB->xCB->rdy[prio_h] &= ~pTCB->rdy_bit;
                 if(!pTCB->xCB->rdy[prio_h])
                     pTCB->xCB->rdyg &= ~pTCB->rdyg_bit;
@@ -65,7 +63,7 @@ MadUint madSysTick(void)
             }
         }
     }
-    madExitCritical(cpsr);
     
+    MadTicksNow++;
     return res;
 }

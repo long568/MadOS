@@ -7,7 +7,7 @@ void * memcpy(void *dst, const void *src, size_t n) {
 #ifdef MAD_CPY_MEM_BY_DMA
     MadVptr rp = 0;
     if(n > 0) {
-        if(n > MEM_OPT_THRESHOLD && MFALSE == madInCritical()) {
+        if(n > ARCH_MEM_THRESHOLD) {
             rp = madMemCpyByDMA(dst, src, n);
         }
         if(0 == rp) {
@@ -25,7 +25,7 @@ void * memset(void *dst, int val, size_t n) {
 #ifdef MAD_CPY_MEM_BY_DMA
     MadVptr rp = 0;
     if(n > 0) {
-        if(n > MEM_OPT_THRESHOLD && MFALSE == madInCritical()) {
+        if(n > ARCH_MEM_THRESHOLD) {
             rp = madMemSetByDMA(dst, val, n);
         }
         if(0 == rp) {

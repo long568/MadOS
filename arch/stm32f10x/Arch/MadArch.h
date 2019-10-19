@@ -44,20 +44,24 @@ typedef MadU32             MadAligned_t;
 #define DEF_SYS_TICK_FREQ (9000000)
 #define DEF_TICKS_PER_SEC (1000)
 
-#define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); } while(0)
-#define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); } while(0)
-#define madInCritical()        ((0x10 == __get_BASEPRI()) ? MTRUE : MFALSE)
-#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; \
-								    __NOP(); __NOP(); } while(0)
+#if 0
+#define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); __NOP(); } while(0)
+#define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); __NOP(); } while(0)
+#else
+extern MadU8 MAD_IRQ_SW;
+#define madEnterCritical(cpsr) do { __disable_irq(); cpsr = MAD_IRQ_SW; MAD_IRQ_SW = 0; } while(0)
+#define madExitCritical(cpsr)  do { MAD_IRQ_SW = cpsr; if(MAD_IRQ_SW) __enable_irq();   } while(0)
+#endif
+#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 #if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/
-#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; \
+#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; 		  \
                                    __asm{ rbit t, t; clz t, t; }; \
 								   res = (MadU8)(t & 0x000000FF); }while(0)
 #elif (defined (__GNUC__))  /*------------------ GNU Compiler ---------------------*/
-#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; \
+#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; 				  \
 								   __ASM volatile ("rbit %[t], %[t] \n\t" \
 								                   "clz  %[t], %[t] \n\t" \
-								                   : [t] "+r" (t) ); \
+								                   : [t] "+r" (t) ); 	  \
 								   res = (MadU8)(t & 0x000000FF); }while(0)
 #endif
 

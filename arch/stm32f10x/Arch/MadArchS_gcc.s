@@ -67,6 +67,7 @@ PendSV_Handler_DONE:
     .section .text.SysTick_Handler
     .type    SysTick_Handler, %function
 SysTick_Handler:
+    CPSID	I
     PUSH    {LR}
     LDR     R0,    =madSysTick
     BLX     R0
@@ -76,5 +77,6 @@ SysTick_Handler:
     LDR		R1,    =PENDSV_MASK
     STR		R1,    [R0]
 SysTick_DONE:
+    CPSIE	I
     POP     {PC}
     .size   SysTick_Handler, .-SysTick_Handler

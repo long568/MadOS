@@ -13,3 +13,4 @@ gen_objs:
 	$(MAKE) -C $(ROOT)/library/LwIP/core
 	$(MAKE) -C $(ROOT)/library/LwIP/core/ipv4
 	$(MAKE) -C $(ROOT)/library/LwIP/netif
+	$(MAKE) -C $(ROOT)/library/LwIP/apps/lwiperf

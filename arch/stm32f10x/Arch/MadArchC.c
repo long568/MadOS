@@ -1,6 +1,8 @@
 #include "MadOS.h"
 #include "CfgUser.h"
 
+MadU8 MAD_IRQ_SW = 1;
+
 #define CHIP_ID_BASE 0x1FFFF7E8
 static MadU8 mad_chip_id[12];
 

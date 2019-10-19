@@ -57,19 +57,21 @@ static MadMemDMA_t* mad_dma_search(void)
 {
     int i;
     MadCpsr_t cpsr;
+    MadMemDMA_t *rc = MNULL;
     if(MAD_ERR_OK != madSemCheck(&mad_archm_locker)) {
-        return 0;
+        return rc;
     }
     // madSemWait(&mad_archm_locker, 0);
     madEnterCritical(cpsr);
     for(i=0; i<DMA_NUM; i++) {
         if(mad_dma[i].opting == MFALSE) {
             mad_dma[i].opting = MTRUE;
+            rc = &mad_dma[i];
             break;
         }
     }
     madExitCritical(cpsr);
-    return &mad_dma[i];
+    return rc;
 }
 
 static void mad_dma_release(MadMemDMA_t *d)

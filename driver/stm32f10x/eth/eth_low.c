@@ -19,10 +19,10 @@ void eth_low_PhyEvent(mEth_t *eth)
         madEventTrigger(&eth->Event, mEth_PE_STATUS_RXPKT);
         ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS | ETH_DMA_IT_R);
     }
-    // if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_RO)) {
-    //     madEventTrigger(&eth->Event, mEth_PE_STATUS_RXOVR);
-    //     ETH_DMAClearITPendingBit(ETH_DMA_IT_AIS | ETH_DMA_IT_RO);
-    // }
+    if(SET == ETH_GetDMAITStatus(ETH_DMA_IT_RO)) {
+        madEventTrigger(&eth->Event, mEth_PE_STATUS_RXOVR);
+        ETH_DMAClearITPendingBit(ETH_DMA_IT_AIS | ETH_DMA_IT_RO);
+    }
 }
 
 MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
@@ -190,8 +190,8 @@ MadBool eth_mac_init(mEth_t *eth)
     ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
 
     if(ETH_Init(&ETH_InitStructure, phy_addr)) {
-        ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R /*| 
-                        ETH_DMA_IT_AIS | ETH_DMA_IT_RO*/, ENABLE);
+        ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R | 
+                        ETH_DMA_IT_AIS | ETH_DMA_IT_RO, ENABLE);
         ETH_MACAddressConfig(ETH_MAC_Address0, eth->MAC_ADDRESS);
         eth_mac_start(eth);
         return MTRUE;
@@ -231,12 +231,9 @@ void eth_driver_thread(MadVptr exData)
         ok = madEventWait(&eth->Event, &event, mEth_EVENT_TIMEOUT);
         switch(ok) {
             case MAD_ERR_OK: {
-                MadCpsr_t cpsr;
-                MadTim_t  remain;
-                madEnterCritical(cpsr);
-                remain = MadCurTCB->timeCntRemain;
-                madExitCritical(cpsr);
-                dt = mEth_EVENT_TIMEOUT - remain;
+                MAD_PROTECT_OPT(
+                    dt = mEth_EVENT_TIMEOUT - MadCurTCB->timeCntRemain;
+                );
                 break;
             }
             case MAD_ERR_TIMEOUT:
