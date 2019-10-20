@@ -29,7 +29,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     dev->rxBuff   = 0;
     dev->txLocker = 0;
     dev->rxLocker = 0;
-    if(MTRUE == mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
+    if(mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
         return 1;
     } else {
         return -1;

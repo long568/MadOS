@@ -14,7 +14,7 @@ extern  MadSemCB_t*  madSemCreateCarefully  (MadU16 cnt, MadU16 max);
 extern  MadBool      madSemInitCarefully    (MadSemCB_t *sem, MadU16 cnt, MadU16 max);
 extern  void         madDoSemRelease  		(MadSemCB_t **pSem, MadU8 err);
 extern  MadU8        madSemWait	     		(MadSemCB_t **pSem, MadTim_t timOut);
-extern  MadU8        madSemWaitInCritical   (MadSemCB_t **pSem, MadTim_t timOut, MadCpsr_t *pCpsr);
+extern  MadU8        madSemWaitInCritical   (MadSemCB_t **pSem, MadTim_t timOut);
 extern  MadU8        madSemCheck      		(MadSemCB_t **pSem);
 extern  MadSemCB_t*  madDoSemShut           (MadSemCB_t **pSem, MadBool opt);
 extern  void         madDoSemDelete   		(MadSemCB_t **pSem, MadBool opt);

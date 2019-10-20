@@ -56,30 +56,30 @@ static MadBool mad_dma_init(MadMemDMA_t *d, DMA_Channel_TypeDef *chl,
 static MadMemDMA_t* mad_dma_search(void)
 {
     int i;
-    MadCpsr_t cpsr;
     MadMemDMA_t *rc = MNULL;
+    madCSDecl(cpsr);
+#if 1
     if(MAD_ERR_OK != madSemCheck(&mad_archm_locker)) {
         return rc;
     }
-    // madSemWait(&mad_archm_locker, 0);
-    madEnterCritical(cpsr);
+#else
+    madSemWait(&mad_archm_locker, 0);
+#endif
+    madCSLock(cpsr);
     for(i=0; i<DMA_NUM; i++) {
-        if(mad_dma[i].opting == MFALSE) {
+        if(!mad_dma[i].opting) {
             mad_dma[i].opting = MTRUE;
             rc = &mad_dma[i];
             break;
         }
     }
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return rc;
 }
 
 static void mad_dma_release(MadMemDMA_t *d)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    d->opting = MFALSE;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(d->opting = MFALSE);
     madSemRelease(&mad_archm_locker);
 }
 

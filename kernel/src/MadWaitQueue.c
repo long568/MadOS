@@ -24,10 +24,10 @@ MadBool madWaitQInit(MadWaitQ_t *wq, MadU8 n)
 
 void madWaitQShut(MadWaitQ_t *wq)
 {
-    MadCpsr_t  cpsr;
     MadWait_t  *p, *l1;
     MadSemCB_t **plocker;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     l1 = wq->l1;
     p  = wq->p;
     wq->l0 = 0;
@@ -36,26 +36,26 @@ void madWaitQShut(MadWaitQ_t *wq)
     while(l1) {
         plocker = l1->locker;
         l1->locker = 0;
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         madSemShut(plocker);
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         l1 = l1->next;
     }
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     madMemFree(p);
 }
 
 MadBool madWaitQAdd(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event)
 {
-    MadCpsr_t cpsr;
     MadWait_t *p, *l1;
+    madCSDecl(cpsr);
 
     if(!wq || !locker || event == MAD_WAIT_EVENT_NONE) {
         return MFALSE;
     }
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     if(!wq->l0) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MFALSE;
     }
 
@@ -76,22 +76,22 @@ MadBool madWaitQAdd(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event)
     p->event  = event;
     p->next   = 0;
 
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return MTRUE;
 }
 
 MadBool madWaitQScan(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event, MadWait_t *rw)
 {
     int rc;
-    MadCpsr_t  cpsr;
-    MadWait_t  *lst, *cur;
+    MadWait_t *lst, *cur;
+    madCSDecl(cpsr);
 
     if(!wq || (event == MAD_WAIT_EVENT_NONE && locker == 0)) {
         return MFALSE;
     }
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     if(!wq->l1) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MFALSE;
     }
 
@@ -126,7 +126,7 @@ MadBool madWaitQScan(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event, MadWait_t
         rc = MTRUE;
     }
 
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return rc;
 }
 
@@ -134,10 +134,10 @@ MadBool madWaitQSignal(MadWaitQ_t *wq, MadU8 event)
 {
     MadBool rc;
     MadWait_t rw;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     rc = madWaitQScan(wq, 0, event, &rw);
-    if(MTRUE == rc) madSemRelease(rw.locker);
-    madExitCritical(cpsr);
+    if(rc) madSemRelease(rw.locker);
+    madCSUnlock(cpsr);
     return rc;
 }

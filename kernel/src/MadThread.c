@@ -1,7 +1,10 @@
 #include "MadOS.h"
 
+extern void madMemLock    (void);
+extern void madMemUnlock  (void);
+extern void madMemFreeInCS(MadVptr p);
+
 MadBool  MadOSRunning;
-MadU8    MadThreadClear;
 MadTCB_t *MadCurTCB;
 MadTCB_t *MadHighRdyTCB;
 MadTCB_t *MadTCBGrp[MAD_THREAD_NUM_MAX];
@@ -13,9 +16,10 @@ const MadU16 MadRdyMap[16] = {0x0001, 0x0002, 0x0004, 0x0008,
                               0x0100, 0x0200, 0x0400, 0x0800,
                               0x1000, 0x2000, 0x4000, 0x8000};
 
-MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio)
+MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, 
+                                    MadSize_t size, MadVptr stk,
+                                    MadU8 prio, MadBool run)
 {
-    MadCpsr_t cpsr;
     MadTCB_t  *pTCB;
     MadSize_t nReal;
     MadSize_t size_all;
@@ -23,24 +27,24 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
     MadU16    rdy;
     MadU8     prio_h;
     MadU8     prio_l;
-    MadU8     curThread;
     MadU8     flagSched = MFALSE;
+    madCSDecl(cpsr);
     
-    madEnterCritical(cpsr);
-    if((MadTCB_t*)MadThreadFlag_None != MadTCBGrp[prio]) {
-        madExitCritical(cpsr);
+    madCSLock(cpsr);
+    if(MAD_TCB_NONE != MadTCBGrp[prio]) {
+        madCSUnlock(cpsr);
         return 0;
     }
-    MadTCBGrp[prio] = (MadTCB_t*)MadThreadFlag_Take;
-    madExitCritical(cpsr);
+    MadTCBGrp[prio] = MAD_TCB_TAKE;
+    madCSUnlock(cpsr);
 
     if(!stk) {
         size_all = (sizeof(MadTCB_t) & MAD_MEM_ALIGN_MASK) + MAD_MEM_ALIGN + size;
         stk = madMemMallocCarefully(size_all, &nReal);
         if(!stk) {
-            madEnterCritical(cpsr);
-            MadTCBGrp[prio] = (MadTCB_t*)MadThreadFlag_None;
-            madExitCritical(cpsr);
+            madCSLock(cpsr);
+            MadTCBGrp[prio] = MAD_TCB_NONE;
+            madCSUnlock(cpsr);
             return 0;
         }
     } else {
@@ -65,38 +69,37 @@ MadTCB_t * madThreadCreateCarefully(MadThread_t act, MadVptr exData, MadSize_t s
     pTCB->xCB           = 0;
     pTCB->err           = MAD_ERR_OK;
     
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     
-    MadTCBGrp[prio]       = pTCB;
-    MadThreadRdyGrp      |= rdy_grp;
-    MadThreadRdy[prio_h] |= rdy;
-    
-    if(MadOSRunning) {
-        curThread = MadCurTCB->prio;
-        if(curThread > prio)
-            flagSched = MTRUE;
+    MadTCBGrp[prio] = pTCB;
+    if(run) {
+        MadThreadRdyGrp      |= rdy_grp;
+        MadThreadRdy[prio_h] |= rdy;
+    } else {
+        pTCB->state |= MAD_THREAD_PEND;
     }
     
-    madExitCritical(cpsr);
-    if(flagSched) 
-        madSched();
+    if(MadOSRunning && run && (MadCurTCB->prio > prio)) {
+        flagSched = MTRUE;
+    }
     
+    madCSUnlock(cpsr);
+    if(flagSched) madSched();
     return pTCB;
 }
 
 void madThreadResume(MadU8 threadPrio)
 {
-    MadCpsr_t cpsr;
-    MadTCB_t  *pTCB;
-    MadU8     prio_h;
-    MadU8     flagSched = MFALSE;
+    MadTCB_t *pTCB;
+    MadU8    prio_h;
+    MadU8    flagSched = MFALSE;
+    madCSDecl(cpsr);
     
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     
     pTCB = MadTCBGrp[threadPrio];
-    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
-       (pTCB->state & MAD_THREAD_KILLED)) {
-        madExitCritical(cpsr);
+    if(MAD_TCB_VALID > pTCB) {
+        madCSUnlock(cpsr);
         return;
     }
 
@@ -114,18 +117,18 @@ void madThreadResume(MadU8 threadPrio)
             flagSched = MTRUE;
     }
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     if(flagSched) madSched();
 }
 
 void madThreadPend(MadU8 threadPrio)
 {
-    MadCpsr_t cpsr;
-    MadTCB_t  *pTCB;
-    MadU8     prio_h;
-    MadU8     flagSched = MFALSE;
+    MadTCB_t *pTCB;
+    MadU8    prio_h;
+    MadU8    flagSched = MFALSE;
+    madCSDecl(cpsr);
     
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     
     if(MAD_THREAD_SELF == threadPrio)
         threadPrio = MadCurTCB->prio;
@@ -133,9 +136,8 @@ void madThreadPend(MadU8 threadPrio)
         flagSched = MTRUE;
     
     pTCB = MadTCBGrp[threadPrio];
-    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
-       (pTCB->state & MAD_THREAD_KILLED)) {
-        madExitCritical(cpsr);
+    if(MAD_TCB_VALID > pTCB) {
+        madCSUnlock(cpsr);
         return;
     }
     
@@ -145,23 +147,22 @@ void madThreadPend(MadU8 threadPrio)
     if(!MadThreadRdy[prio_h])
         MadThreadRdyGrp &= ~pTCB->rdyg_bit;
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     if(flagSched) madSched();
 }
 
 void madThreadExit(MadUint code)
 {
-    MadCpsr_t cpsr;
-    MadTCB_t  *pTCB;
-    MadU8     prio_h;
-    MadU8     flagSched = MFALSE;
+    MadTCB_t *pTCB;
+    MadU8    prio_h;
+    MadU8    flagSched = MFALSE;
+    madCSDecl(cpsr);
     
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     
     pTCB = MadTCBGrp[MadCurTCB->prio];
-    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
-       (pTCB->state & MAD_THREAD_KILLED)) {
-        madExitCritical(cpsr);
+    if(MAD_TCB_VALID > pTCB) {
+        madCSUnlock(cpsr);
         return;
     }
 
@@ -175,34 +176,32 @@ void madThreadExit(MadUint code)
     pTCB->err   = MAD_ERR_EXITED;
     pTCB->state = MAD_THREAD_PEND;
 
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     if(flagSched) madSched();
 }
 
-#ifdef MAD_AUTO_RECYCLE_RES
-MadVptr madThreadDoDelete(MadU8 threadPrio, MadBool autoClear)
-#else
 MadVptr madThreadDelete(MadU8 threadPrio)
-#endif
 {
-    MadCpsr_t cpsr;
-    MadTCB_t  *pTCB;
-    MadVptr   msg;
-    MadU8     prio_h;
-    MadU8     flagSched = MFALSE;
+    MadTCB_t *pTCB;
+    MadVptr  msg;
+    MadU8    prio_h;
+    MadU8    flagSched = MFALSE;
+    madCSDecl(cpsr);
     
-    madEnterCritical(cpsr);
+    madMemLock();
+    madCSLock(cpsr);
     if(MAD_THREAD_SELF == threadPrio)
         threadPrio = MadCurTCB->prio;
     if(threadPrio == MadCurTCB->prio)
         flagSched = MTRUE;
     
     pTCB = MadTCBGrp[threadPrio];
-    if(((MadTCB_t*)MadThreadFlag_NUM > pTCB) ||
-       (pTCB->state & MAD_THREAD_KILLED)) {
-        madExitCritical(cpsr);
+    if(MAD_TCB_VALID > pTCB) {
+        madCSUnlock(cpsr);
+        madMemUnlock();
         return MNULL;
     }
+    MadTCBGrp[threadPrio] = MAD_TCB_NONE;
     
     prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
     MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
@@ -216,71 +215,21 @@ MadVptr madThreadDelete(MadU8 threadPrio)
         pTCB->xCB = 0;
     }
 
-#ifdef MAD_AUTO_RECYCLE_RES
-    if(MTRUE == autoClear)
-        pTCB->pStk = (MadStk_t*)1;
-    else 
-        pTCB->pStk = (MadStk_t*)0;
-#endif
-
     msg = pTCB->msg;
-    pTCB->msg     = 0;
-    pTCB->timeCnt = 0;
-    pTCB->state   = MAD_THREAD_KILLED;
 
-    MadThreadClear++;
-    madExitCritical(cpsr);
     if(flagSched) {
+        madMemFreeInCS(pTCB);
+        madMemUnlock();
+        madCSUnlock(cpsr);
         madSched();
         while(1);
+    } else {
+        madCSUnlock(cpsr);
+        madMemUnlock();
+        madMemFree(pTCB);
     }
+    
     return msg;
-}
-
-void madThreadrRecyclingResources(void) // Looped in madActIdle
-{
-    static MadU16 i = 0;
-    MadU8     n;
-    MadTCB_t *pTCB;
-    MadCpsr_t cpsr;
-
-    madEnterCritical(cpsr);
-    n = MadThreadClear;
-    MadThreadClear = 0;
-    madExitCritical(cpsr);
-
-    if(n == 0) {
-        return;
-    }
-
-    do {
-        madEnterCritical(cpsr);
-        pTCB = MadTCBGrp[i];
-        if(((MadTCB_t*)MadThreadFlag_NUM < pTCB) && 
-           (pTCB->state & MAD_THREAD_KILLED)) {
-            MadTCBGrp[i] = (MadTCB_t*)MadThreadFlag_Take;
-        } else {
-            pTCB = 0;
-        }
-        madExitCritical(cpsr);
-
-        if(pTCB) {
-#ifdef MAD_AUTO_RECYCLE_RES
-            if(pTCB->pStk)
-                madMemClearRes(pTCB->prio);
-#endif
-            madMemFreeNull(pTCB);
-
-            madEnterCritical(cpsr);
-            MadTCBGrp[i] = (MadTCB_t*)MadThreadFlag_None;
-            madExitCritical(cpsr);
-
-            n--;
-        }
-
-        if(++i == MAD_THREAD_NUM_MAX)
-            i = 0;
-    } while(n);
 }
 
 MadUint madThreadCheckReady(void) // Called by architecture related code

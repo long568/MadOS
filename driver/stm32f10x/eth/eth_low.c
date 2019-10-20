@@ -231,7 +231,7 @@ void eth_driver_thread(MadVptr exData)
         ok = madEventWait(&eth->Event, &event, mEth_EVENT_TIMEOUT);
         switch(ok) {
             case MAD_ERR_OK: {
-                MAD_PROTECT_OPT(
+                MAD_CS_OPT(
                     dt = mEth_EVENT_TIMEOUT - MadCurTCB->timeCntRemain;
                 );
                 break;

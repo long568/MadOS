@@ -18,7 +18,6 @@ static off_t FatFs_lseek (int fd, off_t ofs, int wce);
 
 MadBool FatFs_Init(void)
 {
-    MadCpsr_t cpsr;
     int res;
     fs_sd = (FATFS*)malloc(sizeof(FATFS));
     if(!fs_sd) return MFALSE;
@@ -26,15 +25,15 @@ MadBool FatFs_Init(void)
     res = f_mount(fs_sd, "/sd", 1);
     if(FR_OK == res) {
         char buf[6] = { 0 };
-        madEnterCritical(cpsr);
-        MadFile_open  = FatFs_open;
-        MadFile_creat = FatFs_creat;
-        MadFile_fcntl = FatFs_fcntl;
-        MadFile_write = FatFs_write;
-        MadFile_read  = FatFs_read;
-        MadFile_close = FatFs_close;
-        MadFile_lseek = FatFs_lseek;
-        madExitCritical(cpsr);
+        MAD_CS_OPT(
+            MadFile_open  = FatFs_open;
+            MadFile_creat = FatFs_creat;
+            MadFile_fcntl = FatFs_fcntl;
+            MadFile_write = FatFs_write;
+            MadFile_read  = FatFs_read;
+            MadFile_close = FatFs_close;
+            MadFile_lseek = FatFs_lseek;
+        );
         switch (fs_sd->fs_type)
         {
             case FS_FAT12: sprintf(buf, "%s", "FAT12"); break;

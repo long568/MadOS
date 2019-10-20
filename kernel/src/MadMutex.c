@@ -30,31 +30,31 @@ MadBool madDoMutexInit(MadMutexCB_t *mutex, MadU8 type, MadU8 flag)
 
 void madMutexSetType(MadMutexCB_t *mutex, MadU8 type)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     mutex->type = type;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 }
 
 void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
 {
-    MadCpsr_t    cpsr;
-	MadTCB_t     *tcb;
-	MadMutexCB_t *mutex;
     MadU8        prio_h;
     MadU8        prio_l;
     MadU8        prio;
+    MadTCB_t     *tcb;
+	MadMutexCB_t *mutex;
     MadU8        flagSched = MFALSE;
+    madCSDecl(cpsr);
     
     if(pMutex == MNULL) {
         return;
     }
 	
-	madEnterCritical(cpsr);
+	madCSLock(cpsr);
 	mutex = *pMutex;
     
     if(!mutex) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return;
     }
     
@@ -62,7 +62,7 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
 
     if(!mutex->rdyg) {
         mutex->cnt = 1;
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return;
     }
     
@@ -90,7 +90,7 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
             flagSched = MTRUE;
     }
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     if(flagSched) madSched();
 }
 
@@ -98,22 +98,22 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
 {
     MadU8        res;
     MadU8        prio_h;
-	MadCpsr_t    cpsr;
-	MadMutexCB_t *mutex;
+    MadMutexCB_t *mutex;
+	madCSDecl(cpsr);
     
     if(pMutex == MNULL) {
         return MAD_ERR_MUTEX_INVALID;
     }
 	
-	madEnterCritical(cpsr);
+	madCSLock(cpsr);
 	mutex = *pMutex;
     if(!mutex) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MAD_ERR_MUTEX_INVALID;
     } 
     
     if((mutex->type == MAD_MUTEX_RECURSIVE) && (mutex->curt == MadCurTCB)) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MAD_ERR_OK;
     }
 
@@ -134,30 +134,29 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
         if(!MadThreadRdy[prio_h])
             MadThreadRdyGrp &= ~MadCurTCB->rdyg_bit;
         
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         madSched();
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 
-MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *pCpsr)
+MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut)
 {
     MadU8        res;
     MadU8        prio_h;
-	MadCpsr_t    cpsr;
 	MadMutexCB_t *mutex;
+    madCSDecl(cpsr);
     
     if((pMutex == MNULL) || (*pMutex == MNULL)) {
         return MAD_ERR_MUTEX_INVALID;
     }
 
     mutex = *pMutex;
-    cpsr  = *pCpsr;
     if((mutex->type == MAD_MUTEX_RECURSIVE) && (mutex->curt == MadCurTCB)) {
         return MAD_ERR_OK;
     }
@@ -179,28 +178,27 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *
         if(!MadThreadRdy[prio_h])
             MadThreadRdyGrp &= ~MadCurTCB->rdyg_bit;
         
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         madSched();
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
 
-    *pCpsr = cpsr;
     return res;
 }
 
 MadU8 madMutexCheck(MadMutexCB_t **pMutex)
 {
-	MadCpsr_t    cpsr;
     MadBool      res;
 	MadMutexCB_t *mutex;
+    madCSDecl(cpsr);
 
     if(pMutex == MNULL) {
         return MAD_ERR_MUTEX_INVALID;
     }
     res = MAD_ERR_TIMEOUT;
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
 
 	mutex = *pMutex;
     if(mutex == MNULL) {
@@ -211,21 +209,21 @@ MadU8 madMutexCheck(MadMutexCB_t **pMutex)
         res = MAD_ERR_OK;
     }
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 
 void madDoMutexDelete(MadMutexCB_t **pMutex, MadBool opt)
 {
-    MadCpsr_t    cpsr;
 	MadMutexCB_t *mutex;
+    madCSDecl(cpsr);
     
     if(pMutex == MNULL) return;
 
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
 	mutex   = *pMutex;
     *pMutex = MNULL;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 
     if(!mutex) return;
     

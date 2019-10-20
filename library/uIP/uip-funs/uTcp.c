@@ -8,7 +8,7 @@ uTcp* uTcp_Create(const MadU8 ip[4], MadU16 port,
 {
     uTcp *s = (uTcp*)malloc(sizeof(uTcp));
     if(MNULL != s) {
-        if(MFALSE == uTcp_Init(s, ip, port, recv, ack)) {
+        if(!uTcp_Init(s, ip, port, recv, ack)) {
             free(s);
             s = 0;
         }

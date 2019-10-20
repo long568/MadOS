@@ -4,38 +4,12 @@
 
 inline
 void * memcpy(void *dst, const void *src, size_t n) {
-#ifdef MAD_CPY_MEM_BY_DMA
-    MadVptr rp = 0;
-    if(n > 0) {
-        if(n > ARCH_MEM_THRESHOLD) {
-            rp = madMemCpyByDMA(dst, src, n);
-        }
-        if(0 == rp) {
-            rp = madMemCpy(dst, src, n);
-        }
-    }
-    return rp;
-#else
     return madMemCpy(dst, src, n);
-#endif
 }
 
 inline
 void * memset(void *dst, int val, size_t n) {
-#ifdef MAD_CPY_MEM_BY_DMA
-    MadVptr rp = 0;
-    if(n > 0) {
-        if(n > ARCH_MEM_THRESHOLD) {
-            rp = madMemSetByDMA(dst, val, n);
-        }
-        if(0 == rp) {
-            rp = madMemSet(dst, val, n);
-        }
-    }
-    return rp;
-#else
     return madMemSet(dst, val, n);
-#endif
 }
 
 inline

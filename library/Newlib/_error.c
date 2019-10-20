@@ -2,7 +2,7 @@
 
 int *__errno(void) {
     int *rc;
-    MAD_PROTECT_OPT(
+    MAD_CS_OPT(
         rc = &MadCurTCB->posix_errno;
     );
     return rc;

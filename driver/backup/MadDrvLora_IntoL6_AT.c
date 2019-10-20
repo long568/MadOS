@@ -342,7 +342,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     dev->rxBuff   = (MadU8*)malloc(((mUsartChar_InitData_t*)(dev->args))->rxBuffSize);
     dev->txLocker = 0;
     dev->rxLocker = 0;
-    if(MTRUE == mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
+    if(mUsartChar_Init((mUsartChar_t*)(dev->dev), (mUsartChar_InitData_t*)(dev->args))) {
         if(0 > lora_init(fd)) {
             mUsartChar_DeInit((mUsartChar_t*)(dev->dev));
             return -1;

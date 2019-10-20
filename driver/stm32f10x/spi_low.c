@@ -165,7 +165,7 @@ MadBool mSpiDeInit(mSpi_t *port)
 MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read)
 {
 #if 0
-    while(MFALSE == mSpi_IS_TXBUFFER_READY(port));
+    while(!mSpi_IS_TXBUFFER_READY(port));
     mSpi_RX_ISR_ENABLE(port);
     mSpi_SEND(port, send);
     if(MAD_ERR_OK == madSemWait(&port->spiLock, mSpi_TIMEOUT)) {
@@ -176,9 +176,9 @@ MadBool mSpiTry2Send8Bit(mSpi_t* port, MadU8 send, MadU8 *read)
     }
 #else
     volatile MadU8 tmp;
-    while(MFALSE == mSpi_IS_TXBUFFER_READY(port));
+    while(!mSpi_IS_TXBUFFER_READY(port));
     mSpi_SEND(port, send);
-    while(MFALSE == mSpi_IS_RXBUFFER_READY(port));
+    while(!mSpi_IS_RXBUFFER_READY(port));
     tmp = mSpi_READ(port);
     if(read) *read = tmp;
     return MTRUE;

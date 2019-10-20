@@ -37,7 +37,7 @@ char* ModNH3_GetData(void)
     SensorNH3_t data;
     cJSON *root, *item, *array;
 
-    if(MFALSE == nh3_opened) {
+    if(!nh3_opened) {
         data.tmp = 0;
         data.hum = 0;
         data.nh3 = 0;

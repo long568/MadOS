@@ -1740,7 +1740,7 @@ lwip_socket(int domain, int type, int protocol)
   /* Added by long 20191014 */
   do {
     struct lwip_sock* _sock = get_socket(i);
-    if(MFALSE == madWaitQInit(&_sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+    if(!madWaitQInit(&_sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
       netconn_delete(conn);
       free_socket(_sock, 0);
       set_errno(ENFILE);

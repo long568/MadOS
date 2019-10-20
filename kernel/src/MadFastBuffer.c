@@ -38,33 +38,33 @@ MadFBuffer_t* madFBufferCreate(MadSize_t n, MadSize_t size)
 
 MadVptr madFBufferGet(MadFBuffer_t *fb)
 {
-    MadCpsr_t cpsr;
-    MadU8     *res;
-    madEnterCritical(cpsr);
+    MadU8 *res;
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     if((MNULL == fb) || (MNULL == fb->head)) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MNULL;
     }
     res = (MadU8*)fb->head;
     fb->head = fb->head->next;
     fb->n--;
     res += MAD_ALIGNED_FBNODE_SIZE;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 
 void madFBufferPut(MadFBuffer_t *fb, MadVptr buf)
 {
-    MadCpsr_t   cpsr;
     MadFBNode_t *node;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     if((MNULL == fb) || (MNULL == buf)) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return;
     }
     node = (MadFBNode_t*)((MadU8*)buf - MAD_ALIGNED_FBNODE_SIZE);
     node->next = fb->head;
     fb->head = node;
     fb->n++;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 }

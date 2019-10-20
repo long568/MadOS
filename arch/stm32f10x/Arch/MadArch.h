@@ -44,15 +44,18 @@ typedef MadU32             MadAligned_t;
 #define DEF_SYS_TICK_FREQ (9000000)
 #define DEF_TICKS_PER_SEC (1000)
 
-#if 0
-#define madEnterCritical(cpsr) do { cpsr = __get_BASEPRI(); __set_BASEPRI(0x10); __NOP(); } while(0)
-#define madExitCritical(cpsr)  do { __set_BASEPRI(cpsr); __NOP(); } while(0)
-#else
-extern MadU8 MAD_IRQ_SW;
-#define madEnterCritical(cpsr) do { __disable_irq(); cpsr = MAD_IRQ_SW; MAD_IRQ_SW = 0; } while(0)
-#define madExitCritical(cpsr)  do { MAD_IRQ_SW = cpsr; if(MAD_IRQ_SW) __enable_irq();   } while(0)
-#endif
-#define madSched()             do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
+extern MadCpsr_t MAD_IRQ_SW;
+#define madInitCriticalSection()        do { MAD_IRQ_SW = 0; } while(0)
+#define madDeclareCriticalSection(cpsr) (void)0
+#define madLockCriticalSection(cpsr)    do { __disable_irq(); MAD_IRQ_SW++; } while(0)
+#define madUnlockCriticalSection(cpsr)  do { if(!--MAD_IRQ_SW) __enable_irq(); } while(0)
+
+#define madCSInit()        madInitCriticalSection()
+#define madCSDecl(cpsr)    madDeclareCriticalSection(cpsr)
+#define madCSLock(cpsr)    madLockCriticalSection(cpsr)
+#define madCSUnlock(cpsr)  madUnlockCriticalSection(cpsr)
+#define madSched()         do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
+
 #if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/
 #define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; 		  \
                                    __asm{ rbit t, t; clz t, t; }; \

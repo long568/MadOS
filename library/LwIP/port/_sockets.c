@@ -29,22 +29,22 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 void lwip_select_callback(struct lwip_sock* sock, int has_recvevent, int has_sendevent, int has_errevent)
 {
     int cnt;
-    MadCpsr_t  cpsr;
+    madCSDecl(cpsr);
     MadWaitQ_t *waitQ;
     cnt = 0;
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     waitQ = &sock->waitQ;
-    if(has_recvevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_READ)) {
+    if(has_recvevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_READ)) {
         cnt++;
     }
-    if(has_sendevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_WRITE)) {
+    if(has_sendevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_WRITE)) {
         cnt++;
     }
-    if(has_errevent && MTRUE == madWaitQSignal(waitQ, MAD_WAIT_EVENT_ERR)) {
+    if(has_errevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_ERR)) {
         cnt++;
     }
     sock->select_waiting -= cnt;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 }
 
 static int LwIP_fcntl (int s, int cmd, va_list args)
@@ -56,7 +56,7 @@ static int LwIP_fcntl (int s, int cmd, va_list args)
 static int LwIP_ioctl (int s, int request, va_list args)
 {
     int rc = -1;
-    MadCpsr_t cpsr;
+    madCSDecl(cpsr);
     switch (request) {
         case FIOSELSETRD:
         case FIOSELSETWR:
@@ -64,7 +64,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
         case FIOSELCLRRD:
         case FIOSELCLRWR:
         case FIOSELCLRER: {
-            madEnterCritical(cpsr);
+            madCSLock(cpsr);
             struct lwip_sock* sock = tryget_socket_unconn_locked(s);
             if(sock != MNULL) {
                 void *lastdata  = sock->lastdata.pbuf;
@@ -80,7 +80,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                         rc = 1;
                     } else if(!locker) {
                         rc = 0;
-                    } else if(MTRUE == madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_READ)) {
+                    } else if(madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_READ)) {
                         sock->select_waiting++;
                         rc = 0;
                     }
@@ -92,7 +92,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                         rc = 1;
                     } else if(!locker) {
                         rc = 0;
-                    } else if(MTRUE == madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+                    } else if(madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
                         sock->select_waiting++;
                         rc = 0;
                     }
@@ -104,7 +104,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                         rc = 1;
                     } else if(!locker) {
                         rc = 0;
-                    } else if(MTRUE == madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_ERR)) {
+                    } else if(madWaitQAdd(waitQ, locker, MAD_WAIT_EVENT_ERR)) {
                         sock->select_waiting++;
                         rc = 0;
                     }
@@ -112,7 +112,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                 }
 
                 case FIOSELCLRRD: {
-                    if(MTRUE == madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_READ)) {
+                    if(madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_READ)) {
                         sock->select_waiting--;
                     }
                     rc = 1;
@@ -120,7 +120,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                 }
 
                 case FIOSELCLRWR: {
-                    if(MTRUE == madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+                    if(madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
                         sock->select_waiting--;
                     }
                     rc = 1;
@@ -128,7 +128,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                 }
 
                 case FIOSELCLRER: {
-                    if(MTRUE == madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_ERR)) {
+                    if(madWaitQRemove(waitQ, locker, MAD_WAIT_EVENT_ERR)) {
                         sock->select_waiting--;
                     }
                     rc = 1;
@@ -142,7 +142,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
             if(rc < 0) {
                 errno = EBADF;
             }
-            madExitCritical(cpsr);
+            madCSUnlock(cpsr);
             break;
         }
 
@@ -157,13 +157,12 @@ static int LwIP_ioctl (int s, int request, va_list args)
 
 MadBool LwIP_Init(void)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    MadSoc_fcntl  = LwIP_fcntl;
-    MadSoc_ioctl  = LwIP_ioctl;
-    MadSoc_read   = lwip_read;
-    MadSoc_write  = lwip_write;
-    MadSoc_close  = lwip_close;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        MadSoc_fcntl  = LwIP_fcntl;
+        MadSoc_ioctl  = LwIP_ioctl;
+        MadSoc_read   = lwip_read;
+        MadSoc_write  = lwip_write;
+        MadSoc_close  = lwip_close;
+    );
     return MTRUE;
 }

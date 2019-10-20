@@ -30,8 +30,6 @@ MISSING_SYSCALL_NAMES
 #include <sys/select.h>
 #include "MadOS.h"
 
-#define ARCH_MEM_THRESHOLD (64)
-
 #define STD_FD_TIMEOUT (30 * 1000)
 #define STD_FD_IN      (0)
 #define STD_FD_OUT     (1)

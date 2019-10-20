@@ -34,7 +34,7 @@ int tcp_recv(uTcp *s, MadU8 *data, MadU16 len)
 int tcp_ack(uTcp *s, MadBool flag)
 {
     (void)s;
-    if(MFALSE == flag) {
+    if(!flag) {
         cnt_rexmit++;
         tcp_send();
     } else {

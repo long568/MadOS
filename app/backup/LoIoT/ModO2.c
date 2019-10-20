@@ -37,7 +37,7 @@ char* ModO2_GetData(void)
     SensorO2_t data;
     cJSON *root, *item, *array;
 
-    if(MFALSE == o2_opened) {
+    if(!o2_opened) {
         data.tmp = 0;
         data.hum = 0;
         data.vol = 0;

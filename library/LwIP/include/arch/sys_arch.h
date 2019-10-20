@@ -44,9 +44,9 @@ typedef MadTCB_t*     sys_thread_t;
 #define sys_mbox_valid(mbox)     (*(mbox)  != NULL)
 #define sys_mbox_valid_val(mbox) ( (mbox)  != NULL)
 
-#define SYS_ARCH_DECL_PROTECT(lev) MadCpsr_t lev
-#define SYS_ARCH_PROTECT(lev)      madEnterCritical(lev)
-#define SYS_ARCH_UNPROTECT(lev)    madExitCritical(lev)
+#define SYS_ARCH_DECL_PROTECT(lev) madCSDecl(lev)
+#define SYS_ARCH_PROTECT(lev)      madCSLock(lev)
+#define SYS_ARCH_UNPROTECT(lev)    madCSUnlock(lev)
 
 #endif /* LWIP_HDR_TEST_SYS_ARCH_H */
 

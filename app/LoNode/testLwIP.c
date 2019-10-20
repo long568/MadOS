@@ -55,19 +55,9 @@ static void lwiperf_report(void *arg, enum lwiperf_report_type report_type,
   u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
 {
     (void)arg;
-#if 0
     MAD_LOG("[Iperf]\n"
-            "  - Transferred: %d Bytes\n"
-            "  - Duration:    %d ms\n"
-            "  - Bandwidth:   %d Kbps\n",
-            bytes_transferred,
-            ms_duration,
+            "  - Bandwidth: %ld Kbps\n",
             bandwidth_kbitpsec);
-#else
-    MAD_LOG("[Iperf]\n"
-            "  - Bandwidth: %d Kbps\n",
-            bandwidth_kbitpsec);
-#endif
 }
 
 static void iperf_thread(MadVptr exData)

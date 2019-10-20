@@ -1,9 +1,6 @@
 #include "MadOS.h"
 
-extern MadU8 MadThreadClear;
-
 extern void madOSStartUp(void);
-extern void madThreadrRecyclingResources(void);
 
 #define  MAD_REAL_IDLE_STK_SIZE  MAD_ALIGNED_STK(MAD_IDLE_STK_SIZE)
 static   MadAligned_t            mad_idle_stk[MAD_REAL_IDLE_STK_SIZE];
@@ -28,13 +25,13 @@ void madOSInit(MadVptr heap_head, MadSize_t heap_size)
     MadThreadRdyGrp = 0;
     for(i=0; i<MAD_THREAD_RDY_NUM; i++)
         MadThreadRdy[i] = 0;
-    MadThreadClear = 0;
 
+    madCSInit();
     madMemInit(heap_head, heap_size);
     
     MadCurTCB = madThreadCreateCarefully(madActIdle, 0, 
                                          MAD_REAL_IDLE_STK_SIZE * MAD_MEM_ALIGN, 
-                                         (MadVptr)mad_idle_stk, MAD_ACT_IDLE_PRIO);
+                                         (MadVptr)mad_idle_stk, MAD_ACT_IDLE_PRIO, MTRUE);
     if(!MadCurTCB) 
         while(1);
 }
@@ -54,16 +51,10 @@ void madOSRun(void)
 
 static void madActIdle(MadVptr exData)
 {
-#if MAD_STATIST_STK_SIZE
-    MadCpsr_t cpsr;
-#endif
     (void)exData;
     while(1) {
-        madThreadrRecyclingResources();
 #if MAD_STATIST_STK_SIZE
-        madEnterCritical(cpsr);
-        mad_sys_cnt++;
-        madExitCritical(cpsr);
+        MAD_CS_OPT(mad_sys_cnt++);
 #endif
 #if MAD_USE_IDLE_HOOK
         MAD_IDLE_HOOK();
@@ -74,42 +65,42 @@ static void madActIdle(MadVptr exData)
 #if MAD_STATIST_STK_SIZE
 void madInitStatist(void)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     mad_sys_cnt = 0;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     madTimeDly(MadTicksPerSec);
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
     mad_sys_cnt_res = mad_sys_cnt;
     mad_sys_cnt_max = mad_sys_cnt;
     mad_sys_cnt = 0;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     madThreadCreateCarefully(madActStatist, 0, 
                              MAD_REAL_STATIST_STK_SIZE * MAD_MEM_ALIGN, 
-                             (MadVptr)mad_statist_stk, MAD_ACT_IDLE_PRIO - 1);
+                             (MadVptr)mad_statist_stk, MAD_ACT_IDLE_PRIO - 1, MTRUE);
     madTimeDly(1);
 }
 
 static void madActStatist(MadVptr exData)
 {
-    MadCpsr_t cpsr;
+    madCSDecl(cpsr);
     (void)exData;
     while(1) {
         madTimeDly(MadTicksPerSec);
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         mad_sys_cnt_res = mad_sys_cnt;
         mad_sys_cnt = 0;
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
     }
 }
 
 MadInt madIdleRate(void)
 {
-    MadCpsr_t cpsr;
     MadInt res;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     res = mad_sys_cnt_res * 100 / mad_sys_cnt_max;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 #endif /* MAD_STATIST_STK_SIZE */

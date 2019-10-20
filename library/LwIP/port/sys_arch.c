@@ -90,12 +90,9 @@ u32_t
 sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
     MadU32 time;
-    MadCpsr_t cpsr;
     time = (MadU16)timeout;
     madSemWait(sem, time);
-    madEnterCritical(cpsr);
-    time -= MadCurTCB->timeCntRemain;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(time -= MadCurTCB->timeCntRemain);
     return time;
 }
 
@@ -199,13 +196,10 @@ sys_arch_mbox_fetch(sys_mbox_t *q, void **msg, u32_t timeout)
     MadU32    time;
     MadU32    res;
     MadVptr   massage;
-    MadCpsr_t cpsr;
     
     time = timeout;
     wait = madMsgWait(q, &massage, time);
-    madEnterCritical(cpsr);
-    time -= MadCurTCB->timeCntRemain;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(time -= MadCurTCB->timeCntRemain);
     if(MAD_ERR_OK == wait) {
         if(msg) *msg = massage;
         res = time;

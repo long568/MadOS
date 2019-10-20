@@ -6,15 +6,7 @@
 #define IFNAME0 'e'
 #define IFNAME1 't'
 
-#if 0
-#define ether_memcpy madMemCpy
-#else
-#define ether_memcpy memcpy
-#endif
-
-inline static void low_free_pbuf(struct pbuf *p) {
-	free((void*)p); 
-}
+inline static void low_free_pbuf(struct pbuf *p) { free((void*)p); }
 
 static MadBool
 low_level_init(struct ethernetif *eth)
@@ -58,7 +50,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
 	len = p->tot_len;
 	buf = (uint8_t *)ETH_GetCurrentTxBuffer();
 	for(q = p; q != NULL; q = q->next) {
-		ether_memcpy(buf, q->payload, q->len);
+		memcpy(buf, q->payload, q->len);
 		buf += q->len;
 	}
 	ETH_TxPkt_ChainMode(len);
@@ -91,7 +83,7 @@ low_level_input(struct netif *netif)
 			return NULL;
 		}
 		for(q = p; q != NULL; q = q->next) {
-			ether_memcpy(q->payload, buf, q->len);
+			memcpy(q->payload, buf, q->len);
 			buf += q->len;
 		}
 	} while(0);
@@ -108,7 +100,7 @@ low_level_input(struct netif *netif)
 		}
 		cp->custom_free_function = low_free_pbuf;
 		tmp += MAD_ALIGNED_SIZE(sizeof(struct pbuf_custom));
-		ether_memcpy(tmp, buf, len);
+		memcpy(tmp, buf, len);
 		p = pbuf_alloced_custom(PBUF_RAW, len, PBUF_REF, cp, tmp, len);
 	} while(0);
 #endif
@@ -178,7 +170,7 @@ ethernetif_init(struct netif *netif)
 	netif->linkoutput = low_level_output;
 
 	/* initialize the hardware */
-	if(MTRUE == mEth_Init(low_level_init, ethernetif_callback, netif)) {
+	if(mEth_Init(low_level_init, ethernetif_callback, netif)) {
 		return ERR_OK;
 	} else {
 		return ERR_MEM;

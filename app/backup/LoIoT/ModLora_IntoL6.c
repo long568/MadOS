@@ -78,7 +78,7 @@ static void lora_thread(MadVptr exData)
     WD_START();
 
     while(1) {
-        if(MFALSE == lora_joined) {
+        if(!lora_joined) {
             lora_led_on();
             lora_fd = open("/dev/lora0", 0);
             lora_led_off();

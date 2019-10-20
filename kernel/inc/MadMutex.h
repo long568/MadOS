@@ -21,7 +21,7 @@ extern  MadBool       madDoMutexInit                 (MadMutexCB_t *mutex, MadU8
 extern  void          madMutexSetType                (MadMutexCB_t *mutex, MadU8 type);
 extern  void          madDoMutexRelease              (MadMutexCB_t **pMutex, MadU8 err);
 extern  MadU8         madMutexWait	                 (MadMutexCB_t **pMutex, MadTim_t timOut);
-extern  MadU8         madMutexWaitInCritical         (MadMutexCB_t **pMutex, MadTim_t timOut, MadCpsr_t *pCpsr);
+extern  MadU8         madMutexWaitInCritical         (MadMutexCB_t **pMutex, MadTim_t timOut);
 extern  MadU8         madMutexCheck      	         (MadMutexCB_t **pMutex);
 extern  void          madDoMutexDelete               (MadMutexCB_t **pMutex, MadBool opt);
 #define               madMutexCreate()               madDoMutexCreate(MAD_MUTEX_NORMAL, 1)

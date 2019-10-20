@@ -58,108 +58,101 @@ int NL_Log_Init(void)
 
 void NL_FD_Cpy(int dst, int src)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_ARRAY[dst].org  = src;
-    NL_FD_ARRAY[dst].seed = (src > -1) ? 0 : -1;
-    NL_FD_ARRAY[dst].flag = 0;
-    NL_FD_ARRAY[dst].type = MAD_FDTYPE_UNK;
-    NL_FD_ARRAY[dst].opt  = MAD_FD_CLOSED;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_ARRAY[dst].org  = src;
+        NL_FD_ARRAY[dst].seed = (src > -1) ? 0 : -1;
+        NL_FD_ARRAY[dst].flag = 0;
+        NL_FD_ARRAY[dst].type = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[dst].opt  = MAD_FD_CLOSED;
+    );
 }
 
 int NL_FD_Get(void)
 {
     int i, rc;
-    MadCpsr_t cpsr;
+    madCSDecl(cpsr);
     rc = -1;
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         if(NL_FD_ARRAY[i].seed == -1) {
             NL_FD_ARRAY[i].seed = 0;
-            madExitCritical(cpsr);
+            madCSUnlock(cpsr);
             rc = i;
             break;
         }
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
     }
     return rc;
 }
 
 void NL_FD_Put(int fd)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    if(NL_FD_ARRAY[fd].org > -1) {
-        int tmp = NL_FD_ARRAY[fd].org;
+    MAD_CS_OPT(
+        if(NL_FD_ARRAY[fd].org > -1) {
+            int tmp = NL_FD_ARRAY[fd].org;
+            NL_FD_ARRAY[fd].org  = -1;
+            NL_FD_ARRAY[fd].seed = -1;
+            fd = tmp;
+        }
         NL_FD_ARRAY[fd].org  = -1;
         NL_FD_ARRAY[fd].seed = -1;
-        fd = tmp;
-    }
-    NL_FD_ARRAY[fd].org  = -1;
-    NL_FD_ARRAY[fd].seed = -1;
-    NL_FD_ARRAY[fd].flag = 0;
-    NL_FD_ARRAY[fd].type = MAD_FDTYPE_UNK;
-    NL_FD_ARRAY[fd].opt  = MAD_FD_CLOSED;
-    madExitCritical(cpsr);
+        NL_FD_ARRAY[fd].flag = 0;
+        NL_FD_ARRAY[fd].type = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[fd].opt  = MAD_FD_CLOSED;
+    );
 }
 
 void NL_FD_Set(int fd, int flag, int seed, char type)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    NL_FD_ARRAY[fd].flag = flag;
-    NL_FD_ARRAY[fd].seed = seed;
-    NL_FD_ARRAY[fd].type = type;
-    NL_FD_ARRAY[fd].opt  = MAD_FD_OPENED;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        NL_FD_ARRAY[fd].flag = flag;
+        NL_FD_ARRAY[fd].seed = seed;
+        NL_FD_ARRAY[fd].type = type;
+        NL_FD_ARRAY[fd].opt  = MAD_FD_OPENED;
+    );
 }
 
 int NL_FD_Seed(int fd)
 {
     int rc;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    rc = NL_FD_ARRAY[fd].seed;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        rc = NL_FD_ARRAY[fd].seed;
+    );
     return rc;
 }
 
 int NL_FD_Flag(int fd)
 {
     int rc;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    rc = NL_FD_ARRAY[fd].flag;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        rc = NL_FD_ARRAY[fd].flag;
+    );
     return rc;
 }
 
 char NL_FD_Type(int fd)
 {
     char rc;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    rc = NL_FD_ARRAY[fd].type;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        rc = NL_FD_ARRAY[fd].type;
+    );
     return rc;
 }
 
 int NL_FD_Closing(int fd)
 {
     int rc = -1;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    if(NL_FD_ARRAY[fd].opt & MAD_FD_OPENED) {
-        NL_FD_ARRAY[fd].opt |= MAD_FD_CLOSING;
-        rc = 1;
-    }
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        if(NL_FD_ARRAY[fd].opt & MAD_FD_OPENED) {
+            NL_FD_ARRAY[fd].opt |= MAD_FD_CLOSING;
+            rc = 1;
+        }
+    );
     return rc;
 }
 
@@ -167,23 +160,21 @@ int NL_FD_OptBegin(int fd)
 {
     char opt;
     int rc = -1;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    opt = NL_FD_ARRAY[fd].opt;
-    if((opt & MAD_FD_OPENED) && !(opt & MAD_FD_CLOSING)) {
-        NL_FD_ARRAY[fd].opt |= MAD_FD_OPTING;
-        rc = 1;
-    }
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        opt = NL_FD_ARRAY[fd].opt;
+        if((opt & MAD_FD_OPENED) && !(opt & MAD_FD_CLOSING)) {
+            NL_FD_ARRAY[fd].opt |= MAD_FD_OPTING;
+            rc = 1;
+        }
+    );
     return rc;
 }
 
 void NL_FD_OptEnd(int fd)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    NL_FD_REAL_FD(fd);
-    NL_FD_ARRAY[fd].opt &= ~MAD_FD_OPTING;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        NL_FD_ARRAY[fd].opt &= ~MAD_FD_OPTING;
+    );
 }

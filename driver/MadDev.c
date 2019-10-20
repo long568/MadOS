@@ -30,8 +30,8 @@ int MadDev_open(const char *file, int flag, va_list args)
 
     while(dev && (int)dev != -1) {
         if(0 == strcmp(file, dev->name)) {
-            MAD_PROTECT_OPT(
-                if(dev->opened == MFALSE) {
+            MAD_CS_OPT(
+                if(!dev->opened) {
                     dev->opened = MTRUE;
                     rc = 0;
                 } else {
@@ -45,7 +45,7 @@ int MadDev_open(const char *file, int flag, va_list args)
             rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
             dev->txBuff = madMemMalloc(dargs->txBuffSize);
             dev->rxBuff = madMemMalloc(dargs->rxBuffSize);
-            if((dargs->waitQSize  > 0 && MFALSE == rc)          ||
+            if((dargs->waitQSize  > 0 && !rc)                   ||
                (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
                (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
                 goto open_failed;
@@ -73,9 +73,7 @@ open_failed:
     madWaitQShut(&dev->waitQ);
     madMemFree(dev->txBuff);
     madMemFree(dev->rxBuff);
-    MAD_PROTECT_OPT(
-        dev->opened = MFALSE;
-    );
+    MAD_CS_OPT(dev->opened = MFALSE);
     return -1;
 }
 
@@ -141,9 +139,7 @@ int MadDev_close(int fd)
             madWaitQShut(&dev->waitQ);
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
-            MAD_PROTECT_OPT(
-                dev->opened = MFALSE;
-            );
+            MAD_CS_OPT(dev->opened = MFALSE);
         }
     }
     return res;

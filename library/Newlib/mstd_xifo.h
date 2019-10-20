@@ -78,25 +78,25 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
 
 /* Called in User-Mode */
 #define FIFO_U8_DMA_Get(fifo, dat, n) do { \
-    MadCpsr_t cpsr;                                         \
-    madEnterCritical(cpsr);                                 \
-    if((fifo)->cnt > 0) {                                   \
-        if(n > (fifo)->cnt) { n = (fifo)->cnt; }            \
-        (fifo)->cnt -= n;                                   \
-        madExitCritical(cpsr);                              \
-        if((fifo)->head + n < (fifo)->end)  {               \
-            memcpy(dat, (fifo)->head, n);                   \
-            (fifo)->head += n;                              \
-        } else {                                            \
-            MadU32 ofs = (fifo)->end - (fifo)->head;        \
-            memcpy(dat,     (fifo)->head, ofs);             \
-            memcpy(dat+ofs, (fifo)->buf,  n - ofs);         \
-            (fifo)->head = (fifo)->buf + n - ofs;           \
-        }                                                   \
-    } else {                                                \
-        madExitCritical(cpsr);                              \
-        n = 0;                                              \
-    }                                                       \
+    madCSDecl(cpsr);                                  \
+    madCSLock(cpsr);                                  \
+    if((fifo)->cnt > 0) {                             \
+        if(n > (fifo)->cnt) { n = (fifo)->cnt; }      \
+        (fifo)->cnt -= n;                             \
+        madCSUnlock(cpsr);                            \
+        if((fifo)->head + n < (fifo)->end)  {         \
+            memcpy(dat, (fifo)->head, n);             \
+            (fifo)->head += n;                        \
+        } else {                                      \
+            MadU32 ofs = (fifo)->end - (fifo)->head;  \
+            memcpy(dat,     (fifo)->head, ofs);       \
+            memcpy(dat+ofs, (fifo)->buf,  n - ofs);   \
+            (fifo)->head = (fifo)->buf + n - ofs;     \
+        }                                             \
+    } else {                                          \
+        madCSUnlock(cpsr);                            \
+        n = 0;                                        \
+    }                                                 \
 } while(0)
 
 #endif

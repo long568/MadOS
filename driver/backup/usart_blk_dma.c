@@ -1,8 +1,8 @@
 #include "usart_blk.h"
 #include "MadISR.h"
 
-#define RX_BUFF_LOCK()    do { MadCpsr_t cpsr; madEnterCritical(cpsr);
-#define RX_BUFF_UNLOCK()  madExitCritical(cpsr); } while(0)
+#define RX_BUFF_LOCK()    do { madCSDecl(cpsr); madCSLock(cpsr);
+#define RX_BUFF_UNLOCK()  madCSUnlock(cpsr); } while(0)
 
 MadBool mUsartBlk_Init(mUsartBlk_t *port, mUsartBlk_InitData_t *initData)
 {

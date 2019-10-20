@@ -45,26 +45,24 @@ FIFO_U8 *FIFO_U8_Create(MadU16 size)
 
 void FIFO_U8_Init(FIFO_U8 *fifo, void *buf, MadU16 size)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    fifo->buf  = (MadU8*)buf;
-    fifo->head = fifo->buf;
-    fifo->tail = fifo->buf;
-    fifo->end  = fifo->buf + size;
-    fifo->cnt  = 0;
-    fifo->max  = size;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        fifo->buf  = (MadU8*)buf;
+        fifo->head = fifo->buf;
+        fifo->tail = fifo->buf;
+        fifo->end  = fifo->buf + size;
+        fifo->cnt  = 0;
+        fifo->max  = size;
+    );
 }
 
 void FIFO_U8_Shut(FIFO_U8 *fifo)
 {
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
-    fifo->buf  = 0;
-    fifo->head = 0;
-    fifo->tail = 0;
-    fifo->end  = 0;
-    fifo->cnt  = 0;
-    fifo->max  = 0;
-    madExitCritical(cpsr);
+    MAD_CS_OPT(
+        fifo->buf  = 0;
+        fifo->head = 0;
+        fifo->tail = 0;
+        fifo->end  = 0;
+        fifo->cnt  = 0;
+        fifo->max  = 0;
+    );
 }

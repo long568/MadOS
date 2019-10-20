@@ -16,18 +16,4 @@ extern  MadInt     madMemCmp              (const MadVptr dst, const MadVptr src,
 #define            madMemMalloc(n)        madMemMallocCarefully(n, MNULL)
 #define            madMemFreeNull(p)      do{ madMemFree(p); p=0; }while(0)
 
-#ifdef MAD_AUTO_RECYCLE_RES
-extern  void       madMemChangeOwner      (const MadU8 oldOwner, const MadU8 newOwner);
-extern  void       madMemClearRes         (const MadU8 owner);
-#endif /* MAD_AUTO_RECYCLE_RES */
-
-#ifdef MAD_CPY_MEM_BY_DMA
-#include "MadArchMem.h"
-#define            madMemCpyByDMA(dst, src, len)   madArchMemCpy(dst, src, len)
-#define            madMemSetByDMA(dst, val, len)   madArchMemSet(dst, val, len)
-#else  /* MAD_CPY_MEM_BY_DMA */
-#define            madMemCpyByDMA(dst, src, len)   madMemCpy(dst, src, len)
-#define            madMemSetByDMA(dst, val, len)   madMemSet(dst, val, len)
-#endif /* MAD_CPY_MEM_BY_DMA */
-
 #endif

@@ -28,17 +28,17 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
 {
     MadU8        res;
     MadU8        prio_h;
-	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
+    madCSDecl(cpsr);
     
     if(pEvent == MNULL) {
         return MAD_ERR_EVENT_INVALID;
     }
 	
-	madEnterCritical(cpsr);
+	madCSLock(cpsr);
 	event = *pEvent;
     if(!event) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return MAD_ERR_EVENT_INVALID;
     }
 	
@@ -64,29 +64,29 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
         if(!MadThreadRdy[prio_h])
             MadThreadRdyGrp &= ~MadCurTCB->rdyg_bit;
         
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         madSched();
-        madEnterCritical(cpsr);
+        madCSLock(cpsr);
         res = MadCurTCB->err;
         MadCurTCB->err = MAD_ERR_OK;
     }
 
     if(mask) *mask = MadCurTCB->eventMask;
     MadCurTCB->eventMask = 0;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 
 MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
 {
     MadU8        res;
-	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
+    madCSDecl(cpsr);
 
     if(pEvent == MNULL) {
         return MAD_ERR_EVENT_INVALID;
     }
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
 
 	event = *pEvent;
     if(!event) {
@@ -94,37 +94,37 @@ MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
 	} else {
         res = MAD_ERR_OK;
         if(mask) *mask = event->maskGot;
-        if(clear == MTRUE) event->maskGot = 0;
+        if(clear) event->maskGot = 0;
 	}
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return res;
 }
 
 void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
 {
-	MadCpsr_t    cpsr;
-	MadTCB_t     *tcb;
-	MadEventCB_t *event;
     MadU8        prio_h;
     MadU8        prio_l;
     MadU8        prio;
+    MadTCB_t     *tcb;
+	MadEventCB_t *event;
     MadBool      flagSched = MFALSE;
+    madCSDecl(cpsr);
     
     if(pEvent == MNULL) {
         return;
     }
 	
-	madEnterCritical(cpsr);
+	madCSLock(cpsr);
 	event = *pEvent;
     if(!event) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return;
     }
     
 	event->maskGot |= mask & event->maskWait;
     if((event->opt == MEOPT_DELAY) && (event->rdyg == 0)) {
-        madExitCritical(cpsr);
+        madCSUnlock(cpsr);
         return;
     }
     
@@ -159,21 +159,21 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
         event->maskGot = 0;
 	}
     
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     if(flagSched) madSched();
 }
 
 void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
 {
-	MadCpsr_t    cpsr;
 	MadEventCB_t *event;
+    madCSDecl(cpsr);
     
     if(pEvent == MNULL) return;
     
-    madEnterCritical(cpsr);
+    madCSLock(cpsr);
 	event   = *pEvent;
     *pEvent = MNULL;
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 
 	if(!event) return;
 

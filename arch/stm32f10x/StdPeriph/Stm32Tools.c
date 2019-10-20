@@ -17,6 +17,6 @@ void StmPIN_SetIO(StmPIN *p, GPIO_TypeDef *port, uint16_t pin)
 
 void StmPIN_SetValue(StmPIN *p, MadBool v)
 {
-    if(MFALSE == v) GPIO_ResetBits(p->port, p->pin);
-    else            GPIO_SetBits  (p->port, p->pin);
+    if(!v) GPIO_ResetBits(p->port, p->pin);
+    else   GPIO_SetBits  (p->port, p->pin);
 }

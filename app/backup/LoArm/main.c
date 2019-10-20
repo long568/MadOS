@@ -81,7 +81,6 @@ static void madStartup(MadVptr exData)
     LoArm_Init();
 
     madThreadCreate(madSysRunning, 0, 512, THREAD_PRIO_SYS_RUNNING);
-    madMemChangeOwner(MAD_THREAD_SELF, MAD_THREAD_RESERVED);
     madThreadDelete(MAD_THREAD_SELF);
     while(1);
 }

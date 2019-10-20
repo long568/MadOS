@@ -1,8 +1,8 @@
 #include "usart_char.h"
 #include "MadISR.h"
 
-#define RX_BUFF_LOCK()    do { MadCpsr_t cpsr; madEnterCritical(cpsr);
-#define RX_BUFF_UNLOCK()  madExitCritical(cpsr); } while(0)
+#define RX_BUFF_LOCK()    do { madCSDecl(cpsr); madCSLock(cpsr);
+#define RX_BUFF_UNLOCK()  madCSUnlock(cpsr); } while(0)
 
 static void eventcall(mUsartChar_t *port, int event);
 
@@ -234,8 +234,8 @@ void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
 
 static void eventcall(mUsartChar_t *port, int event)
 {
-    MadCpsr_t  cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     madWaitQSignal(port->waitQ, event);
     switch(event) {
         case MAD_WAIT_EVENT_WRITE: {
@@ -247,20 +247,20 @@ static void eventcall(mUsartChar_t *port, int event)
         default:
             break;
     }
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
 }
 
 int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
 {
     int rc = -1;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     switch (event)
     {
     case MAD_WAIT_EVENT_WRITE:{
         if(port->wrEvent == 0) {
             rc = 1;
-        } else if(!locker || MTRUE == madWaitQAdd(port->waitQ, locker, event)) {
+        } else if(!locker || madWaitQAdd(port->waitQ, locker, event)) {
             rc = 0;
         }
         if(rc > -1) {
@@ -271,7 +271,7 @@ int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
     case MAD_WAIT_EVENT_READ:{
         if(FIFO_U8_Cnt(&port->rxBuff) > 0) {
             rc = 1;
-        } else if(!locker || MTRUE == madWaitQAdd(port->waitQ, locker, event)) {
+        } else if(!locker || madWaitQAdd(port->waitQ, locker, event)) {
             rc = 0;
         }
         break;
@@ -279,19 +279,19 @@ int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
     default:
         break;
     }
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return rc;
 }
 
 int mUsartChar_SelectClr(mUsartChar_t *port, MadSemCB_t **locker, int event)
 {
     int rc = 1;
-    MadCpsr_t cpsr;
-    madEnterCritical(cpsr);
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     switch (event)
     {
     case MAD_WAIT_EVENT_WRITE:{
-        if(MTRUE == madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+        if(madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
             port->wrEvent--;
         }
         break;
@@ -303,6 +303,6 @@ int mUsartChar_SelectClr(mUsartChar_t *port, MadSemCB_t **locker, int event)
     default:
         break;
     }
-    madExitCritical(cpsr);
+    madCSUnlock(cpsr);
     return rc;
 }

@@ -26,8 +26,8 @@ LoDCMotor_t   LoArm_Axis4;
 #   define LoArmCmd_Lock()   do { madSemWait(&LoArmCmd_Locker, 0);
 #   define LoArmCmd_Unlock() madSemRelease(&LoArmCmd_Locker); } while(0)
 #else
-#   define LoArmCmd_Lock()   do { MadCpsr_t cpsr; madEnterCritical(cpsr);
-#   define LoArmCmd_Unlock() madExitCritical(cpsr); } while(0)
+#   define LoArmCmd_Lock()   do { madCSDecl(cpsr); madCSLock(cpsr);
+#   define LoArmCmd_Unlock() madCSUnlock(cpsr); } while(0)
 #endif
 
 #define LoArmCmd_Set() \

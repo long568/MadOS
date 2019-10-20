@@ -10,20 +10,16 @@
 #define MAD_THREAD_WAITMUTEX  ((MadU8)0x08)
 #define MAD_THREAD_WAITMSG    ((MadU8)0x10)
 #define MAD_THREAD_WAITEVENT  ((MadU8)0x20)
-#define MAD_THREAD_KILLED     ((MadU8)0x80)
 
 #define MAD_THREAD_SELF       ((MadU8)0xFF)
-#define MAD_THREAD_RESERVED   (MAD_ACT_IDLE_PRIO)
 
 #define MAD_GET_THREAD_PRIO(ph, pl) (MadU8)((ph << 4) + pl)
 #define MAD_GET_THREAD_PRIO_H(p)    (MadU8)(p >> 4)
 #define MAD_GET_THREAD_PRIO_L(p)    (MadU8)(p & 0x0F)
 
-typedef enum _MadThreadFlag {
-    MadThreadFlag_None = 0,
-    MadThreadFlag_Take,
-    MadThreadFlag_NUM
-} MadThreadFlag;
+#define MAD_TCB_NONE  ((MadTCB_t*)0)
+#define MAD_TCB_TAKE  ((MadTCB_t*)1)
+#define MAD_TCB_VALID ((MadTCB_t*)2)
 
 typedef struct _MadRdyG_t {
     MadU16  rdyg;
@@ -57,18 +53,14 @@ extern         MadU16     MadThreadRdyGrp;
 extern         MadU16     MadThreadRdy[MAD_THREAD_RDY_NUM];
 extern  const  MadU16     MadRdyMap[16];
 
-extern  MadStk_t*  madThreadStkInit                    (MadVptr pStk, MadThread_t act, MadVptr exData);
-extern  MadTCB_t*  madThreadCreateCarefully            (MadThread_t act, MadVptr exData, MadSize_t size, MadVptr stk, MadU8 prio);
-extern  void       madThreadResume                     (MadU8 threadPrio);
-extern  void       madThreadPend                       (MadU8 threadPrio);
-extern  void       madThreadExit                       (MadUint code);
-#define            madThreadCreate(act, ed, sz, prio)  madThreadCreateCarefully(act, ed, sz, MNULL, prio)
-#ifdef MAD_AUTO_RECYCLE_RES
-extern  MadVptr    madThreadDoDelete                   (MadU8 threadPrio, MadBool autoClear);
-#define            madThreadDelete(prio)               madThreadDoDelete(prio, MFALSE);
-#define            madThreadDeleteAndClear(prio)       madThreadDoDelete(prio, MTRUE);
-#else  /* MAD_AUTO_RECYCLE_RES */
-extern  MadVptr    madThreadDelete                     (MadU8 threadPrio);
-#endif /* MAD_AUTO_RECYCLE_RES */
+extern  MadStk_t*  madThreadStkInit              (MadVptr pStk, MadThread_t act, MadVptr exData);
+extern  MadTCB_t*  madThreadCreateCarefully      (MadThread_t act, MadVptr exData,
+                                                  MadSize_t size, MadVptr stk, MadU8 prio, MadBool run);
+extern  void       madThreadResume               (MadU8 threadPrio);
+extern  void       madThreadPend                 (MadU8 threadPrio);
+extern  void       madThreadExit                 (MadUint code);
+extern  MadVptr    madThreadDelete               (MadU8 threadPrio);
+#define            madThreadCreate(a, e, s, p)   madThreadCreateCarefully(a, e, s, MNULL, p, MTRUE)
+#define            madThreadCreateN(a, e, s, p)  madThreadCreateCarefully(a, e, s, MNULL, p, MFALSE)
 
 #endif

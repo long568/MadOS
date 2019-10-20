@@ -66,7 +66,7 @@ static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, MadU32 *rep)
     MadU8 r, res;
     res = mSpi_INVALID_DATA;
     prep = (MadU8*)rep;
-    if(MTRUE == mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
+    if(mSpiWriteBytes(spi, buf, 6, CMD_TIME_OUT)) {
         r = 0xFF;
         for(i=0; i<OPT_RETRY_NUM; i++) {
             mSpiRead8Bit(spi, &r);
@@ -76,7 +76,7 @@ static MadU8 mSpiSd_BootCmd(mSpi_t *spi, MadU8 *buf, MadU32 *rep)
             res = r;
             if(rep) {
                 MadU8 tmp[4] = { 0 };
-                if(MTRUE == mSpiReadBytes(spi, tmp, 4, CMD_TIME_OUT)) {
+                if(mSpiReadBytes(spi, tmp, 4, CMD_TIME_OUT)) {
                     prep[3] = tmp[0];
                     prep[2] = tmp[1];
                     prep[1] = tmp[2];
@@ -188,7 +188,7 @@ static int mSpiSd_ReadOneSector(mSpi_t *spi, MadU8 *buff)
         if(tmp == 0xFE) break;
     }
     if(tmp == 0xFE) {
-        if(MTRUE == mSpiReadBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
+        if(mSpiReadBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
             mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             res = 1;
         } else {
@@ -205,8 +205,8 @@ static int mSpiSd_WriteOneSector(mSpi_t *spi, const MadU8 *buff, MadU8 head)
     int cnt, res;
     MadU8 tmp;
     res = -1;
-    if(MTRUE == mSpiSend8Bit(spi, head)) {
-        if(MTRUE == mSpiWriteBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
+    if(mSpiSend8Bit(spi, head)) {
+        if(mSpiWriteBytes(spi, buff, SECTOR_SIZE, DAT_TIME_OUT)) {
             mSpiMulEmpty(spi, 2, DAT_TIME_OUT);
             tmp = mSpi_INVALID_DATA;
             for(cnt=0; cnt<OPT_RETRY_NUM; cnt++) {
@@ -341,7 +341,7 @@ static int Drv_open(const char * file, int flag, va_list args)
     dev->ep = malloc(sizeof(SdInfo_t));
     if(0 == dev->ep) return -1;
     sd_info = (SdInfo_t*)(dev->ep);
-    if(MFALSE == mSpiInit(spi, initData)) {
+    if(!mSpiInit(spi, initData)) {
         free(dev->ep);
         return -1;
     }

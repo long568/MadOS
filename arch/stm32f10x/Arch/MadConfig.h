@@ -11,11 +11,6 @@
 #define MAD_STATIST_STK_SIZE (96)      // byte
 
 /*
- * Automatically recycle the resources of a specified thread.
- */
-#define MAD_AUTO_RECYCLE_RES
-
-/*
  * madArchMemCpy, madArchMemSet based on DMA of hardward.
  */
 #define MAD_CPY_MEM_BY_DMA
