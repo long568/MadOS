@@ -18,6 +18,15 @@ static void iperf_thread(MadVptr exData);
 static void udp_thread  (MadVptr exData);
 static void tcpc_thread (MadVptr exData);
 
+static const char LWIPERF_TYPE_STR[6][64] = {
+    "LWIPERF_TCP_DONE_SERVER",
+    "LWIPERF_TCP_DONE_CLIENT",
+    "LWIPERF_TCP_ABORTED_LOCAL",
+    "LWIPERF_TCP_ABORTED_LOCAL_DATAERROR",
+    "LWIPERF_TCP_ABORTED_LOCAL_TXERROR",
+    "LWIPERF_TCP_ABORTED_REMOTE"
+};
+
 void Init_TestLwIP(void)
 {
     struct ip4_addr ipaddr;
@@ -46,8 +55,8 @@ void Init_TestLwIP(void)
 #endif
 
     madThreadCreate(iperf_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_IPERF);
-    // madThreadCreate(udp_thread,  0, 1024, THREAD_PRIO_TEST_LWIP_UDP);
-    // madThreadCreate(tcpc_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_TCPC);
+    // madThreadCreate(udp_thread,   0, 1024, THREAD_PRIO_TEST_LWIP_UDP);
+    // madThreadCreate(tcpc_thread,  0, 1024, THREAD_PRIO_TEST_LWIP_TCPC);
 }
 
 static void lwiperf_report(void *arg, enum lwiperf_report_type report_type,
@@ -55,9 +64,7 @@ static void lwiperf_report(void *arg, enum lwiperf_report_type report_type,
   u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
 {
     (void)arg;
-    MAD_LOG("[Iperf]\n"
-            "  - Bandwidth: %ld Kbps\n",
-            bandwidth_kbitpsec);
+    MAD_LOG("[Iperf] %s: %ld Kbps\n", LWIPERF_TYPE_STR[report_type], bandwidth_kbitpsec);
 }
 
 static void iperf_thread(MadVptr exData)
@@ -84,7 +91,7 @@ static void udp_thread(MadVptr exData)
 {
     struct sockaddr_in addr_send;
     struct sockaddr_in addr_recv;
-    int s, i, rc, len;
+    int s, i, len;
     char *buf;
     
     madTimeDly(3000);
@@ -105,11 +112,9 @@ static void udp_thread(MadVptr exData)
     i = 0;
     while (1) {
         len = sizeof(struct sockaddr);
-        rc = recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
-        if(rc < BUFF_SIZ) {
-            len = sprintf(buf, "Hello, UDP ! [%d]", ++i);
-            sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
-        }
+        recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
+        len = sprintf(buf, "Hello, UDP ! [%d]", ++i);
+        sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
     }
 }
 
@@ -140,13 +145,10 @@ static void tcpc_thread(MadVptr exData)
     buf = (char*)malloc(BUFF_SIZ);
 
     i  = 0;
-    rc = -1;
     while(1) {
-        rc = read(s, buf, BUFF_SIZ);
-        if(rc < BUFF_SIZ) {
-            len = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i);
-            write(s, buf, len);
-        }
+        read(s, buf, BUFF_SIZ);
+        len = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i);
+        write(s, buf, len);
     }
 }
 

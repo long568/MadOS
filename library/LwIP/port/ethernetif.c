@@ -120,6 +120,7 @@ ethernetif_input(struct netif *netif)
 		if (netif->input(p, netif) != ERR_OK) {
 			LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
 			pbuf_free(p);
+			break;
 		}
 	} while(1);
 }

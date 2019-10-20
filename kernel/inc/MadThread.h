@@ -45,13 +45,13 @@ typedef struct _MadTCB_t {
 
 typedef void (*MadThread_t)(MadVptr);
 
-extern         MadBool    MadOSRunning;
-extern         MadTCB_t   *MadCurTCB;
-extern         MadTCB_t   *MadHighRdyTCB;
-extern         MadTCB_t   *MadTCBGrp[MAD_THREAD_NUM_MAX];
-extern         MadU16     MadThreadRdyGrp;
-extern         MadU16     MadThreadRdy[MAD_THREAD_RDY_NUM];
-extern  const  MadU16     MadRdyMap[16];
+extern         MadBool   MadOSRunning;
+extern         MadTCB_t  *MadCurTCB;
+extern         MadTCB_t  *MadHighRdyTCB;
+extern         MadTCB_t  *MadTCBGrp[MAD_THREAD_NUM_MAX];
+extern         MadU16    MadThreadRdyGrp;
+extern         MadU16    MadThreadRdy[MAD_THREAD_RDY_NUM];
+extern  const  MadU16    MadRdyMap[16];
 
 extern  MadStk_t*  madThreadStkInit              (MadVptr pStk, MadThread_t act, MadVptr exData);
 extern  MadTCB_t*  madThreadCreateCarefully      (MadThread_t act, MadVptr exData,

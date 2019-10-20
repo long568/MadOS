@@ -44,7 +44,7 @@
 #define LWIP_TCP_KEEPALIVE              0
 #define LWIP_NETBUF_RECVINFO            0
 #define LWIP_TCPIP_CORE_LOCKING         1
-#define LWIP_TCPIP_CORE_LOCKING_INPUT   1
+#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
 
 #define LWIP_DHCP                       1
 #define LWIP_DNS                        1
@@ -67,11 +67,11 @@
 #define TCP_SND_BUF                     (4 * TCP_MSS)
 #define TCP_WND                         (8 * TCP_MSS)
 
-#define TCPIP_MBOX_SIZE                 6
-#define DEFAULT_RAW_RECVMBOX_SIZE       6
-#define DEFAULT_UDP_RECVMBOX_SIZE       6
-#define DEFAULT_TCP_RECVMBOX_SIZE       6
-#define DEFAULT_ACCEPTMBOX_SIZE         6
+#define TCPIP_MBOX_SIZE                 4
+#define DEFAULT_RAW_RECVMBOX_SIZE       2
+#define DEFAULT_UDP_RECVMBOX_SIZE       2
+#define DEFAULT_TCP_RECVMBOX_SIZE       2
+#define DEFAULT_ACCEPTMBOX_SIZE         2
 
 #define TCPIP_THREAD_PRIO               THREAD_PRIO_LWIP_TCPIP
 #define TCPIP_THREAD_STACKSIZE          1024

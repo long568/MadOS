@@ -69,20 +69,17 @@ void NL_FD_Cpy(int dst, int src)
 
 int NL_FD_Get(void)
 {
-    int i, rc;
+    int i;
     madCSDecl(cpsr);
-    rc = -1;
+    madCSLock(cpsr);
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
-        madCSLock(cpsr);
         if(NL_FD_ARRAY[i].seed == -1) {
             NL_FD_ARRAY[i].seed = 0;
-            madCSUnlock(cpsr);
-            rc = i;
             break;
         }
-        madCSUnlock(cpsr);
     }
-    return rc;
+    madCSUnlock(cpsr);
+    return i;
 }
 
 void NL_FD_Put(int fd)
