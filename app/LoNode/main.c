@@ -88,7 +88,7 @@ static void madStartup(MadVptr exData)
     // Init_TestFatFs();
     // Init_TestUIP();
     Init_TestLwIP();
-    // Init_TestModbus();
+    Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madThreadDelete(MAD_THREAD_SELF);
