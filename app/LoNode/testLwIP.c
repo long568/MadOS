@@ -91,7 +91,7 @@ static void udp_thread(MadVptr exData)
 {
     struct sockaddr_in addr_send;
     struct sockaddr_in addr_recv;
-    int s, i, len;
+    int s, i, len, rc;
     char *buf;
     
     madTimeDly(3000);
@@ -112,9 +112,14 @@ static void udp_thread(MadVptr exData)
     i = 0;
     while (1) {
         len = sizeof(struct sockaddr);
-        recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
+        rc = recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
         len = sprintf(buf, "Hello, UDP ! [%d]", ++i);
-        sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
+        if(rc > 0) {
+            sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
+        } else {
+            close(s);
+            madThreadPend(MAD_THREAD_SELF);
+        }
     }
 }
 
@@ -146,9 +151,14 @@ static void tcpc_thread(MadVptr exData)
 
     i  = 0;
     while(1) {
-        read(s, buf, BUFF_SIZ);
+        rc = read(s, buf, BUFF_SIZ);
         len = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i);
-        write(s, buf, len);
+        if(rc > 0) {
+            write(s, buf, len);
+        } else {
+            close(s);
+            madThreadPend(MAD_THREAD_SELF);
+        }
     }
 }
 

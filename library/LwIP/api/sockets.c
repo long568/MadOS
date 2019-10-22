@@ -805,6 +805,11 @@ lwip_close(int s)
     return -1;
   }
 
+  
+  do { /* Added by long 20191022 */
+    madWaitQShut(&sock->waitQ);
+  } while(0);
+
   free_socket(sock, is_tcp);
   set_errno(0);
   return 0;
@@ -1737,12 +1742,11 @@ lwip_socket(int domain, int type, int protocol)
     return -1;
   }
 
-  /* Added by long 20191014 */
-  do {
-    struct lwip_sock* _sock = get_socket(i);
-    if(!madWaitQInit(&_sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+  do { /* Added by long 20191014 */
+    struct lwip_sock* sock = get_socket(i);
+    if(!madWaitQInit(&sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
       netconn_delete(conn);
-      free_socket(_sock, 0);
+      free_socket(sock, 0);
       set_errno(ENFILE);
       return -1;
     }
