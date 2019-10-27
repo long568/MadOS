@@ -3,6 +3,9 @@
 
 #include "MadDrv.h"
 
+#define MAD_DEVP_PLACE ((MadDev_t*)(-1))
+#define MAD_DEVP_END   ((MadDev_t*)(MNULL))
+
 typedef struct _MadDevArgs_t {
     MadU8         waitQSize;
     MadSize_t     txBuffSize;

@@ -6,16 +6,18 @@ void MadDev_Init(void)
 {
     int      fd   = 0;
     MadDev_t *dev = DevsList[fd];
-    while(dev && (int)dev != -1) {
-        dev->opened     = MFALSE;
-        dev->flag       = 0;
-        dev->waitQ.l0   = 0;
-        dev->waitQ.l1   = 0;
-        dev->waitQ.p    = 0;
-        dev->txBuff     = 0;
-        dev->rxBuff     = 0;
-        dev->txBuffSize = 0;
-        dev->rxBuffSize = 0;
+    while(dev) {
+        if(dev != MAD_DEVP_PLACE) {
+            dev->opened     = MFALSE;
+            dev->flag       = 0;
+            dev->waitQ.l0   = 0;
+            dev->waitQ.l1   = 0;
+            dev->waitQ.p    = 0;
+            dev->txBuff     = 0;
+            dev->rxBuff     = 0;
+            dev->txBuffSize = 0;
+            dev->rxBuffSize = 0;
+        }
         fd++;
         dev = DevsList[fd];
     }
@@ -28,8 +30,8 @@ int MadDev_open(const char *file, int flag, va_list args)
     MadDev_t *dev = DevsList[fd];
     const MadDevArgs_t *dargs = dev->args;
 
-    while(dev && (int)dev != -1) {
-        if(0 == strcmp(file, dev->name)) {
+    while(dev) {
+        if(dev != MAD_DEVP_PLACE && 0 == strcmp(file, dev->name)) {
             MAD_CS_OPT(
                 if(!dev->opened) {
                     dev->opened = MTRUE;
@@ -38,9 +40,7 @@ int MadDev_open(const char *file, int flag, va_list args)
                     rc = 1;
                 }
             );
-            if(rc > 0) {
-                return -1;
-            }
+            if(rc) return -1;
 
             rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
             dev->txBuff = madMemMalloc(dargs->txBuffSize);

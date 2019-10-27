@@ -11,7 +11,7 @@
 #include "CfgUser.h"
 
 #define BUFF_SIZ  1024
-#define TAGGET_IP "192.168.1.103"
+#define TAGGET_IP "192.168.1.101"
 
 static struct netif *nif;
 static void iperf_thread(MadVptr exData);
@@ -54,7 +54,7 @@ void Init_TestLwIP(void)
     dhcp_start(nif);
 #endif
 
-    // madThreadCreate(iperf_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_IPERF);
+    madThreadCreate(iperf_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_IPERF);
     madThreadCreate(udp_thread,   0, 1024, THREAD_PRIO_TEST_LWIP_UDP);
     madThreadCreate(tcpc_thread,  0, 1024, THREAD_PRIO_TEST_LWIP_TCPC);
 }

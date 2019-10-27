@@ -9,11 +9,11 @@ int   (*MadFile_read)  (int fd, void *buf, size_t len)             = 0;
 int   (*MadFile_close) (int fd)                                    = 0;
 off_t (*MadFile_lseek) (int fd, off_t ofs, int wce)                = 0;
 
-int (*MadSoc_fcntl) (int fd, int cmd, va_list args)         = 0;
-int (*MadSoc_ioctl) (int fd, int request, va_list args)     = 0;
-int (*MadSoc_read)  (int fd, void *buf, size_t nbyte)       = 0;
-int (*MadSoc_write) (int fd, const void *buf, size_t nbyte) = 0;
-int (*MadSoc_close) (int fd)                                = 0;
+int   (*MadSoc_fcntl)  (int fd, int cmd, va_list args)             = 0;
+int   (*MadSoc_ioctl)  (int fd, int request, va_list args)         = 0;
+int   (*MadSoc_read)   (int fd, void *buf, size_t nbyte)           = 0;
+int   (*MadSoc_write)  (int fd, const void *buf, size_t nbyte)     = 0;
+int   (*MadSoc_close)  (int fd)                                    = 0;
 
 #define NL_FD_REAL_FD(fd) \
     if(NL_FD_ARRAY[fd].org > -1) { \
@@ -59,8 +59,8 @@ int NL_Log_Init(void)
 void NL_FD_Cpy(int dst, int src)
 {
     MAD_CS_OPT(
-        NL_FD_ARRAY[dst].org  = src;
-        NL_FD_ARRAY[dst].seed = (src > -1) ? 0 : -1;
+        NL_FD_ARRAY[dst].org  = (src > -1) ? src : -1;
+        NL_FD_ARRAY[dst].seed = (src > -1) ?   0 : -1;
         NL_FD_ARRAY[dst].flag = 0;
         NL_FD_ARRAY[dst].type = MAD_FDTYPE_UNK;
         NL_FD_ARRAY[dst].opt  = MAD_FD_CLOSED;
@@ -73,7 +73,7 @@ int NL_FD_Get(void)
     madCSDecl(cpsr);
     madCSLock(cpsr);
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
-        if(NL_FD_ARRAY[i].seed == -1) {
+        if(NL_FD_ARRAY[i].seed < 0) {
             NL_FD_ARRAY[i].seed = 0;
             break;
         }

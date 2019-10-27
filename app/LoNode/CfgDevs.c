@@ -8,5 +8,6 @@ MadDev_t *DevsList[] = {
     &Tty,
     &Tty1,
     &Sd0,
-    MNULL
+    MAD_DEVP_PLACE,
+    MAD_DEVP_END
 };
