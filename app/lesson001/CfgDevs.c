@@ -1,5 +1,5 @@
 #include "MadDev.h"
 
 MadDev_t *DevsList[] = {
-    MNULL
+    MAD_DEVP_END
 };
