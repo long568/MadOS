@@ -21,6 +21,7 @@
                 "${workspaceFolder}/library/uIP/uip-funs",
                 "${workspaceFolder}/library/LwIP/include",
                 "${workspaceFolder}/library/LwIP/include/compat/posix",
+                "${workspaceFolder}/library/ENet/include",
                 "${workspaceFolder}/library/FatFs",
                 "${workspaceFolder}/library/cJSON",
                 "${workspaceFolder}/library/Lua",
@@ -28,6 +29,7 @@
                 "${workspaceFolder}/app/test_kernel"
             ],
             "defines": [
+                "__MADOS__",
                 "MALLOC_PROVIDED",
                 "MISSING_SYSCALL_NAMES",
                 "REENTRANT_SYSCALLS_PROVIDED",

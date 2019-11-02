@@ -21,6 +21,7 @@ export ELIBS     = $(ROOT)/elibs.mk
 include $(ROOT)/app/$(APP)/CfgApp.mk
 
 export DEFS += $(DEFS_FOR_APP) \
+               -D__MADOS__ \
                -DMALLOC_PROVIDED \
                -DMISSING_SYSCALL_NAMES \
                -DREENTRANT_SYSCALLS_PROVIDED \

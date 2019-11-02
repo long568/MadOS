@@ -19,3 +19,6 @@ endif
 ifeq ($(LIB_LWIP), yes)
 	$(MAKE) -C $(ROOT)/library/LwIP
 endif
+ifeq ($(LIB_ENET), yes)
+	$(MAKE) -C $(ROOT)/library/ENet
+endif

@@ -27,3 +27,8 @@ ifeq ($(LIB_LWIP), yes)
 export LIBS += -llwip
 export INCS += -I$(ROOT)/library/LwIP/include -I$(ROOT)/library/LwIP/include/compat/posix
 endif
+
+ifeq ($(LIB_ENET), yes)
+export LIBS += -lenet
+export INCS += -I$(ROOT)/library/ENet/include
+endif
