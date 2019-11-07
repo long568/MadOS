@@ -32,6 +32,7 @@ void madOSInit(MadVptr heap_head, MadSize_t heap_size)
     MadCurTCB = madThreadCreateCarefully(madActIdle, 0, 
                                          MAD_REAL_IDLE_STK_SIZE * MAD_MEM_ALIGN, 
                                          (MadVptr)mad_idle_stk, MAD_ACT_IDLE_PRIO, MTRUE);
+
     if(!MadCurTCB) 
         while(1);
 }

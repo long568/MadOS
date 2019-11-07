@@ -31,10 +31,8 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
 
 void madInitSysTick(MadTim_t freq, MadTim_t ticks)
 {
-    MadSysTickFreq = freq;
-    MadTicksPerSec = ticks;
-    MadTicksNow    = 0;
-    SysTick_Config(MadSysTickFreq / MadTicksPerSec);
+    madTimeInit(freq, ticks);
+    SysTick_Config(freq / ticks);
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     NVIC_SetPriority (SysTick_IRQn, ISR_PRIO_SYSTICK);

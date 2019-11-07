@@ -10,22 +10,12 @@
 #include "arch/ethernetif.h"
 #include "CfgUser.h"
 
-#define BUFF_SIZ  1024
-#define TAGGET_IP "192.168.1.101"
+#define IPERF_TEST 0
+#define BUFF_SIZ   256
+#define TAGGET_IP  "192.168.1.101"
 
 static struct netif *nif;
-static void iperf_thread(MadVptr exData);
-static void udp_thread  (MadVptr exData);
-static void tcpc_thread (MadVptr exData);
-
-static const char LWIPERF_TYPE_STR[6][64] = {
-    "LWIPERF_TCP_DONE_SERVER",
-    "LWIPERF_TCP_DONE_CLIENT",
-    "LWIPERF_TCP_ABORTED_LOCAL",
-    "LWIPERF_TCP_ABORTED_LOCAL_DATAERROR",
-    "LWIPERF_TCP_ABORTED_LOCAL_TXERROR",
-    "LWIPERF_TCP_ABORTED_REMOTE"
-};
+static void socket_thread(MadVptr exData);
 
 void Init_TestLwIP(void)
 {
@@ -54,24 +44,101 @@ void Init_TestLwIP(void)
     dhcp_start(nif);
 #endif
 
-    madThreadCreate(iperf_thread, 0, 1024, THREAD_PRIO_TEST_LWIP_IPERF);
-    madThreadCreate(udp_thread,   0, 1024, THREAD_PRIO_TEST_LWIP_UDP);
-    madThreadCreate(tcpc_thread,  0, 1024, THREAD_PRIO_TEST_LWIP_TCPC);
+    madThreadCreate(socket_thread, 0, 1024, THREAD_PRIO_TEST_SOCKET);
 }
 
+#if !IPERF_TEST
+static void socket_thread(MadVptr exData)
+{
+    struct sockaddr_in addr_h, addr_r;
+    struct timeval timeout;
+    fd_set readfds;
+    socklen_t len;
+    int s_udp, s_tcpc, s_max;
+    int i_udp, i_tcpc, size, rc;
+    char *buf;
+
+    (void)exData;
+    madTimeDly(5 * 1000);
+    MAD_LOG("[LwIP] socket_thread ...\n");
+
+    addr_h.sin_family      = AF_INET;
+    addr_h.sin_port        = htons(5688);
+    addr_h.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    addr_r.sin_family      = AF_INET;
+    addr_r.sin_port        = htons(5688);
+    addr_r.sin_addr.s_addr = inet_addr(TAGGET_IP);
+
+    s_udp = socket(AF_INET, SOCK_DGRAM, 0);
+    bind(s_udp, (struct sockaddr*)&addr_h, sizeof(struct sockaddr));
+    rc = 1;
+    ioctl(s_udp, FIONBIO, &rc);
+
+    s_tcpc = socket(AF_INET, SOCK_STREAM, 0);
+    bind(s_tcpc, (struct sockaddr*)&addr_h, sizeof(struct sockaddr));
+    rc = connect(s_tcpc, (struct sockaddr*)&addr_r, sizeof(struct sockaddr));
+    if(rc < 0) {
+        MAD_LOG("[LwIP] s_tcpc connect ... Failed\n");
+        madThreadPend(MAD_THREAD_SELF);
+    }
+    rc = 1;
+    ioctl(s_tcpc, FIONBIO, &rc);
+
+    buf   = (char*)malloc(BUFF_SIZ);
+    i_udp = i_tcpc = 0;
+    s_max = ((s_tcpc > s_udp) ? (s_tcpc) : (s_udp)) + 1;
+    timeout.tv_sec  = 0;
+    timeout.tv_usec = 0;
+
+    while(1) {
+        FD_ZERO(&readfds);
+        FD_SET(s_udp,  &readfds);
+        FD_SET(s_tcpc, &readfds);
+        rc = select(s_max, &readfds, NULL, NULL, &timeout);
+
+        if(rc < 0) {
+            MAD_LOG("[LwIP] Test ERROR\n");
+            madThreadPend(MAD_THREAD_SELF);
+        } else if(rc == 0) {
+            MAD_LOG("[LwIP] Test TIMEOUT\n");
+        } else {
+            if(FD_ISSET(s_udp, &readfds)) {
+                len = sizeof(struct sockaddr);
+                rc = recvfrom(s_udp, buf, BUFF_SIZ, MSG_DONTWAIT, (struct sockaddr*)&addr_r, &len);
+                size = sprintf(buf, "Hello, UDP ! [%d][%d]", rc, ++i_udp);
+                sendto(s_udp, buf, size, MSG_DONTWAIT, (struct sockaddr*)&addr_r, len);
+            }
+
+            if(FD_ISSET(s_tcpc, &readfds)) {
+                rc = read(s_tcpc, buf, BUFF_SIZ);
+                size = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i_tcpc);
+                write(s_tcpc, buf, size);
+            }
+        }
+    }
+}
+#else 
+static const char LWIPERF_TYPE_STR[6][36] = {
+    "LWIPERF_TCP_DONE_SERVER",
+    "LWIPERF_TCP_DONE_CLIENT",
+    "LWIPERF_TCP_ABORTED_LOCAL",
+    "LWIPERF_TCP_ABORTED_LOCAL_DATAERROR",
+    "LWIPERF_TCP_ABORTED_LOCAL_TXERROR",
+    "LWIPERF_TCP_ABORTED_REMOTE"
+};
+
 static void lwiperf_report(void *arg, enum lwiperf_report_type report_type,
-  const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
-  u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
+                           const ip_addr_t* local_addr, u16_t local_port,
+                           const ip_addr_t* remote_addr, u16_t remote_port,
+                           u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
 {
     (void)arg;
     MAD_LOG("[Iperf] %s: %ld Kbps\n", LWIPERF_TYPE_STR[report_type], bandwidth_kbitpsec);
 }
 
-static void iperf_thread(MadVptr exData)
+static void iperf_setup(void)
 {
-    (void)exData;
-    madTimeDly(5 * 1000);
-
 #if 0
     ip_addr_t ip;
     MAD_LOG("[LwIP] iperf_client\n");
@@ -81,85 +148,16 @@ static void iperf_thread(MadVptr exData)
     MAD_LOG("[LwIP] iperf_server\n");
     lwiperf_start_tcp_server_default(lwiperf_report, NULL);
 #endif
-
-    while(1) {
-        madThreadPend(MAD_THREAD_SELF);
-    }
 }
 
-static void udp_thread(MadVptr exData)
+static void socket_thread(MadVptr exData)
 {
-    struct sockaddr_in addr_send;
-    struct sockaddr_in addr_recv;
-    int s, i, len, rc;
-    char *buf;
-    
-    madTimeDly(3000);
-    MAD_LOG("[LwIP] udp_thread ...\n");
-
-    s = socket(AF_INET, SOCK_DGRAM, 0);
-
-    addr_recv.sin_family      = AF_INET;
-    addr_recv.sin_port        = htons(5688);
-    addr_recv.sin_addr.s_addr = htonl(INADDR_ANY);
-    bind(s, (struct sockaddr*)&addr_recv, sizeof(struct sockaddr));
-
-    addr_send.sin_family      = AF_INET;
-    addr_send.sin_port        = htons(5688);
-    addr_send.sin_addr.s_addr = inet_addr(TAGGET_IP);
-    buf = (char*)malloc(BUFF_SIZ);
-
-    i = 0;
-    while (1) {
-        len = sizeof(struct sockaddr);
-        rc = recvfrom(s, buf, BUFF_SIZ, MSG_WAITALL, (struct sockaddr*)&addr_recv, (socklen_t*)&len);
-        len = sprintf(buf, "Hello, UDP ! [%d]", ++i);
-        if(rc > 0) {
-            sendto(s, buf, len, 0, (struct sockaddr*)&addr_send, sizeof(struct sockaddr));
-        } else {
-            close(s);
-            madThreadPend(MAD_THREAD_SELF);
-        }
-    }
+    (void)exData;
+    madTimeDly(5 * 1000);
+    MAD_LOG("[LwIP] socket_thread ...\n");
+    iperf_setup();
+    madThreadDelete(MAD_THREAD_SELF);
 }
-
-static void tcpc_thread(MadVptr exData)
-{
-    struct sockaddr_in addr;
-    int rc, s, i, len;
-    char *buf;
-    
-    madTimeDly(4000);
-    MAD_LOG("[LwIP] tcpc_thread ...\n");
-
-    s = socket(AF_INET, SOCK_STREAM, 0);
-
-    addr.sin_family =AF_INET;
-    addr.sin_port =htons(0);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    bind(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
-
-    addr.sin_family =AF_INET;
-    addr.sin_port =htons(5688);
-    addr.sin_addr.s_addr = inet_addr(TAGGET_IP);
-    rc = connect(s, (struct sockaddr*)&addr, sizeof(struct sockaddr));
-    if(rc < 0) {
-        MAD_LOG("[LwIP] lwip_connect ... Failed\n");
-        madThreadPend(MAD_THREAD_SELF);
-    }
-    buf = (char*)malloc(BUFF_SIZ);
-
-    i  = 0;
-    while(1) {
-        rc = read(s, buf, BUFF_SIZ);
-        len = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i);
-        if(rc > 0) {
-            write(s, buf, len);
-        } else {
-            close(s);
-            madThreadPend(MAD_THREAD_SELF);
-        }
-    }
-}
+#endif
 
 #endif

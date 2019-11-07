@@ -7,6 +7,8 @@
 
 #include "enet/types.h"
 
+/* Modified by long 20191107 */
+#if 0
 enum
 {
    ENET_PROTOCOL_MINIMUM_MTU             = 576,
@@ -19,6 +21,22 @@ enum
    ENET_PROTOCOL_MAXIMUM_PEER_ID         = 0xFFF,
    ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
 };
+#else
+#include "eth_low.h"
+#include "lwipopts.h"
+enum
+{
+   ENET_PROTOCOL_MINIMUM_MTU             = MIN_ETH_PAYLOAD,
+   ENET_PROTOCOL_MAXIMUM_MTU             = MAX_ETH_PAYLOAD,
+   ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS = 8,
+   ENET_PROTOCOL_MINIMUM_WINDOW_SIZE     = 64,
+   ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE     = TCP_WND,
+   ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT   = 1,
+   ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT   = 8,
+   ENET_PROTOCOL_MAXIMUM_PEER_ID         = 0xFFF,
+   ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT  = 1024
+};
+#endif
 
 typedef enum _ENetProtocolCommand
 {

@@ -64,8 +64,8 @@
 
 #define TCP_QUEUE_OOSEQ                 0
 #define TCP_MSS                         (ETH_PAYLOAD_LEN - 40)
-#define TCP_SND_BUF                     (4 * TCP_MSS)
-#define TCP_WND                         (8 * TCP_MSS)
+#define TCP_SND_BUF                     (2 * TCP_MSS)
+#define TCP_WND                         (4 * TCP_MSS)
 
 #define TCPIP_MBOX_SIZE                 4
 #define DEFAULT_RAW_RECVMBOX_SIZE       2

@@ -1,8 +1,20 @@
 #include "MadOS.h"
 
-MadTim_t MadSysTickFreq;
 MadTim_t MadTicksPerSec;
-MadTim_t MadTicksNow;
+
+static MadTim_t MadSysTickFreq;
+static MadTim_t MadTicksPerMS;
+static MadTim_t MadTimeCntMS;
+static MadU64   MadTimeNowMS;
+
+void madTimeInit(MadTim_t freq, MadTim_t ticks)
+{
+    MadSysTickFreq = freq;
+    MadTicksPerSec = ticks;
+    MadTicksPerMS  = ticks / 1000;
+    MadTimeCntMS   = 0;
+    MadTimeNowMS   = 0;
+}
 
 void madTimeDly(MadTim_t timeCnt)
 {
@@ -23,12 +35,16 @@ void madTimeDly(MadTim_t timeCnt)
 
 MadTim_t madTimeNow(void)
 {
-    MadTim_t res;
-    madCSDecl(cpsr);
-    madCSLock(cpsr);
-    res = MadTicksNow;
-    madCSUnlock(cpsr);
-    return res;
+    MadTim_t rc;
+    MAD_CS_OPT(rc = (MadTim_t)MadTimeNowMS);
+    return rc;
+}
+
+MadU64 madTimeOfDay(void)
+{
+    MadU64 rc;
+    MAD_CS_OPT(rc = MadTimeNowMS);
+    return rc;
 }
 
 MadUint madSysTick(void)
@@ -64,6 +80,9 @@ MadUint madSysTick(void)
         }
     }
     
-    MadTicksNow++;
+    if(++MadTimeCntMS == MadTicksPerMS) {
+        MadTimeCntMS = 0;
+        MadTimeNowMS++;
+    }
     return res;
 }

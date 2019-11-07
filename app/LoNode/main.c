@@ -7,9 +7,10 @@
 // #include "mod_Lua.h"
 
 #include "testFatFs.h"
-#include "testModbus.h"
-#include "testLwIP.h"
 #include "testUIP.h"
+#include "testLwIP.h"
+#include "testENet.h"
+#include "testModbus.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -88,6 +89,7 @@ static void madStartup(MadVptr exData)
     // Init_TestFatFs();
     // Init_TestUIP();
     Init_TestLwIP();
+    Init_TestENet();
     // Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
@@ -115,7 +117,8 @@ static void madSysRunning(MadVptr exData)
 	GPIO_Init(GPIOE, &pin);
 
 #if MAD_STATIST_STK_SIZE
-    MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", madIdleRate(), madMemUnusedSize(), madMemMaxSize());
+    MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n",
+            madIdleRate(), madMemUnusedSize(), madMemMaxSize());
     madTimeDly(10 * 1000);
 #endif
     
