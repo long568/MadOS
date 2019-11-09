@@ -43,11 +43,11 @@ int write (int fd, const void *buf, size_t nbyte)
             res = MadDev_write(seed, buf, nbyte); 
             break;
         case MAD_FDTYPE_FIL:
-            if(MadFile_fcntl) 
+            if(MadFile_write) 
                 res = MadFile_write(seed, buf, nbyte);
             break;
         case MAD_FDTYPE_SOC:
-            if(MadSoc_fcntl) 
+            if(MadSoc_write) 
                 res = MadSoc_write(seed, buf, nbyte);
             break;
         default:
@@ -90,11 +90,11 @@ int read (int fd, void *buf, size_t nbyte)
             res = MadDev_read(seed, buf, nbyte); 
             break;
         case MAD_FDTYPE_FIL:
-            if(MadFile_fcntl) 
+            if(MadFile_read) 
                 res = MadFile_read(seed, buf, nbyte);
             break;
         case MAD_FDTYPE_SOC:
-            if(MadSoc_fcntl) 
+            if(MadSoc_read) 
                 res = MadSoc_read(seed, buf, nbyte);
             break;
         default:

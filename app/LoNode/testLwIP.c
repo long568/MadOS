@@ -94,13 +94,13 @@ static void socket_thread(MadVptr exData)
     buf   = (char*)malloc(BUFF_SIZ);
     i_udp = i_tcpc = 0;
     s_max = ((s_tcpc > s_udp) ? (s_tcpc) : (s_udp)) + 1;
-    timeout.tv_sec  = 0;
+    timeout.tv_sec  = 6;
     timeout.tv_usec = 0;
 
     while(1) {
         FD_ZERO(&readfds);
-        FD_SET(s_udp,  &readfds);
-        FD_SET(s_tcpc, &readfds);
+        // if(s_udp  > 0) FD_SET(s_udp,  &readfds);
+        if(s_tcpc > 0) FD_SET(s_tcpc, &readfds);
         rc = select(s_max, &readfds, NULL, NULL, &timeout);
 
         if(rc < 0) {
@@ -112,14 +112,24 @@ static void socket_thread(MadVptr exData)
             if(FD_ISSET(s_udp, &readfds)) {
                 len = sizeof(struct sockaddr);
                 rc = recvfrom(s_udp, buf, BUFF_SIZ, MSG_DONTWAIT, (struct sockaddr*)&addr_r, &len);
-                size = sprintf(buf, "Hello, UDP ! [%d][%d]", rc, ++i_udp);
-                sendto(s_udp, buf, size, MSG_DONTWAIT, (struct sockaddr*)&addr_r, len);
+                if(rc > 0) {
+                    size = sprintf(buf, "Hello, UDP ! [%d][%d]", rc, ++i_udp);
+                    sendto(s_udp, buf, size, MSG_DONTWAIT, (struct sockaddr*)&addr_r, len);
+                } else {
+                    close(s_udp);
+                    s_udp = -1;
+                }
             }
 
             if(FD_ISSET(s_tcpc, &readfds)) {
                 rc = read(s_tcpc, buf, BUFF_SIZ);
-                size = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i_tcpc);
-                write(s_tcpc, buf, size);
+                if(rc > 0) {
+                    size = sprintf(buf, "Hello, TCPC ! [%d][%d]", rc, ++i_tcpc);
+                    write(s_tcpc, buf, size);
+                } else {
+                    close(s_tcpc);
+                    s_tcpc = -1;
+                }
             }
         }
     }
