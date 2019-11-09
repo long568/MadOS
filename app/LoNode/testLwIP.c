@@ -55,7 +55,7 @@ static void socket_thread(MadVptr exData)
     fd_set readfds;
     socklen_t len;
     int s_udp, s_tcpc, s_max;
-    int i_udp, i_tcpc, size, rc;
+    int i_udp, i_tcpc, size, rc, option;
     char *buf;
 
     (void)exData;
@@ -72,8 +72,10 @@ static void socket_thread(MadVptr exData)
 
     s_udp = socket(AF_INET, SOCK_DGRAM, 0);
     bind(s_udp, (struct sockaddr*)&addr_h, sizeof(struct sockaddr));
-    rc = 1;
-    ioctl(s_udp, FIONBIO, &rc);
+    option = 1;
+    ioctl(s_udp, FIONBIO, &option);
+    option = IPTOS_LOWDELAY;
+    setsockopt(s_udp, IPPROTO_IP, IP_TOS, (const void *)&option, sizeof(int));
 
     s_tcpc = socket(AF_INET, SOCK_STREAM, 0);
     bind(s_tcpc, (struct sockaddr*)&addr_h, sizeof(struct sockaddr));
@@ -82,8 +84,12 @@ static void socket_thread(MadVptr exData)
         MAD_LOG("[LwIP] s_tcpc connect ... Failed\n");
         madThreadPend(MAD_THREAD_SELF);
     }
-    rc = 1;
-    ioctl(s_tcpc, FIONBIO, &rc);
+    option = 1;
+    setsockopt(s_tcpc, IPPROTO_TCP, TCP_NODELAY, (const void *)&option, sizeof(int));
+    option = 1;
+    ioctl(s_tcpc, FIONBIO, &option);
+    option = IPTOS_LOWDELAY;
+    setsockopt(s_tcpc, IPPROTO_IP, IP_TOS, (const void *)&option, sizeof(int));
 
     buf   = (char*)malloc(BUFF_SIZ);
     i_udp = i_tcpc = 0;
