@@ -9,6 +9,23 @@ int ioctl(int fd, int request, ...)
     int seed;
     int res = -1;
     if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
+
+    va_start(args, request);
+    switch (request) {
+        case FIONBIO: {
+            int option = va_arg(args, int);
+            if(option) {
+                NL_FD_SetFlag(fd, _FNONBLOCK);
+            } else {
+                NL_FD_ClrFlag(fd, _FNONBLOCK);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    va_end(args);
+
     va_start(args, request);
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
@@ -23,6 +40,7 @@ int ioctl(int fd, int request, ...)
             break;
     }
     va_end(args);
+
     NL_FD_OptEnd(fd);
     return res;
 }

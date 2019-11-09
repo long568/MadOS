@@ -130,6 +130,22 @@ int NL_FD_Flag(int fd)
     return rc;
 }
 
+void NL_FD_SetFlag(int fd, int flag)
+{
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        NL_FD_ARRAY[fd].flag |= flag;
+    );
+}
+
+void NL_FD_ClrFlag(int fd, int flag)
+{
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        NL_FD_ARRAY[fd].flag &= ~flag;
+    );
+}
+
 char NL_FD_Type(int fd)
 {
     char rc;

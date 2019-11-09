@@ -57,24 +57,26 @@ extern int   (*MadFile_read)  (int fd, void *buf, size_t len);
 extern int   (*MadFile_close) (int fd);
 extern off_t (*MadFile_lseek) (int fd, off_t ofs, int wce);
 
-extern int (*MadSoc_fcntl) (int fd, int cmd, va_list args);
-extern int (*MadSoc_ioctl) (int fd, int request, va_list args);
-extern int (*MadSoc_read)  (int fd, void *buf, size_t nbyte);
-extern int (*MadSoc_write) (int fd, const void *buf, size_t nbyte);
-extern int (*MadSoc_close) (int fd);
+extern int   (*MadSoc_fcntl)  (int fd, int cmd, va_list args);
+extern int   (*MadSoc_ioctl)  (int fd, int request, va_list args);
+extern int   (*MadSoc_read)   (int fd, void *buf, size_t nbyte);
+extern int   (*MadSoc_write)  (int fd, const void *buf, size_t nbyte);
+extern int   (*MadSoc_close)  (int fd);
 
-extern MadBool        Newlib_Init      (void);
-extern int            NL_Log_Init      (void);
+extern MadBool Newlib_Init   (void);
+extern int     NL_Log_Init   (void);
 
-extern void           NL_FD_Cpy        (int dst, int src);
-extern int            NL_FD_Get        (void);
-extern void           NL_FD_Put        (int fd);
-extern void           NL_FD_Set        (int fd, int flag, int seed, char type);
-extern int            NL_FD_Flag       (int fd);
-extern int            NL_FD_Seed       (int fd);
-extern char           NL_FD_Type       (int fd);
-extern int            NL_FD_Closing    (int fd);
-extern int            NL_FD_OptBegin   (int fd);
-extern void           NL_FD_OptEnd     (int fd);
+extern void    NL_FD_Cpy     (int dst, int src);
+extern int     NL_FD_Get     (void);
+extern void    NL_FD_Put     (int fd);
+extern void    NL_FD_Set     (int fd, int flag, int seed, char type);
+extern int     NL_FD_Flag    (int fd);
+extern void    NL_FD_SetFlag (int fd, int flag);
+extern void    NL_FD_ClrFlag (int fd, int flag);
+extern int     NL_FD_Seed    (int fd);
+extern char    NL_FD_Type    (int fd);
+extern int     NL_FD_Closing (int fd);
+extern int     NL_FD_OptBegin(int fd);
+extern void    NL_FD_OptEnd  (int fd);
 
 #endif
