@@ -26,7 +26,7 @@
                 "${workspaceFolder}/library/cJSON",
                 "${workspaceFolder}/library/Lua",
                 "${workspaceFolder}/library/modbus",
-                "${workspaceFolder}/app/test_kernel"
+                "${workspaceFolder}/app/LoKernel"
             ],
             "defines": [
                 "__MADOS__",
