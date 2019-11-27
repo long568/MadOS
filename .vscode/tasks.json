@@ -6,7 +6,7 @@
         {
             "label": "config",
             "type": "shell",
-            "command": "source ${workspaceRoot}/tools/config.sh ${workspaceRoot}",
+            "command": "bash ${workspaceRoot}/tools/config.sh ${workspaceRoot}",
             "auto": true
         },
         {
