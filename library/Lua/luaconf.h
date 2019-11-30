@@ -501,8 +501,10 @@
 ** ===================================================================
 */
 
-#define LUA_NUMBER_DOUBLE
-#define LUA_NUMBER	double
+/* Modified by long 20191130 */
+// #define LUA_NUMBER_DOUBLE
+// #define LUA_NUMBER	double
+#define LUA_NUMBER  float
 
 /*
 @@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
@@ -510,16 +512,15 @@
 */
 #define LUAI_UACNUMBER	double
 
-
 /*
 @@ LUA_NUMBER_SCAN is the format for reading numbers.
 @@ LUA_NUMBER_FMT is the format for writing numbers.
 @@ lua_number2str converts a number to a string.
 @@ LUAI_MAXNUMBER2STR is maximum size of previous conversion.
 @@ lua_str2number converts a string to a number.
-*/
-#define LUA_NUMBER_SCAN		"%lf"
-#define LUA_NUMBER_FMT		"%.14g"
+*/ /* Modified by long 20191130 */
+#define LUA_NUMBER_SCAN		"%f"   /*"%lf"*/
+#define LUA_NUMBER_FMT		"%.7g" /*"%.14g"*/
 #define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 #define lua_str2number(s,p)	strtod((s), (p))
