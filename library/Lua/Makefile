@@ -5,7 +5,6 @@ SRCS = $(wildcard *.c)
 
 export TEMP = $(BUILD_DIR)/lua
 
-CFLAGS += -Wextra
 include $(RULES)
 
 after_all:

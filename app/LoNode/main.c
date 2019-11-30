@@ -4,12 +4,11 @@
 #include "CfgUser.h"
 #include "mod_Newlib.h"
 #include "mod_FatFs.h"
-// #include "mod_Lua.h"
 
-#include "testFatFs.h"
-#include "testUIP.h"
+#include "testLua.h"
 #include "testLwIP.h"
 #include "testENet.h"
+#include "testFatFs.h"
 #include "testModbus.h"
 
 #if MAD_STATIST_STK_SIZE
@@ -81,15 +80,14 @@ static void madStartup(MadVptr exData)
     MAD_LOG("================================\n");
 #endif
     FatFs_Init();
-    // LuaParser_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
-    // Init_TestFatFs();
-    // Init_TestUIP();
+    Init_TestLua();
     Init_TestLwIP();
-    Init_TestENet();
+    // Init_TestENet();
+    // Init_TestFatFs();
     // Init_TestModbus();
 
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);

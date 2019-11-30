@@ -53,6 +53,7 @@ CXFLAGS += -g3
 endif
 CXFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
            -Wall -Wshadow -Wpointer-arith \
+           -Wno-misleading-indentation \
            -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
            -ffunction-sections -fdata-sections
 export CFLAGS   += $(CXFLAGS) -std=c99
