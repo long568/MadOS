@@ -805,7 +805,6 @@ lwip_close(int s)
     return -1;
   }
 
-  
   do { /* Added by long 20191022 */
     madWaitQShut(&sock->waitQ);
   } while(0);

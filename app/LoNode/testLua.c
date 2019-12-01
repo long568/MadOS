@@ -8,7 +8,8 @@
 #include "lua.h"
 
 static char *argv[] = {
-    "mLua"
+    "lua",
+    NULL
 };
 
 static void lua_parser_thread(MadVptr exData);
@@ -25,7 +26,7 @@ static void lua_parser_thread(MadVptr exData)
     (void)exData;
     madTimeDly(100);
     while(1) {
-        lua_main(1, argv);
+        lua(1, argv);
         madThreadPend(MAD_THREAD_SELF);
     }
 }
