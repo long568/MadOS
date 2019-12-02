@@ -96,8 +96,8 @@ static void madStartup(MadVptr exData)
 
 static void madSysRunning(MadVptr exData)
 {
-#ifdef MAD_SHOW_IDLERATE
     int tmrLED = 0;
+#ifdef MAD_SHOW_IDLERATE
     int tmrSysReport = 0;
     int idle_rate = 100;
     MadSize_t min_mem = 0xFFFFFFFF;

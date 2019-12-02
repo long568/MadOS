@@ -32,6 +32,10 @@ int ioctl(int fd, int request, ...)
         case MAD_FDTYPE_DEV: 
             res = MadDev_ioctl(seed, request, args); 
             break;
+        case MAD_FDTYPE_FIL:
+            if(MadFile_ioctl) 
+                res = MadFile_ioctl(seed, request, args);
+            break;
         case MAD_FDTYPE_SOC:
             if(MadSoc_fcntl) 
                 res = MadSoc_ioctl(seed, request, args);

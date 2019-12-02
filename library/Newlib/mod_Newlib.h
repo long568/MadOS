@@ -30,7 +30,7 @@ MISSING_SYSCALL_NAMES
 #include <sys/select.h>
 #include "MadOS.h"
 
-#define STD_FD_TIMEOUT (30 * 1000)
+#define STD_FD_TIMEOUT (0)
 #define STD_FD_IN      (0)
 #define STD_FD_OUT     (1)
 #define STD_FD_ERR     (2)
@@ -52,6 +52,7 @@ enum {
 extern int   (*MadFile_open)  (const char * file, int flag, va_list args);
 extern int   (*MadFile_creat) (const char * file, mode_t mode);
 extern int   (*MadFile_fcntl) (int fd, int cmd, va_list args);
+extern int   (*MadFile_ioctl) (int fd, int cmd, va_list args);
 extern int   (*MadFile_write) (int fd, const void *buf, size_t len);
 extern int   (*MadFile_read)  (int fd, void *buf, size_t len);
 extern int   (*MadFile_close) (int fd);

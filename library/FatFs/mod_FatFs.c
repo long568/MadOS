@@ -1,3 +1,4 @@
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -11,6 +12,7 @@ static FATFS *fs_sd;
 static int   FatFs_open  (const char * file, int flag, va_list args);
 static int   FatFs_creat (const char * file, mode_t mode);
 static int   FatFs_fcntl (int fd, int cmd, va_list args);
+static int   FatFs_ioctl (int fd, int request, va_list args);
 static int   FatFs_write (int fd, const void *buf, size_t len);
 static int   FatFs_read  (int fd, void *buf, size_t len);
 static int   FatFs_close (int fd);
@@ -29,6 +31,7 @@ MadBool FatFs_Init(void)
             MadFile_open  = FatFs_open;
             MadFile_creat = FatFs_creat;
             MadFile_fcntl = FatFs_fcntl;
+            MadFile_ioctl = FatFs_ioctl;
             MadFile_write = FatFs_write;
             MadFile_read  = FatFs_read;
             MadFile_close = FatFs_close;
@@ -116,6 +119,20 @@ static int FatFs_fcntl(int fd, int cmd, va_list args)
 {
     (void)fd; (void)cmd; (void)args;
     return -1;
+}
+
+static int FatFs_ioctl(int fd, int request, va_list args)
+{
+    int rc = -1;
+    (void)fd; (void)args;
+    switch(request) {
+        case FIOSELSETWR:
+        case FIOSELSETRD:
+            rc = 1;
+        default:
+            break;
+    }
+    return rc;
 }
 
 static int FatFs_write(int fd, const void *buf, size_t len)

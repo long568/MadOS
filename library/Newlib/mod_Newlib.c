@@ -4,6 +4,7 @@
 int   (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
 int   (*MadFile_creat) (const char * file, mode_t mode)            = 0;
 int   (*MadFile_fcntl) (int fd, int cmd, va_list args)             = 0;
+int   (*MadFile_ioctl) (int fd, int request, va_list args)         = 0;
 int   (*MadFile_write) (int fd, const void *buf, size_t len)       = 0;
 int   (*MadFile_read)  (int fd, void *buf, size_t len)             = 0;
 int   (*MadFile_close) (int fd)                                    = 0;
