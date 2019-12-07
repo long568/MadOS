@@ -166,3 +166,53 @@ MadBool LwIP_Init(void)
     );
     return MTRUE;
 }
+
+#define LWIP_REALS(s) ((((s) > STD_FD_END - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
+inline int accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
+    return lwip_accept(LWIP_REALS(s),addr,addrlen);
+}
+inline int bind(int s, const struct sockaddr *name, socklen_t namelen) {
+    return lwip_bind(LWIP_REALS(s),name,namelen);
+}
+inline int shutdown(int s, int how) {
+    return lwip_shutdown(LWIP_REALS(s),how);
+}
+inline int getpeername (int s, struct sockaddr *name, socklen_t *namelen) {
+    return lwip_getpeername(LWIP_REALS(s),name,namelen);
+}
+inline int getsockname (int s, struct sockaddr *name, socklen_t *namelen) {
+    return lwip_getsockname(LWIP_REALS(s),name,namelen);
+}
+inline int getsockopt (int s, int level, int optname, void *optval, socklen_t *optlen) {
+    return lwip_getsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+}
+inline int setsockopt (int s, int level, int optname, const void *optval, socklen_t optlen) {
+    return lwip_setsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+}
+inline int closesocket(int s) {
+    return lwip_close(LWIP_REALS(s));
+}
+inline int connect(int s, const struct sockaddr *name, socklen_t namelen) {
+    return lwip_connect(LWIP_REALS(s),name,namelen);
+}
+inline int listen(int s, int backlog) {
+    return lwip_listen(LWIP_REALS(s),backlog);
+}
+inline ssize_t recv(int s, void *mem, size_t len, int flags) {
+    return lwip_recv(LWIP_REALS(s),mem,len,flags);
+}
+inline ssize_t recvfrom(int s, void *mem, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen) {
+    return lwip_recvfrom(LWIP_REALS(s),mem,len,flags,from,fromlen);
+}
+inline ssize_t recvmsg(int s, struct msghdr *message, int flags) {
+    return lwip_recvmsg(LWIP_REALS(s),message,flags);
+}
+inline ssize_t send(int s, const void *dataptr, size_t size, int flags) {
+    return lwip_send(LWIP_REALS(s),dataptr,size,flags);
+}
+inline ssize_t sendmsg(int s, const struct msghdr *message, int flags) {
+    return lwip_sendmsg(LWIP_REALS(s),message,flags);
+}
+inline ssize_t sendto(int s, const void *dataptr, size_t size, int flags, const struct sockaddr *to, socklen_t tolen) {
+    return lwip_sendto(LWIP_REALS(s),dataptr,size,flags,to,tolen);
+}

@@ -25,10 +25,16 @@ endif
 
 ifeq ($(LIB_LWIP), yes)
 export LIBS += -llwip
-export INCS += -I$(ROOT)/library/LwIP/include -I$(ROOT)/library/LwIP/include/compat/posix
+export INCS += -I$(ROOT)/library/LwIP/include
+export INCS += -I$(ROOT)/library/LwIP/include/compat/posix
 endif
 
 ifeq ($(LIB_ENET), yes)
 export LIBS += -lenet
 export INCS += -I$(ROOT)/library/ENet/include
+endif
+
+ifeq ($(LIB_OPEN62541), yes)
+export LIBS += -lopen62541
+export INCS += -I$(ROOT)/library/open62541/include
 endif

@@ -54,6 +54,7 @@
 #define LWIP_COMPAT_SOCKETS             3
 #define LWIP_SOCKET_POLL                0
 #define LWIP_SOCKET_SELECT              1 // Implemented by MadOS
+#define SO_REUSE                        1
 
 #define MEM_ALIGNMENT                   MAD_MEM_ALIGN
 #define MEMP_NUM_PBUF                   8

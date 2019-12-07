@@ -19,7 +19,7 @@ $(TEMP)/%.d: %.c
 	$(call gen_dep, $(CC) $(CFLAGS))
 
 $(TEMP)/%.d: %.cpp
-	$(call gen_dep, $(CPP) $(CPPFLAGS))
+	$(call gen_dep, $(CXX) $(CXXFLAGS))
 
 $(TEMP)/%.o: %.s
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -28,6 +28,6 @@ $(TEMP)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TEMP)/%.o: %.cpp
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 after_all:

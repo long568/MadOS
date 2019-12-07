@@ -4,7 +4,7 @@ export TOOLCHAIN = arm-none-eabi
 
 export AR    = $(TOOLCHAIN)-ar
 export CC    = $(TOOLCHAIN)-gcc
-export CPP   = $(TOOLCHAIN)-g++
+export CXX   = $(TOOLCHAIN)-g++
 export LD    = $(TOOLCHAIN)-g++
 export OCPY  = $(TOOLCHAIN)-objcopy
 export MAKE  = make
@@ -49,15 +49,14 @@ export LIBS += -ldev -ldrv -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
-CXFLAGS += -g3
+XFLAGS += -g3
 endif
-CXFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
-           -Wall -Wshadow -Wpointer-arith \
-           -Wno-misleading-indentation \
-           -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-           -ffunction-sections -fdata-sections
-export CFLAGS   += $(CXFLAGS) -std=c99
-export CPPFLAGS += $(CXFLAGS) -std=c++11
+XFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
+          -Wall -Wshadow -Wpointer-arith \
+          -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+          -ffunction-sections -fdata-sections
+export CFLAGS   += $(XFLAGS) -std=c99
+export CXXFLAGS += $(XFLAGS) -std=c++11
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
                    -Bstatic -Wl,--gc-sections \
                    -march=$(MCU_ARCH) -mtune=$(MCU_VER) \

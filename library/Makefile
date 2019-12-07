@@ -22,3 +22,6 @@ endif
 ifeq ($(LIB_ENET), yes)
 	$(MAKE) -C $(ROOT)/library/ENet
 endif
+ifeq ($(LIB_OPEN62541), yes)
+	$(MAKE) -C $(ROOT)/library/open62541
+endif
