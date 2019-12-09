@@ -42,8 +42,9 @@ static void opcua_client(MadVptr exData)
             if(UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_INT32])) {
                 printf("the value is: %li\n", *(UA_Int32*)value.data);
             }
+            madTimeDly(1000 * 3);
         } else {
-            madThreadPend(MAD_THREAD_SELF);
+            break;
         }
     }
 
