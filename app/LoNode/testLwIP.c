@@ -12,7 +12,7 @@
 
 #define IPERF_TEST 0
 #define BUFF_SIZ   256
-#define TAGGET_IP  "192.168.1.101"
+#define TAGGET_IP  "192.168.1.103"
 
 static struct netif *nif;
 static void socket_thread(MadVptr exData);
