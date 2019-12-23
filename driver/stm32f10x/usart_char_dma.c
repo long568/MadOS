@@ -4,8 +4,6 @@
 #define RX_BUFF_LOCK()    do { madCSDecl(cpsr); madCSLock(cpsr);
 #define RX_BUFF_UNLOCK()  madCSUnlock(cpsr); } while(0)
 
-static void eventcall(mUsartChar_t *port, int event);
-
 MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
 {
     MadU8             usart_irqn;
@@ -136,12 +134,12 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         }
         port->rxCnt = dma_cnt;
         FIFO_U8_DMA_Put(&port->rxBuff, offset);
-        eventcall(port, MAD_WAIT_EVENT_READ);
+        port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ, FIFO_U8_Cnt(&port->rxBuff));
         data = port->p->DR;
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);
-        eventcall(port, MAD_WAIT_EVENT_WRITE);
+        port->dev->eCall(port->dev, MAD_WAIT_EVENT_WRITE);
         USART_ClearITPendingBit(port->p, USART_IT_TC);
     }
 }
@@ -230,79 +228,4 @@ void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
     USARTx->BRR = (uint16_t)tmpreg;
 
     USART_Cmd(port->p, ENABLE);
-}
-
-static void eventcall(mUsartChar_t *port, int event)
-{
-    madCSDecl(cpsr);
-    madCSLock(cpsr);
-    madWaitQSignal(port->waitQ, event);
-    switch(event) {
-        case MAD_WAIT_EVENT_WRITE: {
-            if(port->wrEvent > 0) {
-                port->wrEvent--;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-    madCSUnlock(cpsr);
-}
-
-int mUsartChar_SelectSet(mUsartChar_t *port, MadSemCB_t **locker, int event)
-{
-    int rc = -1;
-    madCSDecl(cpsr);
-    madCSLock(cpsr);
-    switch (event)
-    {
-    case MAD_WAIT_EVENT_WRITE:{
-        if(port->wrEvent == 0) {
-            rc = 1;
-        } else if(!locker || madWaitQAdd(port->waitQ, locker, event)) {
-            rc = 0;
-        }
-        if(rc > -1) {
-            port->wrEvent++;
-        }
-        break;
-    }        
-    case MAD_WAIT_EVENT_READ:{
-        if(FIFO_U8_Cnt(&port->rxBuff) > 0) {
-            rc = 1;
-        } else if(!locker || madWaitQAdd(port->waitQ, locker, event)) {
-            rc = 0;
-        }
-        break;
-    } 
-    default:
-        break;
-    }
-    madCSUnlock(cpsr);
-    return rc;
-}
-
-int mUsartChar_SelectClr(mUsartChar_t *port, MadSemCB_t **locker, int event)
-{
-    int rc = 1;
-    madCSDecl(cpsr);
-    madCSLock(cpsr);
-    switch (event)
-    {
-    case MAD_WAIT_EVENT_WRITE:{
-        if(madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
-            port->wrEvent--;
-        }
-        break;
-    }        
-    case MAD_WAIT_EVENT_READ:{
-        madWaitQRemove(port->waitQ, locker, MAD_WAIT_EVENT_READ);
-        break;
-    } 
-    default:
-        break;
-    }
-    madCSUnlock(cpsr);
-    return rc;
 }

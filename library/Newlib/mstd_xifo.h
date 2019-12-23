@@ -54,11 +54,11 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
 #define FIFO_U8_Put(fifo, c)     do { if ((fifo)->cnt < (fifo)->max) { *(fifo)->tail++ = c; (fifo)->cnt++; if((fifo)->tail == (fifo)->end) (fifo)->tail = (fifo)->buf; } } while(0)
 #define FIFO_U8_Get(fifo, c)     do { if ((fifo)->cnt >         0) { c = *(fifo)->head++; (fifo)->cnt--; if((fifo)->head == (fifo)->end) (fifo)->head = (fifo)->buf; } } while(0)
 #define FIFO_U8_Get2(fifo, c)    do { c = *(fifo)->head++; if((fifo)->head == (fifo)->end) (fifo)->head = (fifo)->buf; } while(0)
-#define FIFO_U8_Full(fifo)       (fifo)->cnt == (fifo)->max
-#define FIFO_U8_Empty(fifo)      (fifo)->cnt == 0
-#define FIFO_U8_Cnt(fifo)        (fifo)->cnt
-#define FIFO_U8_Max(fifo)        (fifo)->max
-#define FIFO_U8_Buf(fifo)        (fifo)->buf
+#define FIFO_U8_Full(fifo)       ((fifo)->cnt == (fifo)->max)
+#define FIFO_U8_Empty(fifo)      ((fifo)->cnt == 0)
+#define FIFO_U8_Cnt(fifo)        ((fifo)->cnt)
+#define FIFO_U8_Max(fifo)        ((fifo)->max)
+#define FIFO_U8_Buf(fifo)        ((fifo)->buf)
 #define FIFO_U8_Clear(fifo)      do { (fifo)->cnt = 0; (fifo)->head = (fifo)->tail; } while(0);
 #define FIFO_U8_Reset(fifo)      do { (fifo)->cnt = 0; (fifo)->head = (fifo)->tail = (fifo)->buf; } while(0);
 

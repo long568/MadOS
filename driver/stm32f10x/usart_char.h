@@ -37,13 +37,13 @@ typedef struct {
 
 typedef struct {
     USART_TypeDef        *p;
+    MadDev_t             *dev;
     DMA_Channel_TypeDef  *txDma;
     DMA_Channel_TypeDef  *rxDma;
     MadU8                wrEvent;
     mUsartChar_Info_t    info;
     MadU32               rxCnt;
     MadU32               rxMax;
-    MadWaitQ_t           *waitQ;
     FIFO_U8              rxBuff;
 } mUsartChar_t;
 

@@ -24,14 +24,15 @@ static int Drv_open(const char * file, int flag, va_list args)
 {
     int          fd    = (int)file;
     MadDev_t     *dev  = DevsList[fd];
-    mUsartChar_t *port = (mUsartChar_t*)(dev->port);        
-    mUsartChar_InitData_t *lowArgs = (mUsartChar_InitData_t*)(dev->args->lowArgs);
+    const MadDevArgs_t *dargs = dev->args;
+    mUsartChar_t *port = (mUsartChar_t*)(dev->port);
+    mUsartChar_InitData_t *lowArgs = (mUsartChar_InitData_t*)(dargs->lowArgs);
 
     (void)args;
-    port->rxCnt = dev->rxBuffSize;
-    port->rxMax = dev->rxBuffSize;
-    port->waitQ = &dev->waitQ;
-    FIFO_U8_Init(&port->rxBuff, dev->rxBuff, dev->rxBuffSize);
+    port->rxCnt = dargs->rxBuffSize;
+    port->rxMax = dargs->rxBuffSize;
+    port->dev   = dev;
+    FIFO_U8_Init(&port->rxBuff, dev->rxBuff, dargs->rxBuffSize);
 
     if(MTRUE != mUsartChar_Init(port, lowArgs)) {
         return -1;
@@ -107,30 +108,6 @@ static int Drv_ioctl(int fd, int request, va_list args)
             info.hfc |= (cflag & CRTS_IFLOW) ? USART_HardwareFlowControl_RTS : 0;
             info.hfc |= (cflag & CCTS_OFLOW) ? USART_HardwareFlowControl_CTS : 0;
             mUsartChar_SetInfo(port, &info);
-            break;
-        }
-
-        case FIOSELSETWR: {
-            MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
-            res = mUsartChar_SelectSet(port, locker, MAD_WAIT_EVENT_WRITE);
-            break;
-        }
-
-        case FIOSELSETRD: {
-            MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
-            res = mUsartChar_SelectSet(port, locker, MAD_WAIT_EVENT_READ);
-            break;
-        }
-
-        case FIOSELCLRWR: {
-            MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
-            res = mUsartChar_SelectClr(port, locker, MAD_WAIT_EVENT_WRITE);
-            break;
-        }
-
-        case FIOSELCLRRD: {
-            MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
-            res = mUsartChar_SelectClr(port, locker, MAD_WAIT_EVENT_READ);
             break;
         }
 

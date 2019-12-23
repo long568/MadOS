@@ -6,6 +6,11 @@
 #define MAD_DEVP_PLACE ((MadDev_t*)(-1))
 #define MAD_DEVP_END   ((MadDev_t*)(MNULL))
 
+struct _MadDev_t;
+struct _MadDevArgs_t;
+
+typedef void (*MadDev_ECall_t)(struct _MadDev_t *dev, int event, ...);
+
 typedef struct _MadDevArgs_t {
     MadU8         waitQSize;
     MadSize_t     txBuffSize;
@@ -24,10 +29,12 @@ typedef struct _MadDev_t {
     MadU8      opened;
     int        flag;
     MadWaitQ_t waitQ;
+    MadU8      wrEvent;
+    MadU8      rdEvent;
     MadU8      *txBuff;
     MadU8      *rxBuff;
-    MadSize_t  txBuffSize;
-    MadSize_t  rxBuffSize;
+    MadSize_t  rxBuffCnt;
+    MadDev_ECall_t eCall;
 } MadDev_t;
 
 extern MadDev_t *DevsList[];

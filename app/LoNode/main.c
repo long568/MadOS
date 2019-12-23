@@ -85,10 +85,10 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    // Init_TestLua();
+    Init_TestLua();
     // Init_TestENet();
     Init_TestLwIP();
-    Init_TestOPCUA();
+    // Init_TestOPCUA();
     // Init_TestFatFs();
     // Init_TestModbus();
 

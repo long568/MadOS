@@ -2,6 +2,10 @@
 #include <stdarg.h>
 #include "MadDev.h"
 
+static void MadDev_EventCall(MadDev_t *dev, int event, ...);
+static int  MadDev_EventSet (MadDev_t *dev, MadSemCB_t **locker, int event);
+static int  MadDev_EventClr (MadDev_t *dev, MadSemCB_t **locker, int event);
+
 void MadDev_Init(void)
 {
     int      fd   = 0;
@@ -15,8 +19,8 @@ void MadDev_Init(void)
             dev->waitQ.p    = 0;
             dev->txBuff     = 0;
             dev->rxBuff     = 0;
-            dev->txBuffSize = 0;
-            dev->rxBuffSize = 0;
+            dev->rxBuffCnt  = 0;
+            dev->eCall      = MadDev_EventCall;
         }
         fd++;
         dev = DevsList[fd];
@@ -51,8 +55,7 @@ int MadDev_open(const char *file, int flag, va_list args)
                 goto open_failed;
             }
 
-            dev->txBuffSize = dargs->txBuffSize;
-            dev->rxBuffSize = dargs->rxBuffSize;
+            dev->rxBuffCnt = 0;
             dev->flag = flag;
             if((dev->drv->open) && 
                (0 < dev->drv->open((const char *)fd, flag, args))) {
@@ -67,8 +70,7 @@ int MadDev_open(const char *file, int flag, va_list args)
     return -1;
 
 open_failed:
-    dev->txBuffSize = 0;
-    dev->rxBuffSize = 0;
+    dev->rxBuffCnt = 0;
     dev->flag = 0;
     madWaitQShut(&dev->waitQ);
     madMemFree(dev->txBuff);
@@ -100,10 +102,12 @@ int MadDev_write(int fd, const void *buf, size_t len)
 {
     int      res;
     MadDev_t *dev;
+    const MadDevArgs_t *dargs;
     res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
-        if(dev->txBuffSize >= len && dev->drv->write) {
+        dargs = dev->args;
+        if(dargs->txBuffSize >= len && dev->drv->write) {
             memcpy(dev->txBuff, buf, len);
             res = dev->drv->write(fd, dev->txBuff, len);
         }
@@ -134,8 +138,7 @@ int MadDev_close(int fd)
         dev = DevsList[fd];
         if(dev->drv->close) {
             res = dev->drv->close(fd);
-            dev->txBuffSize = 0;
-            dev->rxBuffSize = 0;
+            dev->rxBuffCnt = 0;
             madWaitQShut(&dev->waitQ);
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
@@ -161,14 +164,124 @@ off_t MadDev_lseek(int fd, off_t ofs, int wce)
 
 int MadDev_ioctl (int fd, int request, va_list args)
 {
-    int       res;
-    MadDev_t  *dev;
+    int      res;
+    MadDev_t *dev;
     res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
-        if(dev->drv->ioctl) {
-            res = dev->drv->ioctl(fd, request, args);
+        switch(request) {
+            case FIOSELSETWR: {
+                MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
+                res = MadDev_EventSet(dev, locker, MAD_WAIT_EVENT_WRITE);
+                break;
+            }
+
+            case FIOSELSETRD: {
+                MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
+                res = MadDev_EventSet(dev, locker, MAD_WAIT_EVENT_READ);
+                break;
+            }
+
+            case FIOSELCLRWR: {
+                MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
+                res = MadDev_EventClr(dev, locker, MAD_WAIT_EVENT_WRITE);
+                break;
+            }
+
+            case FIOSELCLRRD: {
+                MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
+                res = MadDev_EventClr(dev, locker, MAD_WAIT_EVENT_READ);
+                break;
+            }
+
+            default: {
+                if(dev->drv->ioctl) {
+                    res = dev->drv->ioctl(fd, request, args);
+                }
+                break;
+            }
         }
     }
     return res;
+}
+
+static void MadDev_EventCall(MadDev_t *dev, int event, ...)
+{
+    va_list args;
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
+    va_start(args, event);
+    madWaitQSignal(&dev->waitQ, event);
+    switch(event) {
+        case MAD_WAIT_EVENT_WRITE: {
+            if(dev->wrEvent > 0) {
+                dev->wrEvent--;
+            }
+            break;
+        }
+        case MAD_WAIT_EVENT_READ: {
+            dev->rxBuffCnt = va_arg(args, int);
+            break;
+        }
+        default:
+            break;
+    }
+    va_end(args);
+    madCSUnlock(cpsr);
+}
+
+static int MadDev_EventSet(MadDev_t *dev, MadSemCB_t **locker, int event)
+{
+    int rc = -1;
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
+    switch (event)
+    {
+    case MAD_WAIT_EVENT_WRITE:{
+        if(dev->wrEvent == 0) {
+            rc = 1;
+        } else if(!locker || madWaitQAdd(&dev->waitQ, locker, event)) {
+            rc = 0;
+        }
+        if(rc > -1) {
+            dev->wrEvent++;
+        }
+        break;
+    }        
+    case MAD_WAIT_EVENT_READ:{
+        if(dev->rxBuffCnt > 0) {
+            rc = 1;
+        } else if(!locker || madWaitQAdd(&dev->waitQ, locker, event)) {
+            rc = 0;
+        }
+        break;
+    } 
+    default:
+        break;
+    }
+    madCSUnlock(cpsr);
+    return rc;
+}
+
+static int MadDev_EventClr(MadDev_t *dev, MadSemCB_t **locker, int event)
+{
+    int rc = 1;
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
+    switch (event) {
+    case MAD_WAIT_EVENT_WRITE:{
+        if(madWaitQRemove(&dev->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+            dev->wrEvent--;
+        }
+        break;
+    }
+    case MAD_WAIT_EVENT_READ:{
+        madWaitQRemove(&dev->waitQ, locker, MAD_WAIT_EVENT_READ);
+        break;
+    }
+    default:
+        break;
+    }
+    madCSUnlock(cpsr);
+    return rc;
 }
