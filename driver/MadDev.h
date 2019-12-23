@@ -30,7 +30,6 @@ typedef struct _MadDev_t {
     int        flag;
     MadWaitQ_t waitQ;
     MadU8      wrEvent;
-    MadU8      rdEvent;
     MadU8      *txBuff;
     MadU8      *rxBuff;
     MadSize_t  rxBuffCnt;

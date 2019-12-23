@@ -134,7 +134,8 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         }
         port->rxCnt = dma_cnt;
         FIFO_U8_DMA_Put(&port->rxBuff, offset);
-        port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ, FIFO_U8_Cnt(&port->rxBuff));
+        port->dev->rxBuffCnt = FIFO_U8_Cnt(&port->rxBuff);
+        port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
         data = port->p->DR;
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
@@ -156,7 +157,7 @@ int mUsartChar_Write(mUsartChar_t *port, const char *dat, size_t len)
 
 int mUsartChar_Read(mUsartChar_t *port, char *dat, size_t len)
 {
-    FIFO_U8_DMA_Get(&port->rxBuff, dat, len);
+    FIFO_U8_DMA_Get(&port->rxBuff, dat, len, port->dev->rxBuffCnt);
     return len;
 }
 

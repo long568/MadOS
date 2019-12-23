@@ -77,12 +77,13 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
 } while(0)
 
 /* Called in User-Mode */
-#define FIFO_U8_DMA_Get(fifo, dat, n) do { \
+#define FIFO_U8_DMA_Get(fifo, dat, n, c) do { \
     madCSDecl(cpsr);                                  \
     madCSLock(cpsr);                                  \
     if((fifo)->cnt > 0) {                             \
         if(n > (fifo)->cnt) { n = (fifo)->cnt; }      \
         (fifo)->cnt -= n;                             \
+        c = (fifo)->cnt;                              \
         madCSUnlock(cpsr);                            \
         if((fifo)->head + n < (fifo)->end)  {         \
             memcpy(dat, (fifo)->head, n);             \
@@ -94,8 +95,9 @@ extern  void     FIFO_U8_Shut          (FIFO_U8 *fifo);
             (fifo)->head = (fifo)->buf + n - ofs;     \
         }                                             \
     } else {                                          \
-        madCSUnlock(cpsr);                            \
         n = 0;                                        \
+        c = 0;                                        \
+        madCSUnlock(cpsr);                            \
     }                                                 \
 } while(0)
 

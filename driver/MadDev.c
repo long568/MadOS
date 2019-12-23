@@ -17,6 +17,7 @@ void MadDev_Init(void)
             dev->waitQ.l0   = 0;
             dev->waitQ.l1   = 0;
             dev->waitQ.p    = 0;
+            dev->wrEvent    = 0;
             dev->txBuff     = 0;
             dev->rxBuff     = 0;
             dev->rxBuffCnt  = 0;
@@ -55,8 +56,9 @@ int MadDev_open(const char *file, int flag, va_list args)
                 goto open_failed;
             }
 
+            dev->wrEvent   = 0;
             dev->rxBuffCnt = 0;
-            dev->flag = flag;
+            dev->flag      = flag;
             if((dev->drv->open) && 
                (0 < dev->drv->open((const char *)fd, flag, args))) {
                 return fd;
@@ -70,8 +72,9 @@ int MadDev_open(const char *file, int flag, va_list args)
     return -1;
 
 open_failed:
+    dev->wrEvent   = 0;
     dev->rxBuffCnt = 0;
-    dev->flag = 0;
+    dev->flag      = 0;
     madWaitQShut(&dev->waitQ);
     madMemFree(dev->txBuff);
     madMemFree(dev->rxBuff);
@@ -102,12 +105,10 @@ int MadDev_write(int fd, const void *buf, size_t len)
 {
     int      res;
     MadDev_t *dev;
-    const MadDevArgs_t *dargs;
     res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];
-        dargs = dev->args;
-        if(dargs->txBuffSize >= len && dev->drv->write) {
+        if(dev->args->txBuffSize >= len && dev->drv->write) {
             memcpy(dev->txBuff, buf, len);
             res = dev->drv->write(fd, dev->txBuff, len);
         }
@@ -138,7 +139,9 @@ int MadDev_close(int fd)
         dev = DevsList[fd];
         if(dev->drv->close) {
             res = dev->drv->close(fd);
+            dev->wrEvent   = 0;
             dev->rxBuffCnt = 0;
+            dev->flag      = 0;
             madWaitQShut(&dev->waitQ);
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
@@ -217,10 +220,6 @@ static void MadDev_EventCall(MadDev_t *dev, int event, ...)
             if(dev->wrEvent > 0) {
                 dev->wrEvent--;
             }
-            break;
-        }
-        case MAD_WAIT_EVENT_READ: {
-            dev->rxBuffCnt = va_arg(args, int);
             break;
         }
         default:
