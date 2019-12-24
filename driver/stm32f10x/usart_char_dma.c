@@ -4,20 +4,25 @@
 #define RX_BUFF_LOCK()    do { madCSDecl(cpsr); madCSLock(cpsr);
 #define RX_BUFF_UNLOCK()  madCSUnlock(cpsr); } while(0)
 
-MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
+MadBool mUsartChar_Init(mUsartChar_t *port)
 {
     MadU8             usart_irqn;
     DMA_InitTypeDef   DMA_InitStructure;
     USART_InitTypeDef USART_InitStructure;
-    
-    port->p       = initData->p;
-    port->txDma   = initData->txDma;
-    port->rxDma   = initData->rxDma;
-    port->wrEvent = 0;
-    port->info.baud      = initData->baud;
-    port->info.stop_bits = initData->stop_bits;
-    port->info.parity    = initData->parity;
-    port->info.hfc       = initData->hfc;
+    const MadDevArgs_t          *devArgs  = port->dev->args;
+    const mUsartChar_InitData_t *portArgs = devArgs->lowArgs;
+
+    port->p     = portArgs->p;
+    port->txDma = portArgs->txDma;
+    port->rxDma = portArgs->rxDma;
+    port->rxCnt = devArgs->rxBuffSize;
+    port->rxMax = devArgs->rxBuffSize;
+    FIFO_U8_Init(&port->rxBuff, port->dev->rxBuff, devArgs->rxBuffSize);
+
+    port->info.baud      = portArgs->baud;
+    port->info.stop_bits = portArgs->stop_bits;
+    port->info.parity    = portArgs->parity;
+    port->info.hfc       = portArgs->hfc;
 
     switch((MadU32)(port->p)) {
         case (MadU32)(USART1):
@@ -43,20 +48,20 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
         default:
             return MFALSE;
     }
-    madInstallExIrq(initData->IRQh, usart_irqn);
+    madInstallExIrq(portArgs->IRQh, usart_irqn);
 
     do { // GPIO
-        MadU32 remap = initData->io.remap;
+        MadU32 remap = portArgs->io.remap;
         if(remap != 0)
             GPIO_PinRemapConfig(remap, ENABLE);
-        StmPIN_DefInitIFL(&initData->io.rx);
-        StmPIN_DefInitAPP(&initData->io.tx);
+        StmPIN_DefInitIFL(&portArgs->io.rx);
+        StmPIN_DefInitAPP(&portArgs->io.tx);
     } while(0);
 
     do { // NVIC
         NVIC_InitTypeDef NVIC_InitStructure;
         NVIC_InitStructure.NVIC_IRQChannel                   = usart_irqn;
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = initData->IRQp;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = portArgs->IRQp;
         NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0;
         NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
         NVIC_Init(&NVIC_InitStructure);
@@ -72,7 +77,7 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     DMA_InitStructure.DMA_PeripheralDataSize  = DMA_PeripheralDataSize_Byte;
     DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;
     DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;
-    DMA_InitStructure.DMA_Priority            = initData->tx_dma_priority;
+    DMA_InitStructure.DMA_Priority            = portArgs->tx_dma_priority;
     DMA_InitStructure.DMA_M2M                 = DMA_M2M_Disable;
     DMA_DeInit(port->txDma);
     DMA_Init(port->txDma, &DMA_InitStructure);
@@ -83,26 +88,26 @@ MadBool mUsartChar_Init(mUsartChar_t *port, mUsartChar_InitData_t *initData)
     DMA_InitStructure.DMA_DIR                 = DMA_DIR_PeripheralSRC;
     DMA_InitStructure.DMA_BufferSize          = port->rxMax;
     DMA_InitStructure.DMA_Mode                = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority            = initData->rx_dma_priority;
+    DMA_InitStructure.DMA_Priority            = portArgs->rx_dma_priority;
     DMA_DeInit(port->rxDma);
     DMA_Init(port->rxDma, &DMA_InitStructure);
     DMA_Cmd(port->rxDma, ENABLE);
 
     // USART
-    USART_InitStructure.USART_BaudRate            = initData->baud;
-    USART_InitStructure.USART_WordLength          = initData->word_len;
-    USART_InitStructure.USART_StopBits            = initData->stop_bits;
-    USART_InitStructure.USART_Parity              = initData->parity;
-    USART_InitStructure.USART_HardwareFlowControl = initData->hfc;
-    USART_InitStructure.USART_Mode                = initData->mode;
+    USART_InitStructure.USART_BaudRate            = portArgs->baud;
+    USART_InitStructure.USART_WordLength          = portArgs->word_len;
+    USART_InitStructure.USART_StopBits            = portArgs->stop_bits;
+    USART_InitStructure.USART_Parity              = portArgs->parity;
+    USART_InitStructure.USART_HardwareFlowControl = portArgs->hfc;
+    USART_InitStructure.USART_Mode                = portArgs->mode;
     USART_DeInit(port->p);
     USART_Init(port->p, &USART_InitStructure);
     USART_Cmd(port->p, ENABLE);
-    if(initData->mode & USART_Mode_Rx) {
+    if(portArgs->mode & USART_Mode_Rx) {
         USART_ITConfig(port->p, USART_IT_IDLE, ENABLE);
         USART_DMACmd(port->p, USART_DMAReq_Rx, ENABLE);
     }
-    if(initData->mode & USART_Mode_Tx) {
+    if(portArgs->mode & USART_Mode_Tx) {
         USART_ITConfig(port->p, USART_IT_TC, ENABLE);
         USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
     }

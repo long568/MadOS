@@ -24,17 +24,12 @@ static int Drv_open(const char * file, int flag, va_list args)
 {
     int          fd    = (int)file;
     MadDev_t     *dev  = DevsList[fd];
-    const MadDevArgs_t *dargs = dev->args;
     mUsartChar_t *port = (mUsartChar_t*)(dev->port);
-    mUsartChar_InitData_t *lowArgs = (mUsartChar_InitData_t*)(dargs->lowArgs);
-
+    
     (void)args;
-    port->rxCnt = dargs->rxBuffSize;
-    port->rxMax = dargs->rxBuffSize;
-    port->dev   = dev;
-    FIFO_U8_Init(&port->rxBuff, dev->rxBuff, dargs->rxBuffSize);
+    port->dev = dev;
 
-    if(MTRUE != mUsartChar_Init(port, lowArgs)) {
+    if(MTRUE != mUsartChar_Init(port)) {
         return -1;
     }
     return 1;

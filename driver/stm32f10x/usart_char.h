@@ -40,7 +40,6 @@ typedef struct {
     MadDev_t             *dev;
     DMA_Channel_TypeDef  *txDma;
     DMA_Channel_TypeDef  *rxDma;
-    MadU8                wrEvent;
     mUsartChar_Info_t    info;
     MadU32               rxCnt;
     MadU32               rxMax;
@@ -48,7 +47,7 @@ typedef struct {
 } mUsartChar_t;
 
 extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);
-extern MadBool mUsartChar_Init        (mUsartChar_t *port, mUsartChar_InitData_t *initData);
+extern MadBool mUsartChar_Init        (mUsartChar_t *port);
 extern MadBool mUsartChar_DeInit      (mUsartChar_t *port);
 extern int     mUsartChar_Write       (mUsartChar_t *port, const char *dat, size_t len);
 extern int     mUsartChar_Read        (mUsartChar_t *port,       char *dat, size_t len);
