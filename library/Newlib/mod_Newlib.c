@@ -157,19 +157,6 @@ char NL_FD_Type(int fd)
     return rc;
 }
 
-int NL_FD_Closing(int fd)
-{
-    int rc = -1;
-    MAD_CS_OPT(
-        NL_FD_REAL_FD(fd);
-        if(NL_FD_ARRAY[fd].opt & MAD_FD_OPENED) {
-            NL_FD_ARRAY[fd].opt |= MAD_FD_CLOSING;
-            rc = 1;
-        }
-    );
-    return rc;
-}
-
 int NL_FD_OptBegin(int fd)
 {
     char opt;
@@ -177,7 +164,7 @@ int NL_FD_OptBegin(int fd)
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
         opt = NL_FD_ARRAY[fd].opt;
-        if((opt & MAD_FD_OPENED) && !(opt & MAD_FD_CLOSING)) {
+        if((opt & MAD_FD_OPENED) && !(opt & MAD_FD_OPTING)) {
             NL_FD_ARRAY[fd].opt |= MAD_FD_OPTING;
             rc = 1;
         }

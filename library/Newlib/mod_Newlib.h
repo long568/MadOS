@@ -40,7 +40,6 @@ MISSING_SYSCALL_NAMES
 #define MAD_FD_CLOSED  0x00
 #define MAD_FD_OPENED  0x01
 #define MAD_FD_OPTING  0x02
-#define MAD_FD_CLOSING 0x04
 
 enum {
     MAD_FDTYPE_UNK = 0,
@@ -76,7 +75,6 @@ extern void    NL_FD_SetFlag (int fd, int flag);
 extern void    NL_FD_ClrFlag (int fd, int flag);
 extern int     NL_FD_Seed    (int fd);
 extern char    NL_FD_Type    (int fd);
-extern int     NL_FD_Closing (int fd);
 extern int     NL_FD_OptBegin(int fd);
 extern void    NL_FD_OptEnd  (int fd);
 

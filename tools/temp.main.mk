@@ -45,7 +45,7 @@ export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
 include $(ELIBS)
-export LIBS += -ldev -ldrv -lkernel -larch
+export LIBS += -ldev -ldrv -lnewlib -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)

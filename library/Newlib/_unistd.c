@@ -110,10 +110,10 @@ int close (int fd)
 {
     int seed;
     int res = -1;
-    if(fd < 0 || NL_FD_Closing(fd) < 0) return -1;
+    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
-        case MAD_FDTYPE_DEV: 
+        case MAD_FDTYPE_DEV:
             res = MadDev_close(seed); 
             break;
         case MAD_FDTYPE_FIL:
