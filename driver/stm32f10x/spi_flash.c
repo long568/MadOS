@@ -75,7 +75,7 @@ void mSpiFlash_ReadBuffer(mSpi_t *port, uint8_t* pBuffer, uint32_t ReadAddr, uin
     mSpiFlash_SendByte(port, (ReadAddr & 0xFF0000) >> 16);
     mSpiFlash_SendByte(port, (ReadAddr& 0xFF00) >> 8);
     mSpiFlash_SendByte(port, ReadAddr & 0xFF);
-    mSpiSwitchBuffer(port, pBuffer, NumByteToRead, MTRUE, mSpiFlash_SPI_TIMEOUT);
+    mSpiReadBytes(port, pBuffer, NumByteToRead, mSpiFlash_SPI_TIMEOUT);
     mSpiFlash_CS_HIGH(port);
 }
 
@@ -88,7 +88,7 @@ void mSpiFlash_WritePage(mSpi_t *port, uint8_t* pBuffer, uint32_t WriteAddr, uin
     mSpiFlash_SendByte(port, (WriteAddr & 0xFF0000) >> 16);
     mSpiFlash_SendByte(port, (WriteAddr & 0xFF00) >> 8);
     mSpiFlash_SendByte(port, WriteAddr & 0xFF);
-    mSpiSwitchBuffer(port, pBuffer, NumByteToWrite, MFALSE, mSpiFlash_SPI_TIMEOUT);
+    mSpiWriteBytes(port, pBuffer, NumByteToWrite, mSpiFlash_SPI_TIMEOUT);
     mSpiFlash_CS_HIGH(port);
 }
 

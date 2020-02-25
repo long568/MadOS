@@ -14,6 +14,7 @@ inline void mSpiLow_SPI_IRQHandler(mSpi_t *port) {
 
 inline void mSpiLow_DMA_IRQHandler(mSpi_t *port) {
     if(RESET != DMA_GetITStatus(port->dmaPendingBit)) {
+        mSpi_DMA_DISABLE(port);
         port->dmaError = MAD_ERR_OK;
         madSemRelease(&port->dmaLock);
         mSpi_DMA_RX_ISR_DISABLE(port);
@@ -230,10 +231,9 @@ MadBool mSpiSwitchBuffer(mSpi_t* port, MadU8 *buffer, MadUint len, mSpi_Opt_t op
     port->dmaError = MAD_ERR_UNDEFINE;
     mSpi_DMA_RX_ISR_ENABLE(port);
     mSpi_DMA_ENABLE(port);
+
     res = madSemWait(&port->dmaLock, to);
-    mSpi_DMA_DISABLE(port);
     dma_err = port->dmaError;
-    
     if((MAD_ERR_OK == res) && (MAD_ERR_OK == dma_err)) {
         return MTRUE;
     } else {
