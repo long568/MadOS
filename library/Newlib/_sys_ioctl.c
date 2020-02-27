@@ -3,14 +3,8 @@
 #include "MadDev.h"
 #include "mod_Newlib.h"
 
-int ioctl(int fd, int request, ...)
+static void _do_ioctl_0(int fd, int request, va_list args)
 {
-    va_list args;
-    int seed;
-    int res = -1;
-    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
-
-    va_start(args, request);
     switch (request) {
         case FIONBIO: {
             int option = va_arg(args, int);
@@ -24,9 +18,13 @@ int ioctl(int fd, int request, ...)
         default:
             break;
     }
-    va_end(args);
+}
 
-    va_start(args, request);
+static int _do_ioctl(int fd, int request, va_list args)
+{
+    int seed;
+    int res = -1;
+    _do_ioctl_0(fd, request, args);
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
         case MAD_FDTYPE_DEV: 
@@ -43,8 +41,27 @@ int ioctl(int fd, int request, ...)
         default:
             break;
     }
-    va_end(args);
+    return res;
+}
 
+int ioctl(int fd, int request, ...)
+{
+    va_list args;
+    int res = -1;
+    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
+    va_start(args, request);
+    res = _do_ioctl(fd, request, args);
+    va_end(args);
     NL_FD_OptEnd(fd);
+    return res;
+}
+
+int unp_ioctl(int fd, int request, ...)
+{
+    va_list args;
+    int res = -1;
+    va_start(args, request);
+    res = _do_ioctl(fd, request, args);
+    va_end(args);
     return res;
 }

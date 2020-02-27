@@ -12,6 +12,7 @@ export ECHO  = @echo
 export SET   = @set -e
 export MKDIR = @mkdir -p
 export RM    = @rm -f
+export CD    = @cd
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build
@@ -45,7 +46,7 @@ export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
 
 include $(ELIBS)
-export LIBS += -ldev -ldrv -lnewlib -lkernel -larch
+export LIBS += -ldev -ldrv -lkernel -larch
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
@@ -68,6 +69,8 @@ all:
 	$(MAKE) -C $(ROOT)/device
 	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/library
+	$(MKDIR) $(BUILD_DIR)/app
+	$(CD) $(BUILD_DIR)/app && $(AR) x $(BUILD_DIR)/libnewlib.a
 	$(MAKE) -C $(ROOT)/app/$(APP)
 	$(ECHO) 'Building ... Done.'
 

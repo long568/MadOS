@@ -78,4 +78,6 @@ extern char    NL_FD_Type    (int fd);
 extern int     NL_FD_OptBegin(int fd);
 extern void    NL_FD_OptEnd  (int fd);
 
+extern int     unp_ioctl     (int fd, int request, ...);
+
 #endif

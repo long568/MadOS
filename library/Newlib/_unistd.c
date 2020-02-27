@@ -27,12 +27,12 @@ int write (int fd, const void *buf, size_t nbyte)
         locker  = &locker_cb;
         plocker = &locker;
         madSemInitN(locker, 1);
-        rc = ioctl(fd, FIOSELSETWR, plocker);
+        rc = unp_ioctl(fd, FIOSELSETWR, plocker);
         if(rc < 0) {
             goto opt_failed;
         } else if(rc == 0) {
             if(MAD_ERR_OK != madSemWait(plocker, STD_FD_TIMEOUT)) {
-                ioctl(fd, FIOSELCLRWR, plocker);
+                unp_ioctl(fd, FIOSELCLRWR, plocker);
                 goto opt_failed;
             }
         }
@@ -74,12 +74,12 @@ int read (int fd, void *buf, size_t nbyte)
         locker  = &locker_cb;
         plocker = &locker;
         madSemInitN(locker, 1);
-        rc = ioctl(fd, FIOSELSETRD, plocker);
+        rc = unp_ioctl(fd, FIOSELSETRD, plocker);
         if(rc < 0) {
             goto opt_failed;
         } else if(rc == 0) {
             if(MAD_ERR_OK != madSemWait(plocker, STD_FD_TIMEOUT)) {
-                ioctl(fd, FIOSELCLRRD, plocker);
+                unp_ioctl(fd, FIOSELCLRRD, plocker);
                 goto opt_failed;
             }
         }
