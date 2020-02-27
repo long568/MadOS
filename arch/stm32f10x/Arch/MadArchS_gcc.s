@@ -4,14 +4,13 @@
     .thumb
 
 .global  madOSStartUp
-.global  PendSV_Handler
-.global  SysTick_Handler
+.global  madPendSVHandler
+.global  madSysTickHandler
 
 /*****************************************
               madOSStartUp
 *****************************************/
     .section .text.madOSStartUp
-    .weak    madOSStartUp
     .type    madOSStartUp, %function
 madOSStartUp:
     LDR     SP,    =_estack      // Recover MSP (__initial_sp)
@@ -32,9 +31,9 @@ madOSStartUp:
 /*****************************************
               PendSV_Handler
 *****************************************/
-    .section .text.PendSV_Handler
-    .type    PendSV_Handler, %function
-PendSV_Handler:
+    .section .text.madPendSVHandler
+    .type    madPendSVHandler, %function
+madPendSVHandler:
     CPSID	I
     PUSH    {LR}
     LDR     R0, =madThreadCheckReady
@@ -56,7 +55,7 @@ PendSV_Handler:
 PendSV_Handler_DONE:
     CPSIE	I
     BX		LR
-    .size   PendSV_Handler, .-PendSV_Handler
+    .size   madPendSVHandler, .-madPendSVHandler
 
 /*****************************************
               SysTick_Handler
@@ -64,9 +63,9 @@ PendSV_Handler_DONE:
 .equ SCB_ICSR,    0xE000E000 + 0x0D00 + 0x04
 .equ PENDSV_MASK, 0x00000001 << 28
 
-    .section .text.SysTick_Handler
-    .type    SysTick_Handler, %function
-SysTick_Handler:
+    .section .text.madSysTickHandler
+    .type    madSysTickHandler, %function
+madSysTickHandler:
     CPSID	I
     PUSH    {LR}
     LDR     R0,    =madSysTick
@@ -79,4 +78,4 @@ SysTick_Handler:
 SysTick_DONE:
     CPSIE	I
     POP     {PC}
-    .size   SysTick_Handler, .-SysTick_Handler
+    .size   madSysTickHandler, .-madSysTickHandler
