@@ -19,16 +19,16 @@ typedef struct {
 
 extern  LIFO_U8 *LIFO_U8_Create(MadU16 size);
 extern  LIFO_U8 *LIFO_U8_CreateBlock(MadU16 size, MadU16 num);
-#define LIFO_U8_Delete(lifo)  madMemFreeNull(lifo);
-#define LIFO_U8_Put(lifo, c)  do { if ((lifo)->index < (lifo)->max) (lifo)->buf[(lifo)->index++] = c; } while(0)
-#define LIFO_U8_Get(lifo, c)  do { if ((lifo)->index >         0) c = (lifo)->buf[--(lifo)->index]; } while(0)
-#define LIFO_U8_Clear(lifo)   do { (lifo)->index = 0; } while(0);
-#define LIFO_U8_Full(lifo)    ((lifo)->index == (lifo)->max)
-#define LIFO_U8_Empty(lifo)   ((lifo)->index == 0)
-#define LIFO_U8_Cnt(lifo)     ((lifo)->index)
-#define LIFO_U8_Max(lifo)     ((lifo)->max)
-#define LIFO_U8_Buf(lifo)     ((lifo)->buf)
-#define LIFO_U8_Last(lifo)    ((lifo)->buf[(lifo)->index-1])
+#define LIFO_U8_Delete(lifo)    madMemFreeNull(lifo);
+#define LIFO_U8_Put(lifo, c)    do { if ((lifo)->index < (lifo)->max) (lifo)->buf[(lifo)->index++] = c; } while(0)
+#define LIFO_U8_Get(lifo, c)    do { if ((lifo)->index >         0) c = (lifo)->buf[--(lifo)->index]; } while(0)
+#define LIFO_U8_Clear(lifo)     do { (lifo)->index = 0; } while(0);
+#define LIFO_U8_Full(lifo)      ((lifo)->index == (lifo)->max)
+#define LIFO_U8_Empty(lifo)     ((lifo)->index == 0)
+#define LIFO_U8_Cnt(lifo)       ((lifo)->index)
+#define LIFO_U8_Max(lifo)       ((lifo)->max)
+#define LIFO_U8_Buf(lifo)       ((lifo)->buf)
+#define LIFO_U8_Last(lifo)      ((lifo)->buf[(lifo)->index-1])
 #define LIFO_U8_CurBlock(lifo)  (lifo)->buf
 #define LIFO_U8_NextBlock(lifo) do { if(++(lifo)->blk_i < (lifo)->blk_n ) { (lifo)->buf += (lifo)->blk_s; } \
                                      else { (lifo)->buf = (lifo)->org; (lifo)->blk_i = 0; } \
