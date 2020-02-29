@@ -3,47 +3,18 @@
 
 #include <unistd.h>
 #include "MadOS.h"
-#include "lwip/tcpip.h"
-#include "lwip/dhcp.h"
 #include "lwip/sockets.h"
 #include "lwip/apps/lwiperf.h"
-#include "arch/ethernetif.h"
 #include "CfgUser.h"
 
 #define IPERF_TEST 0
 #define BUFF_SIZ   256
-#define TAGGET_IP  "192.168.1.103"
+#define TAGGET_IP  "192.168.1.122"
 
-static struct netif *nif;
 static void socket_thread(MadVptr exData);
 
 void Init_TestLwIP(void)
 {
-    struct ip4_addr ipaddr;
-    struct ip4_addr netmask;
-    struct ip4_addr gw;
-
-#if LWIP_DHCP    
-	IP4_ADDR(&gw, 0,0,0,0);
-	IP4_ADDR(&ipaddr, 0,0,0,0);
-	IP4_ADDR(&netmask, 0,0,0,0);
-#else
-	IP4_ADDR(&gw, 192,168,0,1);
-	IP4_ADDR(&ipaddr, 192,168,0,56);
-	IP4_ADDR(&netmask, 255,255,255,0);
-#endif
-
-    LwIP_Init();
-    tcpip_init(0, 0);
-
-    nif = malloc(sizeof(struct netif));
-    netif_add(nif, &ipaddr, &netmask, &gw, &StmEth, ethernetif_init, tcpip_input);
-    netif_set_default(nif);
-    netif_set_up(nif);
-#if LWIP_DHCP
-    dhcp_start(nif);
-#endif
-
     madThreadCreate(socket_thread, 0, 1024, THREAD_PRIO_TEST_SOCKET);
 }
 

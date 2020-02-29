@@ -1,5 +1,5 @@
 #include "lwip/tcpip.h"
-#include "arch/ethernetif.h"
+#include "ethernetif.h"
 #include "CfgUser.h"
 
 /* Define those to better describe your network interface. */
