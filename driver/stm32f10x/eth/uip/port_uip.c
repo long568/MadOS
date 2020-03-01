@@ -1,4 +1,13 @@
 #include "eth_low.h"
+#include "mod_uIP.h"
+
+MadBool eth_port_init(mEth_t *eth)
+{
+    MadUint i;
+    for(i=0; i<6; i++)
+        uip_ethaddr.addr[i] = eth->MAC_ADDRESS[i];
+    return MTRUE;
+}
 
 MadU32 uIP_dev_send(mEth_t *eth, MadU8 *buf, MadU16 len)
 {

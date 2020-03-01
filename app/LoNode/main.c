@@ -6,6 +6,7 @@
 #include "mod_FatFs.h"
 #include "mod_Network.h"
 
+#include "testUIP.h"
 #include "testLua.h"
 #include "testENet.h"
 #include "testLwIP.h"
@@ -87,6 +88,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    // Init_TestUIP();
     // Init_TestLua();
     Init_TestLwIP();
     // Init_TestENet();

@@ -16,8 +16,7 @@ static void tcp_send(void);
 
 void Init_TestUIP(void)
 {
-    const MadU8 target_ip[4] = {192, 168, 1, 101};
-    uIP_Init();
+    const MadU8 target_ip[4] = {192, 168, 1, 122};
     sock = uTcp_Create(target_ip, 5688, tcp_recv, tcp_ack);
 }
 

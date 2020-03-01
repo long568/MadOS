@@ -25,23 +25,28 @@ void eth_low_PhyEvent(mEth_t *eth)
     }
 }
 
-MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
+MadBool eth_low_init(mEth_t *eth, const mEth_InitData_t *initData, mEth_Callback_t fn, MadVptr ep)
 {
     MadUint i;
     MadU8 prio;
-    FunctionalState  enable;
+    EXTI_InitTypeDef EXTI_InitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
     
-    prio   = initData->Priority;
-    enable = initData->Enable;
+    prio = initData->Priority;
     
-    eth->isLinked    = MFALSE;
-    eth->ThreadID    = 0;
-    eth->fn          = 0;
-    eth->ep          = initData->ep;
+    eth->isLinked = MFALSE;
+    eth->ThreadID = initData->ThreadID;
+    eth->fn       = fn;
+    eth->ep       = ep;
     eth->PHY_ADDRESS = initData->PHY_ADDRESS;
-    for(i=0; i<6; i++)
-        eth->MAC_ADDRESS[i] = initData->MAC_ADDRESS[i];
+    if(initData->MAC_ADDRESS_AUTO) {
+        MadU8 *chip_id = madChipId();
+        for(i=0; i<6; i++)
+            eth->MAC_ADDRESS[i] = chip_id[i];
+    } else {
+        for(i=0; i<6; i++)
+            eth->MAC_ADDRESS[i] = initData->MAC_ADDRESS[i];
+    }
     eth->EXIT_Line   = initData->Event.EXIT.EXTI_Line;
     eth->INTP.port   = initData->RMII.INTR.port;
     eth->INTP.pin    = initData->RMII.INTR.pin;
@@ -60,27 +65,26 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     if(MNULL == eth->Event) {
         return MFALSE;
     }
-    if(initData->infn(eth) &&
-        madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
-        madInstallExIrq(initData->extIRQh, initData->extIRQn);
-        madInstallExIrq(initData->ethIRQh, initData->ethIRQn);
-        eth->ThreadID = initData->ThreadID;
-        eth->fn       = initData->cbfn;
+    if(eth_port_init(eth) &&
+       madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
+        madInstallExIrq(initData->Event.extIRQh, initData->Event.extIRQn);
+        madInstallExIrq(initData->ethIRQh,       initData->ethIRQn);
     } else {
         return MFALSE;
     }
-    
+
+    GPIO_PinRemapConfig(GPIO_Remap_ETH, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_ETH_MAC | 
                           RCC_AHBPeriph_ETH_MAC_Tx | 
                           RCC_AHBPeriph_ETH_MAC_Rx, 
                           ENABLE);
-    
-    NVIC_InitStructure.NVIC_IRQChannel = ETH_IRQn;
+
+    NVIC_InitStructure.NVIC_IRQChannel = initData->ethIRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = prio;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = enable;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    
+
     StmPIN_DefInitAPP(&initData->RMII.MDC);
     StmPIN_DefInitAPP(&initData->RMII.MDIO);
     StmPIN_DefInitIFL(&initData->RMII.C50M);
@@ -91,22 +95,25 @@ MadBool eth_low_init(mEth_t *eth, mEth_InitData_t *initData)
     StmPIN_DefInitIFL(&initData->RMII.RXD0);
     StmPIN_DefInitIFL(&initData->RMII.RXD1);
     StmPIN_DefInitIFL(&initData->RMII.INTR);
-    
+
     GPIO_EXTILineConfig(initData->Event.PORT, initData->Event.LINE);
-    initData->Event.EXIT.EXTI_LineCmd = enable;
-    EXTI_Init(&initData->Event.EXIT);
-    NVIC_InitStructure.NVIC_IRQChannel = initData->Event.IRQn;
+    EXTI_InitStructure.EXTI_Line    = initData->Event.EXIT.EXTI_Line;
+    EXTI_InitStructure.EXTI_Mode    = initData->Event.EXIT.EXTI_Mode;
+    EXTI_InitStructure.EXTI_Trigger = initData->Event.EXIT.EXTI_Trigger;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+    NVIC_InitStructure.NVIC_IRQChannel = initData->Event.extIRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = prio;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = enable;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    
+
     GPIO_ETH_MediaInterfaceConfig(GPIO_ETH_MediaInterface_RMII);
 
     return eth_phy_init(eth);
 }
 
-void eth_init_failed(mEth_t *eth)
+void eth_low_deinit(mEth_t *eth)
 {
     if(eth) {
         eth_mac_deinit(eth);

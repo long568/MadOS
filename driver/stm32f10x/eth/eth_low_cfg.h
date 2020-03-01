@@ -25,10 +25,9 @@ typedef enum {
                              mEth_PE_STATUS_TXPKT,
 } mEth_PHY_EVENT;
 
-struct _mEth_InitData_t;
 struct _mEth_t;
+struct _mEth_InitData_t;
 
-typedef MadBool(*mEth_Preinit_t) (struct _mEth_t *eth);
 typedef MadBool(*mEth_Callback_t)(struct _mEth_t *eth, MadUint event, MadTim_t dt);
 
 typedef struct _mEth_InitData_t {
@@ -48,24 +47,20 @@ typedef struct _mEth_InitData_t {
         MadU8            PORT;
         MadU8            LINE;
         EXTI_InitTypeDef EXIT;
-        IRQn_Type        IRQn;
+        xIRQ_Handler    extIRQh;
+        MadU32          extIRQn;
     } Event;
-    FunctionalState Enable;
     MadU16          PHY_ADDRESS;
     MadU8           MAC_ADDRESS[6];
+    MadBool         MAC_ADDRESS_AUTO;
     MadU8           Priority;
     MadU8           ThreadID;
     MadSize_t       ThreadStkSize;
     MadU16          MaxPktSize;
     MadU8           TxDscrNum;
     MadU8           RxDscrNum;
-    mEth_Preinit_t  infn;
-    mEth_Callback_t cbfn;
-    xIRQ_Handler    extIRQh;
     xIRQ_Handler    ethIRQh;
-    MadU32          extIRQn;
     MadU32          ethIRQn;
-    MadVptr         ep;
 } mEth_InitData_t;
 
 typedef struct _mEth_t {

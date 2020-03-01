@@ -3,6 +3,7 @@
  * psping -i 0 -l 1234 -q -t 192.168.1.109
  */
 #include <stdlib.h>
+#include <fcntl.h>
 #include "mod_uIP.h"
 
 clocker    uIP_Clocker;
@@ -86,14 +87,20 @@ void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
  *
  *****************************************************/
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
+static MadBool uIP_preinit(void);
+static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt);
 
-inline MadBool uIP_Init(void) {
-    return mEth_Init(uIP_preinit, uIP_handler, 0);
+inline MadBool uIP_Init(const char *dev) {
+    if(uIP_preinit() && open(dev, 0, uIP_handler, NULL) < 0) {
+		MAD_LOG("[uIP] Start failed.");
+		return MFALSE;
+	} else {
+		return MTRUE;
+	}
 }
 
-MadBool uIP_preinit(mEth_t *eth)
+static MadBool uIP_preinit(void)
 {
-    MadUint i;
     uip_buf = (u8_t*)malloc(UIP_CONF_BUFFER_SIZE);
     uIP_locker = madSemCreate(1);
     if((!uip_buf) || (!uIP_locker)) {
@@ -112,8 +119,6 @@ MadBool uIP_preinit(mEth_t *eth)
     timer_set(&uIP_arp_timer, MadTicksPerSec * 10);
     timer_set(&uIP_periodic_timer, MadTicksPerSec / 2);
     uip_init();
-    for(i=0; i<6; i++)
-        uip_ethaddr.addr[i] = eth->MAC_ADDRESS[i];
     uIP_Unlock();
     do {
         uip_ipaddr_t ipaddr;
@@ -145,7 +150,7 @@ MadBool uIP_preinit(mEth_t *eth)
     return MTRUE;
 }
 
-MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
+static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
 {
     uIP_Lock();
     clocker_dt(&uIP_Clocker, dt);

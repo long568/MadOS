@@ -8,6 +8,7 @@ export MCU_FLS_SIZE = 256K
 export PRJ_CFLAGS  = -Os
 export PRJ_LDFLAGS = --specs=nano.specs -u _printf_float
 
+# export LIB_UIP       = yes
 # export LIB_LUA       = yes
 # export LIB_ENET      = yes
 export LIB_LWIP      = yes
