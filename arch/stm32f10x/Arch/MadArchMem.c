@@ -146,8 +146,6 @@ MadBool madArchMemInit(void)
 	mad_archm_locker = madSemCreate(DMA_NUM);
     if(MNULL == mad_archm_locker) {
         MAD_LOG("[ArchMem] madArchMemInit ... Failed\n");
-        madSemDelete(&mad_archm_locker);
-        mad_archm_locker = 0;
         return MFALSE;
     } else {
         return MTRUE;
