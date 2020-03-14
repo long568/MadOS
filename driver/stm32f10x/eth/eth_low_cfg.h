@@ -43,13 +43,7 @@ typedef struct _mEth_InitData_t {
         StmPIN RXD1;
         StmPIN INTR;
     } RMII;
-    struct {
-        MadU8            PORT;
-        MadU8            LINE;
-        EXTI_InitTypeDef EXIT;
-        xIRQ_Handler    extIRQh;
-        MadU32          extIRQn;
-    } Event;
+    MadExti_t       Event;
     MadU16          PHY_ADDRESS;
     MadU8           MAC_ADDRESS[6];
     MadBool         MAC_ADDRESS_AUTO;
@@ -68,7 +62,7 @@ typedef struct _mEth_t {
     MadU8              ThreadID;
     MadU16             PHY_ADDRESS;
     MadU8              MAC_ADDRESS[6];
-    MadU32             EXIT_Line;
+    MadU32             EXTI_Line;
     StmPIN             INTP;
     MadU16             MaxPktSize;
     MadU8              TxDscrNum;

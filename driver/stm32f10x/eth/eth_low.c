@@ -7,9 +7,9 @@ static void eth_driver_thread(MadVptr exData);
 
 void eth_low_ExtEvent(mEth_t *eth)
 {
-    if(EXTI_GetITStatus(eth->EXIT_Line) != RESET) {
+    if(EXTI_GetITStatus(eth->EXTI_Line) != RESET) {
         madEventTrigger(&eth->Event, mEth_PE_STATUS_CHANGED);
-        EXTI_ClearITPendingBit(eth->EXIT_Line);
+        EXTI_ClearITPendingBit(eth->EXTI_Line);
     }
 }
 
@@ -47,7 +47,7 @@ MadBool eth_low_init(mEth_t *eth, const mEth_InitData_t *initData, mEth_Callback
         for(i=0; i<6; i++)
             eth->MAC_ADDRESS[i] = initData->MAC_ADDRESS[i];
     }
-    eth->EXIT_Line   = initData->Event.EXIT.EXTI_Line;
+    eth->EXTI_Line   = initData->Event.exti.EXTI_Line;
     eth->INTP.port   = initData->RMII.INTR.port;
     eth->INTP.pin    = initData->RMII.INTR.pin;
     eth->MaxPktSize  = initData->MaxPktSize;
@@ -67,7 +67,7 @@ MadBool eth_low_init(mEth_t *eth, const mEth_InitData_t *initData, mEth_Callback
     }
     if(eth_port_init(eth) &&
        madThreadCreate(eth_driver_thread, eth, initData->ThreadStkSize, initData->ThreadID)) {
-        madInstallExIrq(initData->Event.extIRQh, initData->Event.extIRQn);
+        madInstallExIrq(initData->Event.extIRQh, initData->Event.extIRQn, initData->Event.exti.EXTI_Line);
         madInstallExIrq(initData->ethIRQh,       initData->ethIRQn);
     } else {
         return MFALSE;
@@ -96,10 +96,10 @@ MadBool eth_low_init(mEth_t *eth, const mEth_InitData_t *initData, mEth_Callback
     StmPIN_DefInitIFL(&initData->RMII.RXD1);
     StmPIN_DefInitIFL(&initData->RMII.INTR);
 
-    GPIO_EXTILineConfig(initData->Event.PORT, initData->Event.LINE);
-    EXTI_InitStructure.EXTI_Line    = initData->Event.EXIT.EXTI_Line;
-    EXTI_InitStructure.EXTI_Mode    = initData->Event.EXIT.EXTI_Mode;
-    EXTI_InitStructure.EXTI_Trigger = initData->Event.EXIT.EXTI_Trigger;
+    GPIO_EXTILineConfig(initData->Event.port, initData->Event.src);
+    EXTI_InitStructure.EXTI_Line    = initData->Event.exti.EXTI_Line;
+    EXTI_InitStructure.EXTI_Mode    = initData->Event.exti.EXTI_Mode;
+    EXTI_InitStructure.EXTI_Trigger = initData->Event.exti.EXTI_Trigger;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
     NVIC_InitStructure.NVIC_IRQChannel = initData->Event.extIRQn;

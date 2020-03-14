@@ -5,7 +5,15 @@
 
 typedef void (*xIRQ_Handler)(void);
 
+typedef struct _MadExti_t{
+    MadU8            port;
+    MadU8            src;
+    EXTI_InitTypeDef exti;
+    xIRQ_Handler     extIRQh;
+    MadU32           extIRQn;
+} MadExti_t;
+
 extern void madCopyVectorTab(void);
-extern void madInstallExIrq(xIRQ_Handler irq, MadU32 irqn);
+extern void madInstallExIrq(xIRQ_Handler irq, MadU32 irqn, ...);
 
 #endif
