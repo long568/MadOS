@@ -84,17 +84,17 @@ void madInstallExIrq(xIRQ_Handler irq, MadU32 irqn, ...)
             line = va_arg(args, uint32_t);
             va_end(args);
             switch (line) {
-                case EXTI_Line15: EXTI15_10Handler[0] = irq;
-                case EXTI_Line14: EXTI15_10Handler[1] = irq;
-                case EXTI_Line13: EXTI15_10Handler[2] = irq;
-                case EXTI_Line12: EXTI15_10Handler[3] = irq;
-                case EXTI_Line11: EXTI15_10Handler[4] = irq;
-                case EXTI_Line10: EXTI15_10Handler[5] = irq;
-                case EXTI_Line9:  EXTI9_5Handler[0]   = irq;
-                case EXTI_Line8:  EXTI9_5Handler[1]   = irq;
-                case EXTI_Line7:  EXTI9_5Handler[2]   = irq;
-                case EXTI_Line6:  EXTI9_5Handler[3]   = irq;
-                case EXTI_Line5:  EXTI9_5Handler[4]   = irq;
+                case EXTI_Line15: EXTI15_10Handler[0] = irq; break;
+                case EXTI_Line14: EXTI15_10Handler[1] = irq; break;
+                case EXTI_Line13: EXTI15_10Handler[2] = irq; break;
+                case EXTI_Line12: EXTI15_10Handler[3] = irq; break;
+                case EXTI_Line11: EXTI15_10Handler[4] = irq; break;
+                case EXTI_Line10: EXTI15_10Handler[5] = irq; break;
+                case EXTI_Line9:  EXTI9_5Handler[0]   = irq; break;
+                case EXTI_Line8:  EXTI9_5Handler[1]   = irq; break;
+                case EXTI_Line7:  EXTI9_5Handler[2]   = irq; break;
+                case EXTI_Line6:  EXTI9_5Handler[3]   = irq; break;
+                case EXTI_Line5:  EXTI9_5Handler[4]   = irq; break;
                 default: break;
             }
         } else {
