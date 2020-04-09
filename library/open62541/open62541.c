@@ -1,6 +1,6 @@
 /* THIS IS A SINGLE-FILE DISTRIBUTION CONCATENATED FROM THE OPEN62541 SOURCES
  * visit http://open62541.org/ for information about this software
- * Git-Revision: v1.0.3
+ * Git-Revision: v1.0.1
  */
 
 /*
@@ -27,7 +27,7 @@
 
 #include "open62541.h"
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/open62541_queue.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/open62541_queue.h" ***********************************/
 
 /*	$OpenBSD: queue.h,v 1.38 2013/07/03 15:05:21 fgsch Exp $	*/
 /*	$NetBSD: queue.h,v 1.11 1996/05/16 05:17:14 mycroft Exp $	*/
@@ -675,7 +675,7 @@ struct {								\
 } while (0)
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/pcg_basic.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/pcg_basic.h" ***********************************/
 
 /*
  * PCG Random Number Generation for C.
@@ -722,7 +722,7 @@ uint32_t pcg32_random_r(pcg32_random_t* rng);
 #endif
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/libc_time.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/libc_time.h" ***********************************/
 
 
 struct mytm {
@@ -738,7 +738,7 @@ int __secs_to_tm(long long t, struct mytm *tm);
 long long __tm_to_secs(const struct mytm *tm);
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/base64.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/base64.h" ***********************************/
 
 #ifndef UA_BASE64_H_
 #define UA_BASE64_H_
@@ -772,7 +772,7 @@ _UA_END_DECLS
 
 #endif /* UA_BASE64_H_ */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_util_internal.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_util_internal.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -794,6 +794,14 @@ _UA_BEGIN_DECLS
 
 /* Macro-Expand for MSVC workarounds */
 #define UA_MACRO_EXPAND(x) x
+
+/* Print a NodeId in logs */
+#define UA_LOG_NODEID_WRAP(NODEID, LOG) {   \
+    UA_String nodeIdStr = UA_STRING_NULL;   \
+    UA_NodeId_toString(NODEID, &nodeIdStr); \
+    LOG;                                    \
+    UA_String_clear(&nodeIdStr);            \
+}
 
 /* Integer Shortnames
  * ------------------
@@ -820,7 +828,7 @@ void UA_EXPORT UA_dump_hex_pkg(UA_Byte* buffer, size_t bufferLen);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_types_encoding_binary.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_types_encoding_binary.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -898,10 +906,10 @@ UA_findDataTypeByBinary(const UA_NodeId *typeId);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/types_generated_encoding_binary.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated_encoding_binary.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:11 */
+/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
 
 #ifdef UA_ENABLE_AMALGAMATION
 #else
@@ -3513,10 +3521,10 @@ UA_EventFilter_decodeBinary(const UA_ByteString *src, size_t *offset, UA_EventFi
     return UA_decodeBinary(src, offset, dst, &UA_TYPES[UA_TYPES_EVENTFILTER], NULL);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/transport_generated.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:12 */
+/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
 
 
 #ifdef UA_ENABLE_AMALGAMATION
@@ -3687,10 +3695,10 @@ typedef struct {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/transport_generated_handling.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated_handling.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:12 */
+/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
 
 
 
@@ -4089,10 +4097,10 @@ UA_SecureConversationMessageHeader_delete(UA_SecureConversationMessageHeader *p)
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/transport_generated_encoding_binary.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated_encoding_binary.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:12 */
+/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
 
 #ifdef UA_ENABLE_AMALGAMATION
 #else
@@ -4268,7 +4276,7 @@ UA_SecureConversationMessageHeader_decodeBinary(const UA_ByteString *src, size_t
     return UA_decodeBinary(src, offset, dst, &UA_TRANSPORT[UA_TRANSPORT_SECURECONVERSATIONMESSAGEHEADER], NULL);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_connection_internal.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_connection_internal.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -4351,7 +4359,7 @@ void UA_Connection_attachSecureChannel(UA_Connection *connection,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_securechannel.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_securechannel.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -4642,7 +4650,7 @@ UA_SecureChannel_processCompleteMessages(UA_SecureChannel *channel, void *applic
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_workqueue.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_workqueue.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -4769,7 +4777,7 @@ void UA_WorkQueue_enqueue(UA_WorkQueue *wq, UA_ApplicationCallback cb,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_discovery_manager.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_discovery_manager.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -4946,7 +4954,7 @@ UA_Discovery_removeRecord(UA_Server *server, const UA_String *servername,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_timer.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_timer.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5015,7 +5023,7 @@ void UA_Timer_deleteMembers(UA_Timer *t);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_session.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_session.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5183,7 +5191,7 @@ UA_Session_dequeuePublishReq(UA_Session *session);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_subscription.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_subscription.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5421,7 +5429,7 @@ UA_Boolean UA_Subscription_reachedPublishReqLimit(UA_Server *server,  UA_Session
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_session_manager.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_session_manager.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5479,7 +5487,7 @@ UA_SessionManager_getSessionById(UA_SessionManager *sm, const UA_NodeId *session
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_securechannel_manager.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_securechannel_manager.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5547,7 +5555,7 @@ UA_SecureChannelManager_close(UA_SecureChannelManager *cm, UA_UInt32 channelId);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_networkmessage.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_networkmessage.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5788,7 +5796,7 @@ UA_StatusCode UA_NetworkMessage_decodeJson(UA_NetworkMessage *dst, const UA_Byte
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6021,7 +6029,7 @@ UA_ReaderGroup_subscribeCallback(UA_Server *server, UA_ReaderGroup *readerGroup)
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_manager.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_manager.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6071,7 +6079,7 @@ UA_PubSubManager_removeRepeatedPubSubCallback(UA_Server *server, UA_UInt64 callb
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_ns0.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_ns0.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6131,7 +6139,7 @@ _UA_END_DECLS
 
 #endif /* UA_PUBSUB_NS0_H_ */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_internal.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_internal.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6271,8 +6279,8 @@ isNodeInTree(void *nsCtx, const UA_NodeId *leafNode,
              const UA_NodeId *nodeToFind, const UA_NodeId *referenceTypeIds,
              size_t referenceTypeIdsSize);
 
-/* Returns an array with the hierarchy of nodes. The start nodes are returned as
- * well. The returned array starts at the leaf and continues "upwards" or
+/* Returns an array with the hierarchy of nodes. The start nodes can be returned
+ * as well. The returned array starts at the leaf and continues "upwards" or
  * "downwards". Duplicate entries are removed. The parameter `walkDownwards`
  * indicates the direction of search. */
 UA_StatusCode
@@ -6414,7 +6422,7 @@ UA_StatusCode writeNs0VariableArray(UA_Server *server, UA_UInt32 id, void *v,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6907,7 +6915,7 @@ void Service_DeleteSubscriptions(UA_Server *server, UA_Session *session,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_internal.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_internal.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7133,7 +7141,7 @@ encryptUserIdentityToken(UA_Client *client, const UA_String *userTokenSecurityPo
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/namespace0_generated.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/namespace0_generated.h" ***********************************/
 
 /* WARNING: This is a generated file.
  * Any manual changes will be overwritten. */
@@ -7184,7 +7192,7 @@ _UA_END_DECLS
 
 #endif /* NAMESPACE0_GENERATED_H_ */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_types.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_types.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8451,7 +8459,7 @@ UA_NumericRange_parseFromString(UA_NumericRange *range, const UA_String *str) {
     return retval;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_types_encoding_binary.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_types_encoding_binary.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10214,10 +10222,10 @@ UA_calcSizeBinary(const void *p, const UA_DataType *type) {
     return calcSizeBinaryJumpTable[type->typeKind](p, type);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/types_generated.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated.c" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:11 */
+/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
 
 
 /* Boolean */
@@ -16918,10 +16926,10 @@ const UA_DataType UA_TYPES[UA_TYPES_COUNT] = {
 };
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/transport_generated.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated.c" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_datatypes.py
- * on host zuoyingpengdeMacBook-Pro.local by user long at 2019-12-07 01:59:12 */
+/* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
+ * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
 
 
 /* SecureConversationMessageAbortBody */
@@ -17330,11 +17338,11 @@ const UA_DataType UA_TRANSPORT[UA_TRANSPORT_COUNT] = {
 };
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/statuscodes.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/statuscodes.c" ***********************************/
 
 /**********************************************************
  * Autogenerated -- do not modify
- * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/schema/StatusCode.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/tools/generate_statuscode_descriptions.py
+ * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/schema/StatusCode.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_statuscode_descriptions.py
  *********************************************************/
 
 
@@ -17600,7 +17608,7 @@ const char * UA_StatusCode_name(UA_StatusCode code) {
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_util.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_util.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17894,7 +17902,7 @@ UA_NodeId_toString(const UA_NodeId *nodeId, UA_String *nodeIdStr) {
 }
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_workqueue.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_workqueue.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18156,7 +18164,7 @@ void UA_WorkQueue_manuallyProcessDelayed(UA_WorkQueue *wq) {
 #endif
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_timer.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_timer.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18353,7 +18361,7 @@ UA_Timer_deleteMembers(UA_Timer *t) {
     ZIP_INIT(&t->root);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_connection.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_connection.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18651,7 +18659,7 @@ UA_Connection_attachSecureChannel(UA_Connection *connection, UA_SecureChannel *c
         UA_atomic_xchg((void**)&connection->channel, (void*)channel);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/ua_securechannel.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/ua_securechannel.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19756,14 +19764,15 @@ decodeChunkPaddingSize(const UA_SecureChannel *const channel,
                        size_t const chunkSizeAfterDecryption, size_t sigsize) {
     /* Is padding used? */
     if(channel->securityMode != UA_MESSAGESECURITYMODE_SIGNANDENCRYPT &&
-       !(messageType == UA_MESSAGETYPE_OPN && channel->securityMode > UA_MESSAGESECURITYMODE_NONE))
+       !(messageType == UA_MESSAGETYPE_OPN &&
+         !UA_String_equal(&cryptoModule->encryptionAlgorithm.uri, &UA_STRING_NULL)))
         return 0;
 
     size_t paddingSize = chunk->data[chunkSizeAfterDecryption - sigsize - 1];
 
     /* Extra padding size */
     size_t keyLength = cryptoModule->encryptionAlgorithm.
-        getRemoteKeyLength(channel->securityPolicy, channel->channelContext);
+        getLocalKeyLength(channel->securityPolicy, channel->channelContext);
     if(keyLength > 2048) {
         paddingSize <<= 8u;
         paddingSize += 1;
@@ -19964,6 +19973,7 @@ checkSymHeader(UA_SecureChannel *const channel,
         if(channel->securityToken.tokenId == tokenId) {
             retval = UA_SecureChannel_generateRemoteKeys(channel, channel->securityPolicy);
             UA_ChannelSecurityToken_deleteMembers(&channel->previousSecurityToken);
+            UA_ChannelSecurityToken_init(&channel->previousSecurityToken);
             return retval;
         }
     }
@@ -19976,6 +19986,7 @@ checkSymHeader(UA_SecureChannel *const channel,
         UA_StatusCode retval =
             UA_SecureChannel_generateRemoteKeys(channel, channel->securityPolicy);
         UA_ChannelSecurityToken_deleteMembers(&channel->previousSecurityToken);
+        UA_ChannelSecurityToken_init(&channel->previousSecurityToken);
         return retval;
     }
 
@@ -20171,7 +20182,7 @@ UA_SecurityPolicy_getRemoteAsymEncryptionBufferLengthOverhead(const UA_SecurityP
     return maxNumberOfBlocks * (encryptedBlockSize - plainTextBlockSize);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_session.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_session.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20311,7 +20322,7 @@ UA_Session_queuePublishReq(UA_Session *session, UA_PublishResponseEntry* entry, 
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_nodes.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_nodes.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20520,15 +20531,16 @@ UA_Node_copy(const UA_Node *src, UA_Node *dst) {
                 drefs->refTargets[j].targetHash = srefs->refTargets[j].targetHash;
                 drefs->refTargets[j].zipfields.zip_right = NULL;
                 if(srefs->refTargets[j].zipfields.zip_right)
-                    *(uintptr_t*)&drefs->refTargets[j].zipfields.zip_left =
+                    *(uintptr_t*)&drefs->refTargets[j].zipfields.zip_right =
                         (uintptr_t)srefs->refTargets[j].zipfields.zip_right + arraydiff;
                 drefs->refTargets[j].zipfields.zip_left = NULL;
                 if(srefs->refTargets[j].zipfields.zip_left)
                     *(uintptr_t*)&drefs->refTargets[j].zipfields.zip_left =
                         (uintptr_t)srefs->refTargets[j].zipfields.zip_left + arraydiff;
+                drefs->refTargets[j].zipfields.rank = srefs->refTargets[j].zipfields.rank;
             }
-            srefs->refTargetsTree.zip_root = NULL;
-            if(drefs->refTargetsTree.zip_root)
+            drefs->refTargetsTree.zip_root = NULL;
+            if(srefs->refTargetsTree.zip_root)
                 *(uintptr_t*)&drefs->refTargetsTree.zip_root =
                     (uintptr_t)srefs->refTargetsTree.zip_root + arraydiff;
             drefs->refTargetsSize= srefs->refTargetsSize;
@@ -21006,7 +21018,7 @@ void UA_Node_deleteReferences(UA_Node *node) {
     UA_Node_deleteReferencesSubset(node, 0, NULL);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -21686,7 +21698,7 @@ UA_Server_AccessControl_allowHistoryUpdateDeleteRawModified(UA_Server *server,
 }
 #endif /* UA_ENABLE_HISTORIZING */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_ns0.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_ns0.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22773,7 +22785,7 @@ UA_Server_initNS0(UA_Server *server) {
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_config.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_config.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22878,7 +22890,7 @@ UA_ServerConfig_addPubSubTransportLayer(UA_ServerConfig *config,
 }
 #endif /* UA_ENABLE_PUBSUB */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_binary.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_binary.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -23184,7 +23196,7 @@ processHEL(UA_Server *server, UA_Connection *connection,
 
     /* Build acknowledge response */
     UA_TcpAcknowledgeMessage ackMessage;
-    memcpy(&ackMessage, localConfig, sizeof(UA_TcpAcknowledgeMessage)); /* Same struct layout.. */
+    memcpy(&ackMessage, &connection->config, sizeof(UA_TcpAcknowledgeMessage)); /* Same struct layout.. */
     UA_TcpMessageHeader ackHeader;
     ackHeader.messageTypeAndChunkType = UA_MESSAGETYPE_ACK + UA_CHUNKTYPE_FINAL;
     ackHeader.messageSize = 8 + 20; /* ackHeader + ackMessage */
@@ -23707,7 +23719,7 @@ UA_Server_removeConnection(UA_Server *server, UA_Connection *connection) {
 #endif
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_utils.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_utils.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24093,7 +24105,7 @@ const UA_ViewAttributes UA_ViewAttributes_default = {
 };
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_server_discovery.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_server_discovery.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24223,7 +24235,7 @@ UA_Server_unregister_discovery(UA_Server *server, UA_Client *client) {
 
 #endif /* UA_ENABLE_DISCOVERY */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_securechannel_manager.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_securechannel_manager.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24309,11 +24321,6 @@ UA_SecureChannelManager_cleanupTimedOut(UA_SecureChannelManager *cm,
                                 "SecureChannel has timed out");
             removeSecureChannel(cm, entry);
             continue;
-        }
-
-        /* Revolve the channel tokens */
-        if(entry->channel.nextSecurityToken.tokenId > 0) {
-            UA_SecureChannel_revolveTokens(&entry->channel);
         }
     }
 }
@@ -24508,7 +24515,7 @@ UA_SecureChannelManager_close(UA_SecureChannelManager *cm, UA_UInt32 channelId) 
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_session_manager.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_session_manager.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24702,7 +24709,7 @@ UA_SessionManager_removeSession(UA_SessionManager *sm, const UA_NodeId *token) {
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_networkmessage.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_networkmessage.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25986,7 +25993,7 @@ void UA_DataSetMessage_free(const UA_DataSetMessage* p) {
 }
 #endif /* UA_ENABLE_PUBSUB */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28136,7 +28143,7 @@ UA_ReaderGroup_addSubscribeCallback(UA_Server *server, UA_ReaderGroup *readerGro
 
 #endif /* UA_ENABLE_PUBSUB */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_manager.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_manager.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28474,7 +28481,7 @@ UA_PubSubManager_removeRepeatedPubSubCallback(UA_Server *server, UA_UInt64 callb
 
 #endif /* UA_ENABLE_PUBSUB */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/pubsub/ua_pubsub_ns0.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/pubsub/ua_pubsub_ns0.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29629,7 +29636,7 @@ UA_Server_initPubSubNS0(UA_Server *server) {
 
 #endif /* UA_ENABLE_PUBSUB_INFORMATIONMODEL */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_view.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_view.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29753,6 +29760,13 @@ RefTree_double(RefTree *rt) {
 
 static UA_StatusCode UA_FUNC_ATTR_WARN_UNUSED_RESULT
 RefTree_add(RefTree *rt, const UA_ExpandedNodeId *target) {
+    /* Is the target already in the tree? */
+    RefEntry dummy;
+    dummy.target = target;
+    dummy.targetHash = UA_ExpandedNodeId_hash(target);
+    if(ZIP_FIND(RefHead, &rt->head, &dummy))
+        return UA_STATUSCODE_GOOD;
+
     UA_StatusCode s = UA_STATUSCODE_GOOD;
     if(rt->capacity <= rt->size) {
         s = RefTree_double(rt);
@@ -29766,7 +29780,7 @@ RefTree_add(RefTree *rt, const UA_ExpandedNodeId *target) {
                                (sizeof(UA_ExpandedNodeId) * rt->capacity) +
                                (sizeof(RefEntry) * rt->size));
     re->target = &rt->targets[rt->size];
-    re->targetHash = UA_ExpandedNodeId_hash(target);
+    re->targetHash = dummy.targetHash;
     ZIP_INSERT(RefHead, &rt->head, re, ZIP_FFS32(UA_UInt32_random()));
     rt->size++;
     return UA_STATUSCODE_GOOD;
@@ -30837,7 +30851,7 @@ void Service_UnregisterNodes(UA_Server *server, UA_Session *session,
     }
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_method.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_method.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31119,7 +31133,7 @@ UA_Server_call(UA_Server *server, const UA_CallMethodRequest *request) {
 
 #endif /* UA_ENABLE_METHODCALLS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_session.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_session.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31648,7 +31662,7 @@ Service_CloseSession(UA_Server *server, UA_Session *session,
                                         &session->header.authenticationToken);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_attribute.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_attribute.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -33210,7 +33224,7 @@ UA_Server_writeObjectProperty_scalar(UA_Server *server, const UA_NodeId objectId
     return UA_Server_writeObjectProperty(server, objectId, propertyName, var);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_discovery.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_discovery.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -33928,7 +33942,7 @@ UA_Server_setRegisterServerCallback(UA_Server *server,
 
 #endif /* UA_ENABLE_DISCOVERY */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_subscription.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_subscription.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34295,7 +34309,7 @@ Service_Republish(UA_Server *server, UA_Session *session,
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_monitoreditem.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_monitoreditem.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34853,7 +34867,7 @@ UA_Server_deleteMonitoredItem(UA_Server *server, UA_UInt32 monitoredItemId) {
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_securechannel.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_securechannel.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34917,7 +34931,7 @@ Service_CloseSecureChannel(UA_Server *server, UA_SecureChannel *channel) {
                                   channel->securityToken.channelId);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_nodemanagement.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_nodemanagement.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34937,13 +34951,6 @@ Service_CloseSecureChannel(UA_Server *server, UA_SecureChannel *channel) {
  *    Copyright 2017 (c) Henrik Norrman
  */
 
-
-#define UA_LOG_NODEID_WRAP(NODEID, LOG) {   \
-    UA_String nodeIdStr = UA_STRING_NULL;   \
-    UA_NodeId_toString(NODEID, &nodeIdStr); \
-    LOG;                                    \
-    UA_String_deleteMembers(&nodeIdStr);    \
-}
 
 /*********************/
 /* Edit Node Context */
@@ -37047,7 +37054,7 @@ UA_Server_setNodeTypeLifecycle(UA_Server *server, UA_NodeId nodeId,
                               &lifecycle);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_services_discovery_multicast.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_services_discovery_multicast.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -37581,7 +37588,7 @@ iterateMulticastDiscoveryServer(UA_Server* server, UA_DateTime *nextRepeat,
 
 #endif /* defined(UA_ENABLE_DISCOVERY) && defined(UA_ENABLE_DISCOVERY_MULTICAST) */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -38139,7 +38146,7 @@ UA_Client_removeCallback(UA_Client *client, UA_UInt64 callbackId) {
     UA_Timer_removeCallback(&client->timer, callbackId);
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_connect.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_connect.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -39260,7 +39267,7 @@ UA_Client_disconnect(UA_Client *client) {
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_connect_async.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_connect_async.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -39989,7 +39996,7 @@ UA_Client_disconnect_async(UA_Client *client, UA_UInt32 *requestId) {
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_discovery.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_discovery.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -40136,7 +40143,7 @@ UA_Client_findServersOnNetwork(UA_Client *client, const char *serverUrl,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_highlevel.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_highlevel.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -41083,7 +41090,7 @@ UA_StatusCode __UA_Client_translateBrowsePathsToNodeIds_async(UA_Client *client,
     return retval;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_subscriptions.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_subscriptions.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -41929,7 +41936,7 @@ UA_Client_Subscriptions_backgroundPublish(UA_Client *client) {
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/client/ua_client_worker.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/client/ua_client_worker.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -42078,7 +42085,7 @@ UA_StatusCode UA_Client_run_iterate(UA_Client *client, UA_UInt16 timeout) {
     return retval;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/libc_time.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/libc_time.c" ***********************************/
 
 /* Originally released by the musl project (http://www.musl-libc.org/) under the
  * MIT license. Taken from the file /src/time/__secs_to_tm.c */
@@ -42227,7 +42234,7 @@ long long __tm_to_secs(const struct mytm *tm) {
     return t;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/pcg_basic.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/pcg_basic.c" ***********************************/
 
 /*
  * PCG Random Number Generation for C.
@@ -42269,7 +42276,7 @@ uint32_t pcg32_random_r(pcg32_random_t* rng) {
     return (xorshifted >> rot) | (xorshifted << ((~rot + 1u) & 31)); /* was (xorshifted >> rot) | (xorshifted << ((-rot) & 31)) */
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/deps/base64.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/deps/base64.c" ***********************************/
 
 /*
  * Base64 encoding: Copyright (c) 2005-2011, Jouni Malinen <j@w1.fi>
@@ -42338,7 +42345,8 @@ static const uint32_t from_b64[256] = {
 
 unsigned char *
 UA_unbase64(const unsigned char *src, size_t len, size_t *out_len) {
-    if(len == 0) {
+    // we need a minimum length
+    if(len <= 2) {
         *out_len = 0;
         return (unsigned char*)UA_EMPTY_ARRAY_SENTINEL;
     }
@@ -42362,9 +42370,19 @@ UA_unbase64(const unsigned char *src, size_t len, size_t *out_len) {
     }
 
     if(pad1) {
+        if (last + 1 >= len) {
+            UA_free(str);
+            *out_len = 0;
+            return (unsigned char*)UA_EMPTY_ARRAY_SENTINEL;
+        }
         uint32_t n = from_b64[p[last]] << 18 | from_b64[p[last + 1]] << 12;
         *pos++ = (unsigned char)(n >> 16);
         if(pad2) {
+            if (last + 2 >= len) {
+                UA_free(str);
+                *out_len = 0;
+                return (unsigned char*)UA_EMPTY_ARRAY_SENTINEL;
+            }
             n |= from_b64[p[last + 2]] << 6;
             *pos++ = (unsigned char)(n >> 8 & 0xFF);
         }
@@ -42374,7 +42392,7 @@ UA_unbase64(const unsigned char *src, size_t len, size_t *out_len) {
     return str;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/build_MadOS/src_generated/open62541/namespace0_generated.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/namespace0_generated.c" ***********************************/
 
 /* WARNING: This is a generated file.
  * Any manual changes will be overwritten. */
@@ -44832,6 +44850,7 @@ variablenode_ns_0_i_11494_variant_DataContents[0].valueRank = (UA_Int32) 1;
 UA_STACKARRAY(UA_UInt32, variablenode_ns_0_i_11494_variant_DataContents0_arrayDimensions, 1);
 UA_init(variablenode_ns_0_i_11494_variant_DataContents0_arrayDimensions, &UA_TYPES[UA_TYPES_UINT32]);
 variablenode_ns_0_i_11494_variant_DataContents0_arrayDimensions[0] = (UA_UInt32) 0;
+variablenode_ns_0_i_11494_variant_DataContents[0].arrayDimensionsSize = 1;
 variablenode_ns_0_i_11494_variant_DataContents[0].arrayDimensions = variablenode_ns_0_i_11494_variant_DataContents0_arrayDimensions;
 
 UA_init(&variablenode_ns_0_i_11494_variant_DataContents[1], &UA_TYPES[UA_TYPES_ARGUMENT]);
@@ -44841,6 +44860,7 @@ variablenode_ns_0_i_11494_variant_DataContents[1].valueRank = (UA_Int32) 1;
 UA_STACKARRAY(UA_UInt32, variablenode_ns_0_i_11494_variant_DataContents1_arrayDimensions, 1);
 UA_init(variablenode_ns_0_i_11494_variant_DataContents1_arrayDimensions, &UA_TYPES[UA_TYPES_UINT32]);
 variablenode_ns_0_i_11494_variant_DataContents1_arrayDimensions[0] = (UA_UInt32) 0;
+variablenode_ns_0_i_11494_variant_DataContents[1].arrayDimensionsSize = 1;
 variablenode_ns_0_i_11494_variant_DataContents[1].arrayDimensions = variablenode_ns_0_i_11494_variant_DataContents1_arrayDimensions;
 UA_Variant_setArray(&attr.value, &variablenode_ns_0_i_11494_variant_DataContents, (UA_Int32) 2, &UA_TYPES[UA_TYPES_ARGUMENT]);
 attr.displayName = UA_LOCALIZEDTEXT("", "OutputArguments");
@@ -47068,7 +47088,7 @@ bool dummy = (
 return retVal;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_discovery_manager.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_discovery_manager.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -47266,7 +47286,7 @@ UA_DiscoveryManager_deleteMembers(UA_DiscoveryManager *dm, UA_Server *server) {
 
 #endif /* UA_ENABLE_DISCOVERY */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_subscription.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_subscription.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -47875,7 +47895,7 @@ UA_Subscription_answerPublishRequestsNoSubscription(UA_Server *server, UA_Sessio
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_subscription_monitoreditem.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_subscription_monitoreditem.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -48246,7 +48266,7 @@ UA_MonitoredItem_unregisterSampleCallback(UA_Server *server, UA_MonitoredItem *m
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/src/server/ua_subscription_datachange.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/src/server/ua_subscription_datachange.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -48687,7 +48707,7 @@ UA_MonitoredItem_sampleCallback(UA_Server *server, UA_MonitoredItem *monitoredIt
 
 #endif /* UA_ENABLE_SUBSCRIPTIONS */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/ua_log_stdout.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/ua_log_stdout.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -48766,7 +48786,7 @@ UA_Log_Stdout_clear(void *logContext) {
 const UA_Logger UA_Log_Stdout_ = {UA_Log_Stdout_log, NULL, UA_Log_Stdout_clear};
 const UA_Logger *UA_Log_Stdout = &UA_Log_Stdout_;
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/ua_accesscontrol_default.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/ua_accesscontrol_default.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. 
@@ -49070,7 +49090,7 @@ UA_AccessControl_default(UA_ServerConfig *config, UA_Boolean allowAnonymous,
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/ua_pki_default.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/ua_pki_default.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -49659,7 +49679,7 @@ UA_CertificateVerification_CertFolders(UA_CertificateVerification *cv,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/ua_nodestore_default.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/ua_nodestore_default.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. 
@@ -50016,7 +50036,7 @@ UA_Nodestore_delete(void *nsCtx) {
 
 #endif /* UA_ENABLE_CUSTOM_NODESTORE */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/ua_config_default.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/ua_config_default.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -50732,7 +50752,7 @@ UA_ClientConfig_setDefaultEncryption(UA_ClientConfig *config,
 }
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/securityPolicies/ua_securitypolicy_none.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/securityPolicies/ua_securitypolicy_none.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -50887,6 +50907,7 @@ UA_SecurityPolicy_None(UA_SecurityPolicy *policy,
 
     UA_SecurityPolicyEncryptionAlgorithm *sym_encryptionAlgorithm =
         &policy->symmetricModule.cryptoModule.encryptionAlgorithm;
+    sym_encryptionAlgorithm->uri = UA_STRING_NULL;
     sym_encryptionAlgorithm->encrypt = encrypt_none;
     sym_encryptionAlgorithm->decrypt = decrypt_none;
     sym_encryptionAlgorithm->getLocalKeyLength = length_none;
@@ -50921,7 +50942,7 @@ UA_SecurityPolicy_None(UA_SecurityPolicy *policy,
     return UA_STATUSCODE_GOOD;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/securityPolicies/securitypolicy_mbedtls_common.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/securityPolicies/securitypolicy_mbedtls_common.c" ***********************************/
 
 
 #ifdef UA_ENABLE_ENCRYPTION
@@ -51164,13 +51185,13 @@ mbedtls_decrypt_rsaOaep(mbedtls_pk_context *localPrivateKey,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/securityPolicies/ua_securitypolicy_basic128rsa15.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/securityPolicies/ua_securitypolicy_basic128rsa15.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- *    Copyright 2018 (c) Mark Giraud, Fraunhofer IOSB
+ *    Copyright 2018-2019 (c) Mark Giraud, Fraunhofer IOSB
  *    Copyright 2019 (c) Kalycito Infotech Private Limited
  *
  */
@@ -51357,6 +51378,12 @@ asym_decrypt_sp_basic128rsa15(const UA_SecurityPolicy *securityPolicy,
 
     data->length = outOffset;
     return UA_STATUSCODE_GOOD;
+}
+
+static size_t
+asym_getLocalEncryptionKeyLength_sp_basic128rsa15(const UA_SecurityPolicy *securityPolicy,
+                                                  const Basic128Rsa15_ChannelContext *cc) {
+    return mbedtls_pk_get_len(&cc->policyContext->localPrivateKey) * 8;
 }
 
 static size_t
@@ -51952,7 +51979,8 @@ UA_SecurityPolicy_Basic128Rsa15(UA_SecurityPolicy *policy,
     asym_encryptionAlgorithm->decrypt =
         (UA_StatusCode(*)(const UA_SecurityPolicy *, void *, UA_ByteString *))
             asym_decrypt_sp_basic128rsa15;
-    asym_encryptionAlgorithm->getLocalKeyLength = NULL; // TODO: Write function
+    asym_encryptionAlgorithm->getLocalKeyLength =
+        (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getLocalEncryptionKeyLength_sp_basic128rsa15;
     asym_encryptionAlgorithm->getRemoteKeyLength =
         (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getRemoteEncryptionKeyLength_sp_basic128rsa15;
     asym_encryptionAlgorithm->getLocalBlockSize = NULL; // TODO: Write function
@@ -52041,7 +52069,7 @@ UA_SecurityPolicy_Basic128Rsa15(UA_SecurityPolicy *policy,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/securityPolicies/ua_securitypolicy_basic256.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/securityPolicies/ua_securitypolicy_basic256.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -52177,6 +52205,12 @@ asym_decrypt_sp_basic256(const UA_SecurityPolicy *securityPolicy,
         return UA_STATUSCODE_BADINTERNALERROR;
     return mbedtls_decrypt_rsaOaep(&cc->policyContext->localPrivateKey,
                                    &cc->policyContext->drbgContext, data);
+}
+
+static size_t
+asym_getLocalEncryptionKeyLength_sp_basic256(const UA_SecurityPolicy *securityPolicy,
+                                                  const Basic256_ChannelContext *cc) {
+    return mbedtls_pk_get_len(&cc->policyContext->localPrivateKey) * 8;
 }
 
 static size_t
@@ -52776,7 +52810,8 @@ UA_SecurityPolicy_Basic256(UA_SecurityPolicy *policy,
     asym_encryptionAlgorithm->decrypt =
         (UA_StatusCode(*)(const UA_SecurityPolicy *, void *, UA_ByteString *))
             asym_decrypt_sp_basic256;
-    asym_encryptionAlgorithm->getLocalKeyLength = NULL; // TODO: Write function
+    asym_encryptionAlgorithm->getLocalKeyLength =
+        (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getLocalEncryptionKeyLength_sp_basic256;
     asym_encryptionAlgorithm->getRemoteKeyLength =
         (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getRemoteEncryptionKeyLength_sp_basic256;
     asym_encryptionAlgorithm->getLocalBlockSize = NULL; // TODO: Write function
@@ -52865,7 +52900,7 @@ UA_SecurityPolicy_Basic256(UA_SecurityPolicy *policy,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/plugins/securityPolicies/ua_securitypolicy_basic256sha256.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/plugins/securityPolicies/ua_securitypolicy_basic256sha256.c" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -53050,6 +53085,12 @@ asym_decrypt_sp_basic256sha256(const UA_SecurityPolicy *securityPolicy,
         return UA_STATUSCODE_BADINTERNALERROR;
     return mbedtls_decrypt_rsaOaep(&cc->policyContext->localPrivateKey,
                                    &cc->policyContext->drbgContext, data);
+}
+
+static size_t
+asym_getLocalEncryptionKeyLength_sp_basic256sha256(const UA_SecurityPolicy *securityPolicy,
+                                                   const Basic256Sha256_ChannelContext *cc) {
+    return mbedtls_pk_get_len(&cc->policyContext->localPrivateKey) * 8;
 }
 
 static size_t
@@ -53643,7 +53684,8 @@ UA_SecurityPolicy_Basic256Sha256(UA_SecurityPolicy *policy,
     asym_encryptionAlgorithm->decrypt =
         (UA_StatusCode(*)(const UA_SecurityPolicy *, void *, UA_ByteString *))
             asym_decrypt_sp_basic256sha256;
-    asym_encryptionAlgorithm->getLocalKeyLength = NULL; // TODO: Write function
+    asym_encryptionAlgorithm->getLocalKeyLength =
+        (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getLocalEncryptionKeyLength_sp_basic256sha256;
     asym_encryptionAlgorithm->getRemoteKeyLength =
         (size_t (*)(const UA_SecurityPolicy *, const void *))asym_getRemoteEncryptionKeyLength_sp_basic256sha256;
     asym_encryptionAlgorithm->getLocalBlockSize = NULL; // TODO: Write function
@@ -53732,7 +53774,7 @@ UA_SecurityPolicy_Basic256Sha256(UA_SecurityPolicy *policy,
 
 #endif
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/arch/MadOSLWIP/ua_clock.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/arch/MadOSLWIP/ua_clock.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. 
@@ -53764,7 +53806,7 @@ UA_DateTime UA_DateTime_nowMonotonic(void) {
   return (((UA_DateTime)madTimeOfDay()) * 1000 / configTICK_RATE_HZ) * UA_DATETIME_MSEC;
 }
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/arch/MadOSLWIP/ua_architecture_functions.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/arch/MadOSLWIP/ua_architecture_functions.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -53809,7 +53851,7 @@ unsigned int lwip_if_nametoindex(const char *ifname){
 # endif //LWIP_VERSION_IS_RELEASE
 #endif //UA_IPV6
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0/arch/network_tcp.c" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/arch/network_tcp.c" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.

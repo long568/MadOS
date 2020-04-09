@@ -2,9 +2,10 @@
 #if LO_TEST_OPCUA
 
 #include <stdio.h>
-#include <open62541/client.h>
-#include <open62541/client_config_default.h>
-#include <open62541/client_highlevel.h>
+#include <open62541.h>
+// #include <open62541/client.h>
+// #include <open62541/client_config_default.h>
+// #include <open62541/client_highlevel.h>
 
 static void opcua_client(MadVptr exData);
 
