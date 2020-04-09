@@ -909,7 +909,7 @@ _UA_END_DECLS
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated_encoding_binary.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:48 */
 
 #ifdef UA_ENABLE_AMALGAMATION
 #else
@@ -3524,7 +3524,7 @@ UA_EventFilter_decodeBinary(const UA_ByteString *src, size_t *offset, UA_EventFi
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:49 */
 
 
 #ifdef UA_ENABLE_AMALGAMATION
@@ -3698,7 +3698,7 @@ _UA_END_DECLS
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated_handling.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:49 */
 
 
 
@@ -4100,7 +4100,7 @@ _UA_END_DECLS
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated_encoding_binary.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:49 */
 
 #ifdef UA_ENABLE_AMALGAMATION
 #else
@@ -10225,7 +10225,7 @@ UA_calcSizeBinary(const void *p, const UA_DataType *type) {
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated.c" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:48 */
 
 
 /* Boolean */
@@ -16929,7 +16929,7 @@ const UA_DataType UA_TYPES[UA_TYPES_COUNT] = {
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/transport_generated.c" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd, Custom.Opc.Ua.Transport.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:16 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:49 */
 
 
 /* SecureConversationMessageAbortBody */

@@ -280,7 +280,7 @@ unsigned int lwip_if_nametoindex(const char *ifname);
 # endif
 #endif
 
-int gethostname_lwip(char* name, size_t len); //gethostname is not present in LwIP. We implement here a dummy. See ../freertosLWIP/ua_architecture_functions.c
+int gethostname_lwip(char* name, size_t len); //gethostname is not present in LwIP. We implement here a dummy. See ../xLWIP/ua_architecture_functions.c
 
 #define UA_LOG_SOCKET_ERRNO_GAI_WRAP UA_LOG_SOCKET_ERRNO_WRAP
 
@@ -13554,7 +13554,7 @@ _UA_END_DECLS
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:48 */
 
 
 #ifdef UA_ENABLE_AMALGAMATION
@@ -15955,7 +15955,7 @@ _UA_END_DECLS
 /*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/build_MadOS/src_generated/open62541/types_generated_handling.h" ***********************************/
 
 /* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.0.1/tools/generate_datatypes.py
- * on host promote.cache-dns.local by user long at 2020-04-09 06:04:12 */
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-04-09 07:25:48 */
 
 
 
