@@ -50,7 +50,6 @@ char* datStatus_RxJson(void)
 
     buff = rxBuff;
     for(i=0; i<DAT_STATUS_NUM; i++) {
-        buff += i * 100;
         tmp  = buff;
         item = cJSON_CreateObject();
 
@@ -85,6 +84,7 @@ char* datStatus_RxJson(void)
         cJSON_AddNumberToObject(item, "upFlag", num);
 
         cJSON_AddItemToArray(root, item);
+        buff += 100;
     }
 
     datStatus_UnLock();
