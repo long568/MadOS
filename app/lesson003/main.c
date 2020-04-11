@@ -86,7 +86,7 @@ static void madStartup(MadVptr exData)
  * User-Apps
  ********************************************/
     datStatus_Init();
-    // srvModbus_Init();
+    srvModbus_Init();
     srvTcpServer_Init();
     
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);

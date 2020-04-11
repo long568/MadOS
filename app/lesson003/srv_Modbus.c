@@ -3,8 +3,8 @@
 #include <errno.h>
 #include "MadOS.h"
 #include "CfgUser.h"
-#include "mod_Network.h"
 #include "modbus.h"
+#include "mod_Network.h"
 #include "dat_Status.h"
 
 #define READ_ADDR  1000
@@ -15,7 +15,7 @@ static void modbus_client(MadVptr exData);
 
 void srvModbus_Init(void)
 {
-    madThreadCreate(modbus_client, 0, 1024 * 2, THREAD_PRIO_SRV_MODBUS);
+    madThreadCreate(modbus_client, 0, 1024 * 4, THREAD_PRIO_SRV_MODBUS);
 }
 
 static void modbus_client(MadVptr exData)
@@ -56,15 +56,19 @@ static void modbus_client(MadVptr exData)
             addr = READ_ADDR;
             tmp  = buff;
             datStatus_Lock();
+            datStatus_Clear();
             for(i=0; i<READ_TIMES; i++) {
-                addr += i * READ_STEP;
-                tmp  += i * READ_STEP * 2;
                 if(0 > modbus_read_registers(ctx, addr, READ_STEP, (uint16_t*)tmp)) {
                     ok = 0;
                     break;
                 }
+                addr += READ_STEP;
+                tmp  += READ_STEP * 2;
             }
             datStatus_UnLock();
+            if(i == READ_TIMES) {
+                MAD_LOG("[Modbus]Communicate done\n");
+            }
         }
 
         MAD_LOG("[Modbus]Communicate failed\n");

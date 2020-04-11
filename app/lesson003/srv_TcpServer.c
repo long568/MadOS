@@ -12,7 +12,7 @@ static void tcp_server(MadVptr exData);
 
 void srvTcpServer_Init(void)
 {
-    madThreadCreate(tcp_server, 0, 1024 * 2, THREAD_PRIO_SRV_TCPSERVER);
+    madThreadCreate(tcp_server, 0, 1024 * 4, THREAD_PRIO_SRV_TCPSERVER);
 }
 
 static void tcp_server(MadVptr exData)
@@ -100,10 +100,10 @@ static void tcp_server(MadVptr exData)
                 int s;
                 len = sizeof(struct sockaddr_in);
                 s = accept(s_srv, (struct sockaddr*)&addr, (socklen_t *)&len);
+                if(0 > s) break;
                 if(idx == CLIENT_Q_NUM) idx = 0;
                 if(s_tcp[idx] >= 0) closesocket(s_tcp[idx]);
-                s_tcp[idx] = s;
-                idx++;
+                s_tcp[idx++] = s;
                 MAD_LOG("[Tcp Server]New connection[%s:%d]\n",
                         inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
             }

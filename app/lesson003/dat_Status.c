@@ -2,6 +2,7 @@
 #include <string.h>
 #include "MadOS.h"
 #include "cJSON.h"
+#include "modbus.h"
 #include "dat_Status.h"
 
 static MadMutexCB_t *locker = 0;
@@ -11,6 +12,12 @@ void datStatus_Init(void)
 {
     locker = madMutexCreate();
     rxBuff = malloc(DAT_STATUS_BUFF_LEN);
+    datStatus_Clear();
+}
+
+inline
+void datStatus_Clear(void)
+{
     memset(rxBuff, 0, DAT_STATUS_BUFF_LEN);
 }
 
@@ -32,6 +39,20 @@ MadU8* datStatus_RxBuff(void)
     return rxBuff;
 }
 
+static void switchStr(char *dst, char *src)
+{
+    int i, j;
+    int len = src[0];
+    i = 0;
+    j = len;
+    while(1) {
+        if(j--) dst[i]   = src[i+3]; else break;
+        if(j--) dst[i+1] = src[i+2]; else break;
+        i += 2;
+    }
+    dst[len] = 0;
+}
+
 char* datStatus_RxJson(void)
 {
     int i;
@@ -40,6 +61,7 @@ char* datStatus_RxJson(void)
     char  *out = 0;
 
     char   str[DAT_STATUS_STRING_SIZE];
+    char   org[DAT_STATUS_STRING_SIZE];
     double num;
     char   *eqCode       = str;
     char   *jobOrderCode = str;
@@ -56,11 +78,13 @@ char* datStatus_RxJson(void)
         sprintf(eqCode, "Eq%03d", i+1);
         cJSON_AddStringToObject(item, "eqCode", eqCode);
 
-        snprintf(jobOrderCode, DAT_STATUS_STRING_SIZE, "%s", tmp);
+        switchStr(org, (char*)tmp);
+        snprintf(jobOrderCode, DAT_STATUS_STRING_SIZE, "%s", org);
         cJSON_AddStringToObject(item, "jobOrderCode", jobOrderCode);
         tmp += DAT_STATUS_STRING_SIZE;
 
-        snprintf(sn, DAT_STATUS_STRING_SIZE, "%s", tmp);
+        switchStr(org, (char*)tmp);
+        snprintf(sn, DAT_STATUS_STRING_SIZE, "%s", org);
         cJSON_AddStringToObject(item, "sn", sn);
         tmp += DAT_STATUS_STRING_SIZE;
 
