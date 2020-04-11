@@ -671,6 +671,16 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   newconn->socket = newsock;
   SYS_ARCH_UNPROTECT(lev);
 
+  do { /* Added by long 20200411 */
+    if(!madWaitQInit(&nsock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+      netconn_delete(newconn);
+      free_socket(nsock, 1);
+      sock_set_errno(sock, err_to_errno(err));
+      done_socket(sock);
+      return -1;
+    }
+  } while(0);
+
   if (newconn->callback) {
     LOCK_TCPIP_CORE();
     while (recvevent > 0) {

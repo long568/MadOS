@@ -3,7 +3,8 @@
 
 enum {
     THREAD_PRIO_SYS_RUNNING = 1,
-    //
+    THREAD_PRIO_SRV_TCPSERVER,
+    THREAD_PRIO_SRV_MODBUS,
     THREAD_PRIO_LWIP_TCPIP,
     THREAD_PRIO_DRIVER_ETH,
 };
@@ -20,6 +21,6 @@ enum {
 
 #define SYS_RUNNING_INTERVAL_MSECS (500)
 #define MAD_OS_STACK_SIZE          (52 * 1024)
-#define MAD_OS_LWIP_DHCP           0
+#define MAD_OS_LWIP_DHCP           1
 
 #endif

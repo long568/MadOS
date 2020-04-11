@@ -168,8 +168,17 @@ MadBool LwIP_Init(void)
 }
 
 #define LWIP_REALS(s) ((((s) > STD_FD_END - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
-inline int accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
-    return lwip_accept(LWIP_REALS(s),addr,addrlen);
+int accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
+    int rc, fd;
+    fd = NL_FD_Get();
+    if(fd < 0) return -1;
+    rc = lwip_accept(LWIP_REALS(s),addr,addrlen);
+    if(rc > -1) {
+        NL_FD_Set(fd, 0, rc, MAD_FDTYPE_SOC);
+        return fd;
+    }
+    NL_FD_Put(fd);
+    return -1;
 }
 inline int bind(int s, const struct sockaddr *name, socklen_t namelen) {
     return lwip_bind(LWIP_REALS(s),name,namelen);

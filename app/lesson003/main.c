@@ -2,9 +2,14 @@
 #include <stdlib.h>
 #include "MadOS.h"
 #include "CfgUser.h"
+
 #include "mod_Newlib.h"
 #include "mod_FatFs.h"
 #include "mod_Network.h"
+
+#include "dat_Status.h"
+#include "srv_Modbus.h"
+#include "srv_TcpServer.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -80,7 +85,10 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-
+    datStatus_Init();
+    // srvModbus_Init();
+    srvTcpServer_Init();
+    
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madThreadDelete(MAD_THREAD_SELF);
 }
@@ -114,7 +122,7 @@ static void madSysRunning(MadVptr exData)
 #ifdef MAD_SHOW_IDLERATE
         idle_rate += madIdleRate();
         idle_rate >>= 1;
-        if(++tmrSysReport > 6) {
+        if(++tmrSysReport > 60) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n", 
                     idle_rate, madMemUnusedSize(), madMemMaxSize());
