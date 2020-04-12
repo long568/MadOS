@@ -56,7 +56,6 @@ static void modbus_client(MadVptr exData)
             addr = READ_ADDR;
             tmp  = buff;
             datStatus_Lock();
-            datStatus_Clear();
             for(i=0; i<READ_TIMES; i++) {
                 if(0 > modbus_read_registers(ctx, addr, READ_STEP, (uint16_t*)tmp)) {
                     ok = 0;
@@ -66,7 +65,7 @@ static void modbus_client(MadVptr exData)
                 tmp  += READ_STEP * 2;
             }
             datStatus_UnLock();
-            if(i == READ_TIMES) {
+            if(ok) {
                 MAD_LOG("[Modbus]Communicate done\n");
             }
         }

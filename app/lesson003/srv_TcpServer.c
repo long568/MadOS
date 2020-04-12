@@ -54,6 +54,7 @@ static void tcp_server(MadVptr exData)
             s_tcp[i] = -1;
         }
 
+        MAD_LOG("[Tcp Server]Ready\n");
         while(1) {
             FD_ZERO(&socks);
             FD_SET(s_srv, &socks);
@@ -84,9 +85,9 @@ static void tcp_server(MadVptr exData)
                     if(0 > read(s_tcp[i], tmp, 8)) { 
                         len = sizeof(struct sockaddr_in);
                         getpeername(s_tcp[i], (struct sockaddr*)&addr, (socklen_t *)&len);
-                        closesocket(s_tcp[i]);
                         MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
                                 inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+                        closesocket(s_tcp[i]);
                         s_tcp[i] = -1;
                     } else {
                         char *out = datStatus_RxJson();
@@ -100,15 +101,26 @@ static void tcp_server(MadVptr exData)
                 int s;
                 len = sizeof(struct sockaddr_in);
                 s = accept(s_srv, (struct sockaddr*)&addr, (socklen_t *)&len);
-                if(0 > s) break;
-                if(idx == CLIENT_Q_NUM) idx = 0;
-                if(s_tcp[idx] >= 0) closesocket(s_tcp[idx]);
-                s_tcp[idx++] = s;
+                if(0 > s) {
+                    break;
+                }
                 MAD_LOG("[Tcp Server]New connection[%s:%d]\n",
                         inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+                if(s_tcp[idx] >= 0) {
+                    len = sizeof(struct sockaddr_in);
+                    getpeername(s_tcp[idx], (struct sockaddr*)&addr, (socklen_t *)&len);
+                    MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
+                            inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+                    closesocket(s_tcp[idx]);
+                }
+                s_tcp[idx] = s;
+                if(++idx == CLIENT_Q_NUM) {
+                    idx = 0;
+                }
             }
         }
 
+        MAD_LOG("[Tcp Server]Error\n");
         closesocket(s_srv);
         for(i=0; i<CLIENT_Q_NUM; i++) {
             if(0 > s_tcp[i]) continue;
