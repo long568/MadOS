@@ -33,19 +33,21 @@ static void tcp_server(MadVptr exData)
         }
 
         s_srv = socket(AF_INET, SOCK_STREAM, 0);
-        if(s_srv < 0) continue;
+        if(s_srv < 0) {
+            continue;
+        }
 
         memset(&addr, 0, sizeof(struct sockaddr_in));
         addr.sin_family      = AF_INET;
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
         addr.sin_port        = htons(2222);
         if(0 > bind(s_srv, (struct sockaddr*)&addr, sizeof(struct sockaddr_in))) {
-            closesocket(s_srv);
+            close(s_srv);
             continue;
         }
 
         if(0 > listen(s_srv, CLIENT_Q_NUM)) {
-            closesocket(s_srv);
+            close(s_srv);
             continue;
         }
 
@@ -60,9 +62,13 @@ static void tcp_server(MadVptr exData)
             FD_SET(s_srv, &socks);
             s_max = s_srv;
             for(i=0; i<CLIENT_Q_NUM; i++) {
-                if(0 > s_tcp[i]) continue;
+                if(0 > s_tcp[i]) {
+                    continue;
+                }
                 FD_SET(s_tcp[i], &socks);
-                if(s_tcp[i] > s_max) s_max = s_tcp[i];
+                if(s_tcp[i] > s_max) {
+                    s_max = s_tcp[i];
+                }
             }
             s_max++;
 
@@ -79,7 +85,9 @@ static void tcp_server(MadVptr exData)
             }
 
             for(i=0; i<CLIENT_Q_NUM; i++) {
-                if(0 > s_tcp[i]) continue;
+                if(0 > s_tcp[i]) {
+                    continue;
+                }
                 if(FD_ISSET(s_tcp[i], &socks)) {
                     char tmp[8] = { 0 };
                     if(0 > read(s_tcp[i], tmp, 8)) { 
@@ -87,7 +95,7 @@ static void tcp_server(MadVptr exData)
                         getpeername(s_tcp[i], (struct sockaddr*)&addr, (socklen_t *)&len);
                         MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
                                 inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-                        closesocket(s_tcp[i]);
+                        close(s_tcp[i]);
                         s_tcp[i] = -1;
                     } else {
                         char *out = datStatus_RxJson();
@@ -111,7 +119,7 @@ static void tcp_server(MadVptr exData)
                     getpeername(s_tcp[idx], (struct sockaddr*)&addr, (socklen_t *)&len);
                     MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
                             inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-                    closesocket(s_tcp[idx]);
+                    close(s_tcp[idx]);
                 }
                 s_tcp[idx] = s;
                 if(++idx == CLIENT_Q_NUM) {
@@ -121,10 +129,12 @@ static void tcp_server(MadVptr exData)
         }
 
         MAD_LOG("[Tcp Server]Error\n");
-        closesocket(s_srv);
+        close(s_srv);
         for(i=0; i<CLIENT_Q_NUM; i++) {
-            if(0 > s_tcp[i]) continue;
-            closesocket(s_tcp[i]);
+            if(0 > s_tcp[i]) {
+                continue;
+            }
+            close(s_tcp[i]);
         }
     }
 }

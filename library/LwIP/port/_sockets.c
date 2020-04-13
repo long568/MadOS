@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "lwip/sockets.h"
 #include "lwip/priv/sockets_priv.h"
 
@@ -199,7 +200,7 @@ inline int setsockopt (int s, int level, int optname, const void *optval, sockle
     return lwip_setsockopt(LWIP_REALS(s),level,optname,optval,optlen);
 }
 inline int closesocket(int s) {
-    return lwip_close(LWIP_REALS(s));
+    return close(s);
 }
 inline int connect(int s, const struct sockaddr *name, socklen_t namelen) {
     return lwip_connect(LWIP_REALS(s),name,namelen);
