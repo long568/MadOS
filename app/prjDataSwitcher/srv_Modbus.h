@@ -14,6 +14,13 @@ Muliple Coils ----- 15 - modbus_write_bits
 Muliple Registers - 16 - modbus_write_registers
 ***************************************************/
 
+#define srvModbusE_RD  0x0001
+#define srvModbusE_WR  0x0002
+#define srvModbusE_TO  0x0010
+#define srvModbusE_All (srvModbusE_RD | srvModbusE_WR | srvModbusE_TO)
+
+extern MadEventCB_t *srvModbus_Event;
+
 extern void srvModbus_Init(void);
 
 #endif

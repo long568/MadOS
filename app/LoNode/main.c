@@ -3,8 +3,8 @@
 #include "MadOS.h"
 #include "CfgUser.h"
 #include "mod_Newlib.h"
-#include "mod_FatFs.h"
 #include "mod_Network.h"
+// #include "mod_FatFs.h"
 
 #include "testUIP.h"
 #include "testLua.h"
@@ -82,15 +82,15 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-    FatFs_Init();
-    Network_Init();
+    // FatFs_Init();
+    // Network_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
     // Init_TestUIP();
     // Init_TestLua();
-    Init_TestLwIP();
+    // Init_TestLwIP();
     // Init_TestENet();
     // Init_TestOPCUA();
     // Init_TestFatFs();

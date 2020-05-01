@@ -1,18 +1,19 @@
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "MadOS.h"
 #include "CfgUser.h"
 #include "mod_Network.h"
-#include "dat_Status.h"
-#include "lwip/sockets.h"
+#include "srv_TcpHandler.h"
 
-#define CLIENT_Q_NUM 3
+#define CLIENT_Q_NUM  3
+#define RECV_BUFF_SIZ 4096
 
 static void tcp_server(MadVptr exData);
 
 void srvTcpServer_Init(void)
 {
-    madThreadCreate(tcp_server, 0, 1024 * 4, THREAD_PRIO_SRV_TCPSERVER);
+    madThreadCreate(tcp_server, 0, 1024 * 2, THREAD_PRIO_SRV_TCPSERVER);
 }
 
 static void tcp_server(MadVptr exData)
@@ -80,7 +81,6 @@ static void tcp_server(MadVptr exData)
             if(rc < 0) {
                 break;
             } else if(rc == 0) {
-                MAD_LOG("[Tcp Server]Timeout\n");
                 continue;
             }
 
@@ -89,8 +89,9 @@ static void tcp_server(MadVptr exData)
                     continue;
                 }
                 if(FD_ISSET(s_tcp[i], &socks)) {
-                    char tmp[8] = { 0 };
-                    if(0 > read(s_tcp[i], tmp, 8)) { 
+                    char *buf = (char *)malloc(RECV_BUFF_SIZ);
+                    int   cnt = read(s_tcp[i], buf, RECV_BUFF_SIZ);
+                    if(0 == buf || 0 > cnt) {
                         len = sizeof(struct sockaddr_in);
                         getpeername(s_tcp[i], (struct sockaddr*)&addr, (socklen_t *)&len);
                         MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
@@ -98,10 +99,9 @@ static void tcp_server(MadVptr exData)
                         close(s_tcp[i]);
                         s_tcp[i] = -1;
                     } else {
-                        char *out = datStatus_RxJson();
-                        write(s_tcp[i], out, strlen(out));
-                        free(out);
+                        srvTcpHandler(s_tcp[i], buf, cnt);
                     }
+                    free(buf);
                 }
             }
 
