@@ -8,6 +8,13 @@
 #include "srv_Modbus.h"
 #include "dat_Status.h"
 
+MadMutexCB_t *srvTcpHandler_Locker;
+
+int srvTcpHandler_Init(void)
+{
+    srvTcpHandler_Locker = madMutexCreateN();
+}
+
 int srvTcpHandler(int s, char *buf, int len)
 {
     // char *out = datStatus_RxJson();

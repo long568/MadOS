@@ -6,6 +6,7 @@
 #include "modbus.h"
 #include "mod_Network.h"
 #include "srv_Modbus.h"
+#include "srv_TcpHandler.h"
 #include "dat_Status.h"
 
 #define READ_ADDR  1000

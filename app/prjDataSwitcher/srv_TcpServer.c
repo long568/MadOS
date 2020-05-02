@@ -13,6 +13,7 @@ static void tcp_server(MadVptr exData);
 
 void srvTcpServer_Init(void)
 {
+    srvTcpHandler_Init();
     madThreadCreate(tcp_server, 0, 1024 * 2, THREAD_PRIO_SRV_TCPSERVER);
 }
 
