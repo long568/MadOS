@@ -17,7 +17,14 @@ Muliple Registers - 16 - modbus_write_registers
 #define srvModbusE_RD  0x0001
 #define srvModbusE_WR  0x0002
 #define srvModbusE_TO  0x0010
+#define srvModbusE_Nor (srvModbusE_RD | srvModbusE_WR)
 #define srvModbusE_All (srvModbusE_RD | srvModbusE_WR | srvModbusE_TO)
+
+#define srvModbus_BUFSIZ 3600
+#define srvModbus_WADDR  0
+#define srvModbus_RADDR  3600 / 2
+#define srvModbus_STEP   100 // 200 Bytes
+#define srvModbus_TIMES  18
 
 extern MadEventCB_t *srvModbus_Event;
 

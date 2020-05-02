@@ -7,11 +7,6 @@
 #include "mod_Network.h"
 #include "srv_Modbus.h"
 #include "srv_TcpHandler.h"
-#include "dat_Status.h"
-
-#define READ_ADDR  1000
-#define READ_STEP  DAT_STATUS_LEN
-#define READ_TIMES DAT_STATUS_NUM / 2
 
 MadEventCB_t *srvModbus_Event = 0;
 
@@ -25,8 +20,8 @@ void srvModbus_Init(void)
 
 static void modbus_client(MadVptr exData)
 {
-    int i, ok, addr, rc;
-    MadU8 *buff, *tmp;
+    int i, rc;
+    MadBool ok;
     MadUint event;
     modbus_t *ctx;
 
@@ -53,10 +48,9 @@ static void modbus_client(MadVptr exData)
                 break;
             }
         }
-        buff = datStatus_RxBuff();
         MAD_LOG("[Modbus]Connected\n");
 
-        ok = 1;
+        ok = MTRUE;
         while(ok) {
             rc = madEventWait(&srvModbus_Event, &event, 1000 * 30);
             switch(rc) {
@@ -68,25 +62,58 @@ static void modbus_client(MadVptr exData)
                     break;
             }
 
-            // addr = READ_ADDR;
-            // tmp  = buff;
-            // datStatus_Lock();
-            // for(i=0; i<READ_TIMES; i++) {
-            //     if(0 > modbus_read_registers(ctx, addr, READ_STEP, (uint16_t*)tmp)) {
-            //         ok = 0;
-            //         break;
-            //     }
-            //     addr += READ_STEP;
-            //     tmp  += READ_STEP * 2;
-            // }
-            // datStatus_UnLock();
+            switch(event) {
+                case srvModbusE_RD: {
+                    int   addr = srvModbus_RADDR;
+                    char *tmp  = srvTcpHandler_Buff;
+                    for(i=0; i<srvModbus_TIMES; i++) { // OP
+                        if(0 > modbus_read_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
+                            ok = MFALSE;
+                            break;
+                        }
+                        addr += srvModbus_STEP;
+                        tmp  += srvModbus_STEP * 2;
+                    }
+                    if(ok && 0 > modbus_read_registers(ctx, addr, 3, (uint16_t*)tmp)) { // AGV
+                        ok = MFALSE;
+                    }
+                    break;
+                }
 
-            // if(ok) {
-            //     MAD_LOG("[Modbus]Communicate done\n");
-            // }
+                case srvModbusE_WR: {
+                    int   addr = srvModbus_WADDR;
+                    char *tmp  = srvTcpHandler_Buff;
+                    for(i=0; i<srvModbus_TIMES; i++) { // OP
+                        if(0 > modbus_write_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
+                            ok = MFALSE;
+                            break;
+                        }
+                        addr += srvModbus_STEP;
+                        tmp  += srvModbus_STEP * 2;
+                    }
+                    break;
+                }
+
+                default: {
+                    uint16_t tmp;
+                    if(0 > modbus_read_registers(ctx, srvModbus_RADDR, 1, &tmp)) {
+                        ok = MFALSE;
+                    }
+                    break;
+                }
+            }
+
+            if(event & srvModbusE_Nor) {
+                srvTcpHandler_Flag = ok;
+                madMutexRelease(&srvTcpHandler_Locker);
+            }
+
+            if(ok) {
+                MAD_LOG("[Modbus]Communicate OK\n");
+            }
         }
 
-        MAD_LOG("[Modbus]Communicate failed\n");
+        MAD_LOG("[Modbus]Communicate Error\n");
         modbus_close(ctx);
         modbus_free(ctx);
     }
