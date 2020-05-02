@@ -1,20 +1,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include "MadOS.h"
 #include "CfgUser.h"
 #include "modbus.h"
 #include "mod_Network.h"
 #include "srv_Modbus.h"
-#include "srv_TcpHandler.h"
+#include "dat_Status.h"
 
-MadEventCB_t *srvModbus_Event = 0;
+MadMsgQCB_t  *srvModbus_MsgQ = 0;
+MadFBuffer_t *srvModbus_MsgG = 0;
 
 static void modbus_client(MadVptr exData);
 
 void srvModbus_Init(void)
 {
-    srvModbus_Event = madEventCreate(srvModbusE_All, MEMODE_WAIT_ONE, MEOPT_DELAY);
+    srvModbus_MsgQ = madMsgQCreate(srvModbus_MSGQSIZ);
+    srvModbus_MsgG = madFBufferCreate(srvModbus_MSGQSIZ, sizeof(srvModbus_Msg_t));
     madThreadCreate(modbus_client, 0, 1024 * 2, THREAD_PRIO_SRV_MODBUS);
 }
 
@@ -24,6 +27,7 @@ static void modbus_client(MadVptr exData)
     MadBool ok;
     MadUint event;
     modbus_t *ctx;
+    srvModbus_Msg_t *msg;
 
     (void)i;
     (void)exData;
@@ -52,20 +56,21 @@ static void modbus_client(MadVptr exData)
 
         ok = MTRUE;
         while(ok) {
-            rc = madEventWait(&srvModbus_Event, &event, 1000 * 30);
-            switch(rc) {
-                case MAD_ERR_TIMEOUT:
-                    event = srvModbusE_TO;
-                    break;
-
-                default:
-                    break;
+            rc = madMsgWait(&srvModbus_MsgQ, (void**)&msg, srvModbus_MSGQTO);
+            if(rc == MAD_ERR_OK) {
+                event = msg->e;
+            } else {
+                event = srvModbusE_TO;
             }
 
             switch(event) {
                 case srvModbusE_RD: {
+                    char *tmp;
+                    char *out  = 0;
+                    char *buf  = malloc(srvModbus_BUFSIZ + 3 * 2);
                     int   addr = srvModbus_RADDR;
-                    char *tmp  = srvTcpHandler_Buff;
+                    if(!buf) break;
+                    tmp = buf;
                     for(i=0; i<srvModbus_TIMES; i++) { // OP
                         if(0 > modbus_read_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
                             ok = MFALSE;
@@ -77,12 +82,23 @@ static void modbus_client(MadVptr exData)
                     if(ok && 0 > modbus_read_registers(ctx, addr, 3, (uint16_t*)tmp)) { // AGV
                         ok = MFALSE;
                     }
+                    if(ok) {
+                        out = datStatus_Rx2Json(buf);
+                    }
+                    free(buf);
+                    if(out) {
+                        write(msg->s, out, strlen(out));
+                        free(out);
+                    }
                     break;
                 }
 
                 case srvModbusE_WR: {
+                    char *tmp;
+                    char *buf  = msg->b;
                     int   addr = srvModbus_WADDR;
-                    char *tmp  = srvTcpHandler_Buff;
+                    if(!buf) break;
+                    tmp = buf;
                     for(i=0; i<srvModbus_TIMES; i++) { // OP
                         if(0 > modbus_write_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
                             ok = MFALSE;
@@ -91,6 +107,7 @@ static void modbus_client(MadVptr exData)
                         addr += srvModbus_STEP;
                         tmp  += srvModbus_STEP * 2;
                     }
+                    free(buf);
                     break;
                 }
 
@@ -103,9 +120,8 @@ static void modbus_client(MadVptr exData)
                 }
             }
 
-            if(event & srvModbusE_Nor) {
-                srvTcpHandler_Flag = ok;
-                madMutexRelease(&srvTcpHandler_Locker);
+            if(rc == MAD_ERR_OK) {
+                madFBufferPut(srvModbus_MsgG, (void*)msg);
             }
 
             if(ok) {

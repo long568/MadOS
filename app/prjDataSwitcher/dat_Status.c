@@ -5,14 +5,8 @@
 #include "modbus.h"
 #include "dat_Status.h"
 
-// static MadMutexCB_t *locker = 0;
-// static MadU8        *rxBuff = 0;
-
 void datStatus_Init(void)
 {
-    // locker = madMutexCreate();
-    // rxBuff = malloc(DAT_STATUS_BUFF_LEN);
-    // datStatus_Clear();
 }
 
 // inline
@@ -119,4 +113,9 @@ void datStatus_Init(void)
 char*  datStatus_Rx2Json(char *buf)
 {
     return buf;
+}
+
+char*  datStatus_Json2Tx(char *json)
+{
+    return json;
 }

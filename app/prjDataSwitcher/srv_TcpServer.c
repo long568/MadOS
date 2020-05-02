@@ -7,6 +7,7 @@
 #include "srv_TcpHandler.h"
 
 #define CLIENT_Q_NUM  3
+#define BUF_SIZE      (1024 * 16)
 
 static void tcp_server(MadVptr exData);
 
@@ -89,8 +90,8 @@ static void tcp_server(MadVptr exData)
                     continue;
                 }
                 if(FD_ISSET(s_tcp[i], &socks)) {
-                    char *buf = (char *)malloc(srvTcpHandler_BUFSIZ);
-                    int   cnt = read(s_tcp[i], buf, srvTcpHandler_BUFSIZ);
+                    char *buf = (char *)malloc(BUF_SIZE);
+                    int   cnt = read(s_tcp[i], buf, BUF_SIZE);
                     if(0 == buf || 0 > cnt) {
                         len = sizeof(struct sockaddr_in);
                         getpeername(s_tcp[i], (struct sockaddr*)&addr, (socklen_t *)&len);
