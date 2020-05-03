@@ -108,52 +108,46 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
     
     target = MAD_MEM_TARGET(p);
     real_n = MAD_MEM_REAL_N(size);
-    
     MAD_MEM_LOCK();
     
-    if (real_n > mad_unused_size) {
-        res = MNULL;
-    } else {
-        prio = MNULL;
-        head = mad_used_head;
-        while(head) {
-            if(head == target) {
-                if(head->next != MNULL)
-                    ofs = (MadSize_t)((MadU8*)head->next - (MadU8*)head);
-                else 
-                    ofs = (MadSize_t)(mad_heap_tail - (MadU8*)head);
-                break;
-            }
-            prio = head;
-            head = head->next;
+    prio = MNULL;
+    head = mad_used_head;
+    while(head) {
+        if(head == target) {
+            if(head->next != MNULL)
+                ofs = (MadSize_t)((MadU8*)head->next - (MadU8*)head);
+            else 
+                ofs = (MadSize_t)(mad_heap_tail - (MadU8*)head);
+            break;
         }
-        if(MNULL != head) {
-            if(ofs < real_n) {
-                res = findSpace(real_n);
-                if(MNULL != res) {
-                    MadU8     *dst = res + MAD_MEM_HEAD_SIZE;
-                    MadU8     *src = (MadU8*)head + MAD_MEM_HEAD_SIZE;
-                    MadSize_t num = ((head->size > real_n) ? real_n : head->size) - MAD_MEM_HEAD_SIZE;
-                    madMemCpy(dst, src, num);
-                    if(MNULL == prio)
-                        mad_used_head = head->next;
-                    else
-                        prio->next = head->next;
-                    mad_unused_size += head->size;
-                }
-            } else {
+        prio = head;
+        head = head->next;
+    }
+    if(MNULL != head) {
+        if(ofs < real_n) {
+            res = findSpace(real_n);
+            if(MNULL != res) {
+                MadU8     *dst = res + MAD_MEM_HEAD_SIZE;
+                MadU8     *src = (MadU8*)head + MAD_MEM_HEAD_SIZE;
+                MadSize_t num = ((head->size > real_n) ? real_n : head->size) - MAD_MEM_HEAD_SIZE;
+                madMemCpy(dst, src, num);
+                if(MNULL == prio)
+                    mad_used_head = head->next;
+                else
+                    prio->next = head->next;
                 mad_unused_size += head->size;
-                mad_unused_size -= real_n;
-                head->size = real_n;
-                res = (MadU8*)head;
             }
         } else {
-            res = MNULL;
+            mad_unused_size += head->size;
+            mad_unused_size -= real_n;
+            head->size = real_n;
+            res = (MadU8*)head;
         }
+    } else {
+        res = MNULL;
     }
     
     MAD_MEM_UNLOCK();
-    
     if(res == MNULL) return MNULL;
     res += MAD_MEM_HEAD_SIZE;
     return res;

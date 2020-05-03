@@ -6,8 +6,8 @@
 #include "mod_Network.h"
 #include "srv_TcpHandler.h"
 
-#define CLIENT_Q_NUM  3
-#define BUF_SIZE      TCP_MSS
+#define CLIENT_Q_NUM 3
+#define BUF_STEP_SIZ TCP_MSS
 
 static void tcp_server(MadVptr exData);
 
@@ -74,7 +74,7 @@ static void tcp_server(MadVptr exData)
             }
             s_max++;
 
-            tv.tv_sec  = 360;
+            tv.tv_sec  = 60 * 30;
             tv.tv_usec = 0;
 
             rc = select(s_max, &socks, NULL, NULL, &tv);
@@ -90,9 +90,26 @@ static void tcp_server(MadVptr exData)
                     continue;
                 }
                 if(FD_ISSET(s_tcp[i], &socks)) {
-                    char *buf = (char *)malloc(BUF_SIZE);
-                    int   cnt = read(s_tcp[i], buf, BUF_SIZE);
-                    if(0 == buf || 0 > cnt) {
+                    int   cnt  = 0;
+                    int   size = 0;
+                    char *tmp  = 0;
+                    char *buf  = 0;
+                    len = 0;
+                    while(1) {
+                        size += BUF_STEP_SIZ;
+                        tmp   = (char *)realloc(buf, size);
+                        if(!tmp) {
+                            len = 0;
+                            break;
+                        }
+                        buf = tmp;
+                        cnt = read(s_tcp[i], buf+len, BUF_STEP_SIZ);
+                        if(cnt < 0) break;
+                        len += cnt;
+                        if(cnt < BUF_STEP_SIZ) break;
+                    }
+                    if(0 == buf || 0 == len) {
+                        free(buf);
                         len = sizeof(struct sockaddr_in);
                         getpeername(s_tcp[i], (struct sockaddr*)&addr, (socklen_t *)&len);
                         MAD_LOG("[Tcp Server]Connection[%s:%d] closed\n",
@@ -100,9 +117,9 @@ static void tcp_server(MadVptr exData)
                         close(s_tcp[i]);
                         s_tcp[i] = -1;
                     } else {
-                        srvTcpHandler(s_tcp[i], buf, cnt);
+                        // buf is freed by srvTcpHandler;
+                        srvTcpHandler(s_tcp[i], buf, len);
                     }
-                    free(buf);
                 }
             }
 
@@ -122,6 +139,7 @@ static void tcp_server(MadVptr exData)
                             inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
                     close(s_tcp[idx]);
                 }
+                ioctl(s, FIONBIO, 1);
                 s_tcp[idx] = s;
                 if(++idx == CLIENT_Q_NUM) {
                     idx = 0;

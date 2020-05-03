@@ -108,8 +108,8 @@ void NL_FD_Put(int fd)
         NL_FD_ARRAY[fd].org  = -1;
         NL_FD_ARRAY[fd].seed = -1;
         NL_FD_ARRAY[fd].flag = 0;
-        NL_FD_ARRAY[fd].locker = MNULL;
         NL_FD_ARRAY[fd].type = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[fd].locker = MNULL;
     );
 }
 
