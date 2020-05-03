@@ -37,10 +37,6 @@ MISSING_SYSCALL_NAMES
 #define STD_FD_END     (STD_FD_ERR + 1)
 #define MAX_FD_SIZE    (FD_SETSIZE)
 
-#define MAD_FD_CLOSED  0x00
-#define MAD_FD_OPENED  0x01
-#define MAD_FD_OPTING  0x02
-
 enum {
     MAD_FDTYPE_UNK = 0,
     MAD_FDTYPE_DEV,
@@ -76,6 +72,7 @@ extern void    NL_FD_ClrFlag (int fd, int flag);
 extern int     NL_FD_Seed    (int fd);
 extern char    NL_FD_Type    (int fd);
 extern int     NL_FD_OptBegin(int fd);
+extern int     NL_FD_OptWait (int fd);
 extern void    NL_FD_OptEnd  (int fd);
 
 extern int     unp_ioctl     (int fd, int request, ...);

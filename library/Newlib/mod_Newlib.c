@@ -26,7 +26,7 @@ typedef struct {
     int  seed;
     int  flag;
     char type;
-    char opt;
+    MadMutexCB_t *locker;
 } MadFD_t;
 
 static MadFD_t NL_FD_ARRAY[MAX_FD_SIZE] = { 0 };
@@ -40,7 +40,7 @@ MadBool Newlib_Init(void)
         NL_FD_ARRAY[i].seed = -1;
         NL_FD_ARRAY[i].flag = 0;
         NL_FD_ARRAY[i].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[i].opt  = MAD_FD_CLOSED;
+        NL_FD_ARRAY[i].locker = MNULL;
     }
     return MTRUE;
 }
@@ -64,23 +64,33 @@ void NL_FD_Cpy(int dst, int src)
         NL_FD_ARRAY[dst].seed = (src > -1) ?   0 : -1;
         NL_FD_ARRAY[dst].flag = 0;
         NL_FD_ARRAY[dst].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[dst].opt  = MAD_FD_CLOSED;
+        NL_FD_ARRAY[dst].locker = MNULL;
     );
 }
 
 int NL_FD_Get(void)
 {
     int i;
+    int rc = -1;
+    MadMutexCB_t *locker;
     madCSDecl(cpsr);
+
+    locker = madMutexCreate();
+    if(!locker) return -1;
+
     madCSLock(cpsr);
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
         if(NL_FD_ARRAY[i].seed < 0) {
-            NL_FD_ARRAY[i].seed = 0;
+            NL_FD_ARRAY[i].locker = locker;
+            NL_FD_ARRAY[i].seed   = 0;
+            rc = i;
             break;
         }
     }
     madCSUnlock(cpsr);
-    return i;
+
+    if(rc < 0) madMutexDelete(&locker);
+    return rc;
 }
 
 void NL_FD_Put(int fd)
@@ -92,11 +102,14 @@ void NL_FD_Put(int fd)
             NL_FD_ARRAY[fd].seed = -1;
             fd = tmp;
         }
+    );
+    madMutexDelete(&NL_FD_ARRAY[fd].locker);
+    MAD_CS_OPT(
         NL_FD_ARRAY[fd].org  = -1;
         NL_FD_ARRAY[fd].seed = -1;
         NL_FD_ARRAY[fd].flag = 0;
+        NL_FD_ARRAY[fd].locker = MNULL;
         NL_FD_ARRAY[fd].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[fd].opt  = MAD_FD_CLOSED;
     );
 }
 
@@ -107,7 +120,6 @@ void NL_FD_Set(int fd, int flag, int seed, char type)
         NL_FD_ARRAY[fd].flag = flag;
         NL_FD_ARRAY[fd].seed = seed;
         NL_FD_ARRAY[fd].type = type;
-        NL_FD_ARRAY[fd].opt  = MAD_FD_OPENED;
     );
 }
 
@@ -159,16 +171,25 @@ char NL_FD_Type(int fd)
 
 int NL_FD_OptBegin(int fd)
 {
-    char opt;
     int rc = -1;
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
-        opt = NL_FD_ARRAY[fd].opt;
-        if((opt & MAD_FD_OPENED) && !(opt & MAD_FD_OPTING)) {
-            NL_FD_ARRAY[fd].opt |= MAD_FD_OPTING;
-            rc = 1;
-        }
     );
+    if(MAD_ERR_OK == madMutexCheck(&NL_FD_ARRAY[fd].locker)) {
+        rc = 1;
+    }
+    return rc;
+}
+
+int NL_FD_OptWait(int fd)
+{
+    int rc = -1;
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+    );
+    if(MAD_ERR_OK == madMutexWait(&NL_FD_ARRAY[fd].locker, 0)) {
+        rc = 1;
+    }
     return rc;
 }
 
@@ -176,6 +197,6 @@ void NL_FD_OptEnd(int fd)
 {
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
-        NL_FD_ARRAY[fd].opt &= ~MAD_FD_OPTING;
     );
+    madMutexRelease(&NL_FD_ARRAY[fd].locker);
 }

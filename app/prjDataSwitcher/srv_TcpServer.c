@@ -7,7 +7,7 @@
 #include "srv_TcpHandler.h"
 
 #define CLIENT_Q_NUM  3
-#define BUF_SIZE      (1024 * 16)
+#define BUF_SIZE      TCP_MSS
 
 static void tcp_server(MadVptr exData);
 

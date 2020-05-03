@@ -16,7 +16,7 @@ static void modbus_client(MadVptr exData);
 
 void srvModbus_Init(void)
 {
-    srvModbus_MsgQ = madMsgQCreate(srvModbus_MSGQSIZ);
+    srvModbus_MsgQ = madMsgQCreateCarefully(srvModbus_MSGQSIZ, MTRUE);
     srvModbus_MsgG = madFBufferCreate(srvModbus_MSGQSIZ, sizeof(srvModbus_Msg_t));
     madThreadCreate(modbus_client, 0, 1024 * 2, THREAD_PRIO_SRV_MODBUS);
 }
@@ -69,26 +69,36 @@ static void modbus_client(MadVptr exData)
                     char *out  = 0;
                     char *buf  = malloc(srvModbus_BUFSIZ + 3 * 2);
                     int   addr = srvModbus_RADDR;
-                    if(!buf) break;
+                    if(!buf) {
+                        MAD_LOG("[Modbus]RBuff allocated failed!\n");
+                        break;
+                    }
                     tmp = buf;
                     for(i=0; i<srvModbus_TIMES; i++) { // OP
                         if(0 > modbus_read_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
+                            MAD_LOG("[Modbus]Read registers[%d] Error\n", i);
                             ok = MFALSE;
                             break;
                         }
                         addr += srvModbus_STEP;
                         tmp  += srvModbus_STEP * 2;
                     }
+#if datStatus_USE_AGV
                     if(ok && 0 > modbus_read_registers(ctx, addr, 3, (uint16_t*)tmp)) { // AGV
+                        MAD_LOG("[Modbus]Read registers[%d] Error\n", i);
+                        MAD_LOG("        [%d][%X][%X]\n", addr, (MadUint)buf, (MadUint)tmp);
                         ok = MFALSE;
                     }
+#endif
                     if(ok) {
                         out = datStatus_Rx2Json(buf);
                     }
                     free(buf);
                     if(out) {
-                        write(msg->s, out, strlen(out));
+                        size_t len = strlen(out);
+                        write(msg->s, out, len);
                         free(out);
+                        // MAD_LOG("[Modbus]RJson's len = %d\n", len);
                     }
                     break;
                 }
@@ -97,7 +107,10 @@ static void modbus_client(MadVptr exData)
                     char *tmp;
                     char *buf  = msg->b;
                     int   addr = srvModbus_WADDR;
-                    if(!buf) break;
+                    if(!buf) {
+                        MAD_LOG("[Modbus]TBuff is NULL!\n");
+                        break;
+                    }
                     tmp = buf;
                     for(i=0; i<srvModbus_TIMES; i++) { // OP
                         if(0 > modbus_write_registers(ctx, addr, srvModbus_STEP, (uint16_t*)tmp)) {
