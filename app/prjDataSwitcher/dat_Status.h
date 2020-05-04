@@ -1,8 +1,6 @@
 #ifndef __DAT_STATUS__H__
 #define __DAT_STATUS__H__
 
-#define datStatus_USE_AGV   0
-
 #define datStatus_STR_LEN   42 // len + dummy
 #define datStatus_OP_NUM    12
 #define datStatus_OP_STEP   300

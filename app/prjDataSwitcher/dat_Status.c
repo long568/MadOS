@@ -87,7 +87,6 @@ char*  datStatus_Rx2Json(char *buf)
         p_op += datStatus_OP_STEP;
     }
 
-#if datStatus_USE_AGV
     op = cJSON_CreateArray();
     for(i=0; i<3; i++) {
         num = (double)(*(MadU16*)p_op);
@@ -96,7 +95,6 @@ char*  datStatus_Rx2Json(char *buf)
         p_op += 2;
     }
     cJSON_AddItemToArray(root, op);
-#endif
 
     free(str);
     out = cJSON_PrintUnformatted(root);
@@ -136,7 +134,7 @@ char*  datStatus_Json2Tx(char *buf, int len)
 
     out = (char*)malloc(srvModbus_BUFSIZ);
     if(!out) {
-        MAD_LOG("[DatStatus]Allocate out failed!\n");
+        MAD_LOG("[DatStatus]Alloc out failed!\n");
         cJSON_Delete(root);
         return MNULL;
     }

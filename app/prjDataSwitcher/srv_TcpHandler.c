@@ -15,7 +15,7 @@ int srvTcpHandler_Init(void)
 int srvTcpHandler(int s, char *buf, int len)
 {
     int rc = 1;
-    srvModbus_Msg_t *msg;
+    srvModbus_Msg_t *msg = 0;
 
     switch (*buf) {
         case 'R':
@@ -26,7 +26,10 @@ int srvTcpHandler(int s, char *buf, int len)
             msg->e = srvModbusE_RD;
             msg->s = s;
             msg->b = 0;
-            madMsgSendBlock(&srvModbus_MsgQ, msg, 0);
+            if(MAD_ERR_OK != madMsgSend(&srvModbus_MsgQ, msg)) {
+                MAD_LOG("[TcpHandler]Send RD failed!\n");
+                madFBufferPut(srvModbus_MsgG, msg);
+            }
             break;
         }
 
@@ -39,7 +42,11 @@ int srvTcpHandler(int s, char *buf, int len)
             msg->e = srvModbusE_WR;
             msg->s = s;
             msg->b = datStatus_Json2Tx(buf, len); // buf is freed by datStatus_Json2Tx.
-            madMsgSendBlock(&srvModbus_MsgQ, msg, 0);
+            if(!msg->b || MAD_ERR_OK != madMsgSend(&srvModbus_MsgQ, msg)) {
+                MAD_LOG("[TcpHandler]Send WR[%X] failed!\n", (MadUint)msg->b);
+                free(msg->b);
+                madFBufferPut(srvModbus_MsgG, msg);
+            }
             break;
         }
 

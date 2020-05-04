@@ -16,14 +16,14 @@ static void modbus_client(MadVptr exData);
 
 void srvModbus_Init(void)
 {
-    srvModbus_MsgQ = madMsgQCreateCarefully(srvModbus_MSGQSIZ, MTRUE);
+    srvModbus_MsgQ = madMsgQCreate(srvModbus_MSGQSIZ);
     srvModbus_MsgG = madFBufferCreate(srvModbus_MSGQSIZ, sizeof(srvModbus_Msg_t));
     madThreadCreate(modbus_client, 0, 1024 * 2, THREAD_PRIO_SRV_MODBUS);
 }
 
 static void modbus_client(MadVptr exData)
 {
-    int i, rc;
+    int i, rc, cnt;
     MadBool ok;
     MadUint event;
     modbus_t *ctx;
@@ -54,7 +54,8 @@ static void modbus_client(MadVptr exData)
         }
         MAD_LOG("[Modbus]Connected\n");
 
-        ok = MTRUE;
+        ok  = MTRUE;
+        cnt = 0;
         while(ok) {
             rc = madMsgWait(&srvModbus_MsgQ, (void**)&msg, srvModbus_MSGQTO);
             if(rc == MAD_ERR_OK) {
@@ -67,10 +68,10 @@ static void modbus_client(MadVptr exData)
                 case srvModbusE_RD: {
                     char *tmp;
                     char *out  = 0;
-                    char *buf  = malloc(srvModbus_BUFSIZ + 3 * 2);
+                    char *buf  = (char*)malloc(srvModbus_BUFSIZ + srvModbus_AGVOFS);
                     int   addr = srvModbus_RADDR;
                     if(!buf) {
-                        MAD_LOG("[Modbus]RBuff allocated failed!\n");
+                        MAD_LOG("[Modbus]Alloc RBuff failed!\n");
                         break;
                     }
                     tmp = buf;
@@ -83,13 +84,11 @@ static void modbus_client(MadVptr exData)
                         addr += srvModbus_STEP;
                         tmp  += srvModbus_STEP * 2;
                     }
-#if datStatus_USE_AGV
                     if(ok && 0 > modbus_read_registers(ctx, addr, 3, (uint16_t*)tmp)) { // AGV
-                        MAD_LOG("[Modbus]Read registers[%d] Error\n", i);
-                        MAD_LOG("        [%d][%X][%X]\n", addr, (MadUint)buf, (MadUint)tmp);
-                        ok = MFALSE;
+                        MAD_LOG("[Modbus]Read registers[%d][%d] Error\n", i, addr);
+                        // ok = MFALSE;
+                        memset(tmp, 0, srvModbus_AGVOFS);
                     }
-#endif
                     if(ok) {
                         out = datStatus_Rx2Json(buf);
                     }
@@ -98,7 +97,6 @@ static void modbus_client(MadVptr exData)
                         size_t len = strlen(out);
                         write(msg->s, out, len);
                         free(out);
-                        // MAD_LOG("[Modbus]RJson's len = %d\n", len);
                     }
                     break;
                 }
@@ -138,7 +136,7 @@ static void modbus_client(MadVptr exData)
             }
 
             if(ok) {
-                MAD_LOG("[Modbus]Communicate OK\n");
+                MAD_LOG("[Modbus]Communicate OK[%d]\n", ++cnt);
             }
         }
 

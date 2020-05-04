@@ -172,6 +172,8 @@ MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to,
                 return MAD_ERR_MSGQ_FULL;
             } else if(MAD_ERR_SEM_INVALID == res) {
                 return MAD_ERR_MSGQ_INVALID;
+            } else {
+                return MAD_ERR_UNDEFINE;
             }
         }
     } else if(msgQ->cnt == msgQ->size) {

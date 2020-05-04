@@ -23,6 +23,7 @@ Muliple Registers - 16 - modbus_write_registers
 #define srvModbus_MSGQSIZ 4
 #define srvModbus_MSGQTO  (1000 * 30)
 #define srvModbus_BUFSIZ  3600
+#define srvModbus_AGVOFS  (3 * sizeof(uint16_t))
 #define srvModbus_WADDR   0
 #define srvModbus_RADDR   (3600 / 2)
 #define srvModbus_STEP    100 // 200 Bytes
