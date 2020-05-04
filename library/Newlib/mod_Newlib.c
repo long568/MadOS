@@ -159,6 +159,24 @@ void NL_FD_ClrFlag(int fd, int flag)
     );
 }
 
+void NL_FD_WrFlag(int fd, int flag)
+{
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        NL_FD_ARRAY[fd].flag = flag;
+    );
+}
+
+int NL_FD_RdFlag(int fd)
+{
+    int rc;
+    MAD_CS_OPT(
+        NL_FD_REAL_FD(fd);
+        rc = NL_FD_ARRAY[fd].flag;
+    );
+    return rc;
+}
+
 char NL_FD_Type(int fd)
 {
     char rc;

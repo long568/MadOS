@@ -3,7 +3,7 @@
 #include "MadDev.h"
 #include "mod_Newlib.h"
 
-int isatty (int fd)
+int isatty(int fd)
 {
     int res = 0;
     if(fd < 0 || NL_FD_OptBegin(fd) < 0) return 0;
@@ -12,7 +12,7 @@ int isatty (int fd)
     return res;
 }
 
-int write (int fd, const void *buf, size_t nbyte)
+int write(int fd, const void *buf, size_t nbyte)
 {
     int res, seed, flag;
 
@@ -59,7 +59,7 @@ opt_failed:
     return res;
 }
 
-int read (int fd, void *buf, size_t nbyte)
+int read(int fd, void *buf, size_t nbyte)
 {
     int res, flag, seed;
 
@@ -106,7 +106,7 @@ opt_failed:
     return res;
 }
 
-int close (int fd)
+int close(int fd)
 {
     int seed;
     int res = -1;

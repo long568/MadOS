@@ -3,28 +3,11 @@
 #include "MadDev.h"
 #include "mod_Newlib.h"
 
-static void _do_ioctl_0(int fd, int request, va_list args)
-{
-    switch (request) {
-        case FIONBIO: {
-            int option = va_arg(args, int);
-            if(option) {
-                NL_FD_SetFlag(fd, _FNONBLOCK);
-            } else {
-                NL_FD_ClrFlag(fd, _FNONBLOCK);
-            }
-            break;
-        }
-        default:
-            break;
-    }
-}
-
 static int _do_ioctl(int fd, int request, va_list args)
 {
     int seed;
     int res = -1;
-    _do_ioctl_0(fd, request, args);
+
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
         case MAD_FDTYPE_DEV: 
@@ -41,6 +24,21 @@ static int _do_ioctl(int fd, int request, va_list args)
         default:
             break;
     }
+
+    switch (request) {
+        case FIONBIO: {
+            int option = va_arg(args, int);
+            if(option) {
+                NL_FD_SetFlag(fd, _FNONBLOCK);
+            } else {
+                NL_FD_ClrFlag(fd, _FNONBLOCK);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
     return res;
 }
 

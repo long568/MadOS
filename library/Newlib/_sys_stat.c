@@ -3,7 +3,7 @@
 #include "MadOS.h"
 #include "mod_Newlib.h"
 
-int	fstat (int fd, struct stat *sb )
+int	fstat(int fd, struct stat *sb )
 {
     if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
     if(fd < STD_FD_END) {

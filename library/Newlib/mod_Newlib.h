@@ -69,6 +69,8 @@ extern void    NL_FD_Set     (int fd, int flag, int seed, char type);
 extern int     NL_FD_Flag    (int fd);
 extern void    NL_FD_SetFlag (int fd, int flag);
 extern void    NL_FD_ClrFlag (int fd, int flag);
+extern void    NL_FD_WrFlag  (int fd, int flag);
+extern int     NL_FD_RdFlag  (int fd);
 extern int     NL_FD_Seed    (int fd);
 extern char    NL_FD_Type    (int fd);
 extern int     NL_FD_OptBegin(int fd);
@@ -76,5 +78,6 @@ extern int     NL_FD_OptWait (int fd);
 extern void    NL_FD_OptEnd  (int fd);
 
 extern int     unp_ioctl     (int fd, int request, ...);
+extern int     unp_fcntl     (int fd, int cmd,     ...);
 
 #endif

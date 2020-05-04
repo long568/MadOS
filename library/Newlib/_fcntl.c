@@ -12,7 +12,7 @@
 #include "MadDev.h"
 #include "mod_Newlib.h"
 
-int open (const char * file, int flag, ...)
+int open(const char * file, int flag, ...)
 {
     char tp;
     int rc, fd;
@@ -46,7 +46,7 @@ int open (const char * file, int flag, ...)
     return fd;
 }
 
-int creat (const char * file, mode_t mode)
+int creat(const char * file, mode_t mode)
 {
     char tp;
     int rc, fd;
@@ -87,20 +87,18 @@ int creat (const char * file, mode_t mode)
  * F_SETLK 设置文件锁定的状态。此时flcok 结构的l_type 值必须是F_RDLCK、F_WRLCK或F_UNLCK。如果无法建立锁定，则返回-1，错误代码为EACCES 或EAGAIN。
  * F_SETLKW F_SETLK 作用相同，但是无法建立锁定时，此调用会一直等到锁定动作成功为止。若在等待锁定的过程中被信号中断时，会立即返回-1，错误代码为EINTR。
  */
-int fcntl (int fd, int cmd, ...)
+static int _do_fcntl(int fd, int cmd, va_list args)
 {
-    va_list args;
     int seed;
     int res = -1;
-    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
-    va_start(args, cmd);
+
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
         case MAD_FDTYPE_DEV: 
             res = MadDev_fcntl(seed, cmd, args); 
             break;
         case MAD_FDTYPE_FIL:
-            if(MadFile_fcntl) 
+            if(MadFile_fcntl)
                 res = MadFile_fcntl(seed, cmd, args);
             break;
         case MAD_FDTYPE_SOC:
@@ -110,7 +108,41 @@ int fcntl (int fd, int cmd, ...)
         default:
             break;
     }
+
+    switch (cmd) {
+        case F_SETFL: {
+            NL_FD_WrFlag(fd, va_arg(args, int));
+            break;
+        }
+        case F_GETFL: {
+            res = NL_FD_RdFlag(fd);
+            break;
+        }
+        default:
+            break;
+    }
+
+    return res;
+}
+
+int fcntl(int fd, int cmd, ...)
+{
+    va_list args;
+    int res = -1;
+    if(fd < 0 || NL_FD_OptBegin(fd) < 0) return -1;
+    va_start(args, cmd);
+    res = _do_fcntl(fd, cmd, args);
     va_end(args);
     NL_FD_OptEnd(fd);
+    return res;
+}
+
+int unp_fcntl(int fd, int cmd, ...)
+{
+    va_list args;
+    int res = -1;
+    va_start(args, cmd);
+    res = _do_fcntl(fd, cmd, args);
+    va_end(args);
     return res;
 }
