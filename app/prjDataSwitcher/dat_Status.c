@@ -10,19 +10,19 @@ void datStatus_Init(void)
 {
 }
 
-// static void switchStr(char *dst, char *src)
-// {
-//     int i, j;
-//     int len = src[0];
-//     i = 0;
-//     j = len;
-//     while(1) {
-//         if(j--) dst[i]   = src[i+3]; else break;
-//         if(j--) dst[i+1] = src[i+2]; else break;
-//         i += 2;
-//     }
-//     dst[len] = 0;
-// }
+static void genRxStr(char *dst, char *src)
+{
+    int i, j;
+    int len = src[0];
+    i = 0;
+    j = len;
+    while(1) {
+        if(j--) dst[i]   = src[i+3]; else break;
+        if(j--) dst[i+1] = src[i+2]; else break;
+        i += 2;
+    }
+    dst[len] = 0;
+}
 
 char*  datStatus_Rx2Json(char *buf)
 {
@@ -31,8 +31,6 @@ char*  datStatus_Rx2Json(char *buf)
     cJSON *root, *op, *opno;
 
     double num;
-    int    len;
-    char   *tmp;
     char   *str = malloc(datStatus_STR_LEN);
     char   *jobOrderCode = str;
     char   *sn           = str;
@@ -47,15 +45,11 @@ char*  datStatus_Rx2Json(char *buf)
         for(j=0; j<datStatus_OPNO_NUM; j++) {
             opno = cJSON_CreateObject();
             
-            len = p_opno[0];
-            tmp = p_opno + 2;
-            snprintf(jobOrderCode, len, "%s", tmp);
+            genRxStr(jobOrderCode, p_opno);
             cJSON_AddStringToObject(opno, "jobOrderCode", jobOrderCode);
             p_opno += datStatus_STR_LEN;
 
-            len = p_opno[0];
-            tmp = p_opno + 2;
-            snprintf(sn, len, "%s", tmp);
+            genRxStr(sn, p_opno);
             cJSON_AddStringToObject(opno, "sn", sn);
             p_opno += datStatus_STR_LEN;
 
@@ -102,12 +96,23 @@ char*  datStatus_Rx2Json(char *buf)
     return out;
 }
 
+static void genTxStr(char *dst, char *src, int len)
+{
+    int i;
+    for(i=0; i<len; i+=2) {
+        dst[i]   = src[i+1];
+        dst[i+1] = src[i];
+    }
+    dst[i]   = 0;
+    dst[i+1] = 0;
+}
+
 #define HANDLE_STR(x) do{                   \
     item = cJSON_GetObjectItem(opno, x);    \
     str  = cJSON_GetStringValue(item);      \
     tmp[0] = strlen(str);                   \
     tmp[1] = '(';                           \
-    strcpy(tmp+2, str);                     \
+    genTxStr(tmp+2, str, tmp[0]);           \
     tmp += datStatus_STR_LEN;               \
 } while(0)
 
