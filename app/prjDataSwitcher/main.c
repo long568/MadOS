@@ -4,7 +4,7 @@
 #include "CfgUser.h"
 
 #include "mod_Newlib.h"
-#include "mod_FatFs.h"
+// #include "mod_FatFs.h"
 #include "mod_Network.h"
 
 #include "dat_Status.h"
@@ -79,7 +79,7 @@ static void madStartup(MadVptr exData)
     MAD_LOG("    double    -> %d Bytes\n", sizeof(double));
     MAD_LOG("================================\n");
 #endif
-    FatFs_Init();
+    // FatFs_Init();
     Network_Init();
 
 /********************************************
