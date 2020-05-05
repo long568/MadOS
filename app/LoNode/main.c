@@ -83,14 +83,14 @@ static void madStartup(MadVptr exData)
     MAD_LOG("================================\n");
 #endif
     // FatFs_Init();
-    // Network_Init();
+    Network_Init();
 
 /********************************************
  * User-Apps
  ********************************************/
     // Init_TestUIP();
     // Init_TestLua();
-    // Init_TestLwIP();
+    Init_TestLwIP();
     // Init_TestENet();
     // Init_TestOPCUA();
     // Init_TestFatFs();

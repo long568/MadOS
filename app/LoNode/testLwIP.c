@@ -7,9 +7,9 @@
 #include "lwip/apps/lwiperf.h"
 #include "CfgUser.h"
 
-#define IPERF_TEST 0
+#define IPERF_TEST 1
 #define BUFF_SIZ   256
-#define TAGGET_IP  "192.168.1.122"
+#define TAGGET_IP  "192.168.1.101"
 
 static void socket_thread(MadVptr exData);
 
