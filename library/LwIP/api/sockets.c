@@ -661,6 +661,17 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   LWIP_ASSERT("invalid socket index", (newsock >= LWIP_SOCKET_OFFSET) && (newsock < NUM_SOCKETS + LWIP_SOCKET_OFFSET));
   nsock = &sockets[newsock - LWIP_SOCKET_OFFSET];
 
+  do { /* Added by long 20200411 */
+    nsock->waitQ = madWaitQCreate(MAD_WAITQ_DEFAULT_SIZE);
+    if(!nsock->waitQ) {
+      netconn_delete(newconn);
+      free_socket(nsock, 1);
+      sock_set_errno(sock, ENOMEM);
+      done_socket(sock);
+      return -1;
+    }
+  } while(0);
+
   /* See event_callback: If data comes in right away after an accept, even
    * though the server task might not have created a new socket yet.
    * In that case, newconn->socket is counted down (newconn->socket--),
@@ -670,17 +681,6 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   recvevent = (s16_t)(-1 - newconn->socket);
   newconn->socket = newsock;
   SYS_ARCH_UNPROTECT(lev);
-
-  do { /* Added by long 20200411 */
-    nsock->waitQ = madWaitQCreate(MAD_WAITQ_DEFAULT_SIZE);
-    if(!nsock->waitQ) {
-      netconn_delete(newconn);
-      free_socket(nsock, 1);
-      sock_set_errno(sock, err_to_errno(err));
-      done_socket(sock);
-      return -1;
-    }
-  } while(0);
 
   if (newconn->callback) {
     LOCK_TCPIP_CORE();
@@ -818,6 +818,7 @@ lwip_close(int s)
 
   do { /* Added by long 20191022 */
     madWaitQDelete(sock->waitQ);
+    sock->waitQ = MNULL;
   } while(0);
 
   free_socket(sock, is_tcp);
@@ -1757,8 +1758,8 @@ lwip_socket(int domain, int type, int protocol)
     sock->waitQ = madWaitQCreate(MAD_WAITQ_DEFAULT_SIZE);
     if(!sock->waitQ) {
       netconn_delete(conn);
-      free_socket(sock, 0);
-      set_errno(ENFILE);
+      free_socket(sock, (type == SOCK_STREAM) ? 1 : 0);
+      set_errno(ENOMEM);
       return -1;
     }
   } while(0);

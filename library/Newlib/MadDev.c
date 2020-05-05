@@ -64,8 +64,7 @@ int MadDev_open(const char *file, int flag, va_list args)
                 goto open_failed;
             }
         }
-        fd++;
-        dev = DevsList[fd];
+        dev = DevsList[++fd];
     }
     return -1;
 
@@ -74,6 +73,7 @@ open_failed:
     dev->rxBuffCnt = 0;
     dev->flag      = 0;
     madWaitQDelete(dev->waitQ);
+    dev->waitQ     = MNULL;
     madMemFree(dev->txBuff);
     madMemFree(dev->rxBuff);
     MAD_CS_OPT(dev->opened = MFALSE);
@@ -141,6 +141,7 @@ int MadDev_close(int fd)
             dev->rxBuffCnt = 0;
             dev->flag      = 0;
             madWaitQDelete(dev->waitQ);
+            dev->waitQ     = MNULL;
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
             MAD_CS_OPT(dev->opened = MFALSE);
