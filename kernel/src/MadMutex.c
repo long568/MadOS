@@ -112,7 +112,7 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
         return MAD_ERR_MUTEX_INVALID;
     } 
     
-    if((mutex->type == MAD_MUTEX_RECURSIVE) && (mutex->curt == MadCurTCB)) {
+    if(mutex->type == MAD_MUTEX_RECURSIVE && mutex->curt == MadCurTCB) {
         madCSUnlock(cpsr);
         return MAD_ERR_OK;
     }
@@ -157,7 +157,7 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut)
     }
 
     mutex = *pMutex;
-    if((mutex->type == MAD_MUTEX_RECURSIVE) && (mutex->curt == MadCurTCB)) {
+    if(mutex->type == MAD_MUTEX_RECURSIVE && mutex->curt == MadCurTCB) {
         return MAD_ERR_OK;
     }
     
@@ -203,6 +203,8 @@ MadU8 madMutexCheck(MadMutexCB_t **pMutex)
 	mutex = *pMutex;
     if(mutex == MNULL) {
         res = MAD_ERR_MUTEX_INVALID;
+    } else if(mutex->type == MAD_MUTEX_RECURSIVE && mutex->curt == MadCurTCB) {
+        res = MAD_ERR_OK;
     } else if(mutex->cnt > 0) {
         mutex->cnt  = 0;
         mutex->curt = MadCurTCB;
