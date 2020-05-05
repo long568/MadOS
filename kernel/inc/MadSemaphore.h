@@ -16,8 +16,9 @@ extern  void         madDoSemRelease  		(MadSemCB_t **pSem, MadU8 err);
 extern  MadU8        madSemWait	     		(MadSemCB_t **pSem, MadTim_t timOut);
 extern  MadU8        madSemWaitInCritical   (MadSemCB_t **pSem, MadTim_t timOut);
 extern  MadU8        madSemCheck      		(MadSemCB_t **pSem);
-extern  MadSemCB_t*  madDoSemShut           (MadSemCB_t **pSem, MadBool opt);
+extern  void         madDoSemShut           (MadSemCB_t **pSem, MadBool opt);
 extern  void         madDoSemDelete   		(MadSemCB_t **pSem, MadBool opt);
+
 #define              madSemCreate(cnt)      madSemCreateCarefully(cnt, cnt)
 #define              madSemCreateN(max)     madSemCreateCarefully(  0, max)
 #define              madSemInit(sem, cnt)   madSemInitCarefully(sem, cnt, cnt)

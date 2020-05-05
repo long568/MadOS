@@ -35,7 +35,7 @@ void madDoSemRelease(MadSemCB_t **pSem, MadU8 err)
     MadU8      flagSched = MFALSE;
     madCSDecl(cpsr);
     
-    if(pSem == MNULL) {
+    if(!pSem) {
         return;
     }
 	
@@ -86,7 +86,7 @@ MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
 	MadSemCB_t *sem;
     madCSDecl(cpsr);
     
-    if(pSem == MNULL) {
+    if(!pSem) {
         return MAD_ERR_SEM_INVALID;
     }
 	
@@ -131,7 +131,7 @@ MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut)
 	MadSemCB_t *sem;
     madCSDecl(cpsr);
     
-    if((pSem == MNULL) || (*pSem == MNULL)) {
+    if((!pSem) || (!*pSem)) {
         return MAD_ERR_SEM_INVALID;
     }
     
@@ -168,7 +168,7 @@ MadU8 madSemCheck(MadSemCB_t **pSem)
 	MadSemCB_t *sem;
     madCSDecl(cpsr);
 
-    if(pSem == MNULL) {
+    if(!pSem) {
         return MAD_ERR_SEM_INVALID;
     }
     res = MAD_ERR_TIMEOUT;
@@ -186,19 +186,19 @@ MadU8 madSemCheck(MadSemCB_t **pSem)
     return res;
 }
 
-MadSemCB_t* madDoSemShut(MadSemCB_t **pSem, MadBool opt)
+void madDoSemShut(MadSemCB_t **pSem, MadBool opt)
 {
 	MadSemCB_t *sem;
     madCSDecl(cpsr);
     
-    if(pSem == MNULL) return MNULL;
-
+    if(!pSem) return;
     madCSLock(cpsr);
-	sem   = *pSem;
-    *pSem = MNULL;
-    madCSUnlock(cpsr);
     
-    if(!sem) return MNULL;
+	sem = *pSem;
+    if(!sem) {
+        madCSUnlock(cpsr);
+        return;
+    }
     
     if(opt) {
         while(sem->rdyg) {
@@ -206,11 +206,31 @@ MadSemCB_t* madDoSemShut(MadSemCB_t **pSem, MadBool opt)
         }
     }
 
-    return sem;
+    madCSUnlock(cpsr);
 }
 
 void madDoSemDelete(MadSemCB_t **pSem, MadBool opt)
 {
-    MadSemCB_t *sem = madDoSemShut(pSem, opt);
+	MadSemCB_t *sem;
+    madCSDecl(cpsr);
+    
+    if(!pSem) return;
+    madCSLock(cpsr);
+    
+	sem = *pSem;
+    if(!sem) {
+        madCSUnlock(cpsr);
+        return;
+    } else {
+        *pSem = MNULL;
+    }
+    
+    if(opt) {
+        while(sem->rdyg) {
+            madDoSemRelease(&sem, MAD_ERR_SEM_INVALID);
+        }
+    }
+
+    madCSUnlock(cpsr);
     madMemFreeNull(sem);
 }

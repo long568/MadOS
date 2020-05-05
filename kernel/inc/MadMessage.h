@@ -21,13 +21,16 @@ extern  const  MadU8  MAD_MSG_EMPTY[];
 
 extern  MadMsgQCB_t*  madMsgQCreateCarefully           (MadU16 size, MadBool sendBlock);
 extern 	void          madMsgQClear                     (MadMsgQCB_t **pMsgQ, madMsgFree_Callback msgFree);
-extern 	MadU8 		  madMsgCheck                      (MadMsgQCB_t **pMsgQ, MadVptr *msg);
+extern  MadU8 		  madMsgCheck                      (MadMsgQCB_t **pMsgQ, MadVptr *msg);
 extern  MadU8         madMsgWait                       (MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to);
 extern  MadU8         madDoMsgSend                     (MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err);
-extern  void 		  madDoMsgQDelete	               (MadMsgQCB_t **pMsgQ, MadBool opt);
+extern  void          madDoMsgQShut                    (MadMsgQCB_t **pMsgQ, MadBool opt);
+extern  void 		  madDoMsgQDelete                  (MadMsgQCB_t **pMsgQ, MadBool opt);
+
 #define               madMsgQCreate(size)              madMsgQCreateCarefully(size, MFALSE);
 #define               madMsgSend(pMsgQ, msg)           madDoMsgSend(pMsgQ, msg, MFALSE, 0, MAD_ERR_OK)
 #define               madMsgSendBlock(pMsgQ, msg, to)  madDoMsgSend(pMsgQ, msg, MTRUE, to, MAD_ERR_OK)
-#define               madMsgQDelete(pMsgQ)			   madDoMsgQDelete(pMsgQ, MTRUE)
+#define               madMsgQShut(pMsgQ)               madDoMsgQShut(pMsgQ, MTRUE)
+#define               madMsgQDelete(pMsgQ)             madDoMsgQDelete(pMsgQ, MTRUE)
 
 #endif

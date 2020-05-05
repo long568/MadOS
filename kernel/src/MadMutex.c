@@ -46,7 +46,7 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
     MadU8        flagSched = MFALSE;
     madCSDecl(cpsr);
     
-    if(pMutex == MNULL) {
+    if(!pMutex) {
         return;
     }
 	
@@ -101,7 +101,7 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
     MadMutexCB_t *mutex;
 	madCSDecl(cpsr);
     
-    if(pMutex == MNULL) {
+    if(!pMutex) {
         return MAD_ERR_MUTEX_INVALID;
     }
 	
@@ -152,7 +152,7 @@ MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut)
 	MadMutexCB_t *mutex;
     madCSDecl(cpsr);
     
-    if((pMutex == MNULL) || (*pMutex == MNULL)) {
+    if((!pMutex) || (!*pMutex)) {
         return MAD_ERR_MUTEX_INVALID;
     }
 
@@ -194,7 +194,7 @@ MadU8 madMutexCheck(MadMutexCB_t **pMutex)
 	MadMutexCB_t *mutex;
     madCSDecl(cpsr);
 
-    if(pMutex == MNULL) {
+    if(!pMutex) {
         return MAD_ERR_MUTEX_INVALID;
     }
     res = MAD_ERR_TIMEOUT;
@@ -213,25 +213,51 @@ MadU8 madMutexCheck(MadMutexCB_t **pMutex)
     return res;
 }
 
-void madDoMutexDelete(MadMutexCB_t **pMutex, MadBool opt)
+void madDoMutexShut(MadMutexCB_t **pMutex, MadBool opt)
 {
-	MadMutexCB_t *mutex;
+    MadMutexCB_t *mutex;
     madCSDecl(cpsr);
     
-    if(pMutex == MNULL) return;
-
+    if(!pMutex) return;
     madCSLock(cpsr);
-	mutex   = *pMutex;
-    *pMutex = MNULL;
-    madCSUnlock(cpsr);
 
-    if(!mutex) return;
+	mutex = *pMutex;
+    if(!mutex) {
+        madCSUnlock(cpsr);
+        return;
+    }
     
     if(opt) {
         while(mutex->rdyg) {
             madDoMutexRelease(&mutex, MAD_ERR_MUTEX_INVALID);
         }
     }
+
+    madCSUnlock(cpsr);
+}
+
+void madDoMutexDelete(MadMutexCB_t **pMutex, MadBool opt)
+{
+    MadMutexCB_t *mutex;
+    madCSDecl(cpsr);
     
+    if(!pMutex) return;
+    madCSLock(cpsr);
+
+	mutex = *pMutex;
+    if(!mutex) {
+        madCSUnlock(cpsr);
+        return;
+    } else {
+        *pMutex = MNULL;
+    }
+    
+    if(opt) {
+        while(mutex->rdyg) {
+            madDoMutexRelease(&mutex, MAD_ERR_MUTEX_INVALID);
+        }
+    }
+
+    madCSUnlock(cpsr);
     madMemFreeNull(mutex);
 }

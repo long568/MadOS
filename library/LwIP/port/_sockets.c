@@ -29,19 +29,16 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 
 void lwip_select_callback(struct lwip_sock* sock, int has_recvevent, int has_sendevent, int has_errevent)
 {
-    int cnt;
+    int cnt = 0;
     madCSDecl(cpsr);
-    MadWaitQ_t *waitQ;
-    cnt = 0;
     madCSLock(cpsr);
-    waitQ = &sock->waitQ;
-    if(has_recvevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_READ)) {
+    if(has_recvevent && madWaitQSignal(sock->waitQ, MAD_WAIT_EVENT_READ)) {
         cnt++;
     }
-    if(has_sendevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_WRITE)) {
+    if(has_sendevent && madWaitQSignal(sock->waitQ, MAD_WAIT_EVENT_WRITE)) {
         cnt++;
     }
-    if(has_errevent && madWaitQSignal(waitQ, MAD_WAIT_EVENT_ERR)) {
+    if(has_errevent && madWaitQSignal(sock->waitQ, MAD_WAIT_EVENT_ERR)) {
         cnt++;
     }
     sock->select_waiting -= cnt;
@@ -72,7 +69,7 @@ static int LwIP_ioctl (int s, int request, va_list args)
                 s16_t rcvevent  = sock->rcvevent;
                 u16_t sendevent = sock->sendevent;
                 u16_t errevent  = sock->errevent;
-                MadWaitQ_t *waitQ   = &sock->waitQ;
+                MadWaitQ_t *waitQ   = sock->waitQ;
                 MadSemCB_t **locker = va_arg(args, MadSemCB_t**);
                 
                 switch(request) {

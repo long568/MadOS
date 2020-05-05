@@ -28,7 +28,7 @@ typedef struct _MadDev_t {
     // Automatic initialization
     MadU8      opened;
     int        flag;
-    MadWaitQ_t waitQ;
+    MadWaitQ_t *waitQ;
     MadU8      wrEvent;
     MadU8      *txBuff;
     MadU8      *rxBuff;

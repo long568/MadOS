@@ -25,14 +25,13 @@ typedef struct _MadWait_t {
 typedef struct _MadWaitQ_t {
     MadWait_t *l0;
     MadWait_t *l1;
-    MadWait_t *p;
 } MadWaitQ_t;
 
-extern MadBool madWaitQInit  (MadWaitQ_t *wq, MadU8 n);
-extern void    madWaitQShut  (MadWaitQ_t *wq);
-extern MadBool madWaitQAdd   (MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event);
-extern MadBool madWaitQScan  (MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event, MadWait_t *rw);
-extern MadBool madWaitQSignal(MadWaitQ_t *wq, MadU8 event);
+extern MadWaitQ_t* madWaitQCreate(MadU8 n);
+extern void        madWaitQDelete(MadWaitQ_t *wq);
+extern MadBool     madWaitQAdd   (MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event);
+extern MadBool     madWaitQScan  (MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event, MadWait_t *rw);
+extern MadBool     madWaitQSignal(MadWaitQ_t *wq, MadU8 event);
 
 #define madWaitQScanEvent(wq, event, rw)   madWaitQScan(wq,      0, event, rw)
 #define madWaitQScanLocker(wq, locker, rw) madWaitQScan(wq, locker,     0, rw)

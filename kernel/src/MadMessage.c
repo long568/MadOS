@@ -49,12 +49,11 @@ MadMsgQCB_t* madMsgQCreateCarefully(MadU16 size, MadBool sendBlock)
 
 void madMsgQClear(MadMsgQCB_t **pMsgQ, madMsgFree_Callback msgFree)
 {
-    if(pMsgQ != MNULL) {
-        MadVptr msg;
-        while(MAD_ERR_MSGQ_EMPTY != madMsgCheck(pMsgQ, &msg)) {
-            if(msgFree){
-                msgFree(msg);
-            }
+    MadVptr msg;
+    if(!pMsgQ) return;
+    while(MAD_ERR_MSGQ_EMPTY != madMsgCheck(pMsgQ, &msg)) {
+        if(msgFree){
+            msgFree(msg);
         }
     }
 }
@@ -65,14 +64,14 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
 	MadMsgQCB_t *msgQ;
     madCSDecl(cpsr);
 
-    if(pMsgQ == MNULL) {
+    if(!pMsgQ) {
         return MAD_ERR_MSGQ_INVALID;
     }
     res = MAD_ERR_MSGQ_EMPTY;
 	madCSLock(cpsr); 
 
 	msgQ = *pMsgQ;
-    if(msgQ == MNULL) {
+    if(!msgQ) {
         res = MAD_ERR_MSGQ_INVALID;
     } else if(msgQ->cnt > 0) {
         if(msg) *msg = *msgQ->head;
@@ -95,7 +94,7 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
     MadMsgQCB_t *msgQ;
     madCSDecl(cpsr);
 	
-    if(pMsgQ == MNULL) {
+    if(!pMsgQ) {
         return MAD_ERR_MSGQ_INVALID;
     }
     
@@ -153,7 +152,7 @@ MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to,
     MadBool     flagSched = MFALSE;
     madCSDecl(cpsr);
     
-    if(pMsgQ == MNULL) {
+    if(!pMsgQ) {
         return MAD_ERR_MSGQ_INVALID;
     }
     madCSLock(cpsr);
@@ -219,31 +218,61 @@ MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to,
     return MAD_ERR_OK;
 }
 
-void madDoMsgQDelete(MadMsgQCB_t **pMsgQ, MadBool opt)
+void madDoMsgQShut(MadMsgQCB_t **pMsgQ, MadBool opt)
 {
 	MadMsgQCB_t *msgQ;
     madCSDecl(cpsr);
     
-    if(pMsgQ == MNULL) return;
-
+    if(!pMsgQ) return;
     madCSLock(cpsr);
-	msgQ   = *pMsgQ;
-    *pMsgQ = MNULL;
-    madCSUnlock(cpsr);
 
-    if(!msgQ) return;
+	msgQ = *pMsgQ;
+    if(!msgQ) {
+        madCSUnlock(cpsr);
+        return;
+    }
     
     if(opt) {
         if(msgQ->sem) {
             while(msgQ->sem->rdyg) {
                 madDoSemRelease(&msgQ->sem, MAD_ERR_SEM_INVALID);
             }
-            msgQ->sem = MNULL;
         }
         while(msgQ->rdyg) {
             madDoMsgSend(&msgQ, (MadVptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
         }
     }
+
+    madCSUnlock(cpsr);
+}
+
+void madDoMsgQDelete(MadMsgQCB_t **pMsgQ, MadBool opt)
+{
+	MadMsgQCB_t *msgQ;
+    madCSDecl(cpsr);
     
+    if(!pMsgQ) return;
+    madCSLock(cpsr);
+
+	msgQ = *pMsgQ;
+    if(!msgQ) {
+        madCSUnlock(cpsr);
+        return;
+    } else {
+        *pMsgQ = MNULL;
+    }
+    
+    if(opt) {
+        if(msgQ->sem) {
+            while(msgQ->sem->rdyg) {
+                madDoSemRelease(&msgQ->sem, MAD_ERR_SEM_INVALID);
+            }
+        }
+        while(msgQ->rdyg) {
+            madDoMsgSend(&msgQ, (MadVptr)MAD_MSG_EMPTY, MFALSE, 0, MAD_ERR_MSGQ_INVALID);
+        }
+    }
+
+    madCSUnlock(cpsr);
     madMemFreeNull(msgQ);
 }

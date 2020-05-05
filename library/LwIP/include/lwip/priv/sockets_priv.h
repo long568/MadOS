@@ -82,7 +82,7 @@ struct lwip_sock {
   SELWAIT_T select_waiting;
 
   /* Added by long 20191014 */
-  MadWaitQ_t waitQ;
+  MadWaitQ_t *waitQ;
 
 #endif /* LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL */
 #if LWIP_NETCONN_FULLDUPLEX

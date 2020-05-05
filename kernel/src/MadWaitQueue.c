@@ -1,15 +1,23 @@
 #include "MadOS.h"
 
-MadBool madWaitQInit(MadWaitQ_t *wq, MadU8 n)
+MadWaitQ_t* madWaitQCreate(MadU8 n)
 {
-    int i;
-    MadWait_t *p, *next;
-    if(n == 0) return MFALSE;
+    int s, i;
+    MadU8 *b;
+    MadWaitQ_t *wq;
+    MadWait_t  *p, *next;
+    
+    if(!n) return MNULL;
+
+    s = MAD_ALIGNED_SIZE(sizeof(MadWaitQ_t)) + sizeof(MadWait_t) * n;
+    b = (MadU8*)madMemMalloc(s);
+    if(!b) return MNULL;
+
+    wq = (MadWaitQ_t*)b;
     wq->l0 = 0;
     wq->l1 = 0;
-    wq->p  = (MadWait_t*)madMemMalloc(sizeof(MadWait_t) * n);
-    if(!wq->p) return MFALSE;
-    p = wq->p;
+
+    p = (MadWait_t*)(b + MAD_ALIGNED_SIZE(sizeof(MadWaitQ_t)));
     next = 0;
     for(i=n-1; i>-1; i--) {
         p[i].next   = next;
@@ -19,30 +27,22 @@ MadBool madWaitQInit(MadWaitQ_t *wq, MadU8 n)
         next = &p[i];
     }
     wq->l0 = next;
-    return MTRUE;
+
+    return wq;
 }
 
-void madWaitQShut(MadWaitQ_t *wq)
+void madWaitQDelete(MadWaitQ_t *wq)
 {
-    MadWait_t  *p, *l1;
-    MadSemCB_t **plocker;
+    MadWait_t *l1;
     madCSDecl(cpsr);
     madCSLock(cpsr);
     l1 = wq->l1;
-    p  = wq->p;
-    wq->l0 = 0;
-    wq->l1 = 0;
-    wq->p  = 0;
     while(l1) {
-        plocker = l1->locker;
-        l1->locker = 0;
-        madCSUnlock(cpsr);
-        madSemShut(plocker);
-        madCSLock(cpsr);
+        madSemShut(l1->locker);
         l1 = l1->next;
     }
     madCSUnlock(cpsr);
-    madMemFree(p);
+    madMemFree(wq);
 }
 
 MadBool madWaitQAdd(MadWaitQ_t *wq, MadSemCB_t **locker, MadU8 event)

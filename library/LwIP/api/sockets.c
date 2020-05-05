@@ -672,7 +672,8 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   SYS_ARCH_UNPROTECT(lev);
 
   do { /* Added by long 20200411 */
-    if(!madWaitQInit(&nsock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+    nsock->waitQ = madWaitQCreate(MAD_WAITQ_DEFAULT_SIZE);
+    if(!nsock->waitQ) {
       netconn_delete(newconn);
       free_socket(nsock, 1);
       sock_set_errno(sock, err_to_errno(err));
@@ -816,7 +817,7 @@ lwip_close(int s)
   }
 
   do { /* Added by long 20191022 */
-    madWaitQShut(&sock->waitQ);
+    madWaitQDelete(sock->waitQ);
   } while(0);
 
   free_socket(sock, is_tcp);
@@ -1753,7 +1754,8 @@ lwip_socket(int domain, int type, int protocol)
 
   do { /* Added by long 20191014 */
     struct lwip_sock* sock = get_socket(i);
-    if(!madWaitQInit(&sock->waitQ, MAD_WAITQ_DEFAULT_SIZE)) {
+    sock->waitQ = madWaitQCreate(MAD_WAITQ_DEFAULT_SIZE);
+    if(!sock->waitQ) {
       netconn_delete(conn);
       free_socket(sock, 0);
       set_errno(ENFILE);

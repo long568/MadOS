@@ -14,9 +14,7 @@ void MadDev_Init(void)
         if(dev != MAD_DEVP_PLACE) {
             dev->opened     = MFALSE;
             dev->flag       = 0;
-            dev->waitQ.l0   = 0;
-            dev->waitQ.l1   = 0;
-            dev->waitQ.p    = 0;
+            dev->waitQ      = 0;
             dev->wrEvent    = 0;
             dev->txBuff     = 0;
             dev->rxBuff     = 0;
@@ -47,10 +45,10 @@ int MadDev_open(const char *file, int flag, va_list args)
             );
             if(rc) return -1;
 
-            rc = madWaitQInit(&dev->waitQ, dargs->waitQSize);
+            dev->waitQ  = madWaitQCreate(dargs->waitQSize);
             dev->txBuff = madMemMalloc(dargs->txBuffSize);
             dev->rxBuff = madMemMalloc(dargs->rxBuffSize);
-            if((dargs->waitQSize  > 0 && !rc)                   ||
+            if((dargs->waitQSize  > 0 && !dev->waitQ)           ||
                (dargs->txBuffSize > 0 && MNULL  == dev->txBuff) || 
                (dargs->rxBuffSize > 0 && MNULL  == dev->rxBuff) ) {
                 goto open_failed;
@@ -75,7 +73,7 @@ open_failed:
     dev->wrEvent   = 0;
     dev->rxBuffCnt = 0;
     dev->flag      = 0;
-    madWaitQShut(&dev->waitQ);
+    madWaitQDelete(dev->waitQ);
     madMemFree(dev->txBuff);
     madMemFree(dev->rxBuff);
     MAD_CS_OPT(dev->opened = MFALSE);
@@ -142,7 +140,7 @@ int MadDev_close(int fd)
             dev->wrEvent   = 0;
             dev->rxBuffCnt = 0;
             dev->flag      = 0;
-            madWaitQShut(&dev->waitQ);
+            madWaitQDelete(dev->waitQ);
             madMemFree(dev->txBuff);
             madMemFree(dev->rxBuff);
             MAD_CS_OPT(dev->opened = MFALSE);
@@ -214,7 +212,7 @@ static void MadDev_EventCall(MadDev_t *dev, int event, ...)
     madCSDecl(cpsr);
     madCSLock(cpsr);
     va_start(args, event);
-    madWaitQSignal(&dev->waitQ, event);
+    madWaitQSignal(dev->waitQ, event);
     switch(event) {
         case MAD_WAIT_EVENT_WRITE: {
             if(dev->wrEvent > 0) {
@@ -239,7 +237,7 @@ static int MadDev_EventSet(MadDev_t *dev, MadSemCB_t **locker, int event)
     case MAD_WAIT_EVENT_WRITE:{
         if(dev->wrEvent == 0) {
             rc = 1;
-        } else if(!locker || madWaitQAdd(&dev->waitQ, locker, event)) {
+        } else if(!locker || madWaitQAdd(dev->waitQ, locker, event)) {
             rc = 0;
         }
         if(rc > -1) {
@@ -250,7 +248,7 @@ static int MadDev_EventSet(MadDev_t *dev, MadSemCB_t **locker, int event)
     case MAD_WAIT_EVENT_READ:{
         if(dev->rxBuffCnt > 0) {
             rc = 1;
-        } else if(!locker || madWaitQAdd(&dev->waitQ, locker, event)) {
+        } else if(!locker || madWaitQAdd(dev->waitQ, locker, event)) {
             rc = 0;
         }
         break;
@@ -269,13 +267,13 @@ static int MadDev_EventClr(MadDev_t *dev, MadSemCB_t **locker, int event)
     madCSLock(cpsr);
     switch (event) {
     case MAD_WAIT_EVENT_WRITE:{
-        if(madWaitQRemove(&dev->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
+        if(madWaitQRemove(dev->waitQ, locker, MAD_WAIT_EVENT_WRITE)) {
             dev->wrEvent--;
         }
         break;
     }
     case MAD_WAIT_EVENT_READ:{
-        madWaitQRemove(&dev->waitQ, locker, MAD_WAIT_EVENT_READ);
+        madWaitQRemove(dev->waitQ, locker, MAD_WAIT_EVENT_READ);
         break;
     }
     default:

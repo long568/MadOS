@@ -31,7 +31,7 @@ MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
 	MadEventCB_t *event;
     madCSDecl(cpsr);
     
-    if(pEvent == MNULL) {
+    if(!pEvent) {
         return MAD_ERR_EVENT_INVALID;
     }
 	
@@ -83,7 +83,7 @@ MadU8 madEventDoCheck(MadEventCB_t **pEvent, MadUint *mask, MadBool clear)
 	MadEventCB_t *event;
     madCSDecl(cpsr);
 
-    if(pEvent == MNULL) {
+    if(!pEvent) {
         return MAD_ERR_EVENT_INVALID;
     }
     madCSLock(cpsr);
@@ -111,7 +111,7 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
     MadBool      flagSched = MFALSE;
     madCSDecl(cpsr);
     
-    if(pEvent == MNULL) {
+    if(!pEvent) {
         return;
     }
 	
@@ -163,23 +163,47 @@ void madDoEventTrigger(MadEventCB_t **pEvent, MadUint mask, MadU8 err)
     if(flagSched) madSched();
 }
 
-void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
-{
-	MadEventCB_t *event;
+void madDoEventShut(MadEventCB_t **pEvent, MadBool opt)
+{    
+    MadEventCB_t *event;
     madCSDecl(cpsr);
-    
-    if(pEvent == MNULL) return;
-    
-    madCSLock(cpsr);
-	event   = *pEvent;
-    *pEvent = MNULL;
-    madCSUnlock(cpsr);
 
-	if(!event) return;
+    if(!pEvent) return;
+    madCSLock(cpsr);
+
+    event = *pEvent;
+    if(!event) {
+        madCSUnlock(cpsr);
+        return;
+    }
 
     if(opt) {
         madDoEventTrigger(&event, MAD_EVENT_TRIGALL, MAD_ERR_EVENT_INVALID);
     }
-    
+
+    madCSUnlock(cpsr);
+}
+
+void madDoEventDelete(MadEventCB_t **pEvent, MadBool opt)
+{
+    MadEventCB_t *event;
+    madCSDecl(cpsr);
+
+    if(!pEvent) return;
+    madCSLock(cpsr);
+
+    event = *pEvent;
+    if(!event) {
+        madCSUnlock(cpsr);
+        return;
+    } else {
+        *pEvent = MNULL;
+    }
+
+    if(opt) {
+        madDoEventTrigger(&event, MAD_EVENT_TRIGALL, MAD_ERR_EVENT_INVALID);
+    }
+
+    madCSUnlock(cpsr);
     madMemFreeNull(event);
 }

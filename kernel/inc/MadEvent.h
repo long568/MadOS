@@ -25,9 +25,10 @@ typedef struct _MadEventCB_t {
 } MadEventCB_t;
 
 extern  MadEventCB_t*  madEventCreate                 (MadUint mask, MadEventMode mode, MadEventOpt opt);
-extern  MadU8          madEventWait	                  (MadEventCB_t **pEvent, MadUint *mask, MadTim_t to);
+extern  MadU8          madEventWait                   (MadEventCB_t **pEvent, MadUint *mask, MadTim_t to);
 extern  MadU8          madEventDoCheck                (MadEventCB_t **pEvent, MadUint *mask, MadBool clear);
 extern  void           madDoEventTrigger              (MadEventCB_t **pEvent, MadUint mask, MadU8 err);
+extern  void           madDoEventShut                 (MadEventCB_t **pEvent, MadBool opt);
 extern  void           madDoEventDelete               (MadEventCB_t **pEvent, MadBool opt);
 
 #define                madEventWaitNR(pEvent, to)     madEventWait(pEvent, to, MNULL)
@@ -35,6 +36,7 @@ extern  void           madDoEventDelete               (MadEventCB_t **pEvent, Ma
 #define                madEventCheckNC(pEvent, mask)  madEventDoCheck(pEvent, mask, MFALSE)
 #define                madEventClear(pEvent)          madEventDoCheck(pEvent, MNULL, MTRUE)
 #define                madEventTrigger(pEvent, mask)  madDoEventTrigger(pEvent, mask, MAD_ERR_OK)
-#define                madEventDelete(pEvent)		  madDoEventDelete(pEvent, MTRUE)
+#define                madEventShut(pEvent)           madDoEventShut(pEvent, MTRUE)
+#define                madEventDelete(pEvent)         madDoEventDelete(pEvent, MTRUE)
 
 #endif
