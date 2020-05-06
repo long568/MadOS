@@ -153,6 +153,9 @@ off_t lseek(int fd, off_t ofs, int wce)
 }
 
 void _exit(int __status) {
-    madThreadExit((MadUint)__status);
+    MadU8 prio;
+    MAD_CS_OPT(prio = MadCurTCB->prio);
+    MAD_LOG("Thread[%d] exit(%d).\n", prio, __status);
+    madThreadDelete(MAD_THREAD_SELF);
     while(1);
 }

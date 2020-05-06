@@ -167,7 +167,7 @@ void madThreadExit(MadUint code)
     }
 
     flagSched = MTRUE;
-    prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
+    prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);
     MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
     if(!MadThreadRdy[prio_h])
         MadThreadRdyGrp &= ~pTCB->rdyg_bit;
@@ -203,7 +203,7 @@ MadVptr madThreadDelete(MadU8 threadPrio)
     }
     MadTCBGrp[threadPrio] = MAD_TCB_NONE;
     
-    prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);;
+    prio_h = MAD_GET_THREAD_PRIO_H(pTCB->prio);
     MadThreadRdy[prio_h] &= ~pTCB->rdy_bit;
     if(!MadThreadRdy[prio_h])
         MadThreadRdyGrp &= ~pTCB->rdyg_bit;

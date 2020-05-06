@@ -48,7 +48,7 @@ int main()
 
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
+    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 3, 0);
     madOSRun();
 	while(1);
 }
@@ -88,9 +88,9 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    Init_TestLua();
     // Init_TestUIP();
-    // Init_TestLua();
-    Init_TestLwIP();
+    // Init_TestLwIP();
     // Init_TestENet();
     // Init_TestOPCUA();
     // Init_TestFatFs();
@@ -123,7 +123,6 @@ static void madSysRunning(MadVptr exData)
 #if MAD_STATIST_STK_SIZE
     MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u\n",
             madIdleRate(), madMemUnusedSize(), madMemMaxSize());
-    madTimeDly(10 * 1000);
 #endif
     
 	while(1) {

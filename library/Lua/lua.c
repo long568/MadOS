@@ -107,12 +107,12 @@ static const char *progname = LUA_PROGNAME;
 
 /*
 ** Hook set by signal function to stop the interpreter.
-*/
-static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);  /* reset hook */
-  luaL_error(L, "interrupted!");
-}
+*/ /* Modified by long at 20200506 */
+// static void lstop (lua_State *L, lua_Debug *ar) {
+//   (void)ar;  /* unused arg. */
+//   lua_sethook(L, NULL, 0, 0);  /* reset hook */
+//   luaL_error(L, "interrupted!");
+// }
 
 
 /*
@@ -120,11 +120,11 @@ static void lstop (lua_State *L, lua_Debug *ar) {
 ** just change a Lua state (as there is no proper synchronization),
 ** this function only sets a hook that, when called, will stop the
 ** interpreter.
-*/
-static void laction (int i) {
-  signal(i, SIG_DFL); /* if another SIGINT happens, terminate process */
-  lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
-}
+*/ /* Modified by long at 20200506 */
+// static void laction (int i) {
+//   signal(i, SIG_DFL); /* if another SIGINT happens, terminate process */
+//   lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+// }
 
 
 static void print_usage (const char *badoption) {
@@ -194,16 +194,16 @@ static int msghandler (lua_State *L) {
 /*
 ** Interface to 'lua_pcall', which sets appropriate message function
 ** and C-signal handler. Used to run all chunks.
-*/
+*/ /* Modified by long at 20200506 */
 static int docall (lua_State *L, int narg, int nres) {
   int status;
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, msghandler);  /* push message handler */
   lua_insert(L, base);  /* put it under function and args */
   globalL = L;  /* to be available to 'laction' */
-  signal(SIGINT, laction);  /* set C-signal handler */
+  // signal(SIGINT, laction);  /* set C-signal handler */
   status = lua_pcall(L, narg, nres, base);
-  signal(SIGINT, SIG_DFL); /* reset C-signal handler */
+  // signal(SIGINT, SIG_DFL); /* reset C-signal handler */
   lua_remove(L, base);  /* remove message handler from the stack */
   return status;
 }
