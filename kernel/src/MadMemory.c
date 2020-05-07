@@ -122,6 +122,8 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
     res = MNULL;
     if(head) {
         if(real_n > ofs0) {
+            MadSize_t     head_size = head->size;
+            MadMemHead_t *head_next = head->next;
             if(real_n > ofs1) {
                 res = findSpace(real_n);
                 if(res) {
@@ -133,14 +135,14 @@ MadVptr madMemRealloc(MadVptr p, MadSize_t size)
                 if(prio) prio->next    = (MadMemHead_t *)res;
                 else     mad_used_head = (MadMemHead_t *)res;
                 ((MadMemHead_t *)res)->size = real_n;
-                ((MadMemHead_t *)res)->next = head->next;
+                ((MadMemHead_t *)res)->next = head_next;
                 mad_unused_size -= real_n;
             }
             if(res) {
                 MadU8    *dst = res + MAD_MEM_HEAD_SIZE;
                 MadU8    *src = (MadU8*)head + MAD_MEM_HEAD_SIZE;
-                MadSize_t num = head->size - MAD_MEM_HEAD_SIZE;
-                mad_unused_size += head->size;
+                MadSize_t num = head_size - MAD_MEM_HEAD_SIZE;
+                mad_unused_size += head_size;
                 madMemCpy(dst, src, num);
             }
         } else {
