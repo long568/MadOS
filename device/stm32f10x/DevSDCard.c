@@ -22,6 +22,8 @@ static const mSpi_InitData_t LowArgs = {
     SPI3,
     DMA2_Channel2,
     DMA2_Channel1,
+    SPI_CPOL_Low,
+    SPI_CPHA_1Edge,
     Dev_Spi_Handler,
     Dev_Dma_Handler
 };

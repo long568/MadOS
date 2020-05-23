@@ -21,6 +21,7 @@ typedef struct {
 } MadDrv_t;
 
 extern const MadDrv_t MadDrvUartChar;
+extern const MadDrv_t MadDrvSpiChar;
 extern const MadDrv_t MadDrvSdhc;
 extern const MadDrv_t MadDrvEther;
 

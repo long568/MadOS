@@ -1,9 +1,10 @@
 #include "MadOS.h"
+#include "pt.h"
+#include "timer.h"
 #include "CfgUser.h"
 #include "srv_App.h"
 #include "LoDCMotor.h"
-#include "pt.h"
-#include "timer.h"
+#include "LoHX711.h"
 
 enum {
     KEY_SHORT = 0,
@@ -42,6 +43,8 @@ void srvApp_Init(void)
     MM_Axis0.c = MM_AXIS0_CHL;
     MM_Axis0.p = MM_AXIS0_DIR_P;
     LoDCMotor_Init(&MM_Axis0);
+
+    LoHX711_Init();
 
     MM_msgQ = madMsgQCreate(8);
     madThreadCreate(app, 0, 1024 * 2, THREAD_PRIO_SRV_APP);
@@ -122,11 +125,11 @@ static char pt_clean(timer *t)
     PT_BEGIN(&MM_Pt);
 
     LoDCMotor_Go(&MM_Axis0, 100);
-    timer_set(t, 8 * 1000);
+    timer_set(t, 29 * 1000);
     PT_WAIT_UNTIL(&MM_Pt, timer_expired(t));
 
     LoDCMotor_Go(&MM_Axis0, -100);
-    timer_set(t, 8 * 1000);
+    timer_set(t, 29 * 1000);
     PT_WAIT_UNTIL(&MM_Pt, timer_expired(t));
 
     LoDCMotor_Go(&MM_Axis0, 0);
@@ -136,7 +139,8 @@ static char pt_clean(timer *t)
 
 static void key(MadVptr exData)
 {
-    int cnt;
+    int cnt, weight, t_weight;
+    MadU8  f_dir;
     GPIO_InitTypeDef pin;
 
     pin.GPIO_Mode  = GPIO_Mode_IPU;
@@ -144,23 +148,38 @@ static void key(MadVptr exData)
     pin.GPIO_Pin   = GPIO_Pin_13;
 	GPIO_Init(GPIOD, &pin);
 
-    cnt = 0;
+    cnt   = 0;
+    f_dir = 0;
+    weight = 0;
+    t_weight = 0;
+
     while(1) {
         madTimeDly(10);
         if(Bit_RESET == GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13)) {
-            if(cnt > 300) {
-                LoDCMotor_Go(&MM_Axis0, -100);
-            } else {
+            if(cnt <= 300) {
+                if(cnt == 300) {
+                    MadS8 speed;
+                    f_dir = !f_dir;
+                    if(f_dir) speed = 100;
+                    else speed = -100;
+                    LoDCMotor_Go(&MM_Axis0, speed);
+                }
                 cnt++;
             }
         } else {
-            if(cnt > 300) {
+            if(cnt >= 300) {
                 LoDCMotor_Go(&MM_Axis0, 0);
                 madMsgSend(&MM_msgQ, (MadVptr)KEY_LONG);
             } else if(cnt > 5) {
                 madMsgSend(&MM_msgQ, (MadVptr)KEY_SHORT);
             }
             cnt = 0;
+        }
+
+        if(t_weight++ > 100 && PT_ENDED == pt_LoHx711_Read(&weight)) {
+            int ofs = 0x3C000 - weight;
+            MAD_LOG("Cat's Weight = %d[%d]\n", ofs, t_weight);
+            t_weight = 0;
         }
     }
 }

@@ -2,6 +2,7 @@
 #define __SPI_LOW__H__
 
 #include "MadOS.h"
+#include "MadDev.h"
 #include "Stm32Tools.h"
 
 #define mSpi_RETRY_MAX_CNT   (1000)
@@ -33,6 +34,8 @@ typedef struct __mSpi_InitData_t {
     SPI_TypeDef          *spi;
     DMA_Channel_TypeDef  *dmaTx;
     DMA_Channel_TypeDef  *dmaRx;
+    MadU16               copl;
+    MadU16               edga;
     xIRQ_Handler         irqSpi;
     xIRQ_Handler         irqDma;
 } mSpi_InitData_t;
