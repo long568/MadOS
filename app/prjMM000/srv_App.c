@@ -177,8 +177,8 @@ static void key(MadVptr exData)
         }
 
         if(t_weight++ > 100 && PT_ENDED == pt_LoHx711_Read(&weight)) {
-            int ofs = 0x3C000 - weight;
-            MAD_LOG("Cat's Weight = %d[%d]\n", ofs, t_weight);
+            // int ofs = 0x3C000 - weight;
+            MAD_LOG("Cat's Weight = %d[%d]\n", weight, t_weight);
             t_weight = 0;
         }
     }
