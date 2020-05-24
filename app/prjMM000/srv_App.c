@@ -7,9 +7,18 @@
 #include "LoHX711.h"
 
 enum {
-    KEY_SHORT = 0,
-    KEY_LONG,
+    KEY_CLICKED = 1,
+    KEY_LONG_PRESS,
+    KEY_LONG_RELEASE,
 };
+
+typedef struct _AppMsg_t {
+    MadU8 type;
+    union {
+        //
+    };
+    
+} AppMsg_t;
 
 #define MM_MSG_TIMEOUT 100
 
@@ -18,9 +27,11 @@ static timer   MM_Timer;
 static struct pt MM_Pt;
 static MadMsgQCB_t *MM_msgQ;
 static LoDCMotor_t MM_Axis0;
+static MadFBuffer_t *MM_msgL;
 
 static void app(MadVptr exData);
-static void key(MadVptr exData);
+static void event(MadVptr exData);
+static void key_msg(MadU8 type);
 
 static char pt_clean(timer *t);
 
@@ -47,15 +58,17 @@ void srvApp_Init(void)
     LoHX711_Init();
 
     MM_msgQ = madMsgQCreate(8);
-    madThreadCreate(app, 0, 1024 * 2, THREAD_PRIO_SRV_APP);
-    madThreadCreate(key, 0, 1024 * 1, THREAD_PRIO_SRV_KEY);
+    MM_msgL = madFBufferCreate(8, sizeof(AppMsg_t));
+
+    madThreadCreate(app,   0, 1024 * 2, THREAD_PRIO_SRV_APP);
+    madThreadCreate(event, 0, 1024 * 1, THREAD_PRIO_SRV_EVENT);
 }
 
 static void app(MadVptr exData)
 {
-    MadU8 rc, f_clean;
+    MadU8 rc, f_clean, f_dir;
     MadTim_t dt;
-    MadVptr msg;
+    AppMsg_t *msg;
     MadS8 speed;
 
     (void) exData;
@@ -66,18 +79,20 @@ static void app(MadVptr exData)
     timer_add(&MM_Timer, &MM_Clk);
 
     f_clean = MFALSE;
+    f_dir = MFALSE;
     speed = 0;
 
     while(1) {
-        rc = madMsgWait(&MM_msgQ, &msg, MM_MSG_TIMEOUT);
+        rc = madMsgWait(&MM_msgQ, (void**)&msg, MM_MSG_TIMEOUT);
 
         switch(rc) {
             case MAD_ERR_OK: {
                 MAD_CS_OPT(
                     dt = MM_MSG_TIMEOUT - MadCurTCB->timeCntRemain;
                 );
-                switch((int)msg) {
-                    case KEY_SHORT: {
+
+                switch(msg->type) {
+                    case KEY_CLICKED: {
                         f_clean = !f_clean;
                         if(f_clean) {
                             LoDCMotor_Go(&MM_Axis0, speed);
@@ -89,15 +104,27 @@ static void app(MadVptr exData)
                         break;
                     }
 
-                    case KEY_LONG: {
+                    case KEY_LONG_PRESS: {
                         f_clean = MFALSE;
                         speed = 0;
                         PT_INIT(&MM_Pt);
+                        f_dir = !f_dir;
+                        if(f_dir) {
+                            LoDCMotor_Go(&MM_Axis0, 100);
+                        } else {
+                            LoDCMotor_Go(&MM_Axis0, -100);
+                        }
                         break;
                     }
+
+                    case KEY_LONG_RELEASE: {
+                        LoDCMotor_Go(&MM_Axis0, 0);
+                    }
+
+                    default: break;
                 }
 
-                MAD_LOG("[srvApp]Key = %d | Speed = %d\n", (int)msg, MM_Axis0.speed);
+                madFBufferPut(MM_msgL, msg);
                 break;
             }
 
@@ -137,10 +164,20 @@ static char pt_clean(timer *t)
     PT_END(&MM_Pt);
 }
 
-static void key(MadVptr exData)
+static void key_msg(MadU8 type)
 {
-    int cnt, weight, t_weight;
-    MadU8  f_dir;
+    AppMsg_t *msg = madFBufferGet(MM_msgL);
+    if(msg) {
+        msg->type = type;
+        if(MAD_ERR_OK != madMsgSend(&MM_msgQ, msg)) {
+            madFBufferPut(MM_msgL, msg);
+        }
+    }
+}
+
+static void event(MadVptr exData)
+{
+    int t_key, weight, t_weight;
     GPIO_InitTypeDef pin;
 
     pin.GPIO_Mode  = GPIO_Mode_IPU;
@@ -148,32 +185,27 @@ static void key(MadVptr exData)
     pin.GPIO_Pin   = GPIO_Pin_13;
 	GPIO_Init(GPIOD, &pin);
 
-    cnt   = 0;
-    f_dir = 0;
-    weight = 0;
+    t_key    = 0;
+    weight   = 0;
     t_weight = 0;
 
     while(1) {
         madTimeDly(10);
+
         if(Bit_RESET == GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_13)) {
-            if(cnt <= 300) {
-                if(cnt == 300) {
-                    MadS8 speed;
-                    f_dir = !f_dir;
-                    if(f_dir) speed = 100;
-                    else speed = -100;
-                    LoDCMotor_Go(&MM_Axis0, speed);
+            if(t_key <= 200) {
+                if(t_key == 200) {
+                    key_msg(KEY_LONG_PRESS);
                 }
-                cnt++;
+                t_key++;
             }
         } else {
-            if(cnt >= 300) {
-                LoDCMotor_Go(&MM_Axis0, 0);
-                madMsgSend(&MM_msgQ, (MadVptr)KEY_LONG);
-            } else if(cnt > 5) {
-                madMsgSend(&MM_msgQ, (MadVptr)KEY_SHORT);
+            if(t_key > 200) {
+                key_msg(KEY_LONG_RELEASE);
+            } else if(t_key > 5) {
+                key_msg(KEY_CLICKED);
             }
-            cnt = 0;
+            t_key = 0;
         }
 
         if(t_weight++ > 100 && PT_ENDED == pt_LoHx711_Read(&weight)) {
