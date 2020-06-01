@@ -11,7 +11,7 @@ static void Dev_Dma_Handler(void) { mSpiLow_DMA_IRQHandler(&port); }
 
 static const mSpi_InitData_t LowArgs = {
     {
-        GPIO_Remap_SPI1,
+        0,
         {GPIOD, GPIO_Pin_7},
         {GPIOB, GPIO_Pin_3},
         {GPIOB, GPIO_Pin_4},
@@ -19,9 +19,9 @@ static const mSpi_InitData_t LowArgs = {
     },
     ISR_PRIO_DISK,
     mSpi_DW_8Bit,
-    SPI1,
-    DMA1_Channel3,
-    DMA1_Channel2,
+    SPI3,
+    DMA2_Channel2,
+    DMA2_Channel1,
     SPI_CPOL_Low,
     SPI_CPHA_1Edge,
     Dev_Spi_Handler,
