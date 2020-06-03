@@ -110,7 +110,7 @@ int close(int fd)
 {
     int seed;
     int res = -1;
-    if(fd < 0 || NL_FD_OptWait(fd) < 0) return -1;
+    if(fd < 0 || NL_FD_OptClose(fd) < 0) return -1;
     seed = NL_FD_Seed(fd);
     switch(NL_FD_Type(fd)) {
         case MAD_FDTYPE_DEV:

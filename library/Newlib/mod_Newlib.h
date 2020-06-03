@@ -74,7 +74,7 @@ extern int     NL_FD_RdFlag  (int fd);
 extern int     NL_FD_Seed    (int fd);
 extern char    NL_FD_Type    (int fd);
 extern int     NL_FD_OptBegin(int fd);
-extern int     NL_FD_OptWait (int fd);
+extern int     NL_FD_OptClose(int fd);
 extern void    NL_FD_OptEnd  (int fd);
 
 extern int     unp_ioctl     (int fd, int request, ...);

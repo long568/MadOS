@@ -1,6 +1,12 @@
 #include "mod_Newlib.h"
 #include "MadDev.h"
 
+enum {
+    MAD_FDSTATUS_CLOSED = 0,
+    MAD_FDSTATUS_OPENED,
+    MAD_FDSTATUS_CLOSING,
+};
+
 int   (*MadFile_open)  (const char * file, int flag, va_list args) = 0;
 int   (*MadFile_creat) (const char * file, mode_t mode)            = 0;
 int   (*MadFile_fcntl) (int fd, int cmd, va_list args)             = 0;
@@ -26,7 +32,7 @@ typedef struct {
     int  seed;
     int  flag;
     char type;
-    MadMutexCB_t *locker;
+    char status;
 } MadFD_t;
 
 static MadFD_t NL_FD_ARRAY[MAX_FD_SIZE] = { 0 };
@@ -36,11 +42,11 @@ MadBool Newlib_Init(void)
     int i;
     MadDev_Init();
     for(i=0; i<MAX_FD_SIZE; i++) {
-        NL_FD_ARRAY[i].org  = -1;
-        NL_FD_ARRAY[i].seed = -1;
-        NL_FD_ARRAY[i].flag = 0;
-        NL_FD_ARRAY[i].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[i].locker = MNULL;
+        NL_FD_ARRAY[i].org    = -1;
+        NL_FD_ARRAY[i].seed   = -1;
+        NL_FD_ARRAY[i].flag   = 0;
+        NL_FD_ARRAY[i].type   = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[i].status = MAD_FDSTATUS_CLOSED;
     }
     return MTRUE;
 }
@@ -60,11 +66,11 @@ int NL_Log_Init(void)
 void NL_FD_Cpy(int dst, int src)
 {
     MAD_CS_OPT(
-        NL_FD_ARRAY[dst].org  = (src > -1) ? src : -1;
-        NL_FD_ARRAY[dst].seed = (src > -1) ?   0 : -1;
-        NL_FD_ARRAY[dst].flag = 0;
-        NL_FD_ARRAY[dst].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[dst].locker = MNULL;
+        NL_FD_ARRAY[dst].org    = (src > -1) ? src : -1;
+        NL_FD_ARRAY[dst].seed   = (src > -1) ?   0 : -1;
+        NL_FD_ARRAY[dst].flag   = 0;
+        NL_FD_ARRAY[dst].type   = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[dst].status = MAD_FDSTATUS_CLOSED;
     );
 }
 
@@ -72,24 +78,16 @@ int NL_FD_Get(void)
 {
     int i;
     int rc = -1;
-    MadMutexCB_t *locker;
     madCSDecl(cpsr);
-
-    locker = madMutexCreate();
-    if(!locker) return -1;
-
     madCSLock(cpsr);
     for(i=STD_FD_END; i<MAX_FD_SIZE; i++) {
         if(NL_FD_ARRAY[i].seed < 0) {
-            NL_FD_ARRAY[i].locker = locker;
-            NL_FD_ARRAY[i].seed   = 0;
+            NL_FD_ARRAY[i].seed = 0;
             rc = i;
             break;
         }
     }
     madCSUnlock(cpsr);
-
-    if(rc < 0) madMutexDelete(&locker);
     return rc;
 }
 
@@ -102,14 +100,11 @@ void NL_FD_Put(int fd)
             NL_FD_ARRAY[fd].seed = -1;
             fd = tmp;
         }
-    );
-    madMutexDelete(&NL_FD_ARRAY[fd].locker);
-    MAD_CS_OPT(
-        NL_FD_ARRAY[fd].org  = -1;
-        NL_FD_ARRAY[fd].seed = -1;
-        NL_FD_ARRAY[fd].flag = 0;
-        NL_FD_ARRAY[fd].type = MAD_FDTYPE_UNK;
-        NL_FD_ARRAY[fd].locker = MNULL;
+        NL_FD_ARRAY[fd].org    = -1;
+        NL_FD_ARRAY[fd].seed   = -1;
+        NL_FD_ARRAY[fd].flag   = 0;
+        NL_FD_ARRAY[fd].type   = MAD_FDTYPE_UNK;
+        NL_FD_ARRAY[fd].status = MAD_FDSTATUS_CLOSED;
     );
 }
 
@@ -117,9 +112,10 @@ void NL_FD_Set(int fd, int flag, int seed, char type)
 {
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
-        NL_FD_ARRAY[fd].flag = flag;
-        NL_FD_ARRAY[fd].seed = seed;
-        NL_FD_ARRAY[fd].type = type;
+        NL_FD_ARRAY[fd].flag   = flag;
+        NL_FD_ARRAY[fd].seed   = seed;
+        NL_FD_ARRAY[fd].type   = type;
+        NL_FD_ARRAY[fd].status = MAD_FDSTATUS_OPENED;
     );
 }
 
@@ -192,29 +188,26 @@ int NL_FD_OptBegin(int fd)
     int rc = -1;
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
+        if(NL_FD_ARRAY[fd].status == MAD_FDSTATUS_OPENED) {
+            rc = 1;
+        }
     );
-    if(MAD_ERR_OK == madMutexCheck(&NL_FD_ARRAY[fd].locker)) {
-        rc = 1;
-    }
     return rc;
 }
 
-int NL_FD_OptWait(int fd)
+int NL_FD_OptClose(int fd)
 {
     int rc = -1;
     MAD_CS_OPT(
         NL_FD_REAL_FD(fd);
+        if(NL_FD_ARRAY[fd].status == MAD_FDSTATUS_OPENED) {
+            NL_FD_ARRAY[fd].status = MAD_FDSTATUS_CLOSING;
+            rc = 1;
+        }
     );
-    if(MAD_ERR_OK == madMutexWait(&NL_FD_ARRAY[fd].locker, 0)) {
-        rc = 1;
-    }
     return rc;
 }
 
 void NL_FD_OptEnd(int fd)
 {
-    MAD_CS_OPT(
-        NL_FD_REAL_FD(fd);
-    );
-    madMutexRelease(&NL_FD_ARRAY[fd].locker);
 }
