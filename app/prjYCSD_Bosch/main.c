@@ -7,7 +7,7 @@
 #include "mod_FatFs.h"
 #include "mod_Network.h"
 
-#include "srv_MQTTClient.h"
+#include "srv_MQTT.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -83,6 +83,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
+    srvMQTT_Init();
     
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madThreadDelete(MAD_THREAD_SELF);
