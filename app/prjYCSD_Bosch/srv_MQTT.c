@@ -165,6 +165,7 @@ static void mqtt_send_msg(MadU16 type, MadU32 len, MadU8 *buf)
     msg->data = buf;
     if(MAD_ERR_OK != madMsgSend(&MQTT_MsgQ, msg)) {
         MAD_LOG("[MQTT]Send msg failed[%d]\n", msg->type);
+        free(msg->data);
         madFBufferPut(MQTT_MsgG, msg);
     }
 }
