@@ -180,7 +180,7 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
 {
     MadU8 id;
     mqtt_incoming_data_t *in_data = (mqtt_incoming_data_t*)arg;
-    MAD_LOG("[MQTT]Inpub[%s][%u]\n", topic, (unsigned int)tot_len);
+    // MAD_LOG("[MQTT]Inpub[%s][%u]\n", topic, (unsigned int)tot_len);
     if(0 == strcmp(topic, TOPIC_STATION_DOWN)) {
         id = TOPIC_ID_STATION;
     } else if(0 == strcmp(topic, TOPIC_AUTOSTORE_DOWN)) {
@@ -208,7 +208,7 @@ static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t f
 {
     MadU8 *buf;
     mqtt_incoming_data_t *in_data = (mqtt_incoming_data_t*)arg;
-    MAD_LOG("[MQTT]Indat[%u]\n", (unsigned int)len);
+    // MAD_LOG("[MQTT]Indat[%u]\n", (unsigned int)len);
     if(!in_data->buf) return;
     buf = in_data->buf + in_data->cnt;
     memcpy(buf, data, len);
