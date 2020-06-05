@@ -116,4 +116,8 @@
   // #define DHCP_DEBUG         LWIP_DBG_ON
 #endif
 
+// For libopen62541 with UA_ENABLE_PUBSUB & UA_ENABLE_PUBSUB_INFORMATIONMODEL
+#define LWIP_IGMP                       1
+#define LWIP_MULTICAST_TX_OPTIONS       1
+
 #endif /* LWIP_HDR_LWIPOPTS_H */
