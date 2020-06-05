@@ -102,6 +102,7 @@
   #define CHECKSUM_CHECK_ICMP6          1
 #endif
 
+#define LWIP_NOASSERT
 // #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
   // #define PBUF_DEBUG         LWIP_DBG_ON

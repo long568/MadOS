@@ -161,17 +161,17 @@ struct ttysize {
 #define	SIOCGARP	_IOWR('i',38, struct arpreq)	/* get arp entry */
 #define	SIOCDARP	_IOW('i', 32, struct arpreq)	/* delete arp entry */
 
-/* Added by long 20191011 */
-#define  FIOSELSETWR _IOR('f', 128, int)
-#define  FIOSELCLRWR _IOR('f', 129, int)
-#define  FIOSELSETRD _IOR('f', 130, int)
-#define  FIOSELCLRRD _IOR('f', 131, int)
-#define  FIOSELSETER _IOR('f', 132, int)
-#define  FIOSELCLRER _IOR('f', 133, int)
-#define  FIORST      _IOR('f', 140, int)
-#define  FIOSTATUS   _IOR('f', 141, int)
-#define  FIOWRITE    _IOR('f', 142, int)
-#define  FIOREAD     _IOR('f', 143, int)
+/* Added by long 20200605 */
+#define  FIORST      UIOCCMD(1)
+#define  FIOSTATUS   UIOCCMD(2)
+#define  FIOWRITE    UIOCCMD(3)
+#define  FIOREAD     UIOCCMD(4)
+#define  FIOSELSETWR UIOCCMD(5)
+#define  FIOSELCLRWR UIOCCMD(6)
+#define  FIOSELSETRD UIOCCMD(7)
+#define  FIOSELCLRRD UIOCCMD(8)
+#define  FIOSELSETER UIOCCMD(9)
+#define  FIOSELCLRER UIOCCMD(10)
 
 extern int ioctl(int fd, int request, ...);
 

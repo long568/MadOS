@@ -87,8 +87,8 @@ int MadDev_creat (const char * file, mode_t mode)
 
 int MadDev_fcntl (int fd, int cmd, va_list args)
 {
-    int       res;
-    MadDev_t  *dev;
+    int      res;
+    MadDev_t *dev;
     res = -1;
     if(fd >= 0) {
         dev = DevsList[fd];

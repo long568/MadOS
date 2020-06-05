@@ -7,12 +7,6 @@
 #define MQTT_MSGQ_NUM 8
 
 typedef struct {
-    MadU16 type;
-    MadU32 len;
-    MadU8  *data;
-} mqtt_msg_t;
-
-typedef struct {
     MadU8  id;
     MadU32 tot_len;
     MadU32 cnt;
@@ -73,7 +67,7 @@ static void mqtt_thread(MadVptr exData)
     mqtt_incoming_data_t in_data;
 
     memset(&ci, 0, sizeof(ci));
-    ci.client_id = "YCSD_Bosch";
+    ci.client_id = "YCSD_Bosch_Switcher";
     ci.keep_alive = 30;
     IP4_ADDR(&srv_addr, 47, 92, 39, 234);
 
@@ -86,7 +80,7 @@ static void mqtt_thread(MadVptr exData)
 
         err = mqtt_client_connect(mqtt_client, &srv_addr, 1883, mqtt_connection_cb, 0, &ci);
         if(ERR_OK != err) {
-            MAD_LOG("[MQTT][%X] connect ERR[%d]\n", (MadU32)mqtt_client, err);
+            MAD_LOG("[MQTT]Connect ERR[%d]\n", err);
             continue;
         }
 
@@ -123,23 +117,30 @@ static void mqtt_thread(MadVptr exData)
                     break;
                 }
 
-                case MQTT_MSGT_STATION_DOWN: {
-                    break;
-                }
+                // case MQTT_MSGT_STATION_DOWN: {
+                //     break;
+                // }
 
                 case MQTT_MSGT_AUTOSTORE_UP: {
                     break;
                 }
 
-                case MQTT_MSGT_AUTOSTORE_DOWN: {
-                    break;
-                }
+                // case MQTT_MSGT_AUTOSTORE_DOWN: {
+                //     break;
+                // }
 
                 case MQTT_MSGT_AGV_UP: {
                     break;
                 }
 
+                case MQTT_MSGT_STATION_DOWN:
+                case MQTT_MSGT_AUTOSTORE_DOWN:
                 case MQTT_MSGT_AGV_DOWN: {
+                    if(msg->len > 256) {
+                        MAD_LOG("[MQTT]Down[%d]\n", msg->len);
+                    } else {
+                        MAD_LOG("[MQTT]Down[%d] '%s'\n", msg->len, msg->data);
+                    }
                     break;
                 }
 
@@ -179,6 +180,7 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
 {
     MadU8 id;
     mqtt_incoming_data_t *in_data = (mqtt_incoming_data_t*)arg;
+    MAD_LOG("[MQTT]Inpub[%s][%u]\n", topic, (unsigned int)tot_len);
     if(0 == strcmp(topic, TOPIC_STATION_DOWN)) {
         id = TOPIC_ID_STATION;
     } else if(0 == strcmp(topic, TOPIC_AUTOSTORE_DOWN)) {
@@ -191,12 +193,13 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
     in_data->id      = id;
     in_data->tot_len = tot_len;
     in_data->cnt     = 0;
+    in_data->buf     = MNULL;
     if(id != TOPIC_ID_UNKNOWN && tot_len > 0) {
-        in_data->buf = (MadU8*)malloc(tot_len);
-    } else {
-        in_data->buf = MNULL;
+        in_data->buf = (MadU8*)malloc(tot_len + 1);
     }
-    if(!in_data->buf) {
+    if(in_data->buf) {
+        in_data->buf[tot_len] = 0;
+    } else {
         MAD_LOG("[MQTT]in_data->buf == 0\n");
     }
 }
@@ -205,13 +208,11 @@ static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t f
 {
     MadU8 *buf;
     mqtt_incoming_data_t *in_data = (mqtt_incoming_data_t*)arg;
-
+    MAD_LOG("[MQTT]Indat[%u]\n", (unsigned int)len);
     if(!in_data->buf) return;
-
     buf = in_data->buf + in_data->cnt;
     memcpy(buf, data, len);
     in_data->cnt += len;
-
     if(flags & MQTT_DATA_FLAG_LAST) {
         MadU8  id = in_data->id;
         MadU16 type;

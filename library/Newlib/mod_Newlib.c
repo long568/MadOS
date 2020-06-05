@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "mod_Newlib.h"
 #include "MadDev.h"
 
@@ -53,14 +54,15 @@ MadBool Newlib_Init(void)
 
 int NL_Log_Init(void)
 {
-    int fd = open("/dev/tty", 0);
-    if(fd > STD_FD_END - 1) {
-        NL_FD_Cpy(STD_FD_IN,  fd);
-        NL_FD_Cpy(STD_FD_OUT, fd);
-        NL_FD_Cpy(STD_FD_ERR, fd);
-        return 1;
+    int fd;
+    fd = open("/dev/tty", 0);
+    if(fd < 0) {
+        return -1;
     }
-    return -1;
+    NL_FD_Cpy(STD_FD_IN,  fd);
+    NL_FD_Cpy(STD_FD_OUT, fd);
+    NL_FD_Cpy(STD_FD_ERR, fd);
+    return 1;
 }
 
 void NL_FD_Cpy(int dst, int src)

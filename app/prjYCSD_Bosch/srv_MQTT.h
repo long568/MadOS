@@ -15,6 +15,12 @@ enum {
     MQTT_MSGT_UNKNOWN
 };
 
+typedef struct {
+    MadU16 type;
+    MadU32 len;
+    MadU8  *data;
+} mqtt_msg_t;
+
 extern MadMsgQCB_t  *MQTT_MsgQ;
 extern MadFBuffer_t *MQTT_MsgG;
 
