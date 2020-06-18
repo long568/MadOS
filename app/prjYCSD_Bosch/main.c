@@ -83,7 +83,7 @@ static void madStartup(MadVptr exData)
 /********************************************
  * User-Apps
  ********************************************/
-    srvMQTT_Init();
+    // srvMQTT_Init();
     
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madThreadDelete(MAD_THREAD_SELF);
