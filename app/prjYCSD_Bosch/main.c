@@ -8,6 +8,7 @@
 #include "mod_Network.h"
 
 #include "srv_MQTT.h"
+#include "srv_OPCUA.h"
 
 #if MAD_STATIST_STK_SIZE
 #define MAD_SHOW_IDLERATE
@@ -84,6 +85,7 @@ static void madStartup(MadVptr exData)
  * User-Apps
  ********************************************/
     // srvMQTT_Init();
+    srvOPCUA_Init();
     
     madThreadCreate(madSysRunning, 0, 600, THREAD_PRIO_SYS_RUNNING);
     madThreadDelete(MAD_THREAD_SELF);
