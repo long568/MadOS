@@ -7,6 +7,8 @@
 #include "CfgUser.h"
 #include "lua.h"
 
+extern int lua (int argc, char **argv);
+
 static char *argv[] = {
     "lua",
     NULL

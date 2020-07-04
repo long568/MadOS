@@ -1,31 +1,9 @@
 #include <unistd.h>
+#include "mod_Newlib.h"
 #include "lwip/sockets.h"
 #include "lwip/priv/sockets_priv.h"
 
 extern struct lwip_sock* tryget_socket_unconn_locked(int s);
-
-int socket(int domain, int type, int protocol)
-{
-    int rc, fd;
-    fd = NL_FD_Get();
-    if(fd < 0) return -1;
-    rc = lwip_socket(domain, type, protocol);
-    if(rc > -1) {
-        NL_FD_Set(fd, 0, rc, MAD_FDTYPE_SOC);
-        return fd;
-    }
-    NL_FD_Put(fd);
-    return -1;
-}
-
-#if LWIP_SOCKET_POLL
-int poll(struct pollfd *fds, nfds_t nfds, int timeout)
-{
-    int fd = fds->fd;
-    fds->fd = NL_FD_Seed(fd);
-    return lwip_poll(fds, nfds, timeout);
-}
-#endif
 
 void lwip_select_callback(struct lwip_sock* sock, int has_recvevent, int has_sendevent, int has_errevent)
 {
@@ -166,6 +144,28 @@ MadBool LwIP_Init(void)
 }
 
 #define LWIP_REALS(s) ((((s) > STD_FD_END - 1) && (NL_FD_Type(s) == MAD_FDTYPE_SOC)) ? NL_FD_Seed(s) : -1)
+
+int socket(int domain, int type, int protocol)
+{
+    int rc, fd;
+    fd = NL_FD_Get();
+    if(fd < 0) return -1;
+    rc = lwip_socket(domain, type, protocol);
+    if(rc > -1) {
+        NL_FD_Set(fd, 0, rc, MAD_FDTYPE_SOC);
+        return fd;
+    }
+    NL_FD_Put(fd);
+    return -1;
+}
+#if LWIP_SOCKET_POLL
+int poll(struct pollfd *fds, nfds_t nfds, int timeout)
+{
+    int fd = fds->fd;
+    fds->fd = NL_FD_Seed(fd);
+    return lwip_poll(fds, nfds, timeout);
+}
+#endif
 int accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
     int rc, fd;
     fd = NL_FD_Get();
@@ -179,47 +179,103 @@ int accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
     return -1;
 }
 inline int bind(int s, const struct sockaddr *name, socklen_t namelen) {
-    return lwip_bind(LWIP_REALS(s),name,namelen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_bind(LWIP_REALS(s),name,namelen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int shutdown(int s, int how) {
-    return lwip_shutdown(LWIP_REALS(s),how);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_shutdown(LWIP_REALS(s),how);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int getpeername (int s, struct sockaddr *name, socklen_t *namelen) {
-    return lwip_getpeername(LWIP_REALS(s),name,namelen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_getpeername(LWIP_REALS(s),name,namelen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int getsockname (int s, struct sockaddr *name, socklen_t *namelen) {
-    return lwip_getsockname(LWIP_REALS(s),name,namelen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_getsockname(LWIP_REALS(s),name,namelen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int getsockopt (int s, int level, int optname, void *optval, socklen_t *optlen) {
-    return lwip_getsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_getsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int setsockopt (int s, int level, int optname, const void *optval, socklen_t optlen) {
-    return lwip_setsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_setsockopt(LWIP_REALS(s),level,optname,optval,optlen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int closesocket(int s) {
     return close(s);
 }
 inline int connect(int s, const struct sockaddr *name, socklen_t namelen) {
-    return lwip_connect(LWIP_REALS(s),name,namelen);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_connect(LWIP_REALS(s),name,namelen);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline int listen(int s, int backlog) {
-    return lwip_listen(LWIP_REALS(s),backlog);
+    int rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_listen(LWIP_REALS(s),backlog);
+    NL_FD_OptEnd(s);
+    return rc;
 }
 inline ssize_t recv(int s, void *mem, size_t len, int flags) {
-    return lwip_recv(LWIP_REALS(s),mem,len,flags);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_recv(LWIP_REALS(s),mem,len,flags);
+    NL_FD_OptEnd(s);
+    return rc;    
 }
 inline ssize_t recvfrom(int s, void *mem, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen) {
-    return lwip_recvfrom(LWIP_REALS(s),mem,len,flags,from,fromlen);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_recvfrom(LWIP_REALS(s),mem,len,flags,from,fromlen);
+    NL_FD_OptEnd(s);
+    return rc;   
 }
 inline ssize_t recvmsg(int s, struct msghdr *message, int flags) {
-    return lwip_recvmsg(LWIP_REALS(s),message,flags);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_recvmsg(LWIP_REALS(s),message,flags);
+    NL_FD_OptEnd(s);
+    return rc; 
 }
 inline ssize_t send(int s, const void *dataptr, size_t size, int flags) {
-    return lwip_send(LWIP_REALS(s),dataptr,size,flags);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_send(LWIP_REALS(s),dataptr,size,flags);
+    NL_FD_OptEnd(s);
+    return rc; 
 }
 inline ssize_t sendmsg(int s, const struct msghdr *message, int flags) {
-    return lwip_sendmsg(LWIP_REALS(s),message,flags);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_sendmsg(LWIP_REALS(s),message,flags);
+    NL_FD_OptEnd(s);
+    return rc; 
 }
 inline ssize_t sendto(int s, const void *dataptr, size_t size, int flags, const struct sockaddr *to, socklen_t tolen) {
-    return lwip_sendto(LWIP_REALS(s),dataptr,size,flags,to,tolen);
+    ssize_t rc;
+    if(s < 0 || NL_FD_OptBegin(s) < 0) return -1;
+    rc = lwip_sendto(LWIP_REALS(s),dataptr,size,flags,to,tolen);
+    NL_FD_OptEnd(s);
+    return rc; 
 }

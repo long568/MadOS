@@ -146,7 +146,7 @@ static void madSysRunning(MadVptr exData)
         cur_mem = madMemUnusedSize();
         min_mem = (min_mem > cur_mem) ? cur_mem : min_mem;
         max_mem = (max_mem < cur_mem) ? cur_mem : max_mem;
-        if(++tmrSysReport > 300) {
+        if(++tmrSysReport > 3000) {
             tmrSysReport = 0;
             MAD_LOG("Idle Rate : %d%% | Mem-Heap : %u / %u / %u\n", 
                     idle_rate, min_mem, cur_mem, max_mem);
