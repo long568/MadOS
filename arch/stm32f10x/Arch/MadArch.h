@@ -3,7 +3,7 @@
 
 #include "stm32f10x.h"
 
-#define MAD_MEM_ALIGN_ROLL  (3) // 3: 8Bytes-Align | 2: 4Bytes-Align
+#define MAD_MEM_ALIGN_ROLL  (2) // 3: 8Bytes-Align | 2: 4Bytes-Align
 #define MAD_MEM_ALIGN_MASK  ((0xFFFFFFFF << MAD_MEM_ALIGN_ROLL) & 0xFFFFFFFF)
 #define MAD_MEM_ALIGN       (((~MAD_MEM_ALIGN_MASK) + 1)        & 0xFFFFFFFF)
 

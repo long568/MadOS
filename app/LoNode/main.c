@@ -18,7 +18,7 @@
 #define MAD_SHOW_IDLERATE
 #endif
 
-MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 }; // 8Bytes-Align for Float
+MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 
 static void madStartup(MadVptr exData);
 static void madSysRunning(MadVptr exData);
