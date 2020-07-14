@@ -1,6 +1,6 @@
 /* THIS IS A SINGLE-FILE DISTRIBUTION CONCATENATED FROM THE OPEN62541 SOURCES
  * visit http://open62541.org/ for information about this software
- * Git-Revision: v1.1.0
+ * Git-Revision: v1.1.1
  */
 
 /*
@@ -18,7 +18,7 @@
 #ifndef OPEN62541_H_
 #define OPEN62541_H_
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/build_MadOS/src_generated/open62541/config.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/build_MadOS/src_generated/open62541/config.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,9 +30,9 @@
  * ----------------- */
 #define UA_OPEN62541_VER_MAJOR 1
 #define UA_OPEN62541_VER_MINOR 1
-#define UA_OPEN62541_VER_PATCH 0
+#define UA_OPEN62541_VER_PATCH 1
 #define UA_OPEN62541_VER_LABEL "" /* Release candidate label, etc. */
-#define UA_OPEN62541_VER_COMMIT "v1.1.0"
+#define UA_OPEN62541_VER_COMMIT "v1.1.1"
 
 /**
  * Feature Options
@@ -78,7 +78,7 @@
 #define UA_ENABLE_TYPEDESCRIPTION
 #define UA_ENABLE_NODESET_COMPILER_DESCRIPTIONS
 /* #undef UA_ENABLE_DETERMINISTIC_RNG */
-#define UA_ENABLE_DISCOVERY
+/* #undef UA_ENABLE_DISCOVERY */
 /* #undef UA_ENABLE_DISCOVERY_MULTICAST */
 /* #undef UA_ENABLE_WEBSOCKET_SERVER */
 /* #undef UA_ENABLE_QUERY */
@@ -134,7 +134,7 @@
 
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/architecture_base.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/architecture_base.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -173,7 +173,7 @@ void UA_free(void* ptr); //de-allocate memory previously allocated with UA_mallo
 
 #endif //ARCH_UA_ARCHITECTURE_BASE_H
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/arch/MadOSLWIP/../common/ua_MadOS.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/arch/MadOSLWIP/../common/ua_MadOS.h" ***********************************/
 
 #ifndef ARCH_COMMON_MADOS62541_H_
 #define ARCH_COMMON_MADOS62541_H_
@@ -211,7 +211,7 @@ void UA_free(void* ptr); //de-allocate memory previously allocated with UA_mallo
 
 #endif /* ARCH_COMMON_MADOS62541_H_ */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/arch/MadOSLWIP/../common/ua_lwip.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/arch/MadOSLWIP/../common/ua_lwip.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -296,7 +296,7 @@ int gethostname_lwip(char* name, size_t len); //gethostname is not present in Lw
 
 #endif /* ARCH_COMMON_LWIP62541_H_ */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/arch/MadOSLWIP/ua_architecture.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/arch/MadOSLWIP/ua_architecture.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -326,7 +326,7 @@ int gethostname_lwip(char* name, size_t len); //gethostname is not present in Lw
 
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/deps/ms_stdint.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/deps/ms_stdint.h" ***********************************/
 
 // ISO C9x  compliant stdint.h for Microsoft Visual Studio
 // Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124 
@@ -583,7 +583,7 @@ typedef uint64_t  uintmax_t;
 
 #endif // !defined(_MSC_VER) || _MSC_VER >= 1600 ]
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/architecture_definitions.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/architecture_definitions.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -994,11 +994,11 @@ UA_atomic_subSize(volatile size_t *addr, size_t decrease) {
 }
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/build_MadOS/src_generated/open62541/statuscodes.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/build_MadOS/src_generated/open62541/statuscodes.h" ***********************************/
 
 /*---------------------------------------------------------
  * Autogenerated -- do not modify
- * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/schema/StatusCode.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/generate_statuscode_descriptions.py
+ * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/schema/StatusCode.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/generate_statuscode_descriptions.py
  *-------------------------------------------------------*/
 
 /**
@@ -1722,11 +1722,11 @@ UA_atomic_subSize(volatile size_t *addr, size_t decrease) {
 #define UA_STATUSCODE_BADMAXCONNECTIONSREACHED 0x80B70000
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/build_MadOS/src_generated/open62541/nodeids.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/build_MadOS/src_generated/open62541/nodeids.h" ***********************************/
 
 /*---------------------------------------------------------
  * Autogenerated -- do not modify
- * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/schema/NodeIds.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/generate_nodeid_header.py
+ * Generated from /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/schema/NodeIds.csv with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/generate_nodeid_header.py
  *-------------------------------------------------------*/
 
 #ifndef UA_NODEIDS_NS0_H_
@@ -1736,7 +1736,7 @@ UA_atomic_subSize(volatile size_t *addr, size_t decrease) {
  * Namespace Zero NodeIds
  * ----------------------
  * Numeric identifiers of standard-defined nodes in namespace zero. The
- * following definitions are autogenerated from the ``/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/schema/NodeIds.csv`` file */
+ * following definitions are autogenerated from the ``/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/schema/NodeIds.csv`` file */
 
 #define UA_NS0ID_BOOLEAN 1 /* DataType */
 #define UA_NS0ID_SBYTE 2 /* DataType */
@@ -12447,7 +12447,7 @@ UA_atomic_subSize(volatile size_t *addr, size_t decrease) {
 #define UA_NS0ID_DATAGRAMWRITERGROUPTRANSPORTDATATYPE_ENCODING_DEFAULTJSON 21203 /* Object */
 #endif /* UA_NODEIDS_NS0_H_ */ 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/common.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/common.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12661,7 +12661,7 @@ typedef struct {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/types.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/types.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13784,10 +13784,10 @@ typedef struct UA_DataTypeArray {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/build_MadOS/src_generated/open62541/types_generated.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/build_MadOS/src_generated/open62541/types_generated.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/generate_datatypes.py
- * on host zuoyingengdeMBP.lan by user long at 2020-06-20 12:14:00 */
+/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/generate_datatypes.py
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-07-14 11:07:19 */
 
 
 #ifdef UA_ENABLE_AMALGAMATION
@@ -13802,7 +13802,7 @@ _UA_BEGIN_DECLS
  * Every type is assigned an index in an array containing the type descriptions.
  * These descriptions are used during type handling (copying, deletion,
  * binary encoding, ...). */
-#define UA_TYPES_COUNT 233
+#define UA_TYPES_COUNT 223
 extern UA_EXPORT const UA_DataType UA_TYPES[UA_TYPES_COUNT];
 
 /**
@@ -14500,18 +14500,6 @@ typedef struct {
 #define UA_TYPES_ENUMDEFINITION 63
 
 /**
- * MdnsDiscoveryConfiguration
- * ^^^^^^^^^^^^^^^^^^^^^^^^^^
- * The discovery information needed for mDNS registration. */
-typedef struct {
-    UA_String mdnsServerName;
-    size_t serverCapabilitiesSize;
-    UA_String *serverCapabilities;
-} UA_MdnsDiscoveryConfiguration;
-
-#define UA_TYPES_MDNSDISCOVERYCONFIGURATION 64
-
-/**
  * AxisScaleEnumeration
  * ^^^^^^^^^^^^^^^^^^^^
  */
@@ -14523,7 +14511,7 @@ typedef enum {
 } UA_AxisScaleEnumeration;
 UA_STATIC_ASSERT(sizeof(UA_AxisScaleEnumeration) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_AXISSCALEENUMERATION 65
+#define UA_TYPES_AXISSCALEENUMERATION 64
 
 /**
  * BrowseDirection
@@ -14538,7 +14526,7 @@ typedef enum {
 } UA_BrowseDirection;
 UA_STATIC_ASSERT(sizeof(UA_BrowseDirection) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_BROWSEDIRECTION 66
+#define UA_TYPES_BROWSEDIRECTION 65
 
 /**
  * CallMethodRequest
@@ -14551,7 +14539,7 @@ typedef struct {
     UA_Variant *inputArguments;
 } UA_CallMethodRequest;
 
-#define UA_TYPES_CALLMETHODREQUEST 67
+#define UA_TYPES_CALLMETHODREQUEST 66
 
 /**
  * ReadResponse
@@ -14565,7 +14553,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_ReadResponse;
 
-#define UA_TYPES_READRESPONSE 68
+#define UA_TYPES_READRESPONSE 67
 
 /**
  * TimestampsToReturn
@@ -14581,7 +14569,7 @@ typedef enum {
 } UA_TimestampsToReturn;
 UA_STATIC_ASSERT(sizeof(UA_TimestampsToReturn) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_TIMESTAMPSTORETURN 69
+#define UA_TYPES_TIMESTAMPSTORETURN 68
 
 /**
  * NodeClass
@@ -14601,7 +14589,7 @@ typedef enum {
 } UA_NodeClass;
 UA_STATIC_ASSERT(sizeof(UA_NodeClass) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_NODECLASS 70
+#define UA_TYPES_NODECLASS 69
 
 /**
  * ObjectTypeAttributes
@@ -14616,7 +14604,7 @@ typedef struct {
     UA_Boolean isAbstract;
 } UA_ObjectTypeAttributes;
 
-#define UA_TYPES_OBJECTTYPEATTRIBUTES 71
+#define UA_TYPES_OBJECTTYPEATTRIBUTES 70
 
 /**
  * SecurityTokenRequestType
@@ -14629,7 +14617,7 @@ typedef enum {
 } UA_SecurityTokenRequestType;
 UA_STATIC_ASSERT(sizeof(UA_SecurityTokenRequestType) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_SECURITYTOKENREQUESTTYPE 72
+#define UA_TYPES_SECURITYTOKENREQUESTTYPE 71
 
 /**
  * CloseSessionResponse
@@ -14639,7 +14627,7 @@ typedef struct {
     UA_ResponseHeader responseHeader;
 } UA_CloseSessionResponse;
 
-#define UA_TYPES_CLOSESESSIONRESPONSE 73
+#define UA_TYPES_CLOSESESSIONRESPONSE 72
 
 /**
  * SetPublishingModeRequest
@@ -14652,7 +14640,7 @@ typedef struct {
     UA_UInt32 *subscriptionIds;
 } UA_SetPublishingModeRequest;
 
-#define UA_TYPES_SETPUBLISHINGMODEREQUEST 74
+#define UA_TYPES_SETPUBLISHINGMODEREQUEST 73
 
 /**
  * IssuedIdentityToken
@@ -14664,21 +14652,7 @@ typedef struct {
     UA_String encryptionAlgorithm;
 } UA_IssuedIdentityToken;
 
-#define UA_TYPES_ISSUEDIDENTITYTOKEN 75
-
-/**
- * ServerOnNetwork
- * ^^^^^^^^^^^^^^^
- */
-typedef struct {
-    UA_UInt32 recordId;
-    UA_String serverName;
-    UA_String discoveryUrl;
-    size_t serverCapabilitiesSize;
-    UA_String *serverCapabilities;
-} UA_ServerOnNetwork;
-
-#define UA_TYPES_SERVERONNETWORK 76
+#define UA_TYPES_ISSUEDIDENTITYTOKEN 74
 
 /**
  * DeleteMonitoredItemsResponse
@@ -14692,7 +14666,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_DeleteMonitoredItemsResponse;
 
-#define UA_TYPES_DELETEMONITOREDITEMSRESPONSE 77
+#define UA_TYPES_DELETEMONITOREDITEMSRESPONSE 75
 
 /**
  * ApplicationType
@@ -14707,15 +14681,7 @@ typedef enum {
 } UA_ApplicationType;
 UA_STATIC_ASSERT(sizeof(UA_ApplicationType) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_APPLICATIONTYPE 78
-
-/**
- * DiscoveryConfiguration
- * ^^^^^^^^^^^^^^^^^^^^^^
- * A base type for discovery configuration information. */
-typedef void * UA_DiscoveryConfiguration;
-
-#define UA_TYPES_DISCOVERYCONFIGURATION 79
+#define UA_TYPES_APPLICATIONTYPE 76
 
 /**
  * BrowseNextRequest
@@ -14728,7 +14694,7 @@ typedef struct {
     UA_ByteString *continuationPoints;
 } UA_BrowseNextRequest;
 
-#define UA_TYPES_BROWSENEXTREQUEST 80
+#define UA_TYPES_BROWSENEXTREQUEST 77
 
 /**
  * ModifySubscriptionRequest
@@ -14744,7 +14710,7 @@ typedef struct {
     UA_Byte priority;
 } UA_ModifySubscriptionRequest;
 
-#define UA_TYPES_MODIFYSUBSCRIPTIONREQUEST 81
+#define UA_TYPES_MODIFYSUBSCRIPTIONREQUEST 78
 
 /**
  * BrowseDescription
@@ -14759,7 +14725,7 @@ typedef struct {
     UA_UInt32 resultMask;
 } UA_BrowseDescription;
 
-#define UA_TYPES_BROWSEDESCRIPTION 82
+#define UA_TYPES_BROWSEDESCRIPTION 79
 
 /**
  * SignedSoftwareCertificate
@@ -14770,7 +14736,7 @@ typedef struct {
     UA_ByteString signature;
 } UA_SignedSoftwareCertificate;
 
-#define UA_TYPES_SIGNEDSOFTWARECERTIFICATE 83
+#define UA_TYPES_SIGNEDSOFTWARECERTIFICATE 80
 
 /**
  * BrowsePathTarget
@@ -14781,7 +14747,7 @@ typedef struct {
     UA_UInt32 remainingPathIndex;
 } UA_BrowsePathTarget;
 
-#define UA_TYPES_BROWSEPATHTARGET 84
+#define UA_TYPES_BROWSEPATHTARGET 81
 
 /**
  * WriteResponse
@@ -14795,7 +14761,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_WriteResponse;
 
-#define UA_TYPES_WRITERESPONSE 85
+#define UA_TYPES_WRITERESPONSE 82
 
 /**
  * AddNodesResult
@@ -14806,7 +14772,7 @@ typedef struct {
     UA_NodeId addedNodeId;
 } UA_AddNodesResult;
 
-#define UA_TYPES_ADDNODESRESULT 86
+#define UA_TYPES_ADDNODESRESULT 83
 
 /**
  * UadpDataSetReaderMessageDataType
@@ -14824,17 +14790,7 @@ typedef struct {
     UA_Double processingOffset;
 } UA_UadpDataSetReaderMessageDataType;
 
-#define UA_TYPES_UADPDATASETREADERMESSAGEDATATYPE 87
-
-/**
- * RegisterServerResponse
- * ^^^^^^^^^^^^^^^^^^^^^^
- * Registers a server with the discovery server. */
-typedef struct {
-    UA_ResponseHeader responseHeader;
-} UA_RegisterServerResponse;
-
-#define UA_TYPES_REGISTERSERVERRESPONSE 88
+#define UA_TYPES_UADPDATASETREADERMESSAGEDATATYPE 84
 
 /**
  * AddReferencesItem
@@ -14849,21 +14805,7 @@ typedef struct {
     UA_NodeClass targetNodeClass;
 } UA_AddReferencesItem;
 
-#define UA_TYPES_ADDREFERENCESITEM 89
-
-/**
- * RegisterServer2Response
- * ^^^^^^^^^^^^^^^^^^^^^^^
- */
-typedef struct {
-    UA_ResponseHeader responseHeader;
-    size_t configurationResultsSize;
-    UA_StatusCode *configurationResults;
-    size_t diagnosticInfosSize;
-    UA_DiagnosticInfo *diagnosticInfos;
-} UA_RegisterServer2Response;
-
-#define UA_TYPES_REGISTERSERVER2RESPONSE 90
+#define UA_TYPES_ADDREFERENCESITEM 85
 
 /**
  * DeleteReferencesResponse
@@ -14877,7 +14819,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_DeleteReferencesResponse;
 
-#define UA_TYPES_DELETEREFERENCESRESPONSE 91
+#define UA_TYPES_DELETEREFERENCESRESPONSE 86
 
 /**
  * RelativePathElement
@@ -14890,7 +14832,7 @@ typedef struct {
     UA_QualifiedName targetName;
 } UA_RelativePathElement;
 
-#define UA_TYPES_RELATIVEPATHELEMENT 92
+#define UA_TYPES_RELATIVEPATHELEMENT 87
 
 /**
  * SubscriptionAcknowledgement
@@ -14901,7 +14843,7 @@ typedef struct {
     UA_UInt32 sequenceNumber;
 } UA_SubscriptionAcknowledgement;
 
-#define UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT 93
+#define UA_TYPES_SUBSCRIPTIONACKNOWLEDGEMENT 88
 
 /**
  * ConfigurationVersionDataType
@@ -14912,7 +14854,7 @@ typedef struct {
     UA_UInt32 minorVersion;
 } UA_ConfigurationVersionDataType;
 
-#define UA_TYPES_CONFIGURATIONVERSIONDATATYPE 94
+#define UA_TYPES_CONFIGURATIONVERSIONDATATYPE 89
 
 /**
  * DataSetFieldContentMask
@@ -14928,7 +14870,7 @@ typedef UA_UInt32 UA_DataSetFieldContentMask;
 #define UA_DATASETFIELDCONTENTMASK_SERVERPICOSECONDS 16
 #define UA_DATASETFIELDCONTENTMASK_RAWDATA 32
 
-#define UA_TYPES_DATASETFIELDCONTENTMASK 95
+#define UA_TYPES_DATASETFIELDCONTENTMASK 90
 
 /**
  * PublishedVariableDataType
@@ -14946,7 +14888,7 @@ typedef struct {
     UA_QualifiedName *metaDataProperties;
 } UA_PublishedVariableDataType;
 
-#define UA_TYPES_PUBLISHEDVARIABLEDATATYPE 96
+#define UA_TYPES_PUBLISHEDVARIABLEDATATYPE 91
 
 /**
  * CreateMonitoredItemsResponse
@@ -14960,7 +14902,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_CreateMonitoredItemsResponse;
 
-#define UA_TYPES_CREATEMONITOREDITEMSRESPONSE 97
+#define UA_TYPES_CREATEMONITOREDITEMSRESPONSE 92
 
 /**
  * OverrideValueHandling
@@ -14974,7 +14916,7 @@ typedef enum {
 } UA_OverrideValueHandling;
 UA_STATIC_ASSERT(sizeof(UA_OverrideValueHandling) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_OVERRIDEVALUEHANDLING 98
+#define UA_TYPES_OVERRIDEVALUEHANDLING 93
 
 /**
  * DeleteReferencesItem
@@ -14988,7 +14930,7 @@ typedef struct {
     UA_Boolean deleteBidirectional;
 } UA_DeleteReferencesItem;
 
-#define UA_TYPES_DELETEREFERENCESITEM 99
+#define UA_TYPES_DELETEREFERENCESITEM 94
 
 /**
  * WriteValue
@@ -15001,7 +14943,7 @@ typedef struct {
     UA_DataValue value;
 } UA_WriteValue;
 
-#define UA_TYPES_WRITEVALUE 100
+#define UA_TYPES_WRITEVALUE 95
 
 /**
  * DataTypeAttributes
@@ -15016,7 +14958,7 @@ typedef struct {
     UA_Boolean isAbstract;
 } UA_DataTypeAttributes;
 
-#define UA_TYPES_DATATYPEATTRIBUTES 101
+#define UA_TYPES_DATATYPEATTRIBUTES 96
 
 /**
  * AddReferencesResponse
@@ -15030,7 +14972,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_AddReferencesResponse;
 
-#define UA_TYPES_ADDREFERENCESRESPONSE 102
+#define UA_TYPES_ADDREFERENCESRESPONSE 97
 
 /**
  * DeadbandType
@@ -15044,7 +14986,7 @@ typedef enum {
 } UA_DeadbandType;
 UA_STATIC_ASSERT(sizeof(UA_DeadbandType) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_DEADBANDTYPE 103
+#define UA_TYPES_DEADBANDTYPE 98
 
 /**
  * DataChangeTrigger
@@ -15058,7 +15000,7 @@ typedef enum {
 } UA_DataChangeTrigger;
 UA_STATIC_ASSERT(sizeof(UA_DataChangeTrigger) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_DATACHANGETRIGGER 104
+#define UA_TYPES_DATACHANGETRIGGER 99
 
 /**
  * BuildInfo
@@ -15073,7 +15015,7 @@ typedef struct {
     UA_DateTime buildDate;
 } UA_BuildInfo;
 
-#define UA_TYPES_BUILDINFO 105
+#define UA_TYPES_BUILDINFO 100
 
 /**
  * FilterOperand
@@ -15081,7 +15023,7 @@ typedef struct {
  */
 typedef void * UA_FilterOperand;
 
-#define UA_TYPES_FILTEROPERAND 106
+#define UA_TYPES_FILTEROPERAND 101
 
 /**
  * MonitoringParameters
@@ -15095,7 +15037,7 @@ typedef struct {
     UA_Boolean discardOldest;
 } UA_MonitoringParameters;
 
-#define UA_TYPES_MONITORINGPARAMETERS 107
+#define UA_TYPES_MONITORINGPARAMETERS 102
 
 /**
  * DoubleComplexNumberType
@@ -15106,7 +15048,7 @@ typedef struct {
     UA_Double imaginary;
 } UA_DoubleComplexNumberType;
 
-#define UA_TYPES_DOUBLECOMPLEXNUMBERTYPE 108
+#define UA_TYPES_DOUBLECOMPLEXNUMBERTYPE 103
 
 /**
  * DeleteNodesItem
@@ -15117,7 +15059,7 @@ typedef struct {
     UA_Boolean deleteTargetReferences;
 } UA_DeleteNodesItem;
 
-#define UA_TYPES_DELETENODESITEM 109
+#define UA_TYPES_DELETENODESITEM 104
 
 /**
  * ReadValueId
@@ -15130,7 +15072,7 @@ typedef struct {
     UA_QualifiedName dataEncoding;
 } UA_ReadValueId;
 
-#define UA_TYPES_READVALUEID 110
+#define UA_TYPES_READVALUEID 105
 
 /**
  * CallRequest
@@ -15142,7 +15084,7 @@ typedef struct {
     UA_CallMethodRequest *methodsToCall;
 } UA_CallRequest;
 
-#define UA_TYPES_CALLREQUEST 111
+#define UA_TYPES_CALLREQUEST 106
 
 /**
  * RelativePath
@@ -15153,7 +15095,7 @@ typedef struct {
     UA_RelativePathElement *elements;
 } UA_RelativePath;
 
-#define UA_TYPES_RELATIVEPATH 112
+#define UA_TYPES_RELATIVEPATH 107
 
 /**
  * DeleteNodesRequest
@@ -15165,7 +15107,7 @@ typedef struct {
     UA_DeleteNodesItem *nodesToDelete;
 } UA_DeleteNodesRequest;
 
-#define UA_TYPES_DELETENODESREQUEST 113
+#define UA_TYPES_DELETENODESREQUEST 108
 
 /**
  * BrokerDataSetWriterTransportDataType
@@ -15180,7 +15122,7 @@ typedef struct {
     UA_Double metaDataUpdateTime;
 } UA_BrokerDataSetWriterTransportDataType;
 
-#define UA_TYPES_BROKERDATASETWRITERTRANSPORTDATATYPE 114
+#define UA_TYPES_BROKERDATASETWRITERTRANSPORTDATATYPE 109
 
 /**
  * MonitoredItemModifyRequest
@@ -15191,7 +15133,7 @@ typedef struct {
     UA_MonitoringParameters requestedParameters;
 } UA_MonitoredItemModifyRequest;
 
-#define UA_TYPES_MONITOREDITEMMODIFYREQUEST 115
+#define UA_TYPES_MONITOREDITEMMODIFYREQUEST 110
 
 /**
  * UserTokenType
@@ -15206,7 +15148,7 @@ typedef enum {
 } UA_UserTokenType;
 UA_STATIC_ASSERT(sizeof(UA_UserTokenType) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_USERTOKENTYPE 116
+#define UA_TYPES_USERTOKENTYPE 111
 
 /**
  * AggregateConfiguration
@@ -15220,7 +15162,7 @@ typedef struct {
     UA_Boolean useSlopedExtrapolation;
 } UA_AggregateConfiguration;
 
-#define UA_TYPES_AGGREGATECONFIGURATION 117
+#define UA_TYPES_AGGREGATECONFIGURATION 112
 
 /**
  * LocaleId
@@ -15228,7 +15170,7 @@ typedef struct {
  * An identifier for a user locale. */
 typedef UA_String UA_LocaleId;
 
-#define UA_TYPES_LOCALEID 118
+#define UA_TYPES_LOCALEID 113
 
 /**
  * UnregisterNodesResponse
@@ -15238,7 +15180,7 @@ typedef struct {
     UA_ResponseHeader responseHeader;
 } UA_UnregisterNodesResponse;
 
-#define UA_TYPES_UNREGISTERNODESRESPONSE 119
+#define UA_TYPES_UNREGISTERNODESRESPONSE 114
 
 /**
  * ContentFilterResult
@@ -15251,7 +15193,7 @@ typedef struct {
     UA_DiagnosticInfo *elementDiagnosticInfos;
 } UA_ContentFilterResult;
 
-#define UA_TYPES_CONTENTFILTERRESULT 120
+#define UA_TYPES_CONTENTFILTERRESULT 115
 
 /**
  * SimpleTypeDescription
@@ -15264,7 +15206,7 @@ typedef struct {
     UA_Byte builtInType;
 } UA_SimpleTypeDescription;
 
-#define UA_TYPES_SIMPLETYPEDESCRIPTION 121
+#define UA_TYPES_SIMPLETYPEDESCRIPTION 116
 
 /**
  * UserTokenPolicy
@@ -15278,7 +15220,7 @@ typedef struct {
     UA_String securityPolicyUri;
 } UA_UserTokenPolicy;
 
-#define UA_TYPES_USERTOKENPOLICY 122
+#define UA_TYPES_USERTOKENPOLICY 117
 
 /**
  * DeleteMonitoredItemsRequest
@@ -15291,7 +15233,7 @@ typedef struct {
     UA_UInt32 *monitoredItemIds;
 } UA_DeleteMonitoredItemsRequest;
 
-#define UA_TYPES_DELETEMONITOREDITEMSREQUEST 123
+#define UA_TYPES_DELETEMONITOREDITEMSREQUEST 118
 
 /**
  * SetMonitoringModeRequest
@@ -15305,7 +15247,7 @@ typedef struct {
     UA_UInt32 *monitoredItemIds;
 } UA_SetMonitoringModeRequest;
 
-#define UA_TYPES_SETMONITORINGMODEREQUEST 124
+#define UA_TYPES_SETMONITORINGMODEREQUEST 119
 
 /**
  * Duration
@@ -15313,7 +15255,7 @@ typedef struct {
  * A period of time measured in milliseconds. */
 typedef UA_Double UA_Duration;
 
-#define UA_TYPES_DURATION 125
+#define UA_TYPES_DURATION 120
 
 /**
  * ReferenceTypeAttributes
@@ -15330,7 +15272,7 @@ typedef struct {
     UA_LocalizedText inverseName;
 } UA_ReferenceTypeAttributes;
 
-#define UA_TYPES_REFERENCETYPEATTRIBUTES 126
+#define UA_TYPES_REFERENCETYPEATTRIBUTES 121
 
 /**
  * DataSetFieldFlags
@@ -15341,7 +15283,7 @@ typedef UA_UInt16 UA_DataSetFieldFlags;
 #define UA_DATASETFIELDFLAGS_NONE 0
 #define UA_DATASETFIELDFLAGS_PROMOTEDFIELD 1
 
-#define UA_TYPES_DATASETFIELDFLAGS 127
+#define UA_TYPES_DATASETFIELDFLAGS 122
 
 /**
  * GetEndpointsRequest
@@ -15356,7 +15298,7 @@ typedef struct {
     UA_String *profileUris;
 } UA_GetEndpointsRequest;
 
-#define UA_TYPES_GETENDPOINTSREQUEST 128
+#define UA_TYPES_GETENDPOINTSREQUEST 123
 
 /**
  * CloseSecureChannelResponse
@@ -15366,7 +15308,7 @@ typedef struct {
     UA_ResponseHeader responseHeader;
 } UA_CloseSecureChannelResponse;
 
-#define UA_TYPES_CLOSESECURECHANNELRESPONSE 129
+#define UA_TYPES_CLOSESECURECHANNELRESPONSE 124
 
 /**
  * PubSubState
@@ -15381,7 +15323,7 @@ typedef enum {
 } UA_PubSubState;
 UA_STATIC_ASSERT(sizeof(UA_PubSubState) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_PUBSUBSTATE 130
+#define UA_TYPES_PUBSUBSTATE 125
 
 /**
  * ViewDescription
@@ -15393,7 +15335,7 @@ typedef struct {
     UA_UInt32 viewVersion;
 } UA_ViewDescription;
 
-#define UA_TYPES_VIEWDESCRIPTION 131
+#define UA_TYPES_VIEWDESCRIPTION 126
 
 /**
  * SetPublishingModeResponse
@@ -15407,7 +15349,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_SetPublishingModeResponse;
 
-#define UA_TYPES_SETPUBLISHINGMODERESPONSE 132
+#define UA_TYPES_SETPUBLISHINGMODERESPONSE 127
 
 /**
  * StatusChangeNotification
@@ -15418,7 +15360,7 @@ typedef struct {
     UA_DiagnosticInfo diagnosticInfo;
 } UA_StatusChangeNotification;
 
-#define UA_TYPES_STATUSCHANGENOTIFICATION 133
+#define UA_TYPES_STATUSCHANGENOTIFICATION 128
 
 /**
  * StructureField
@@ -15435,7 +15377,7 @@ typedef struct {
     UA_Boolean isOptional;
 } UA_StructureField;
 
-#define UA_TYPES_STRUCTUREFIELD 134
+#define UA_TYPES_STRUCTUREFIELD 129
 
 /**
  * NodeAttributesMask
@@ -15481,7 +15423,7 @@ typedef enum {
 } UA_NodeAttributesMask;
 UA_STATIC_ASSERT(sizeof(UA_NodeAttributesMask) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_NODEATTRIBUTESMASK 135
+#define UA_TYPES_NODEATTRIBUTESMASK 130
 
 /**
  * EventFilterResult
@@ -15495,7 +15437,7 @@ typedef struct {
     UA_ContentFilterResult whereClauseResult;
 } UA_EventFilterResult;
 
-#define UA_TYPES_EVENTFILTERRESULT 136
+#define UA_TYPES_EVENTFILTERRESULT 131
 
 /**
  * BrokerWriterGroupTransportDataType
@@ -15508,7 +15450,7 @@ typedef struct {
     UA_BrokerTransportQualityOfService requestedDeliveryGuarantee;
 } UA_BrokerWriterGroupTransportDataType;
 
-#define UA_TYPES_BROKERWRITERGROUPTRANSPORTDATATYPE 137
+#define UA_TYPES_BROKERWRITERGROUPTRANSPORTDATATYPE 132
 
 /**
  * KeyValuePair
@@ -15519,7 +15461,7 @@ typedef struct {
     UA_Variant value;
 } UA_KeyValuePair;
 
-#define UA_TYPES_KEYVALUEPAIR 138
+#define UA_TYPES_KEYVALUEPAIR 133
 
 /**
  * MonitoredItemCreateRequest
@@ -15531,7 +15473,7 @@ typedef struct {
     UA_MonitoringParameters requestedParameters;
 } UA_MonitoredItemCreateRequest;
 
-#define UA_TYPES_MONITOREDITEMCREATEREQUEST 139
+#define UA_TYPES_MONITOREDITEMCREATEREQUEST 134
 
 /**
  * ComplexNumberType
@@ -15542,7 +15484,7 @@ typedef struct {
     UA_Float imaginary;
 } UA_ComplexNumberType;
 
-#define UA_TYPES_COMPLEXNUMBERTYPE 140
+#define UA_TYPES_COMPLEXNUMBERTYPE 135
 
 /**
  * Range
@@ -15553,7 +15495,7 @@ typedef struct {
     UA_Double high;
 } UA_Range;
 
-#define UA_TYPES_RANGE 141
+#define UA_TYPES_RANGE 136
 
 /**
  * DataChangeNotification
@@ -15566,7 +15508,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_DataChangeNotification;
 
-#define UA_TYPES_DATACHANGENOTIFICATION 142
+#define UA_TYPES_DATACHANGENOTIFICATION 137
 
 /**
  * Argument
@@ -15581,7 +15523,7 @@ typedef struct {
     UA_LocalizedText description;
 } UA_Argument;
 
-#define UA_TYPES_ARGUMENT 143
+#define UA_TYPES_ARGUMENT 138
 
 /**
  * JsonDataSetMessageContentMask
@@ -15596,7 +15538,7 @@ typedef UA_UInt32 UA_JsonDataSetMessageContentMask;
 #define UA_JSONDATASETMESSAGECONTENTMASK_TIMESTAMP 8
 #define UA_JSONDATASETMESSAGECONTENTMASK_STATUS 16
 
-#define UA_TYPES_JSONDATASETMESSAGECONTENTMASK 144
+#define UA_TYPES_JSONDATASETMESSAGECONTENTMASK 139
 
 /**
  * ChannelSecurityToken
@@ -15609,7 +15551,7 @@ typedef struct {
     UA_UInt32 revisedLifetime;
 } UA_ChannelSecurityToken;
 
-#define UA_TYPES_CHANNELSECURITYTOKEN 145
+#define UA_TYPES_CHANNELSECURITYTOKEN 140
 
 /**
  * ServerState
@@ -15628,7 +15570,7 @@ typedef enum {
 } UA_ServerState;
 UA_STATIC_ASSERT(sizeof(UA_ServerState) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_SERVERSTATE 146
+#define UA_TYPES_SERVERSTATE 141
 
 /**
  * EventNotificationList
@@ -15639,7 +15581,7 @@ typedef struct {
     UA_EventFieldList *events;
 } UA_EventNotificationList;
 
-#define UA_TYPES_EVENTNOTIFICATIONLIST 147
+#define UA_TYPES_EVENTNOTIFICATIONLIST 142
 
 /**
  * AnonymousIdentityToken
@@ -15649,7 +15591,7 @@ typedef struct {
     UA_String policyId;
 } UA_AnonymousIdentityToken;
 
-#define UA_TYPES_ANONYMOUSIDENTITYTOKEN 148
+#define UA_TYPES_ANONYMOUSIDENTITYTOKEN 143
 
 /**
  * FilterOperator
@@ -15678,7 +15620,7 @@ typedef enum {
 } UA_FilterOperator;
 UA_STATIC_ASSERT(sizeof(UA_FilterOperator) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_FILTEROPERATOR 149
+#define UA_TYPES_FILTEROPERATOR 144
 
 /**
  * AggregateFilter
@@ -15691,7 +15633,7 @@ typedef struct {
     UA_AggregateConfiguration aggregateConfiguration;
 } UA_AggregateFilter;
 
-#define UA_TYPES_AGGREGATEFILTER 150
+#define UA_TYPES_AGGREGATEFILTER 145
 
 /**
  * RepublishResponse
@@ -15702,7 +15644,7 @@ typedef struct {
     UA_NotificationMessage notificationMessage;
 } UA_RepublishResponse;
 
-#define UA_TYPES_REPUBLISHRESPONSE 151
+#define UA_TYPES_REPUBLISHRESPONSE 146
 
 /**
  * DeleteSubscriptionsResponse
@@ -15716,7 +15658,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_DeleteSubscriptionsResponse;
 
-#define UA_TYPES_DELETESUBSCRIPTIONSRESPONSE 152
+#define UA_TYPES_DELETESUBSCRIPTIONSRESPONSE 147
 
 /**
  * RegisterNodesRequest
@@ -15728,7 +15670,7 @@ typedef struct {
     UA_NodeId *nodesToRegister;
 } UA_RegisterNodesRequest;
 
-#define UA_TYPES_REGISTERNODESREQUEST 153
+#define UA_TYPES_REGISTERNODESREQUEST 148
 
 /**
  * StructureDefinition
@@ -15742,7 +15684,7 @@ typedef struct {
     UA_StructureField *fields;
 } UA_StructureDefinition;
 
-#define UA_TYPES_STRUCTUREDEFINITION 154
+#define UA_TYPES_STRUCTUREDEFINITION 149
 
 /**
  * MethodAttributes
@@ -15758,7 +15700,7 @@ typedef struct {
     UA_Boolean userExecutable;
 } UA_MethodAttributes;
 
-#define UA_TYPES_METHODATTRIBUTES 155
+#define UA_TYPES_METHODATTRIBUTES 150
 
 /**
  * UserNameIdentityToken
@@ -15771,7 +15713,7 @@ typedef struct {
     UA_String encryptionAlgorithm;
 } UA_UserNameIdentityToken;
 
-#define UA_TYPES_USERNAMEIDENTITYTOKEN 156
+#define UA_TYPES_USERNAMEIDENTITYTOKEN 151
 
 /**
  * UnregisterNodesRequest
@@ -15783,7 +15725,7 @@ typedef struct {
     UA_NodeId *nodesToUnregister;
 } UA_UnregisterNodesRequest;
 
-#define UA_TYPES_UNREGISTERNODESREQUEST 157
+#define UA_TYPES_UNREGISTERNODESREQUEST 152
 
 /**
  * DataSetOrderingType
@@ -15797,7 +15739,7 @@ typedef enum {
 } UA_DataSetOrderingType;
 UA_STATIC_ASSERT(sizeof(UA_DataSetOrderingType) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_DATASETORDERINGTYPE 158
+#define UA_TYPES_DATASETORDERINGTYPE 153
 
 /**
  * OpenSecureChannelResponse
@@ -15810,7 +15752,7 @@ typedef struct {
     UA_ByteString serverNonce;
 } UA_OpenSecureChannelResponse;
 
-#define UA_TYPES_OPENSECURECHANNELRESPONSE 159
+#define UA_TYPES_OPENSECURECHANNELRESPONSE 154
 
 /**
  * SetTriggeringResponse
@@ -15828,7 +15770,7 @@ typedef struct {
     UA_DiagnosticInfo *removeDiagnosticInfos;
 } UA_SetTriggeringResponse;
 
-#define UA_TYPES_SETTRIGGERINGRESPONSE 160
+#define UA_TYPES_SETTRIGGERINGRESPONSE 155
 
 /**
  * SimpleAttributeOperand
@@ -15842,7 +15784,7 @@ typedef struct {
     UA_String indexRange;
 } UA_SimpleAttributeOperand;
 
-#define UA_TYPES_SIMPLEATTRIBUTEOPERAND 161
+#define UA_TYPES_SIMPLEATTRIBUTEOPERAND 156
 
 /**
  * UadpDataSetWriterMessageDataType
@@ -15855,7 +15797,7 @@ typedef struct {
     UA_UInt16 dataSetOffset;
 } UA_UadpDataSetWriterMessageDataType;
 
-#define UA_TYPES_UADPDATASETWRITERMESSAGEDATATYPE 162
+#define UA_TYPES_UADPDATASETWRITERMESSAGEDATATYPE 157
 
 /**
  * JsonNetworkMessageContentMask
@@ -15871,7 +15813,7 @@ typedef UA_UInt32 UA_JsonNetworkMessageContentMask;
 #define UA_JSONNETWORKMESSAGECONTENTMASK_DATASETCLASSID 16
 #define UA_JSONNETWORKMESSAGECONTENTMASK_REPLYTO 32
 
-#define UA_TYPES_JSONNETWORKMESSAGECONTENTMASK 163
+#define UA_TYPES_JSONNETWORKMESSAGECONTENTMASK 158
 
 /**
  * RepublishRequest
@@ -15883,7 +15825,7 @@ typedef struct {
     UA_UInt32 retransmitSequenceNumber;
 } UA_RepublishRequest;
 
-#define UA_TYPES_REPUBLISHREQUEST 164
+#define UA_TYPES_REPUBLISHREQUEST 159
 
 /**
  * RegisterNodesResponse
@@ -15895,7 +15837,7 @@ typedef struct {
     UA_NodeId *registeredNodeIds;
 } UA_RegisterNodesResponse;
 
-#define UA_TYPES_REGISTERNODESRESPONSE 165
+#define UA_TYPES_REGISTERNODESRESPONSE 160
 
 /**
  * ModifyMonitoredItemsResponse
@@ -15909,7 +15851,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_ModifyMonitoredItemsResponse;
 
-#define UA_TYPES_MODIFYMONITOREDITEMSRESPONSE 166
+#define UA_TYPES_MODIFYMONITOREDITEMSRESPONSE 161
 
 /**
  * FieldTargetDataType
@@ -15925,7 +15867,7 @@ typedef struct {
     UA_Variant overrideValue;
 } UA_FieldTargetDataType;
 
-#define UA_TYPES_FIELDTARGETDATATYPE 167
+#define UA_TYPES_FIELDTARGETDATATYPE 162
 
 /**
  * DeleteSubscriptionsRequest
@@ -15937,7 +15879,7 @@ typedef struct {
     UA_UInt32 *subscriptionIds;
 } UA_DeleteSubscriptionsRequest;
 
-#define UA_TYPES_DELETESUBSCRIPTIONSREQUEST 168
+#define UA_TYPES_DELETESUBSCRIPTIONSREQUEST 163
 
 /**
  * RedundancySupport
@@ -15954,7 +15896,7 @@ typedef enum {
 } UA_RedundancySupport;
 UA_STATIC_ASSERT(sizeof(UA_RedundancySupport) == sizeof(UA_Int32), enum_must_be_32bit);
 
-#define UA_TYPES_REDUNDANCYSUPPORT 169
+#define UA_TYPES_REDUNDANCYSUPPORT 164
 
 /**
  * BrowsePath
@@ -15965,7 +15907,7 @@ typedef struct {
     UA_RelativePath relativePath;
 } UA_BrowsePath;
 
-#define UA_TYPES_BROWSEPATH 170
+#define UA_TYPES_BROWSEPATH 165
 
 /**
  * ObjectAttributes
@@ -15980,7 +15922,7 @@ typedef struct {
     UA_Byte eventNotifier;
 } UA_ObjectAttributes;
 
-#define UA_TYPES_OBJECTATTRIBUTES 171
+#define UA_TYPES_OBJECTATTRIBUTES 166
 
 /**
  * PublishRequest
@@ -15992,7 +15934,7 @@ typedef struct {
     UA_SubscriptionAcknowledgement *subscriptionAcknowledgements;
 } UA_PublishRequest;
 
-#define UA_TYPES_PUBLISHREQUEST 172
+#define UA_TYPES_PUBLISHREQUEST 167
 
 /**
  * FindServersRequest
@@ -16007,7 +15949,7 @@ typedef struct {
     UA_String *serverUris;
 } UA_FindServersRequest;
 
-#define UA_TYPES_FINDSERVERSREQUEST 173
+#define UA_TYPES_FINDSERVERSREQUEST 168
 
 /**
  * JsonDataSetWriterMessageDataType
@@ -16017,20 +15959,7 @@ typedef struct {
     UA_JsonDataSetMessageContentMask dataSetMessageContentMask;
 } UA_JsonDataSetWriterMessageDataType;
 
-#define UA_TYPES_JSONDATASETWRITERMESSAGEDATATYPE 174
-
-/**
- * FindServersOnNetworkResponse
- * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- */
-typedef struct {
-    UA_ResponseHeader responseHeader;
-    UA_DateTime lastCounterResetTime;
-    size_t serversSize;
-    UA_ServerOnNetwork *servers;
-} UA_FindServersOnNetworkResponse;
-
-#define UA_TYPES_FINDSERVERSONNETWORKRESPONSE 175
+#define UA_TYPES_JSONDATASETWRITERMESSAGEDATATYPE 169
 
 /**
  * FieldMetaData
@@ -16051,7 +15980,7 @@ typedef struct {
     UA_KeyValuePair *properties;
 } UA_FieldMetaData;
 
-#define UA_TYPES_FIELDMETADATA 176
+#define UA_TYPES_FIELDMETADATA 170
 
 /**
  * ReferenceDescription
@@ -16067,7 +15996,7 @@ typedef struct {
     UA_ExpandedNodeId typeDefinition;
 } UA_ReferenceDescription;
 
-#define UA_TYPES_REFERENCEDESCRIPTION 177
+#define UA_TYPES_REFERENCEDESCRIPTION 171
 
 /**
  * TargetVariablesDataType
@@ -16078,7 +16007,7 @@ typedef struct {
     UA_FieldTargetDataType *targetVariables;
 } UA_TargetVariablesDataType;
 
-#define UA_TYPES_TARGETVARIABLESDATATYPE 178
+#define UA_TYPES_TARGETVARIABLESDATATYPE 172
 
 /**
  * CreateSubscriptionRequest
@@ -16094,21 +16023,7 @@ typedef struct {
     UA_Byte priority;
 } UA_CreateSubscriptionRequest;
 
-#define UA_TYPES_CREATESUBSCRIPTIONREQUEST 179
-
-/**
- * FindServersOnNetworkRequest
- * ^^^^^^^^^^^^^^^^^^^^^^^^^^^
- */
-typedef struct {
-    UA_RequestHeader requestHeader;
-    UA_UInt32 startingRecordId;
-    UA_UInt32 maxRecordsToReturn;
-    size_t serverCapabilityFilterSize;
-    UA_String *serverCapabilityFilter;
-} UA_FindServersOnNetworkRequest;
-
-#define UA_TYPES_FINDSERVERSONNETWORKREQUEST 180
+#define UA_TYPES_CREATESUBSCRIPTIONREQUEST 173
 
 /**
  * CallResponse
@@ -16122,7 +16037,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_CallResponse;
 
-#define UA_TYPES_CALLRESPONSE 181
+#define UA_TYPES_CALLRESPONSE 174
 
 /**
  * DeleteNodesResponse
@@ -16136,7 +16051,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_DeleteNodesResponse;
 
-#define UA_TYPES_DELETENODESRESPONSE 182
+#define UA_TYPES_DELETENODESRESPONSE 175
 
 /**
  * BrokerDataSetReaderTransportDataType
@@ -16150,7 +16065,7 @@ typedef struct {
     UA_String metaDataQueueName;
 } UA_BrokerDataSetReaderTransportDataType;
 
-#define UA_TYPES_BROKERDATASETREADERTRANSPORTDATATYPE 183
+#define UA_TYPES_BROKERDATASETREADERTRANSPORTDATATYPE 176
 
 /**
  * ModifyMonitoredItemsRequest
@@ -16164,7 +16079,7 @@ typedef struct {
     UA_MonitoredItemModifyRequest *itemsToModify;
 } UA_ModifyMonitoredItemsRequest;
 
-#define UA_TYPES_MODIFYMONITOREDITEMSREQUEST 184
+#define UA_TYPES_MODIFYMONITOREDITEMSREQUEST 177
 
 /**
  * ServiceFault
@@ -16174,7 +16089,7 @@ typedef struct {
     UA_ResponseHeader responseHeader;
 } UA_ServiceFault;
 
-#define UA_TYPES_SERVICEFAULT 185
+#define UA_TYPES_SERVICEFAULT 178
 
 /**
  * PublishResponse
@@ -16193,7 +16108,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_PublishResponse;
 
-#define UA_TYPES_PUBLISHRESPONSE 186
+#define UA_TYPES_PUBLISHRESPONSE 179
 
 /**
  * CreateMonitoredItemsRequest
@@ -16207,7 +16122,7 @@ typedef struct {
     UA_MonitoredItemCreateRequest *itemsToCreate;
 } UA_CreateMonitoredItemsRequest;
 
-#define UA_TYPES_CREATEMONITOREDITEMSREQUEST 187
+#define UA_TYPES_CREATEMONITOREDITEMSREQUEST 180
 
 /**
  * OpenSecureChannelRequest
@@ -16222,7 +16137,7 @@ typedef struct {
     UA_UInt32 requestedLifetime;
 } UA_OpenSecureChannelRequest;
 
-#define UA_TYPES_OPENSECURECHANNELREQUEST 188
+#define UA_TYPES_OPENSECURECHANNELREQUEST 181
 
 /**
  * CloseSessionRequest
@@ -16233,7 +16148,7 @@ typedef struct {
     UA_Boolean deleteSubscriptions;
 } UA_CloseSessionRequest;
 
-#define UA_TYPES_CLOSESESSIONREQUEST 189
+#define UA_TYPES_CLOSESESSIONREQUEST 182
 
 /**
  * SetTriggeringRequest
@@ -16249,7 +16164,7 @@ typedef struct {
     UA_UInt32 *linksToRemove;
 } UA_SetTriggeringRequest;
 
-#define UA_TYPES_SETTRIGGERINGREQUEST 190
+#define UA_TYPES_SETTRIGGERINGREQUEST 183
 
 /**
  * EnumDescription
@@ -16262,7 +16177,7 @@ typedef struct {
     UA_Byte builtInType;
 } UA_EnumDescription;
 
-#define UA_TYPES_ENUMDESCRIPTION 191
+#define UA_TYPES_ENUMDESCRIPTION 184
 
 /**
  * BrowseResult
@@ -16275,7 +16190,7 @@ typedef struct {
     UA_ReferenceDescription *references;
 } UA_BrowseResult;
 
-#define UA_TYPES_BROWSERESULT 192
+#define UA_TYPES_BROWSERESULT 185
 
 /**
  * AddReferencesRequest
@@ -16287,7 +16202,7 @@ typedef struct {
     UA_AddReferencesItem *referencesToAdd;
 } UA_AddReferencesRequest;
 
-#define UA_TYPES_ADDREFERENCESREQUEST 193
+#define UA_TYPES_ADDREFERENCESREQUEST 186
 
 /**
  * AddNodesItem
@@ -16303,7 +16218,7 @@ typedef struct {
     UA_ExpandedNodeId typeDefinition;
 } UA_AddNodesItem;
 
-#define UA_TYPES_ADDNODESITEM 194
+#define UA_TYPES_ADDNODESITEM 187
 
 /**
  * ServerStatusDataType
@@ -16318,7 +16233,7 @@ typedef struct {
     UA_LocalizedText shutdownReason;
 } UA_ServerStatusDataType;
 
-#define UA_TYPES_SERVERSTATUSDATATYPE 195
+#define UA_TYPES_SERVERSTATUSDATATYPE 188
 
 /**
  * BrowseNextResponse
@@ -16332,7 +16247,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_BrowseNextResponse;
 
-#define UA_TYPES_BROWSENEXTRESPONSE 196
+#define UA_TYPES_BROWSENEXTRESPONSE 189
 
 /**
  * AxisInformation
@@ -16347,26 +16262,7 @@ typedef struct {
     UA_Double *axisSteps;
 } UA_AxisInformation;
 
-#define UA_TYPES_AXISINFORMATION 197
-
-/**
- * RegisteredServer
- * ^^^^^^^^^^^^^^^^
- * The information required to register a server with a discovery server. */
-typedef struct {
-    UA_String serverUri;
-    UA_String productUri;
-    size_t serverNamesSize;
-    UA_LocalizedText *serverNames;
-    UA_ApplicationType serverType;
-    UA_String gatewayServerUri;
-    size_t discoveryUrlsSize;
-    UA_String *discoveryUrls;
-    UA_String semaphoreFilePath;
-    UA_Boolean isOnline;
-} UA_RegisteredServer;
-
-#define UA_TYPES_REGISTEREDSERVER 198
+#define UA_TYPES_AXISINFORMATION 190
 
 /**
  * ApplicationDescription
@@ -16383,7 +16279,7 @@ typedef struct {
     UA_String *discoveryUrls;
 } UA_ApplicationDescription;
 
-#define UA_TYPES_APPLICATIONDESCRIPTION 199
+#define UA_TYPES_APPLICATIONDESCRIPTION 191
 
 /**
  * StructureDescription
@@ -16395,7 +16291,7 @@ typedef struct {
     UA_StructureDefinition structureDefinition;
 } UA_StructureDescription;
 
-#define UA_TYPES_STRUCTUREDESCRIPTION 200
+#define UA_TYPES_STRUCTUREDESCRIPTION 192
 
 /**
  * ReadRequest
@@ -16409,7 +16305,7 @@ typedef struct {
     UA_ReadValueId *nodesToRead;
 } UA_ReadRequest;
 
-#define UA_TYPES_READREQUEST 201
+#define UA_TYPES_READREQUEST 193
 
 /**
  * DataSetWriterDataType
@@ -16428,7 +16324,7 @@ typedef struct {
     UA_ExtensionObject messageSettings;
 } UA_DataSetWriterDataType;
 
-#define UA_TYPES_DATASETWRITERDATATYPE 202
+#define UA_TYPES_DATASETWRITERDATATYPE 194
 
 /**
  * ActivateSessionRequest
@@ -16445,7 +16341,7 @@ typedef struct {
     UA_SignatureData userTokenSignature;
 } UA_ActivateSessionRequest;
 
-#define UA_TYPES_ACTIVATESESSIONREQUEST 203
+#define UA_TYPES_ACTIVATESESSIONREQUEST 195
 
 /**
  * BrowsePathResult
@@ -16457,7 +16353,7 @@ typedef struct {
     UA_BrowsePathTarget *targets;
 } UA_BrowsePathResult;
 
-#define UA_TYPES_BROWSEPATHRESULT 204
+#define UA_TYPES_BROWSEPATHRESULT 196
 
 /**
  * AddNodesRequest
@@ -16469,7 +16365,7 @@ typedef struct {
     UA_AddNodesItem *nodesToAdd;
 } UA_AddNodesRequest;
 
-#define UA_TYPES_ADDNODESREQUEST 205
+#define UA_TYPES_ADDNODESREQUEST 197
 
 /**
  * BrowseRequest
@@ -16483,7 +16379,7 @@ typedef struct {
     UA_BrowseDescription *nodesToBrowse;
 } UA_BrowseRequest;
 
-#define UA_TYPES_BROWSEREQUEST 206
+#define UA_TYPES_BROWSEREQUEST 198
 
 /**
  * WriteRequest
@@ -16495,7 +16391,7 @@ typedef struct {
     UA_WriteValue *nodesToWrite;
 } UA_WriteRequest;
 
-#define UA_TYPES_WRITEREQUEST 207
+#define UA_TYPES_WRITEREQUEST 199
 
 /**
  * AddNodesResponse
@@ -16509,20 +16405,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_AddNodesResponse;
 
-#define UA_TYPES_ADDNODESRESPONSE 208
-
-/**
- * RegisterServer2Request
- * ^^^^^^^^^^^^^^^^^^^^^^
- */
-typedef struct {
-    UA_RequestHeader requestHeader;
-    UA_RegisteredServer server;
-    size_t discoveryConfigurationSize;
-    UA_ExtensionObject *discoveryConfiguration;
-} UA_RegisterServer2Request;
-
-#define UA_TYPES_REGISTERSERVER2REQUEST 209
+#define UA_TYPES_ADDNODESRESPONSE 200
 
 /**
  * AttributeOperand
@@ -16536,7 +16419,7 @@ typedef struct {
     UA_String indexRange;
 } UA_AttributeOperand;
 
-#define UA_TYPES_ATTRIBUTEOPERAND 210
+#define UA_TYPES_ATTRIBUTEOPERAND 201
 
 /**
  * DataChangeFilter
@@ -16548,7 +16431,7 @@ typedef struct {
     UA_Double deadbandValue;
 } UA_DataChangeFilter;
 
-#define UA_TYPES_DATACHANGEFILTER 211
+#define UA_TYPES_DATACHANGEFILTER 202
 
 /**
  * EndpointDescription
@@ -16566,7 +16449,7 @@ typedef struct {
     UA_Byte securityLevel;
 } UA_EndpointDescription;
 
-#define UA_TYPES_ENDPOINTDESCRIPTION 212
+#define UA_TYPES_ENDPOINTDESCRIPTION 203
 
 /**
  * DeleteReferencesRequest
@@ -16578,7 +16461,7 @@ typedef struct {
     UA_DeleteReferencesItem *referencesToDelete;
 } UA_DeleteReferencesRequest;
 
-#define UA_TYPES_DELETEREFERENCESREQUEST 213
+#define UA_TYPES_DELETEREFERENCESREQUEST 204
 
 /**
  * JsonWriterGroupMessageDataType
@@ -16588,7 +16471,7 @@ typedef struct {
     UA_JsonNetworkMessageContentMask networkMessageContentMask;
 } UA_JsonWriterGroupMessageDataType;
 
-#define UA_TYPES_JSONWRITERGROUPMESSAGEDATATYPE 214
+#define UA_TYPES_JSONWRITERGROUPMESSAGEDATATYPE 205
 
 /**
  * TranslateBrowsePathsToNodeIdsRequest
@@ -16600,7 +16483,7 @@ typedef struct {
     UA_BrowsePath *browsePaths;
 } UA_TranslateBrowsePathsToNodeIdsRequest;
 
-#define UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST 215
+#define UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSREQUEST 206
 
 /**
  * JsonDataSetReaderMessageDataType
@@ -16611,7 +16494,7 @@ typedef struct {
     UA_JsonDataSetMessageContentMask dataSetMessageContentMask;
 } UA_JsonDataSetReaderMessageDataType;
 
-#define UA_TYPES_JSONDATASETREADERMESSAGEDATATYPE 216
+#define UA_TYPES_JSONDATASETREADERMESSAGEDATATYPE 207
 
 /**
  * FindServersResponse
@@ -16623,7 +16506,7 @@ typedef struct {
     UA_ApplicationDescription *servers;
 } UA_FindServersResponse;
 
-#define UA_TYPES_FINDSERVERSRESPONSE 217
+#define UA_TYPES_FINDSERVERSRESPONSE 208
 
 /**
  * CreateSessionRequest
@@ -16641,7 +16524,7 @@ typedef struct {
     UA_UInt32 maxResponseMessageSize;
 } UA_CreateSessionRequest;
 
-#define UA_TYPES_CREATESESSIONREQUEST 218
+#define UA_TYPES_CREATESESSIONREQUEST 209
 
 /**
  * ContentFilterElement
@@ -16653,7 +16536,7 @@ typedef struct {
     UA_ExtensionObject *filterOperands;
 } UA_ContentFilterElement;
 
-#define UA_TYPES_CONTENTFILTERELEMENT 219
+#define UA_TYPES_CONTENTFILTERELEMENT 210
 
 /**
  * UadpWriterGroupMessageDataType
@@ -16668,18 +16551,7 @@ typedef struct {
     UA_Double *publishingOffset;
 } UA_UadpWriterGroupMessageDataType;
 
-#define UA_TYPES_UADPWRITERGROUPMESSAGEDATATYPE 220
-
-/**
- * RegisterServerRequest
- * ^^^^^^^^^^^^^^^^^^^^^
- * Registers a server with the discovery server. */
-typedef struct {
-    UA_RequestHeader requestHeader;
-    UA_RegisteredServer server;
-} UA_RegisterServerRequest;
-
-#define UA_TYPES_REGISTERSERVERREQUEST 221
+#define UA_TYPES_UADPWRITERGROUPMESSAGEDATATYPE 211
 
 /**
  * TranslateBrowsePathsToNodeIdsResponse
@@ -16693,7 +16565,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_TranslateBrowsePathsToNodeIdsResponse;
 
-#define UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE 222
+#define UA_TYPES_TRANSLATEBROWSEPATHSTONODEIDSRESPONSE 212
 
 /**
  * BrowseResponse
@@ -16707,7 +16579,7 @@ typedef struct {
     UA_DiagnosticInfo *diagnosticInfos;
 } UA_BrowseResponse;
 
-#define UA_TYPES_BROWSERESPONSE 223
+#define UA_TYPES_BROWSERESPONSE 213
 
 /**
  * CreateSessionResponse
@@ -16728,7 +16600,7 @@ typedef struct {
     UA_UInt32 maxRequestMessageSize;
 } UA_CreateSessionResponse;
 
-#define UA_TYPES_CREATESESSIONRESPONSE 224
+#define UA_TYPES_CREATESESSIONRESPONSE 214
 
 /**
  * DataSetMetaDataType
@@ -16751,7 +16623,7 @@ typedef struct {
     UA_ConfigurationVersionDataType configurationVersion;
 } UA_DataSetMetaDataType;
 
-#define UA_TYPES_DATASETMETADATATYPE 225
+#define UA_TYPES_DATASETMETADATATYPE 215
 
 /**
  * ContentFilter
@@ -16762,7 +16634,7 @@ typedef struct {
     UA_ContentFilterElement *elements;
 } UA_ContentFilter;
 
-#define UA_TYPES_CONTENTFILTER 226
+#define UA_TYPES_CONTENTFILTER 216
 
 /**
  * WriterGroupDataType
@@ -16791,7 +16663,7 @@ typedef struct {
     UA_DataSetWriterDataType *dataSetWriters;
 } UA_WriterGroupDataType;
 
-#define UA_TYPES_WRITERGROUPDATATYPE 227
+#define UA_TYPES_WRITERGROUPDATATYPE 217
 
 /**
  * GetEndpointsResponse
@@ -16803,7 +16675,7 @@ typedef struct {
     UA_EndpointDescription *endpoints;
 } UA_GetEndpointsResponse;
 
-#define UA_TYPES_GETENDPOINTSRESPONSE 228
+#define UA_TYPES_GETENDPOINTSRESPONSE 218
 
 /**
  * EventFilter
@@ -16815,7 +16687,7 @@ typedef struct {
     UA_ContentFilter whereClause;
 } UA_EventFilter;
 
-#define UA_TYPES_EVENTFILTER 229
+#define UA_TYPES_EVENTFILTER 219
 
 /**
  * DataSetReaderDataType
@@ -16843,7 +16715,7 @@ typedef struct {
     UA_ExtensionObject subscribedDataSet;
 } UA_DataSetReaderDataType;
 
-#define UA_TYPES_DATASETREADERDATATYPE 230
+#define UA_TYPES_DATASETREADERDATATYPE 220
 
 /**
  * ReaderGroupDataType
@@ -16865,7 +16737,7 @@ typedef struct {
     UA_DataSetReaderDataType *dataSetReaders;
 } UA_ReaderGroupDataType;
 
-#define UA_TYPES_READERGROUPDATATYPE 231
+#define UA_TYPES_READERGROUPDATATYPE 221
 
 /**
  * PubSubConnectionDataType
@@ -16886,16 +16758,16 @@ typedef struct {
     UA_ReaderGroupDataType *readerGroups;
 } UA_PubSubConnectionDataType;
 
-#define UA_TYPES_PUBSUBCONNECTIONDATATYPE 232
+#define UA_TYPES_PUBSUBCONNECTIONDATATYPE 222
 
 
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/build_MadOS/src_generated/open62541/types_generated_handling.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/build_MadOS/src_generated/open62541/types_generated_handling.h" ***********************************/
 
-/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/tools/generate_datatypes.py
- * on host zuoyingengdeMBP.lan by user long at 2020-06-20 12:14:00 */
+/* Generated from Opc.Ua.Types.bsd with script /Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/tools/generate_datatypes.py
+ * on host zuoyingpengdeMacBook-Pro.local by user long at 2020-07-14 11:07:19 */
 
 
 
@@ -18892,37 +18764,6 @@ UA_EnumDefinition_delete(UA_EnumDefinition *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_ENUMDEFINITION]);
 }
 
-/* MdnsDiscoveryConfiguration */
-static UA_INLINE void
-UA_MdnsDiscoveryConfiguration_init(UA_MdnsDiscoveryConfiguration *p) {
-    memset(p, 0, sizeof(UA_MdnsDiscoveryConfiguration));
-}
-
-static UA_INLINE UA_MdnsDiscoveryConfiguration *
-UA_MdnsDiscoveryConfiguration_new(void) {
-    return (UA_MdnsDiscoveryConfiguration*)UA_new(&UA_TYPES[UA_TYPES_MDNSDISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_MdnsDiscoveryConfiguration_copy(const UA_MdnsDiscoveryConfiguration *src, UA_MdnsDiscoveryConfiguration *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_MDNSDISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_MdnsDiscoveryConfiguration_deleteMembers(UA_MdnsDiscoveryConfiguration *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_MDNSDISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_MdnsDiscoveryConfiguration_clear(UA_MdnsDiscoveryConfiguration *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_MDNSDISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_MdnsDiscoveryConfiguration_delete(UA_MdnsDiscoveryConfiguration *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_MDNSDISCOVERYCONFIGURATION]);
-}
-
 /* AxisScaleEnumeration */
 static UA_INLINE void
 UA_AxisScaleEnumeration_init(UA_AxisScaleEnumeration *p) {
@@ -19264,37 +19105,6 @@ UA_IssuedIdentityToken_delete(UA_IssuedIdentityToken *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_ISSUEDIDENTITYTOKEN]);
 }
 
-/* ServerOnNetwork */
-static UA_INLINE void
-UA_ServerOnNetwork_init(UA_ServerOnNetwork *p) {
-    memset(p, 0, sizeof(UA_ServerOnNetwork));
-}
-
-static UA_INLINE UA_ServerOnNetwork *
-UA_ServerOnNetwork_new(void) {
-    return (UA_ServerOnNetwork*)UA_new(&UA_TYPES[UA_TYPES_SERVERONNETWORK]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_ServerOnNetwork_copy(const UA_ServerOnNetwork *src, UA_ServerOnNetwork *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_SERVERONNETWORK]);
-}
-
-static UA_INLINE void
-UA_ServerOnNetwork_deleteMembers(UA_ServerOnNetwork *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_SERVERONNETWORK]);
-}
-
-static UA_INLINE void
-UA_ServerOnNetwork_clear(UA_ServerOnNetwork *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_SERVERONNETWORK]);
-}
-
-static UA_INLINE void
-UA_ServerOnNetwork_delete(UA_ServerOnNetwork *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_SERVERONNETWORK]);
-}
-
 /* DeleteMonitoredItemsResponse */
 static UA_INLINE void
 UA_DeleteMonitoredItemsResponse_init(UA_DeleteMonitoredItemsResponse *p) {
@@ -19355,37 +19165,6 @@ UA_ApplicationType_clear(UA_ApplicationType *p) {
 static UA_INLINE void
 UA_ApplicationType_delete(UA_ApplicationType *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_APPLICATIONTYPE]);
-}
-
-/* DiscoveryConfiguration */
-static UA_INLINE void
-UA_DiscoveryConfiguration_init(UA_DiscoveryConfiguration *p) {
-    memset(p, 0, sizeof(UA_DiscoveryConfiguration));
-}
-
-static UA_INLINE UA_DiscoveryConfiguration *
-UA_DiscoveryConfiguration_new(void) {
-    return (UA_DiscoveryConfiguration*)UA_new(&UA_TYPES[UA_TYPES_DISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_DiscoveryConfiguration_copy(const UA_DiscoveryConfiguration *src, UA_DiscoveryConfiguration *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_DISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_DiscoveryConfiguration_deleteMembers(UA_DiscoveryConfiguration *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_DISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_DiscoveryConfiguration_clear(UA_DiscoveryConfiguration *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_DISCOVERYCONFIGURATION]);
-}
-
-static UA_INLINE void
-UA_DiscoveryConfiguration_delete(UA_DiscoveryConfiguration *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_DISCOVERYCONFIGURATION]);
 }
 
 /* BrowseNextRequest */
@@ -19636,37 +19415,6 @@ UA_UadpDataSetReaderMessageDataType_delete(UA_UadpDataSetReaderMessageDataType *
     UA_delete(p, &UA_TYPES[UA_TYPES_UADPDATASETREADERMESSAGEDATATYPE]);
 }
 
-/* RegisterServerResponse */
-static UA_INLINE void
-UA_RegisterServerResponse_init(UA_RegisterServerResponse *p) {
-    memset(p, 0, sizeof(UA_RegisterServerResponse));
-}
-
-static UA_INLINE UA_RegisterServerResponse *
-UA_RegisterServerResponse_new(void) {
-    return (UA_RegisterServerResponse*)UA_new(&UA_TYPES[UA_TYPES_REGISTERSERVERRESPONSE]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_RegisterServerResponse_copy(const UA_RegisterServerResponse *src, UA_RegisterServerResponse *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_REGISTERSERVERRESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServerResponse_deleteMembers(UA_RegisterServerResponse *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVERRESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServerResponse_clear(UA_RegisterServerResponse *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVERRESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServerResponse_delete(UA_RegisterServerResponse *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_REGISTERSERVERRESPONSE]);
-}
-
 /* AddReferencesItem */
 static UA_INLINE void
 UA_AddReferencesItem_init(UA_AddReferencesItem *p) {
@@ -19696,37 +19444,6 @@ UA_AddReferencesItem_clear(UA_AddReferencesItem *p) {
 static UA_INLINE void
 UA_AddReferencesItem_delete(UA_AddReferencesItem *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_ADDREFERENCESITEM]);
-}
-
-/* RegisterServer2Response */
-static UA_INLINE void
-UA_RegisterServer2Response_init(UA_RegisterServer2Response *p) {
-    memset(p, 0, sizeof(UA_RegisterServer2Response));
-}
-
-static UA_INLINE UA_RegisterServer2Response *
-UA_RegisterServer2Response_new(void) {
-    return (UA_RegisterServer2Response*)UA_new(&UA_TYPES[UA_TYPES_REGISTERSERVER2RESPONSE]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_RegisterServer2Response_copy(const UA_RegisterServer2Response *src, UA_RegisterServer2Response *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_REGISTERSERVER2RESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Response_deleteMembers(UA_RegisterServer2Response *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2RESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Response_clear(UA_RegisterServer2Response *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2RESPONSE]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Response_delete(UA_RegisterServer2Response *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2RESPONSE]);
 }
 
 /* DeleteReferencesResponse */
@@ -22333,37 +22050,6 @@ UA_JsonDataSetWriterMessageDataType_delete(UA_JsonDataSetWriterMessageDataType *
     UA_delete(p, &UA_TYPES[UA_TYPES_JSONDATASETWRITERMESSAGEDATATYPE]);
 }
 
-/* FindServersOnNetworkResponse */
-static UA_INLINE void
-UA_FindServersOnNetworkResponse_init(UA_FindServersOnNetworkResponse *p) {
-    memset(p, 0, sizeof(UA_FindServersOnNetworkResponse));
-}
-
-static UA_INLINE UA_FindServersOnNetworkResponse *
-UA_FindServersOnNetworkResponse_new(void) {
-    return (UA_FindServersOnNetworkResponse*)UA_new(&UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKRESPONSE]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_FindServersOnNetworkResponse_copy(const UA_FindServersOnNetworkResponse *src, UA_FindServersOnNetworkResponse *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKRESPONSE]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkResponse_deleteMembers(UA_FindServersOnNetworkResponse *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKRESPONSE]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkResponse_clear(UA_FindServersOnNetworkResponse *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKRESPONSE]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkResponse_delete(UA_FindServersOnNetworkResponse *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKRESPONSE]);
-}
-
 /* FieldMetaData */
 static UA_INLINE void
 UA_FieldMetaData_init(UA_FieldMetaData *p) {
@@ -22486,37 +22172,6 @@ UA_CreateSubscriptionRequest_clear(UA_CreateSubscriptionRequest *p) {
 static UA_INLINE void
 UA_CreateSubscriptionRequest_delete(UA_CreateSubscriptionRequest *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_CREATESUBSCRIPTIONREQUEST]);
-}
-
-/* FindServersOnNetworkRequest */
-static UA_INLINE void
-UA_FindServersOnNetworkRequest_init(UA_FindServersOnNetworkRequest *p) {
-    memset(p, 0, sizeof(UA_FindServersOnNetworkRequest));
-}
-
-static UA_INLINE UA_FindServersOnNetworkRequest *
-UA_FindServersOnNetworkRequest_new(void) {
-    return (UA_FindServersOnNetworkRequest*)UA_new(&UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKREQUEST]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_FindServersOnNetworkRequest_copy(const UA_FindServersOnNetworkRequest *src, UA_FindServersOnNetworkRequest *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKREQUEST]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkRequest_deleteMembers(UA_FindServersOnNetworkRequest *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKREQUEST]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkRequest_clear(UA_FindServersOnNetworkRequest *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKREQUEST]);
-}
-
-static UA_INLINE void
-UA_FindServersOnNetworkRequest_delete(UA_FindServersOnNetworkRequest *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_FINDSERVERSONNETWORKREQUEST]);
 }
 
 /* CallResponse */
@@ -23046,37 +22701,6 @@ UA_AxisInformation_delete(UA_AxisInformation *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_AXISINFORMATION]);
 }
 
-/* RegisteredServer */
-static UA_INLINE void
-UA_RegisteredServer_init(UA_RegisteredServer *p) {
-    memset(p, 0, sizeof(UA_RegisteredServer));
-}
-
-static UA_INLINE UA_RegisteredServer *
-UA_RegisteredServer_new(void) {
-    return (UA_RegisteredServer*)UA_new(&UA_TYPES[UA_TYPES_REGISTEREDSERVER]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_RegisteredServer_copy(const UA_RegisteredServer *src, UA_RegisteredServer *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_REGISTEREDSERVER]);
-}
-
-static UA_INLINE void
-UA_RegisteredServer_deleteMembers(UA_RegisteredServer *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTEREDSERVER]);
-}
-
-static UA_INLINE void
-UA_RegisteredServer_clear(UA_RegisteredServer *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTEREDSERVER]);
-}
-
-static UA_INLINE void
-UA_RegisteredServer_delete(UA_RegisteredServer *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_REGISTEREDSERVER]);
-}
-
 /* ApplicationDescription */
 static UA_INLINE void
 UA_ApplicationDescription_init(UA_ApplicationDescription *p) {
@@ -23385,37 +23009,6 @@ UA_AddNodesResponse_clear(UA_AddNodesResponse *p) {
 static UA_INLINE void
 UA_AddNodesResponse_delete(UA_AddNodesResponse *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_ADDNODESRESPONSE]);
-}
-
-/* RegisterServer2Request */
-static UA_INLINE void
-UA_RegisterServer2Request_init(UA_RegisterServer2Request *p) {
-    memset(p, 0, sizeof(UA_RegisterServer2Request));
-}
-
-static UA_INLINE UA_RegisterServer2Request *
-UA_RegisterServer2Request_new(void) {
-    return (UA_RegisterServer2Request*)UA_new(&UA_TYPES[UA_TYPES_REGISTERSERVER2REQUEST]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_RegisterServer2Request_copy(const UA_RegisterServer2Request *src, UA_RegisterServer2Request *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_REGISTERSERVER2REQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Request_deleteMembers(UA_RegisterServer2Request *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2REQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Request_clear(UA_RegisterServer2Request *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2REQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServer2Request_delete(UA_RegisterServer2Request *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_REGISTERSERVER2REQUEST]);
 }
 
 /* AttributeOperand */
@@ -23757,37 +23350,6 @@ UA_UadpWriterGroupMessageDataType_clear(UA_UadpWriterGroupMessageDataType *p) {
 static UA_INLINE void
 UA_UadpWriterGroupMessageDataType_delete(UA_UadpWriterGroupMessageDataType *p) {
     UA_delete(p, &UA_TYPES[UA_TYPES_UADPWRITERGROUPMESSAGEDATATYPE]);
-}
-
-/* RegisterServerRequest */
-static UA_INLINE void
-UA_RegisterServerRequest_init(UA_RegisterServerRequest *p) {
-    memset(p, 0, sizeof(UA_RegisterServerRequest));
-}
-
-static UA_INLINE UA_RegisterServerRequest *
-UA_RegisterServerRequest_new(void) {
-    return (UA_RegisterServerRequest*)UA_new(&UA_TYPES[UA_TYPES_REGISTERSERVERREQUEST]);
-}
-
-static UA_INLINE UA_StatusCode
-UA_RegisterServerRequest_copy(const UA_RegisterServerRequest *src, UA_RegisterServerRequest *dst) {
-    return UA_copy(src, dst, &UA_TYPES[UA_TYPES_REGISTERSERVERREQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServerRequest_deleteMembers(UA_RegisterServerRequest *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVERREQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServerRequest_clear(UA_RegisterServerRequest *p) {
-    UA_clear(p, &UA_TYPES[UA_TYPES_REGISTERSERVERREQUEST]);
-}
-
-static UA_INLINE void
-UA_RegisterServerRequest_delete(UA_RegisterServerRequest *p) {
-    UA_delete(p, &UA_TYPES[UA_TYPES_REGISTERSERVERREQUEST]);
 }
 
 /* TranslateBrowsePathsToNodeIdsResponse */
@@ -24138,7 +23700,7 @@ UA_PubSubConnectionDataType_delete(UA_PubSubConnectionDataType *p) {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/util.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/util.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24303,7 +23865,7 @@ UA_constantTimeEqual(const void *ptr1, const void *ptr2, size_t length) {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/server.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/server.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25037,11 +24599,7 @@ typedef struct {
                                          const UA_NodeId *targetParentNodeId,
                                          const UA_NodeId *referenceTypeId,
                                          UA_NodeId *targetNodeId);
-} UA_GlobalNodeLifecycle;
-
-void UA_EXPORT
-UA_Server_setAdminSessionContext(UA_Server *server,
-                                 void *context);
+    } UA_GlobalNodeLifecycle;
 
 typedef struct {
     /* Can be NULL. May replace the nodeContext */
@@ -25768,17 +25326,6 @@ UA_Server_setConditionTwoStateVariableCallback(UA_Server *server, const UA_NodeI
                                                UA_TwoStateVariableChangeCallback callback,
                                                UA_TwoStateVariableCallbackType callbackType);
 
-/**
- * Delete a condition from the address space and the internal lists.
- * 
- * @param server The server object
- * @param condition The NodeId of the node representation of the Condition Instance
- * @param conditionSource The NodeId of the node representation of the Condition Source
- * @return UA_STATUSCODE_GOOD on success
- */
-UA_StatusCode UA_EXPORT
-UA_Server_deleteCondition(UA_Server *server, const UA_NodeId condition, const UA_NodeId conditionSource);
-
 #endif//UA_ENABLE_SUBSCRIPTIONS_ALARMS_CONDITIONS
 
 UA_StatusCode UA_EXPORT
@@ -25918,7 +25465,7 @@ UA_ServerStatistics UA_Server_getStatistics(UA_Server *server);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/log.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/log.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26072,7 +25619,7 @@ UA_LOG_FATAL(const UA_Logger *logger, UA_LogCategory category, const char *msg, 
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/network.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/network.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26278,7 +25825,7 @@ typedef UA_Connection
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/accesscontrol.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/accesscontrol.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26393,7 +25940,7 @@ struct UA_AccessControl {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/pki.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/pki.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26444,7 +25991,7 @@ struct UA_CertificateVerification {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/securitypolicy.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/securitypolicy.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26830,7 +26377,7 @@ UA_SecurityPolicy_getSecurityPolicyByUri(const UA_Server *server,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/server_pubsub.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/server_pubsub.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26963,6 +26510,10 @@ typedef struct {
     size_t connectionPropertiesSize;
     UA_KeyValuePair *connectionProperties;
     UA_Variant connectionTransportSettings;
+
+    /* This flag is 'read only' and is set internally based on the PubSub state. */
+    UA_Boolean configurationFrozen;
+
 #ifdef UA_ENABLE_PUBSUB_ETH_UADP_ETF
     /* ETF related connection configuration - Not in PubSub specfication */
     UA_ETFConfiguration etfConfiguration;
@@ -27035,6 +26586,8 @@ typedef struct {
         UA_PublishedEventConfig event;
         UA_PublishedEventTemplateConfig eventTemplate;
     } config;
+    /* This flag is 'read only' and is set internally based on the PubSub state. */
+    UA_Boolean configurationFrozen;
 } UA_PublishedDataSetConfig;
 
 void UA_EXPORT
@@ -27097,6 +26650,8 @@ typedef struct {
         /* events need other config later */
         UA_DataSetVariableConfig variable;
     } field;
+    /* This flag is 'read only' and is set internally based on the PubSub state. */
+    UA_Boolean configurationFrozen;
 } UA_DataSetFieldConfig;
 
 void UA_EXPORT
@@ -27189,6 +26744,8 @@ typedef struct {
     /* non std. config parameter. maximum count of embedded DataSetMessage in
      * one NetworkMessage */
     UA_UInt16 maxEncapsulatedDataSetMessageCount;
+    /* This flag is 'read only' and is set internally based on the PubSub state. */
+    UA_Boolean configurationFrozen;
     /* non std. field */
     UA_PubSubRTLevel rtLevel;
 } UA_WriterGroupConfig;
@@ -27247,6 +26804,8 @@ typedef struct {
     UA_String dataSetName;
     size_t dataSetWriterPropertiesSize;
     UA_KeyValuePair *dataSetWriterProperties;
+    /* This flag is 'read only' and is set internally based on the PubSub state. */
+    UA_Boolean configurationFrozen;
 } UA_DataSetWriterConfig;
 
 void UA_EXPORT
@@ -27298,7 +26857,7 @@ typedef struct {
     UA_DataSetFieldContentMask dataSetFieldContentMask;
     UA_Double messageReceiveTimeout;
     UA_PubSubSecurityParameters securityParameters;
-    UA_ExtensionObject messageSettings;
+    UA_UadpDataSetReaderMessageDataType messageSettings;
     UA_ExtensionObject transportSettings;
     UA_TargetVariablesDataType subscribedDataSetTarget;
 } UA_DataSetReaderConfig;
@@ -27335,8 +26894,6 @@ UA_Server_DataSetReader_createTargetVariables(UA_Server *server, UA_NodeId dataS
 typedef struct {
     UA_String name;
     UA_PubSubSecurityParameters securityParameters;
-    /* non std. field */
-    UA_PubSubRTLevel rtLevel;
 } UA_ReaderGroupConfig;
 
 /* Add DataSetReader to the ReaderGroup */
@@ -27370,25 +26927,13 @@ UA_Server_addReaderGroup(UA_Server *server, UA_NodeId connectionIdentifier,
 UA_StatusCode UA_EXPORT
 UA_Server_removeReaderGroup(UA_Server *server, UA_NodeId groupIdentifier);
 
-UA_StatusCode UA_EXPORT
-UA_Server_freezeReaderGroupConfiguration(UA_Server *server, const UA_NodeId readerGroupId);
-
-UA_StatusCode UA_EXPORT
-UA_Server_unfreezeReaderGroupConfiguration(UA_Server *server, const UA_NodeId readerGroupId);
-
-UA_StatusCode UA_EXPORT
-UA_Server_setReaderGroupOperational(UA_Server *server, const UA_NodeId readerGroupId);
-
-UA_StatusCode UA_EXPORT
-UA_Server_setReaderGroupDisabled(UA_Server *server, const UA_NodeId readerGroupId);
-
 #endif /* UA_ENABLE_PUBSUB */
 
 _UA_END_DECLS
 
 #endif /* UA_SERVER_PUBSUB_H */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/pubsub.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/pubsub.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27496,7 +27041,7 @@ UA_ServerConfig_addPubSubTransportLayer(UA_ServerConfig *config,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/deps/ziptree.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/deps/ziptree.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27744,7 +27289,7 @@ name##_ZIP_ITER(struct name *head, name##_cb cb, void *data) {          \
 #endif
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/plugin/nodestore.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/plugin/nodestore.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28281,7 +27826,7 @@ UA_Node_clear(UA_Node *node);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/server_config.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/server_config.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28564,7 +28109,7 @@ UA_ServerConfig_setCustomHostname(UA_ServerConfig *config,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/client_config.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/client_config.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28702,7 +28247,7 @@ _UA_END_DECLS
 
 #endif /* UA_CLIENT_CONFIG_H */
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/client.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/client.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29291,7 +28836,7 @@ UA_Client_removeRepeatedCallback(UA_Client *client, UA_UInt64 callbackId) {
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/client_highlevel.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/client_highlevel.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29950,7 +29495,7 @@ UA_Client_forEachChildNodeCall(UA_Client *client, UA_NodeId parentNodeId,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/client_subscriptions.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/client_subscriptions.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30238,7 +29783,7 @@ UA_Client_MonitoredItems_setTriggering_async(UA_Client *client,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/client_highlevel_async.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/client_highlevel_async.h" ***********************************/
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30936,7 +30481,7 @@ UA_Client_addMethodNode_async(UA_Client *client, const UA_NodeId requestedNewNod
  * Misc Functionalities
  * ^^^^^^^^^^^^^^^^^^^^ */
 
-UA_StatusCode UA_EXPORT
+UA_DEPRECATED UA_StatusCode UA_EXPORT
 __UA_Client_translateBrowsePathsToNodeIds_async(UA_Client *client, char *paths[],
                                                 UA_UInt32 ids[], size_t pathSize,
                                                 UA_ClientAsyncServiceCallback callback,
@@ -30946,20 +30491,16 @@ typedef void (*UA_ClientAsyncTranslateCallback)(
     UA_Client *client, void *userdata, UA_UInt32 requestId,
     UA_TranslateBrowsePathsToNodeIdsResponse *tr);
 
-static UA_INLINE UA_StatusCode
+UA_DEPRECATED UA_StatusCode UA_EXPORT
 UA_Cient_translateBrowsePathsToNodeIds_async(UA_Client *client, char **paths,
                                              UA_UInt32 *ids, size_t pathSize,
                                              UA_ClientAsyncTranslateCallback callback,
-                                             void *userdata, UA_UInt32 *reqId) {
-    return __UA_Client_translateBrowsePathsToNodeIds_async(
-        client, paths, ids, pathSize, (UA_ClientAsyncServiceCallback)callback, userdata,
-        reqId);
-}
+                                             void *userdata, UA_UInt32 *reqId);
 
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/accesscontrol_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/accesscontrol_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -30988,7 +30529,7 @@ UA_AccessControl_default(UA_ServerConfig *config, UA_Boolean allowAnonymous,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/pki_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/pki_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31034,7 +30575,7 @@ UA_CertificateVerification_CertFolders(UA_CertificateVerification *cv,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/log_stdout.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/log_stdout.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31065,7 +30606,7 @@ UA_EXPORT UA_Logger UA_Log_Stdout_withLevel(UA_LogLevel minlevel);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/nodestore_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/nodestore_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31096,7 +30637,7 @@ UA_Nodestore_ZipTree(UA_Nodestore *ns);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/server_config_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/server_config_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31321,7 +30862,7 @@ UA_ServerConfig_addAllEndpoints(UA_ServerConfig *config);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/client_config_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/client_config_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31351,7 +30892,7 @@ UA_ClientConfig_setDefaultEncryption(UA_ClientConfig *config,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/securitypolicy_default.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/securitypolicy_default.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31395,7 +30936,48 @@ UA_SecurityPolicy_Basic256Sha256(UA_SecurityPolicy *policy,
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/plugins/include/open62541/plugin/pubsub_udp.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/log_syslog.h" ***********************************/
+
+/* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
+ * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
+ *
+ *    Copyright 2020 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
+ */
+
+
+
+_UA_BEGIN_DECLS
+
+/* Syslog-logging is available only for Linux/Unices.
+ *
+ * open62541 log-levels are translated to syslog-levels as follows:
+ *
+ * UA_LOGLEVEL_TRACE   => not available for syslog
+ * UA_LOGLEVEL_DEBUG   => LOG_DEBUG
+ * UA_LOGLEVEL_INFO    => LOG_INFO
+ * UA_LOGLEVEL_WARNING => LOG_WARNING
+ * UA_LOGLEVEL_ERROR   => LOG_ERR
+ * UA_LOGLEVEL_FATAL   => LOG_CRIT
+ */
+
+#if defined(__linux__) || defined(__unix__)
+
+/* Returns a syslog-logger for messages up to the specified level.
+ * The programm must call openlog(3) before using this logger. */
+UA_EXPORT UA_Logger
+UA_Log_Syslog_withLevel(UA_LogLevel minlevel);
+
+/* Log all warning levels supported by syslog (no trace-warnings).
+ * The programm must call openlog(3) before using this logger. */
+UA_EXPORT UA_Logger
+UA_Log_Syslog(void);
+
+#endif
+
+_UA_END_DECLS
+
+
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/plugins/include/open62541/plugin/pubsub_udp.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31413,7 +30995,7 @@ UA_PubSubTransportLayerUDPMP(void);
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/network_tcp.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/network_tcp.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. 
@@ -31453,7 +31035,7 @@ UA_ClientConnectionTCP_init(UA_ConnectionConfig config, const UA_String endpoint
 _UA_END_DECLS
 
 
-/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1/include/open62541/architecture_functions.h" ***********************************/
+/*********************************** amalgamated original file "/Users/long/Desktop/Projects/playMadOS/Third_Mods/open62541-1.1.1/include/open62541/architecture_functions.h" ***********************************/
 
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
@@ -31644,10 +31226,6 @@ void UA_deinitialize_architecture_network(void);//de-initializes the network int
  */
 #ifndef UA_snprintf
 int UA_snprintf(char* pa_stream, size_t pa_size, const char* pa_format, ...); //prints text to output
-#endif
-
-#ifndef UA_strncasecmp
-int UA_strncasecmp(const char* s1, const char* s2, size_t n);
 #endif
 
 /*
