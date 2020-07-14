@@ -338,8 +338,8 @@
 @@ LUA_COMPAT_5_3 controls other macros for compatibility with Lua 5.3.
 ** You can define it to get all options, or change specific options
 ** to fit your specific needs.
-*/  /* Modified by long 20200704 */
-#define LUA_COMPAT_5_3
+*/
+// #define LUA_COMPAT_5_3
 #if defined(LUA_COMPAT_5_3)	/* { */
 
 /*
