@@ -13,6 +13,7 @@ extern  MadSize_t  madMemMaxSize          (void);
 extern  MadVptr    madMemCpy              (MadVptr dst, const MadVptr src, MadSize_t len);
 extern  MadVptr    madMemSet              (MadVptr dst, MadU8 value, MadSize_t len);
 extern  MadInt     madMemCmp              (const MadVptr dst, const MadVptr src, MadSize_t len);
+extern  MadInt     madMemScmp             (const MadVptr dst, const MadVptr src);
 #define            madMemMalloc(n)        madMemMallocCarefully(n, MNULL)
 #define            madMemFreeNull(p)      do{ madMemFree(p); p=0; }while(0)
 

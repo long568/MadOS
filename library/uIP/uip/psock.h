@@ -352,7 +352,7 @@ char psock_newdata(struct psock *s);
  {
    PSOCK_BEGIN(s);
 
-   PSOCK_WAIT_UNTIL(s, PSOCK_NEWADATA(s) || timer_expired(t));
+   PSOCK_WAIT_UNTIL(s, PSOCK_NEWADATA(s) || tmr_expired(t));
    
    if(PSOCK_NEWDATA(s)) {
      PSOCK_READTO(s, '\n');

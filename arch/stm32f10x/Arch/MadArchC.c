@@ -17,7 +17,6 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
 	*stk-- = (MadStk_t)0xA5A50002;	// R2
 	*stk-- = (MadStk_t)0xA5A50001;	// R1
 	*stk-- = (MadStk_t)exData;		// R0
-	*stk-- = (MadStk_t)0xFFFFFFFD;	// EXC_RETURN
     *stk-- = (MadStk_t)0xA5A5000B;	// R11
     *stk-- = (MadStk_t)0xA5A5000A;	// R10
     *stk-- = (MadStk_t)0xA5A50009;	// R9
@@ -29,7 +28,7 @@ MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)
     return stk;
 }
 
-void madInitSysTick(MadTim_t freq, MadTim_t ticks)
+void madInitSysTick(MadTime_t freq, MadTime_t ticks)
 {
     madTimeInit(freq, ticks);
     SysTick_Config(freq / ticks);

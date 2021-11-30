@@ -67,7 +67,7 @@ void srvApp_Init(void)
 static void app(MadVptr exData)
 {
     MadU8 rc, f_clean, f_dir;
-    MadTim_t dt;
+    MadTime_t dt;
     AppMsg_t *msg;
     MadS8 speed;
 
@@ -75,8 +75,8 @@ static void app(MadVptr exData)
     MAD_LOG("[srvApp]Go!!!\n");
 
     clocker_init(&MM_Clk);
-    timer_init(&MM_Timer);
-    timer_add(&MM_Timer, &MM_Clk);
+    tmr_init(&MM_Timer);
+    tmr_add(&MM_Timer, &MM_Clk);
 
     f_clean = MFALSE;
     f_dir = MFALSE;
@@ -152,12 +152,12 @@ static char pt_clean(timer *t)
     PT_BEGIN(&MM_Pt);
 
     LoDCMotor_Go(&MM_Axis0, 100);
-    timer_set(t, 29 * 1000);
-    PT_WAIT_UNTIL(&MM_Pt, timer_expired(t));
+    tmr_set(t, 29 * 1000);
+    PT_WAIT_UNTIL(&MM_Pt, tmr_expired(t));
 
     LoDCMotor_Go(&MM_Axis0, -100);
-    timer_set(t, 29 * 1000);
-    PT_WAIT_UNTIL(&MM_Pt, timer_expired(t));
+    tmr_set(t, 29 * 1000);
+    PT_WAIT_UNTIL(&MM_Pt, tmr_expired(t));
 
     LoDCMotor_Go(&MM_Axis0, 0);
 

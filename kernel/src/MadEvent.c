@@ -24,7 +24,7 @@ MadEventCB_t* madEventCreate(MadUint mask, MadEventMode mode, MadEventOpt opt)
     return ecb;
 }
 
-MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTim_t to)
+MadU8 madEventWait(MadEventCB_t **pEvent, MadUint *mask, MadTime_t to)
 {
     MadU8        res;
     MadU8        prio_h;

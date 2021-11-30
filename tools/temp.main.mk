@@ -21,32 +21,38 @@ export RULES     = $(ROOT)/rules.mk
 export ELIBS     = $(ROOT)/elibs.mk
 include $(ROOT)/app/$(APP)/CfgApp.mk
 
+ifeq ($(MCU_NAME),)
+export MCU_NAME = $(MCU_PREFIX)_$(MCU_SUFFIX)
+endif
+
 export DEFS += $(DEFS_FOR_APP) \
                -D__MADOS__ \
                -DMALLOC_PROVIDED \
                -DMISSING_SYSCALL_NAMES \
                -DREENTRANT_SYSCALLS_PROVIDED \
                -DUSE_STDPERIPH_DRIVER \
-               -D$(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr a-z A-Z)
+               -D$(shell echo $(MCU_NAME) | tr 'a-z' 'A-Z')
 
 export INCS += $(INCS_FOR_APP) \
-               -I$(ROOT)/app/$(APP) \
-               -I$(ROOT)/app/$(APP)/inc \
                -I$(ROOT)/kernel/inc \
-               -I$(ROOT)/kernel/lib/pt \
-               -I$(ROOT)/kernel/lib/timer \
-               -I$(ROOT)/library/Newlib \
-               -I$(ROOT)/library/Newlib/include \
-               -I$(ROOT)/driver \
-               -I$(ROOT)/driver/$(MCU_PREFIX) \
-               -I$(ROOT)/driver/$(MCU_PREFIX)/eth \
+               -I$(ROOT)/arch/$(MCU_PREFIX)/kernel-ext \
                -I$(ROOT)/arch/$(MCU_PREFIX)/Arch \
                -I$(ROOT)/arch/$(MCU_PREFIX)/Startup \
                -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph \
-               -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc
+               -I$(ROOT)/arch/$(MCU_PREFIX)/StdPeriph/inc \
+               -I$(ROOT)/driver \
+               -I$(ROOT)/driver/$(MCU_PREFIX) \
+               -I$(ROOT)/driver/$(MCU_PREFIX)/eth \
+			   -I$(ROOT)/library/kernel-ext/pt \
+			   -I$(ROOT)/library/kernel-ext/misc \
+			   -I$(ROOT)/library/kernel-ext/timer \
+               -I$(ROOT)/library/Newlib \
+               -I$(ROOT)/library/Newlib/include \
+               -I$(ROOT)/app/$(APP) \
+               -I$(ROOT)/app/$(APP)/inc
 
 include $(ELIBS)
-export LIBS += -ldev -ldrv -lkernel -larch
+export LIBS += -ldev -ldrv -lkernel
 export LIBS += -L$(BUILD_DIR)
 
 ifeq ($(BUILD_VER), debug)
@@ -55,7 +61,8 @@ endif
 XFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
           -Wall -Wshadow -Wpointer-arith \
           -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
-          -ffunction-sections -fdata-sections
+          -ffunction-sections -fdata-sections \
+          -fno-builtin
 export CFLAGS   += $(XFLAGS) -std=c99
 export CXXFLAGS += $(XFLAGS) -std=c++11
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
@@ -65,9 +72,9 @@ export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
 
 all:
 	$(MAKE) -C $(ROOT)/arch/$(MCU_PREFIX)
+	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/driver
 	$(MAKE) -C $(ROOT)/device
-	$(MAKE) -C $(ROOT)/kernel
 	$(MAKE) -C $(ROOT)/library
 	$(MKDIR) $(BUILD_DIR)/app
 	$(CD) $(BUILD_DIR)/app && $(AR) x $(BUILD_DIR)/libnewlib.a

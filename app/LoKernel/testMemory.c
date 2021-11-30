@@ -46,7 +46,7 @@ void testMem_t0(MadVptr exData)
     MadU8      flag;
     MadVptr    p;
     MadVptr    *pp;
-    MadTim_t   t;
+    MadTime_t   t;
     MadSize_t  s;
     MadUint    *pc;
     MadSemCB_t *sem;

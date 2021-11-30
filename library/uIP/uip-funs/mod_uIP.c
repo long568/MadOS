@@ -88,7 +88,7 @@ void uIP_udp_appcall(void) { APPCONN_CALL(uip_udp_conn); }
  *****************************************************/
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 static MadBool uIP_preinit(void);
-static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt);
+static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTime_t dt);
 
 inline MadBool uIP_Init(const char *dev) {
     if(uIP_preinit() && open(dev, 0, uIP_handler, NULL) < 0) {
@@ -112,12 +112,12 @@ static MadBool uIP_preinit(void)
     uIP_is_linked = MFALSE;
     uIP_is_configured = MFALSE;
     clocker_init(&uIP_Clocker);
-    timer_init(&uIP_arp_timer);
-    timer_init(&uIP_periodic_timer);
-    timer_add(&uIP_arp_timer, &uIP_Clocker);
-    timer_add(&uIP_periodic_timer, &uIP_Clocker);
-    timer_set(&uIP_arp_timer, MadTicksPerSec * 10);
-    timer_set(&uIP_periodic_timer, MadTicksPerSec / 2);
+    tmr_init(&uIP_arp_timer);
+    tmr_init(&uIP_periodic_timer);
+    tmr_add(&uIP_arp_timer, &uIP_Clocker);
+    tmr_add(&uIP_periodic_timer, &uIP_Clocker);
+    tmr_set(&uIP_arp_timer, MadTicksPerSec * 10);
+    tmr_set(&uIP_periodic_timer, MadTicksPerSec / 2);
     uip_init();
     uIP_Unlock();
     do {
@@ -150,7 +150,7 @@ static MadBool uIP_preinit(void)
     return MTRUE;
 }
 
-static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
+static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTime_t dt)
 {
     uIP_Lock();
     clocker_dt(&uIP_Clocker, dt);
@@ -181,7 +181,7 @@ static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
                 }
             }
         }
-    } else if(timer_expired(&uIP_periodic_timer)) {
+    } else if(tmr_expired(&uIP_periodic_timer)) {
         int i;
         for(i = 0; i < UIP_CONNS; i++) {
             uip_periodic(i);
@@ -206,7 +206,7 @@ static MadBool uIP_handler(mEth_t *eth, MadUint event, MadTim_t dt)
         }
 #endif /* UIP_UDP */
         /* Call the ARP timer function every 10 seconds. */
-        if(timer_expired(&uIP_arp_timer)) {
+        if(tmr_expired(&uIP_arp_timer)) {
             uip_arp_timer();
         }
     }

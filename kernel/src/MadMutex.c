@@ -94,7 +94,7 @@ void madDoMutexRelease(MadMutexCB_t **pMutex, MadU8 err)
     if(flagSched) madSched();
 }
 
-MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
+MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTime_t timOut)
 {
     MadU8        res;
     MadU8        prio_h;
@@ -145,7 +145,7 @@ MadU8 madMutexWait(MadMutexCB_t **pMutex, MadTim_t timOut)
     return res;
 }
 
-MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTim_t timOut)
+MadU8 madMutexWaitInCritical(MadMutexCB_t **pMutex, MadTime_t timOut)
 {
     MadU8        res;
     MadU8        prio_h;

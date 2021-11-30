@@ -4,11 +4,13 @@
 #define RX_BUFF_LOCK()    do { madCSDecl(cpsr); madCSLock(cpsr);
 #define RX_BUFF_UNLOCK()  madCSUnlock(cpsr); } while(0)
 
+static void set_info(mUsartChar_t *port, const struct termios *tp);
+
 MadBool mUsartChar_Init(mUsartChar_t *port)
 {
+    struct termios tp;
     MadU8             usart_irqn;
     DMA_InitTypeDef   DMA_InitStructure;
-    USART_InitTypeDef USART_InitStructure;
     const MadDevArgs_t          *devArgs  = port->dev->args;
     const mUsartChar_InitData_t *portArgs = devArgs->lowArgs;
 
@@ -19,10 +21,10 @@ MadBool mUsartChar_Init(mUsartChar_t *port)
     port->rxMax = devArgs->rxBuffSize;
     FIFO_U8_Init(&port->rxBuff, port->dev->rxBuff, devArgs->rxBuffSize);
 
-    port->info.baud      = portArgs->baud;
-    port->info.stop_bits = portArgs->stop_bits;
-    port->info.parity    = portArgs->parity;
-    port->info.hfc       = portArgs->hfc;
+    port->speed  = portArgs->baud;
+    port->cflag  = portArgs->cflag;
+    port->cflag |= CS8;
+    port->mode   = portArgs->mode;
 
     switch((MadU32)(port->p)) {
         case (MadU32)(USART1):
@@ -92,26 +94,10 @@ MadBool mUsartChar_Init(mUsartChar_t *port)
     DMA_DeInit(port->rxDma);
     DMA_Init(port->rxDma, &DMA_InitStructure);
     DMA_Cmd(port->rxDma, ENABLE);
-
-    // USART
-    USART_InitStructure.USART_BaudRate            = portArgs->baud;
-    USART_InitStructure.USART_WordLength          = portArgs->word_len;
-    USART_InitStructure.USART_StopBits            = portArgs->stop_bits;
-    USART_InitStructure.USART_Parity              = portArgs->parity;
-    USART_InitStructure.USART_HardwareFlowControl = portArgs->hfc;
-    USART_InitStructure.USART_Mode                = portArgs->mode;
-    USART_DeInit(port->p);
-    USART_Init(port->p, &USART_InitStructure);
-    USART_Cmd(port->p, ENABLE);
-    if(portArgs->mode & USART_Mode_Rx) {
-        USART_ITConfig(port->p, USART_IT_IDLE, ENABLE);
-        USART_DMACmd(port->p, USART_DMAReq_Rx, ENABLE);
-    }
-    if(portArgs->mode & USART_Mode_Tx) {
-        USART_ITConfig(port->p, USART_IT_TC, ENABLE);
-        USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
-    }
-
+    
+    tp.c_ospeed = port->speed;
+    tp.c_cflag  = port->cflag;
+    set_info(port, &tp);
     return MTRUE;
 }
 
@@ -172,66 +158,61 @@ void mUsartChar_ClrRxBuff(mUsartChar_t *port) {
     RX_BUFF_UNLOCK();
 }
 
-void mUsartChar_GetInfo(mUsartChar_t *port, mUsartChar_Info_t *info)
+void mUsartChar_GetInfo(mUsartChar_t *port, struct termios *tp)
 {
-    info->baud      = port->info.baud;
-    info->stop_bits = port->info.stop_bits;
-    info->parity    = port->info.parity;
-    info->hfc       = port->info.hfc;
+    tp->c_cflag  = port->cflag;
+    tp->c_ispeed = tp->c_ospeed = port->speed;
 }
 
-void mUsartChar_SetInfo(mUsartChar_t *port, const mUsartChar_Info_t *info)
+static void set_info(mUsartChar_t *port, const struct termios *tp)
 {
-    RCC_ClocksTypeDef RCC_ClocksStatus;
-    uint32_t tmpreg = 0;
-    uint32_t apbclock = 0;
-    uint32_t usartxbase = 0;
-    uint32_t integerdivider = 0x00;
-    uint32_t fractionaldivider = 0x00;
-    USART_TypeDef* USARTx = port->p;
+    USART_InitTypeDef tmp = { 0 };
 
-    port->info.baud      = info->baud;
-    port->info.stop_bits = info->stop_bits;
-    port->info.parity    = info->parity;
-    port->info.hfc       = info->hfc;
+    USART_DeInit(port->p);
 
-    USART_Cmd(port->p, DISABLE);
+    port->speed = tp->c_ospeed;
+    port->cflag = tp->c_cflag;
 
-    tmpreg  = USARTx->CR2;
-    tmpreg &= 0xCFFF;//CR2_STOP_CLEAR_Mask;
-    tmpreg |= (uint32_t)info->stop_bits;
-    USARTx->CR2 = (uint16_t)tmpreg;
+    tmp.USART_BaudRate = port->speed;
 
-    tmpreg  = USARTx->CR1;
-    tmpreg &= ~(USART_Parity_Even | USART_Parity_Odd);
-    tmpreg |= (uint32_t)info->parity;
-    USARTx->CR1 = (uint16_t)tmpreg;
-
-    tmpreg  = USARTx->CR3;
-    tmpreg &= ~USART_HardwareFlowControl_RTS_CTS;
-    tmpreg |= info->hfc;
-    USARTx->CR3 = (uint16_t)tmpreg;
-
-    usartxbase = (uint32_t)USARTx;
-    RCC_GetClocksFreq(&RCC_ClocksStatus);
-    if (usartxbase == USART1_BASE){
-        apbclock = RCC_ClocksStatus.PCLK2_Frequency;
+    if(port->cflag & CS8) {
+        tmp.USART_WordLength = USART_WordLength_8b;
     } else {
-        apbclock = RCC_ClocksStatus.PCLK1_Frequency;
+        tmp.USART_WordLength = USART_WordLength_9b;
     }
-    if ((USARTx->CR1 & 0x8000/*CR1_OVER8_Set*/) != 0) {
-        integerdivider = ((25 * apbclock) / (2 * (info->baud)));    
-    } else {
-        integerdivider = ((25 * apbclock) / (4 * (info->baud)));    
-    }
-    tmpreg = (integerdivider / 100) << 4;
-    fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
-    if ((USARTx->CR1 & 0x8000/*CR1_OVER8_Set*/) != 0) {
-        tmpreg |= ((((fractionaldivider * 8) + 50) / 100)) & ((uint8_t)0x07);
-    } else {
-        tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
-    }
-    USARTx->BRR = (uint16_t)tmpreg;
 
+    tmp.USART_StopBits = (port->cflag & CSTOPB) ? USART_StopBits_2 : USART_StopBits_1;
+
+    if(port->cflag & PARENB) {
+        if(port->cflag & PAODD) {
+            tmp.USART_Parity = USART_Parity_Odd;
+        } else {
+            tmp.USART_Parity = USART_Parity_Even;
+        }
+    } else {
+        tmp.USART_Parity = USART_Parity_No;
+    }
+
+    if((port->cflag & CRTS_IFLOW) && (port->cflag & CCTS_OFLOW)) tmp.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+    else if(port->cflag & CRTS_IFLOW) tmp.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS;
+    else if(port->cflag & CCTS_OFLOW) tmp.USART_HardwareFlowControl = USART_HardwareFlowControl_CTS;
+    else tmp.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+
+    tmp.USART_Mode = port->mode;
+
+    USART_Init(port->p, &tmp);
     USART_Cmd(port->p, ENABLE);
+    if(port->mode & USART_Mode_Rx) {
+        USART_ITConfig(port->p, USART_IT_IDLE, ENABLE);
+        USART_DMACmd(port->p, USART_DMAReq_Rx, ENABLE);
+    }
+    if(port->mode & USART_Mode_Tx) {
+        USART_ITConfig(port->p, USART_IT_TC, ENABLE);
+        USART_DMACmd(port->p, USART_DMAReq_Tx, ENABLE);
+    }
+}
+
+void mUsartChar_SetInfo(mUsartChar_t *port, const struct termios *tp)
+{
+    set_info(port, tp);
 }

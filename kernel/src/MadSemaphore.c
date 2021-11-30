@@ -79,7 +79,7 @@ void madDoSemRelease(MadSemCB_t **pSem, MadU8 err)
     if(flagSched) madSched();
 }
 
-MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
+MadU8 madSemWait(MadSemCB_t **pSem, MadTime_t timOut)
 {
     MadU8      res;
     MadU8      prio_h;
@@ -124,7 +124,7 @@ MadU8 madSemWait(MadSemCB_t **pSem, MadTim_t timOut)
     return res;
 }
 
-MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTim_t timOut)
+MadU8 madSemWaitInCritical(MadSemCB_t **pSem, MadTime_t timOut)
 {
     MadU8      res;
     MadU8      prio_h;

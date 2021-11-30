@@ -68,41 +68,14 @@ static int Drv_ioctl(int fd, int request, va_list args)
             break;
 
         case TIOCGETA: {
-            tcflag_t cflag;
-            mUsartChar_Info_t info;
             struct termios *tp = va_arg(args, struct termios *);
-            mUsartChar_GetInfo(port, &info);
-            cflag = 0;
-            cflag |= CS8; 
-            cflag |= (info.stop_bits == USART_StopBits_2) ? CSTOPB : 0;
-            cflag |= (info.parity    != USART_Parity_No)  ? PARENB : 0;
-            cflag |= (info.parity    == USART_Parity_Odd) ? PAODD  : 0;
-            cflag |= (info.hfc & USART_HardwareFlowControl_RTS) ? CRTS_IFLOW : 0;
-            cflag |= (info.hfc & USART_HardwareFlowControl_CTS) ? CCTS_OFLOW : 0;
-            tp->c_cflag  = cflag;
-            tp->c_ispeed = tp->c_ospeed = info.baud;
+            mUsartChar_GetInfo(port, tp);
             break;
         }
 
         case TIOCSETA: {
-            tcflag_t cflag;
-            mUsartChar_Info_t info = { 0 };
             struct termios *tp = va_arg(args, struct termios *);
-            info.baud = tp->c_ispeed;
-            cflag = tp->c_cflag;
-            if(cflag & PARENB) {
-                if(cflag & PAODD) {
-                    info.parity = USART_Parity_Odd;
-                } else {
-                    info.parity = USART_Parity_Even;
-                }
-            } else {
-                info.parity = USART_Parity_No;
-            }
-            info.stop_bits = (cflag & CSTOPB) ? USART_StopBits_2 : USART_StopBits_1;
-            info.hfc |= (cflag & CRTS_IFLOW) ? USART_HardwareFlowControl_RTS : 0;
-            info.hfc |= (cflag & CCTS_OFLOW) ? USART_HardwareFlowControl_CTS : 0;
-            mUsartChar_SetInfo(port, &info);
+            mUsartChar_SetInfo(port, tp);
             break;
         }
 

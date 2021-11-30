@@ -28,7 +28,7 @@ typedef MadU8              MadBool;
 typedef MadU32             MadSize_t;
 typedef MadU32             MadCpsr_t;
 typedef MadU32             MadStk_t;
-typedef MadU32             MadTim_t;
+typedef MadU32             MadTime_t;
 typedef MadU8              MadFlag_t;
 
 #if   MAD_MEM_ALIGN_ROLL == 3
@@ -56,17 +56,11 @@ extern MadCpsr_t MAD_IRQ_SW;
 #define madCSUnlock(cpsr)  madUnlockCriticalSection(cpsr)
 #define madSched()         do { SCB->ICSR = SCB_ICSR_PENDSVSET_Msk; __NOP(); __NOP(); } while(0)
 
-#if defined ( __CC_ARM   )  /*------------------RealView Compiler -----------------*/
-#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; 		  \
-                                   __asm{ rbit t, t; clz t, t; }; \
-								   res = (MadU8)(t & 0x000000FF); }while(0)
-#elif (defined (__GNUC__))  /*------------------ GNU Compiler ---------------------*/
-#define madUnRdyMap(res, src)  do{ MadU32 t = (MadU32)src; 				  \
-								   __ASM volatile ("rbit %[t], %[t] \n\t" \
-								                   "clz  %[t], %[t] \n\t" \
-								                   : [t] "+r" (t) ); 	  \
-								   res = (MadU8)(t & 0x000000FF); }while(0)
-#endif
+#define madUnRdyMap(res, src) do {  \
+	MadU32 tmp = (MadU32)src;       \
+    tmp = __RBIT(tmp);              \
+	res = __CLZ(tmp);               \
+} while(0)
 
 extern MadU8*  madChipId         (void);
 extern void    madWatchDog_Start (MadU8 prer, MadU16 rlr);

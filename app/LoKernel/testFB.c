@@ -46,7 +46,7 @@ void testFB_t0(MadVptr exData)
 {
     MadBool    flag;
     MadVptr    p;
-    MadTim_t   t;
+    MadTime_t   t;
     MadUint    *pc;
     MadSemCB_t *sem;
     t = ((t_data_t*)exData)->t;

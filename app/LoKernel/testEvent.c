@@ -29,7 +29,7 @@ void testEvent_t(MadVptr exData)
 
 void testEvent_t0(MadVptr exData)
 {
-    MadTim_t   t;
+    MadTime_t   t;
     MadUint    *pc;
     MadUint    mask;
     MadSemCB_t *sem;

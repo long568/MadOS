@@ -1,7 +1,19 @@
 # $(ROOT)/driver
 LIBK = libdrv.a
 ASMS =
-SRCS = $(wildcard *.c)
+SRCS = MadDev.c
+ifeq ($(DrvEther), yes)
+SRCS += MadDrvEther.c
+endif
+ifeq ($(DrvSdhc), yes)
+SRCS += MadDrvSdhc.c
+endif
+ifeq ($(DrvSpiChar), yes)
+SRCS += MadDrvSpiChar.c
+endif
+ifeq ($(DrvUartChar), yes)
+SRCS += MadDrvUartChar.c
+endif
 
 export TEMP = $(BUILD_DIR)/drv
 

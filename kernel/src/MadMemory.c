@@ -264,9 +264,11 @@ static void doMemFree(MadMemHead_t *target)
 MadVptr madMemCpy(MadVptr dst, const MadVptr src, MadSize_t len)
 {
     MadSize_t   i;
-    MadVptr     rc;
     MadU8       *d;
     const MadU8 *s;
+#ifdef MAD_CPY_MEM_BY_DMA
+    MadVptr     rc;
+#endif
 
     if(!len) return dst;
     d = dst;
@@ -294,9 +296,11 @@ MadVptr madMemCpy(MadVptr dst, const MadVptr src, MadSize_t len)
 MadVptr madMemSet(MadVptr dst, MadU8 value, MadSize_t len)
 {
     MadSize_t i;
-    MadVptr   rc;
     MadU8     *d;
-
+#ifdef MAD_CPY_MEM_BY_DMA
+    MadVptr   rc;
+#endif
+    
     if(!len) return dst;
     d = dst;
 
@@ -337,4 +341,37 @@ MadInt madMemCmp(const MadVptr dst, const MadVptr src, MadSize_t len)
         }
     }
     return 0;
+}
+
+MadInt madMemScmp(const MadVptr dst, const MadVptr src)
+{
+    MadInt rc;
+    const MadU8 *d;
+    const MadU8 *s;
+    d = dst;
+    s = src;
+    rc = 0;
+    while(1) {
+        if((*d == 0) && (*s == 0)) {
+            break;
+        } else if(*d == 0) {
+            rc = -1;
+            break;
+        } else if(*s == 0) {
+            rc = 1;
+            break;
+        }
+
+        if(*d < *s) {
+            rc = -1;
+            break;
+        } else if (*d > *s) {
+            rc = 1;
+            break;
+        } else {
+            d++;
+            s++;
+        }
+    }
+    return rc;
 }

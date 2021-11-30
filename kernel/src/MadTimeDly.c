@@ -1,13 +1,13 @@
 #include "MadOS.h"
 
-MadTim_t MadTicksPerSec;
+MadTime_t MadTicksPerSec;
 
-static MadTim_t MadSysTickFreq;
-static MadTim_t MadTicksPerMS;
-static MadTim_t MadTimeCntMS;
+static MadTime_t MadSysTickFreq;
+static MadTime_t MadTicksPerMS;
+static MadTime_t MadTimeCntMS;
 static MadU64   MadTimeNowMS;
 
-void madTimeInit(MadTim_t freq, MadTim_t ticks)
+void madTimeInit(MadTime_t freq, MadTime_t ticks)
 {
     MadSysTickFreq = freq;
     MadTicksPerSec = ticks;
@@ -16,7 +16,7 @@ void madTimeInit(MadTim_t freq, MadTim_t ticks)
     MadTimeNowMS   = 0;
 }
 
-void madTimeDly(MadTim_t timeCnt)
+void madTimeDly(MadTime_t timeCnt)
 {
     MadU8 prio_h;
     madCSDecl(cpsr);   
@@ -33,10 +33,10 @@ void madTimeDly(MadTim_t timeCnt)
     madSched();
 }
 
-MadTim_t madTimeNow(void)
+MadTime_t madTimeNow(void)
 {
-    MadTim_t rc;
-    MAD_CS_OPT(rc = (MadTim_t)MadTimeNowMS);
+    MadTime_t rc;
+    MAD_CS_OPT(rc = (MadTime_t)MadTimeNowMS);
     return rc;
 }
 

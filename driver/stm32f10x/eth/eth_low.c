@@ -228,7 +228,7 @@ void eth_driver_thread(MadVptr exData)
 {
     MadU8 ok;
     MadUint event;
-    MadTim_t dt;
+    MadTime_t dt;
     mEth_t *eth = (mEth_t*)exData;
 
     event = 0;

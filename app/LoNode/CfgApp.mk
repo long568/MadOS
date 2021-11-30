@@ -5,8 +5,14 @@ export MCU_SUFFIX   = cl
 export MCU_RAM_SIZE = 0x10000
 export MCU_FLS_SIZE = 256K
 
-export PRJ_CFLAGS  = -Os
-export PRJ_LDFLAGS = --specs=nano.specs -u _printf_float
+export PRJ_CFLAGS   = -Os
+export PRJ_LDFLAGS  = --specs=nano.specs
+export PRJ_LDFLAGS += -u _printf_float
+
+export DrvEther    = yes
+export DrvSdhc     = yes
+export DrvSpiChar  = yes
+export DrvUartChar = yes
 
 export LIB_LUA       = yes
 export LIB_FATFS     = yes

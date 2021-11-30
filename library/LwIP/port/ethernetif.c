@@ -21,7 +21,7 @@ ethernetif_input(struct netif *netif)
 	} while(1);
 }
 
-MadBool ethernetif_callback(struct ethernetif *eth, MadUint event, MadTim_t dt)
+MadBool ethernetif_callback(struct ethernetif *eth, MadUint event, MadTime_t dt)
 {
 	struct netif *netif = (struct netif *)(eth->ep);
 

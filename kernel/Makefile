@@ -8,4 +8,5 @@ all: prebuild
 
 prebuild:
 	$(MAKE) -C $(ROOT)/kernel/src
-	$(MAKE) -C $(ROOT)/kernel/lib/timer
+	$(MAKE) -C $(ROOT)/library/kernel-ext/misc
+	$(MAKE) -C $(ROOT)/library/kernel-ext/timer

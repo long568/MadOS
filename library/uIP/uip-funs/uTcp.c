@@ -70,11 +70,11 @@ PT_THREAD(uTcp_Appcall(MadVptr self))
     uTcp *s = (uTcp*)self;
 
     PT_BEGIN(&s->pt);
-    timer_init(&s->timer);
-    timer_add(&s->timer, &uIP_Clocker);
-    timer_set(&s->timer, MadTicksPerSec * 3);
+    tmr_init(&s->timer);
+    tmr_add(&s->timer, &uIP_Clocker);
+    tmr_set(&s->timer, MadTicksPerSec * 3);
     MAD_LOG("[uTcp] Startup\n");
-    PT_WAIT_UNTIL(&s->pt, timer_expired(&s->timer) && uIP_is_configured);
+    PT_WAIT_UNTIL(&s->pt, tmr_expired(&s->timer) && uIP_is_configured);
 
     uip_ipaddr_t ipaddr;
     uip_ipaddr(&ipaddr, s->ip[0], s->ip[1], s->ip[2], s->ip[3]);
@@ -108,7 +108,7 @@ PT_THREAD(uTcp_Appcall(MadVptr self))
     }
 
 uTcp_Exit:
-    timer_remove(&s->timer);
+    tmr_remove(&s->timer);
     MAD_LOG("[uTcp] Closed\n");
     uip_abort();
     PT_END(&s->pt);

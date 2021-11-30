@@ -25,7 +25,7 @@ typedef struct _MadEventCB_t {
 } MadEventCB_t;
 
 extern  MadEventCB_t*  madEventCreate                 (MadUint mask, MadEventMode mode, MadEventOpt opt);
-extern  MadU8          madEventWait                   (MadEventCB_t **pEvent, MadUint *mask, MadTim_t to);
+extern  MadU8          madEventWait                   (MadEventCB_t **pEvent, MadUint *mask, MadTime_t to);
 extern  MadU8          madEventDoCheck                (MadEventCB_t **pEvent, MadUint *mask, MadBool clear);
 extern  void           madDoEventTrigger              (MadEventCB_t **pEvent, MadUint mask, MadU8 err);
 extern  void           madDoEventShut                 (MadEventCB_t **pEvent, MadBool opt);

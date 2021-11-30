@@ -31,8 +31,8 @@ typedef struct _MadTCB_t {
     MadStk_t  *pStk;
     MadU8     prio;
     MadU8     state;
-    MadTim_t  timeCnt;
-    MadTim_t  timeCntRemain;
+    MadTime_t  timeCnt;
+    MadTime_t  timeCntRemain;
     MadVptr   msg;
     MadUint   eventMask;
     MadU16    rdyg_bit;

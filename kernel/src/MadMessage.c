@@ -87,7 +87,7 @@ MadU8 madMsgCheck(MadMsgQCB_t **pMsgQ, MadVptr *msg)
     return res;
 }
 
-MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
+MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTime_t to)
 {
     MadU8       prio_h;
     MadU8       res;
@@ -141,7 +141,7 @@ MadU8 madMsgWait(MadMsgQCB_t **pMsgQ, MadVptr *msg, MadTim_t to)
     return res;
 }
 
-MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTim_t to, MadU8 err)
+MadU8 madDoMsgSend(MadMsgQCB_t **pMsgQ, MadVptr msg, MadBool block, MadTime_t to, MadU8 err)
 {
     MadU8       res;
     MadU8       prio_h;

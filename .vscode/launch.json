@@ -15,10 +15,14 @@
             "interface": "swd",
             "preLaunchTask": "build",
             "configFiles": [
-                "interface/stlink-v2.cfg",
+                "interface/stlink.cfg",
                 "target/stm32f1x.cfg"
             ],
             "runToMain": true
         }
     ]
 }
+
+// gd32e23x.cfg
+// stm32f1x.cfg
+// stm32g0x.cfg

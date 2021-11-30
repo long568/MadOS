@@ -2,7 +2,7 @@
 #define __TEST_H__
 
 typedef struct {
-    MadTim_t  t;
+    MadTime_t  t;
     MadSize_t s;
     MadUint   c;
     MadUint   mask;

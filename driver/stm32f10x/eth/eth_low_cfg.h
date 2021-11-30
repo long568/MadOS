@@ -28,7 +28,7 @@ typedef enum {
 struct _mEth_t;
 struct _mEth_InitData_t;
 
-typedef MadBool(*mEth_Callback_t)(struct _mEth_t *eth, MadUint event, MadTim_t dt);
+typedef MadBool(*mEth_Callback_t)(struct _mEth_t *eth, MadUint event, MadTime_t dt);
 
 typedef struct _mEth_InitData_t {
     struct {

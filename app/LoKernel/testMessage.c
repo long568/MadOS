@@ -28,7 +28,7 @@ void testMsgQ_t(MadVptr exData)
 
 void testMsgQ_t0(MadVptr exData)
 {
-    MadTim_t   t;
+    MadTime_t   t;
     MadUint    *pc;
     MadSemCB_t *sem;
     MadU8      res;

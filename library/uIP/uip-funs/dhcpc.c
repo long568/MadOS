@@ -295,10 +295,10 @@ static PT_THREAD(dhcpc_appcall(MadVptr ep))
     s.state = STATE_INITIAL;
     dhcpc_request();
 
-    timer_init(&s.timer);
-    timer_add(&s.timer, &uIP_Clocker);
-    timer_set(&s.timer, MadTicksPerSec * 2);
-    PT_WAIT_UNTIL(&s.pt, timer_expired(&s.timer));
+    tmr_init(&s.timer);
+    tmr_add(&s.timer, &uIP_Clocker);
+    tmr_set(&s.timer, MadTicksPerSec * 2);
+    PT_WAIT_UNTIL(&s.pt, tmr_expired(&s.timer));
     MAD_LOG("[DHCP] Startup...\n");
 
     s.state = STATE_SENDING;
@@ -307,8 +307,8 @@ static PT_THREAD(dhcpc_appcall(MadVptr ep))
 
     do {
         send_discover();
-        timer_set(&s.timer, s.ticks);
-        PT_WAIT_UNTIL(&s.pt, dhcpc_wait_offer() || timer_expired(&s.timer));
+        tmr_set(&s.timer, s.ticks);
+        PT_WAIT_UNTIL(&s.pt, dhcpc_wait_offer() || tmr_expired(&s.timer));
         if (s.data_ok)
             break;
         if (s.ticks < MadTicksPerSec * 60)
@@ -322,8 +322,8 @@ static PT_THREAD(dhcpc_appcall(MadVptr ep))
 
     do {
         send_request();
-        timer_set(&s.timer, s.ticks);
-        PT_WAIT_UNTIL(&s.pt, dhcpc_wait_ack() || timer_expired(&s.timer));
+        tmr_set(&s.timer, s.ticks);
+        PT_WAIT_UNTIL(&s.pt, dhcpc_wait_ack() || tmr_expired(&s.timer));
         if (s.data_ok)
             break;
         if (s.ticks <= MadTicksPerSec * 10)
@@ -353,10 +353,10 @@ static PT_THREAD(dhcpc_appcall(MadVptr ep))
     dhcpc_configured((const struct dhcpc_state *)&s);
     uIP_is_configured = MTRUE;
 
-    timer_set(&s.timer, lease_time * DHCP_RESTART_DIV);
-    PT_WAIT_UNTIL(&s.pt, timer_expired(&s.timer) || !uIP_is_linked);
+    tmr_set(&s.timer, lease_time * DHCP_RESTART_DIV);
+    PT_WAIT_UNTIL(&s.pt, tmr_expired(&s.timer) || !uIP_is_linked);
 
-    timer_remove(&s.timer);
+    tmr_remove(&s.timer);
     if(!uIP_is_linked)
         uIP_is_configured = MFALSE;
     PT_END(&s.pt);

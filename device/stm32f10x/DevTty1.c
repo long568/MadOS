@@ -19,11 +19,8 @@ static const mUsartChar_InitData_t LowArgs = {
     },
     ISR_PRIO_DEV_USART,
     115200,
-    USART_WordLength_8b,
-    USART_StopBits_1,
-    USART_Parity_No,
+    0,
     USART_Mode_Rx | USART_Mode_Tx,
-    USART_HardwareFlowControl_None,
     DMA_Priority_Low,
     DMA_Priority_Low,
     Dev_Irq_Handler

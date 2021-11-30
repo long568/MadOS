@@ -44,4 +44,3 @@ inline
 void free(void *p) {
     madMemFree(p);
 }
-
