@@ -7,7 +7,7 @@ export MCU_RAM_SIZE = 0x2000
 export MCU_FLS_SIZE = 64K
 
 export PRJ_CFLAGS   = -Os
-export PRJ_CFLAGS  += -DFD_SETSIZE=8
+export PRJ_CFLAGS  += -DFD_SETSIZE=4
 export PRJ_LDFLAGS  = --specs=nano.specs
 
 export DrvUartChar = yes

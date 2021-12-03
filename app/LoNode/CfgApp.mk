@@ -6,6 +6,7 @@ export MCU_RAM_SIZE = 0x10000
 export MCU_FLS_SIZE = 256K
 
 export PRJ_CFLAGS   = -Os
+export PRJ_CFLAGS  +=-DUSE_STDPERIPH_DRIVER
 export PRJ_LDFLAGS  = --specs=nano.specs
 export PRJ_LDFLAGS += -u _printf_float
 

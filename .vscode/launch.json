@@ -16,7 +16,7 @@
             "preLaunchTask": "build",
             "configFiles": [
                 "interface/stlink.cfg",
-                "target/stm32f1x.cfg"
+                "target/stm32g0x.cfg"
             ],
             "runToMain": true
         }

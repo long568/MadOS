@@ -30,7 +30,6 @@ export DEFS += $(DEFS_FOR_APP) \
                -DMALLOC_PROVIDED \
                -DMISSING_SYSCALL_NAMES \
                -DREENTRANT_SYSCALLS_PROVIDED \
-               -DUSE_STDPERIPH_DRIVER \
                -D$(shell echo $(MCU_NAME) | tr 'a-z' 'A-Z')
 
 export INCS += $(INCS_FOR_APP) \

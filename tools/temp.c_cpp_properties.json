@@ -37,6 +37,7 @@
                 "MISSING_SYSCALL_NAMES",
                 "REENTRANT_SYSCALLS_PROVIDED",
                 "USE_STDPERIPH_DRIVER",
+                "USE_FULL_LL_DRIVER",
                 "STM32F10X_CL"
             ],
             "compilerPath": "${env.MADOS_TOOLS_HOME}/bin/arm-none-eabi-gcc",
