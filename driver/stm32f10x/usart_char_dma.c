@@ -112,11 +112,9 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
 
 void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
-    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {
-        volatile MadU32 data;
+    if(USART_GetITStatus(port->p, USART_IT_IDLE) != RESET) {        
         MadU32 offset;
         MadU32 dma_cnt;
-        (void)data;
         dma_cnt = port->rxDma->CNDTR;
         if(dma_cnt < port->rxCnt) {
             offset = port->rxCnt - dma_cnt;
@@ -127,7 +125,10 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         FIFO_U8_DMA_Put(&port->rxBuff, offset);
         port->dev->rxBuffCnt = FIFO_U8_Cnt(&port->rxBuff);
         port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
-        data = port->p->DR;
+        do {
+            volatile MadU32 data;
+            data = port->p->DR;
+        } while(0);
     }
     if(USART_GetITStatus(port->p, USART_IT_TC) != RESET) {
         DMA_Cmd(port->txDma, DISABLE);

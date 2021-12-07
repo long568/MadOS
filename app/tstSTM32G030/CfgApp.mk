@@ -11,7 +11,4 @@ export PRJ_CFLAGS  += -DFD_SETSIZE=4
 export PRJ_CFLAGS  += -DUSE_FULL_LL_DRIVER=1
 export PRJ_LDFLAGS  = --specs=nano.specs
 
-# export DrvEther    = yes
-# export DrvSdhc     = yes
-# export DrvSpiChar  = yes
-# export DrvUartChar = yes
+export DrvUartChar = yes

@@ -40,19 +40,16 @@ madPendSVHandler:
     PUSH    {LR}
     LDR     R0,         =madThreadCheckReady
     BLX		R0
-    POP		{R1}                         @ Recover EXC_RETURN
-    MOV     LR,         R1
     CMP		R0,         #1				
     BNE		PendSV_Handler_DONE          @ There is no need to switch task.
     MRS     R12,        MSP              @ Record MSP (R12)
     MRS		R0,         PSP              @ R0  = PSP
     MSR     MSP,        R0               @ MSP = PSP
-    PUSH    {R4-R7}                      @ Push R4-R7
-    MOV     R4,         R8               @ Push R8-R11
-    MOV     R5,         R9
-    MOV     R6,         R10
-    MOV     R7,         R11
-    PUSH    {R4-R7}
+    MOV     R0,         R8               @ Push R8-R11, R4-R7
+    MOV     R1,         R9
+    MOV     R2,         R10
+    MOV     R3,         R11
+    PUSH    {R0-R7}
     MRS     R0,         MSP              @ R0 = PSP!
     LDR		R1,         =MadCurTCB       @ R1 = Addr{MadCurTCB}
     LDR		R2,         [R1]             @ R2 = MadCurTCB
@@ -62,8 +59,7 @@ madPendSVHandler:
     STR		R2,         [R1]             @ MadCurTCB = MadHighRdyTCB
     LDR		R0,         [R2]             @ R0 = MadHighRdyTCB->pStk
     MSR     MSP,        R0               @ MSP = PSP
-    POP     {R4-R7}                      @ Pop R4-R7
-    POP     {R0-R3}                      @ Pop R8-R11
+    POP     {R0-R7}                      @ Pop R8-R11, R4-R7
     MOV     R8,         R0
     MOV     R9,         R1
     MOV     R10,        R2
@@ -73,7 +69,7 @@ madPendSVHandler:
     MSR     PSP,        R0               @ Recover PSP
 PendSV_Handler_DONE:
     CPSIE	I
-    BX		LR
+    POP     {PC}
     .size   madPendSVHandler, .-madPendSVHandler
 
 /*****************************************

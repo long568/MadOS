@@ -38,7 +38,6 @@ madPendSVHandler:
     PUSH    {LR}
     LDR     R0, =madThreadCheckReady
     BLX		R0
-    POP		{LR}				    // Recover EXC_RETURN
     CMP		R0,    #1				
     BNE		PendSV_Handler_DONE		// There is no need to switch task.
     MRS		R0,    PSP				// R0 <==> PSP
@@ -54,7 +53,7 @@ madPendSVHandler:
     MSR		PSP,   R0				// Recover PSP
 PendSV_Handler_DONE:
     CPSIE	I
-    BX		LR
+    POP		{PC}
     .size   madPendSVHandler, .-madPendSVHandler
 
 /*****************************************

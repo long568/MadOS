@@ -2,6 +2,7 @@
 #include <string.h>
 #include "MadOS.h"
 #include "CfgUser.h"
+#include "mod_Newlib.h"
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 static void madStartup(MadVptr exData);
@@ -26,6 +27,9 @@ static void madStartup(MadVptr exData)
 
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 
+    Newlib_Init();
+    MAD_LOG_INIT();
+
     buf = malloc(1024);
     if(!buf) { while (1); }
 
@@ -40,9 +44,10 @@ static void madStartup(MadVptr exData)
     LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4);
 
     while(1) {
-        memset(buf, 0xA5, 1024);
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
         LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_4);
+        memset(buf, 0xA5, 1024);
+        printf("Hello World !\n");
 	}
 }
 
@@ -65,4 +70,5 @@ static void cfgHW(void)
 
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+    LL_SYSCFG_EnablePinRemap(LL_SYSCFG_PIN_RMP_PA11 | LL_SYSCFG_PIN_RMP_PA12);
 }
