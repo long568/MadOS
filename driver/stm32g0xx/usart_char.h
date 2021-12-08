@@ -48,6 +48,7 @@ typedef struct {
     MadU32  rxCnt;
     MadU32  rxMax;
     FIFO_U8 rxBuff;
+    MadBool rdy;
 } mUsartChar_t;
 
 extern void    mUsartChar_Irq_Handler (mUsartChar_t *port);

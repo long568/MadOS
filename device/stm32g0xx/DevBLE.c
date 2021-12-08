@@ -17,7 +17,7 @@ static const mUsartChar_InitData_t LowArgs = {
         { GPIOA, LL_GPIO_PIN_2 },
         { GPIOA, LL_GPIO_PIN_3 }
     },
-    ISR_PRIO_TTY_USART,
+    ISR_PRIO_BLE_USART,
     115200,
     0,
     LL_USART_DIRECTION_TX | LL_USART_DIRECTION_RX,
@@ -27,7 +27,7 @@ static const mUsartChar_InitData_t LowArgs = {
 static const MadDevArgs_t Args = {
     MAD_WAITQ_DEFAULT_SIZE,
     32,
-    32,
+    128,
     &LowArgs
 };
 

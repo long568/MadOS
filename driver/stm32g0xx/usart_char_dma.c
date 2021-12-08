@@ -24,6 +24,7 @@ MadBool mUsartChar_Init(mUsartChar_t *port)
     port->rxCnt = devArgs->rxBuffSize;
     port->rxMax = devArgs->rxBuffSize;
     FIFO_U8_Init(&port->rxBuff, port->dev->rxBuff, devArgs->rxBuffSize);
+    port->rdy = MFALSE;
 
     port->speed  = portArgs->baud;
     port->cflag  = portArgs->cflag;
@@ -66,6 +67,9 @@ MadBool mUsartChar_Init(mUsartChar_t *port)
     gpio.Alternate  = portArgs->io.af;
     LL_GPIO_Init(portArgs->io.rx.port, &gpio);
 
+    // Wait for IO ready...
+    madTimeDly(10);
+
     // Tx DMA
     LL_DMA_DeInit(port->txDma.dma, port->txDma.chl);
 
@@ -102,23 +106,27 @@ MadBool mUsartChar_DeInit(mUsartChar_t *port)
 void mUsartChar_Irq_Handler(mUsartChar_t *port)
 {
     if(LL_USART_IsActiveFlag_IDLE(port->p) != RESET) {
-        MadU32 offset;
-        MadU32 dma_cnt;
-        dma_cnt = LL_DMA_GetDataLength(port->rxDma.dma, port->rxDma.chl);
-        if(dma_cnt < port->rxCnt) {
-            offset = port->rxCnt - dma_cnt;
-        } else {
-            offset = port->rxCnt + port->rxMax - dma_cnt;
+        if(port->rdy == MTRUE) {
+            MadU32 offset;
+            MadU32 dma_cnt;
+            dma_cnt = LL_DMA_GetDataLength(port->rxDma.dma, port->rxDma.chl);
+            if(dma_cnt < port->rxCnt) {
+                offset = port->rxCnt - dma_cnt;
+            } else {
+                offset = port->rxCnt + port->rxMax - dma_cnt;
+            }
+            port->rxCnt = dma_cnt;
+            FIFO_U8_DMA_Put(&port->rxBuff, offset);
+            port->dev->rxBuffCnt = FIFO_U8_Cnt(&port->rxBuff);
+            port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
         }
-        port->rxCnt = dma_cnt;
-        FIFO_U8_DMA_Put(&port->rxBuff, offset);
-        port->dev->rxBuffCnt = FIFO_U8_Cnt(&port->rxBuff);
-        port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
         LL_USART_ClearFlag_IDLE(port->p);
     }
     if(LL_USART_IsActiveFlag_TC(port->p) != RESET) {
-        LL_DMA_DisableChannel(port->txDma.dma, port->txDma.chl);
-        port->dev->eCall(port->dev, MAD_WAIT_EVENT_WRITE);
+        if(port->rdy == MTRUE) {
+            LL_DMA_DisableChannel(port->txDma.dma, port->txDma.chl);
+            port->dev->eCall(port->dev, MAD_WAIT_EVENT_WRITE);
+        }
         LL_USART_ClearFlag_TC(port->p);
     }
 }
@@ -177,6 +185,7 @@ void mUsartChar_GetInfo(mUsartChar_t *port, struct termios *tp)
 
 static void set_info(mUsartChar_t *port, const struct termios *tp)
 {
+    madCSInit();
     LL_USART_InitTypeDef tmp = { 0 };
 
     LL_USART_DeInit(port->p);
@@ -215,20 +224,26 @@ static void set_info(mUsartChar_t *port, const struct termios *tp)
     tmp.PrescalerValue = LL_USART_PRESCALER_DIV1;
 
     LL_USART_Init(port->p, &tmp);
+    LL_USART_SetTXFIFOThreshold(port->p, LL_USART_FIFOTHRESHOLD_1_8);
+    LL_USART_SetRXFIFOThreshold(port->p, LL_USART_FIFOTHRESHOLD_1_8);
+    LL_USART_DisableFIFO(port->p);
     LL_USART_Enable(port->p);
-    LL_USART_ClearFlag_TC(port->p);
+
+    while((!(LL_USART_IsActiveFlag_TEACK(port->p))) || (!(LL_USART_IsActiveFlag_REACK(port->p))));
+
     if(port->mode & LL_USART_DIRECTION_TX) {
-        madCSInit();
-        madCSLock(cpsr);
         LL_USART_EnableIT_TC(port->p);
-        LL_USART_ClearFlag_TC(port->p);
-        madCSUnlock(cpsr);
         LL_USART_EnableDMAReq_TX(port->p);
     }
     if(port->mode & LL_USART_DIRECTION_RX) {
         LL_USART_EnableIT_IDLE(port->p);
         LL_USART_EnableDMAReq_RX(port->p);
     }
+
+    madTimeDly(10);
+    madCSLock(cpsr);
+    port->rdy = MTRUE;
+    madCSUnlock(cpsr);
 }
 
 void mUsartChar_SetInfo(mUsartChar_t *port, const struct termios *tp)
