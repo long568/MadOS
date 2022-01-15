@@ -67,9 +67,6 @@ MadBool mUsartChar_Init(mUsartChar_t *port)
     gpio.Alternate  = portArgs->io.af;
     LL_GPIO_Init(portArgs->io.rx.port, &gpio);
 
-    // Wait for IO ready...
-    madTimeDly(10);
-
     // Tx DMA
     LL_DMA_DeInit(port->txDma.dma, port->txDma.chl);
 

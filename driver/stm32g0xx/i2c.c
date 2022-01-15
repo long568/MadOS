@@ -49,9 +49,6 @@ MadBool mI2C_Init(mI2C_t *port)
     gpio.Alternate  = portArgs->io.af;
     LL_GPIO_Init(portArgs->io.sda.port, &gpio);
 
-    // Wait for IO ready...
-    madTimeDly(10);
-
     tp.c_cflag = port->cflag;
     set_info(port, &tp);
     return MTRUE;
@@ -100,6 +97,7 @@ void mI2C_Irq_Handler(mI2C_t *port)
             if(LL_I2C_IsActiveFlag_STOP(port->p)) {
                 LL_I2C_ClearFlag_STOP(port->p);
                 port->dev->rxBuffCnt = port->len;
+                port->dev->eCall(port->dev, MAD_WAIT_EVENT_WRITE);
                 port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
                 port->sta = I2C_STA_IDLE;
             }
