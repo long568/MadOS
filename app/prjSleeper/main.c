@@ -2,15 +2,20 @@
 #include "CfgUser.h"
 #include "mod_Newlib.h"
 
+#include "key.h"
 #include "ble.h"
+#include "heartrate.h"
+#include "stabilivolt.h"
+#include "loop.h"
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
-static void madStartup(MadVptr exData);
-static void cfgHW(void);
 
-int main()
+static void hw_init(void);
+static void madStartup(MadVptr exData);
+
+int main(void)
 {
-    cfgHW();
+    hw_init();
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
     madThreadCreate(madStartup, 0, 256, 0);
@@ -18,39 +23,22 @@ int main()
 	while(1);
 }
 
-static void madStartup(MadVptr exData)
+void hw_shutdown(void)
 {
-	(void)exData;
-
-    madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
-
-    Newlib_Init();
-
-    ble_init();
-
-    do {
-        LL_GPIO_InitTypeDef led = { 0 };
-        LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_4);
-        led.Pin        = LL_GPIO_PIN_4;
-        led.Mode       = LL_GPIO_MODE_OUTPUT;
-        led.Speed      = LL_GPIO_SPEED_LOW;
-        led.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-        led.Pull       = LL_GPIO_PULL_NO;
-        led.Alternate  = LL_GPIO_AF_0;
-        LL_GPIO_Init(GPIOA, &led);
-        LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4);
-    } while(0);
-
-    while(1) {
-        madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
-        LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_4);
-	}
+    madCSInit();
+    madCSLock();
+    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_LockPin(GPIO_LED, GPIN_LED);
+    LL_GPIO_LockPin(GPIO_PWR, GPIN_PWR);
+    while (1);
+    madCSUnlock();
 }
 
-static void cfgHW(void)
+static void hw_init(void)
 {
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR); 
 
     LL_RCC_HSI_Enable();
     while(LL_RCC_HSI_IsReady() != 1) {}
@@ -66,4 +54,57 @@ static void cfgHW(void)
 
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
+}
+
+static void madStartup(MadVptr exData)
+{
+	(void)exData;
+
+    madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
+
+    do {
+        LL_GPIO_InitTypeDef pin = { 0 };
+
+        LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
+        LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+        LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_NO);
+        LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
+
+        pin.Pin        = GPIN_PWR;
+        pin.Mode       = LL_GPIO_MODE_OUTPUT;
+        pin.Speed      = LL_GPIO_SPEED_LOW;
+        pin.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+        pin.Pull       = LL_GPIO_PULL_NO;
+        pin.Alternate  = LL_GPIO_AF_0;
+        LL_GPIO_Init(GPIO_PWR, &pin);
+        
+        pin.Pin        = GPIN_LED;
+        pin.Mode       = LL_GPIO_MODE_OUTPUT;
+        pin.Speed      = LL_GPIO_SPEED_LOW;
+        pin.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+        pin.Pull       = LL_GPIO_PULL_NO;
+        pin.Alternate  = LL_GPIO_AF_0;
+        LL_GPIO_Init(GPIO_LED, &pin);
+    } while(0);
+
+    // madTimeDly(3000);
+    // LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
+    // LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
+    // while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+    //     madTimeDly(20);
+    // }
+
+    Newlib_Init();
+
+    // key_init();
+    ble_init();
+    // sv_init();
+    hr_init();
+    loop_init();
+
+    while(1) {
+        madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
+        LL_GPIO_TogglePin(GPIO_LED, GPIN_LED);
+	}
 }

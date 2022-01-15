@@ -2,7 +2,7 @@
 #include "MadISR.h"
 
 #define VECTOR_EX_OFS 16
-#if defined STM32G030XX
+#if defined STM32G030xx
 #   define VECTOR_NUMBER 46
 #else
 #   error Unknown MCU !

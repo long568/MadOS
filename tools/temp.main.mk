@@ -22,7 +22,7 @@ export ELIBS     = $(ROOT)/elibs.mk
 include $(ROOT)/app/$(APP)/CfgApp.mk
 
 ifeq ($(MCU_NAME),)
-export MCU_NAME = $(MCU_PREFIX)_$(MCU_SUFFIX)
+export MCU_NAME = $(shell echo $(MCU_PREFIX)_$(MCU_SUFFIX) | tr 'a-z' 'A-Z')
 endif
 
 export DEFS += $(DEFS_FOR_APP) \
@@ -30,7 +30,7 @@ export DEFS += $(DEFS_FOR_APP) \
                -DMALLOC_PROVIDED \
                -DMISSING_SYSCALL_NAMES \
                -DREENTRANT_SYSCALLS_PROVIDED \
-               -D$(shell echo $(MCU_NAME) | tr 'a-z' 'A-Z')
+               -D$(MCU_NAME)
 
 export INCS += $(INCS_FOR_APP) \
                -I$(ROOT)/kernel/inc \

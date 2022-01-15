@@ -8,7 +8,6 @@ rm -f $1/app/$MADOS_WORKING_APP/_CfgApp.mk
 if [ -z $MCU_NAME ];then
 export MCU_NAME=${MCU_PREFIX}_${MCU_SUFFIX}
 fi
-export MCU_NAME=$(echo $MCU_NAME | tr 'a-z' 'A-Z')
 
 sed $"s/^export APP.*/export APP = $MADOS_WORKING_APP/" \
     $1/tools/temp.main.mk > $1/main.mk

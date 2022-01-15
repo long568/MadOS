@@ -127,6 +127,7 @@ void mUsartChar_Irq_Handler(mUsartChar_t *port)
         port->dev->eCall(port->dev, MAD_WAIT_EVENT_READ);
         do {
             volatile MadU32 data;
+            (void) data;
             data = port->p->DR;
         } while(0);
     }

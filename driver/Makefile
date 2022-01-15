@@ -14,6 +14,9 @@ endif
 ifeq ($(DrvUartChar), yes)
 SRCS += MadDrvUartChar.c
 endif
+ifeq ($(DrvI2C), yes)
+SRCS += MadDrvI2C.c
+endif
 
 export TEMP = $(BUILD_DIR)/drv
 

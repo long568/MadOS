@@ -55,22 +55,22 @@
    application
   */
 
-#if !defined (STM32G071XX) && !defined (STM32G081XX) && !defined (STM32G070XX) \
- && !defined (STM32G030XX) && !defined (STM32G031XX) && !defined (STM32G041XX) \
- && !defined (STM32G0B0XX) && !defined (STM32G0B1XX) && !defined (STM32G0C1XX) \
- && !defined (STM32G050XX) && !defined (STM32G051XX) && !defined (STM32G061XX)
-  /* #define STM32G0B0XX */   /*!< STM32G0B0XX Devices */
-  /* #define STM32G0B1XX */   /*!< STM32G0B1XX Devices */
-  /* #define STM32G0C1XX */   /*!< STM32G0C1XX Devices */
-  /* #define STM32G070XX */   /*!< STM32G070XX Devices */
-  /* #define STM32G071XX */   /*!< STM32G071XX Devices */
-  /* #define STM32G081XX */   /*!< STM32G081XX Devices */
-  /* #define STM32G050XX */   /*!< STM32G050XX Devices */
-  /* #define STM32G051XX */   /*!< STM32G051XX Devices */
-  /* #define STM32G061XX */   /*!< STM32G061XX Devices */
-  /* #define STM32G030XX */   /*!< STM32G030XX Devices */
+#if !defined (STM32G071xx) && !defined (STM32G081xx) && !defined (STM32G070xx) \
+ && !defined (STM32G030xx) && !defined (STM32G031xx) && !defined (STM32G041xx) \
+ && !defined (STM32G0B0xx) && !defined (STM32G0B1xx) && !defined (STM32G0C1xx) \
+ && !defined (STM32G050xx) && !defined (STM32G051xx) && !defined (STM32G061xx)
+  /* #define STM32G0B0xx */   /*!< STM32G0B0xx Devices */
+  /* #define STM32G0B1xx */   /*!< STM32G0B1xx Devices */
+  /* #define STM32G0C1xx */   /*!< STM32G0C1xx Devices */
+  /* #define STM32G070xx */   /*!< STM32G070xx Devices */
+  /* #define STM32G071xx */   /*!< STM32G071xx Devices */
+  /* #define STM32G081xx */   /*!< STM32G081xx Devices */
+  /* #define STM32G050xx */   /*!< STM32G050xx Devices */
+  /* #define STM32G051xx */   /*!< STM32G051xx Devices */
+  /* #define STM32G061xx */   /*!< STM32G061xx Devices */
+  /* #define STM32G030xx */   /*!< STM32G030xx Devices */
   /* #define STM32G031xx */   /*!< STM32G031xx Devices */
-  /* #define STM32G041XX */   /*!< STM32G041XX Devices */
+  /* #define STM32G041xx */   /*!< STM32G041xx Devices */
 #endif
 
 /*  Tip: To avoid modifying this file each time you need to switch between these
@@ -105,29 +105,29 @@
   * @{
   */
 
-#if defined(STM32G0B1XX)
+#if defined(STM32G0B1xx)
   #include "stm32g0b1xx.h"
-#elif defined(STM32G0C1XX)
+#elif defined(STM32G0C1xx)
   #include "stm32g0c1xx.h"
-#elif defined(STM32G0B0XX)
+#elif defined(STM32G0B0xx)
   #include "stm32g0b0xx.h"
-#elif defined(STM32G071XX)
+#elif defined(STM32G071xx)
   #include "stm32g071xx.h"
-#elif defined(STM32G081XX)
+#elif defined(STM32G081xx)
   #include "stm32g081xx.h"
-#elif defined(STM32G070XX)
+#elif defined(STM32G070xx)
   #include "stm32g070xx.h"
 #elif defined(STM32G031xx)
   #include "stm32g031xx.h"
-#elif defined(STM32G041XX)
+#elif defined(STM32G041xx)
   #include "stm32g041xx.h"
-#elif defined(STM32G030XX)
+#elif defined(STM32G030xx)
   #include "stm32g030xx.h"
-#elif defined(STM32G051XX)
+#elif defined(STM32G051xx)
   #include "stm32g051xx.h"
-#elif defined(STM32G061XX)
+#elif defined(STM32G061xx)
   #include "stm32g061xx.h"
-#elif defined(STM32G050XX)
+#elif defined(STM32G050xx)
   #include "stm32g050xx.h"
 #else
  #error "Please select first the target STM32G0xx device used in your application (in stm32g0xx.h file)"

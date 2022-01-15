@@ -3,7 +3,7 @@
 SSTACK=0x20000000
 MCU=$MCU_NAME
 
-if [ $MCU = 'stm32g030xx' ]
+if [ $MCU = 'STM32G030xx' ]
 then
 	ISR_OFS=$[46 * 4]
 fi
