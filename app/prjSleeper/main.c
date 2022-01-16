@@ -32,7 +32,6 @@ void hw_shutdown(void)
     LL_GPIO_LockPin(GPIO_LED, GPIN_LED);
     LL_GPIO_LockPin(GPIO_PWR, GPIN_PWR);
     while (1);
-    madCSUnlock();
 }
 
 static void hw_init(void)

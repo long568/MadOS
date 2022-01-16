@@ -19,7 +19,11 @@ MadBool loop_init(void)
 
 MadU8 loop_msg_send(MadVptr msg)
 {
-    return madMsgSend(&msgq, msg);
+    MadU8 rc = madMsgSend(&msgq, msg);
+    if(MAD_ERR_OK != rc) {
+        free(msg);
+    }
+    return rc;
 }
 
 static void loop_handler(MadVptr exData)
@@ -30,7 +34,7 @@ static void loop_handler(MadVptr exData)
         
         switch (msg->type) {
             case MSG_KEY: {
-                switch ((MadU32)(msg->arg)) {
+                switch (msg->arg.v) {
                     case MSG_KEY_SHORT: {
                         sv_add();
                         break;
@@ -47,7 +51,16 @@ static void loop_handler(MadVptr exData)
                 break;
             }
             
-            case MSG_BLE: {
+            case MSG_BLE_SLEEP: {
+                sv_set(msg->arg.v);
+                break;
+            }
+
+            case MSG_BLE_HR: {
+                break;
+            }
+
+            case MSG_BLE_EQ: {
                 break;
             }
             

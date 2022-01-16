@@ -1,7 +1,7 @@
 #include "CfgUser.h"
 #include "stabilivolt.h"
 
-static MadU32 level;
+static MadU8 level;
 
 static void sv_pwm1_init(void);
 static void sv_pwm2_init(void);
@@ -14,19 +14,19 @@ MadBool sv_init(void)
     return MTRUE;
 }
 
-MadU32 sv_get(void)
+MadU8 sv_get(void)
 {
     return level;
 }
 
-inline static void __sv_set(MadU32 value)
+inline static void __sv_set(MadU8 value)
 {
     uint32_t timxPeriod = LL_TIM_GetAutoReload(SV_PWM1_TIM);
     uint32_t comp = (timxPeriod + 1) * (value + 1) / 20;
     SV_PWM1_SET(SV_PWM1_TIM, comp);
 }
 
-void sv_set(MadU32 value)
+void sv_set(MadU8 value)
 {
     level = value;
     __sv_set(level);

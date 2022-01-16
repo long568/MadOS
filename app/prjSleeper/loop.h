@@ -5,7 +5,9 @@
 
 typedef enum {
     MSG_KEY,
-    MSG_BLE
+    MSG_BLE_SLEEP,
+    MSG_BLE_HR,
+    MSG_BLE_EQ,
 } msg_type_t;
 
 typedef enum {
@@ -15,10 +17,13 @@ typedef enum {
 
 typedef struct __msg_t {
     msg_type_t type;
-    MadVptr    arg;
+    union {
+        MadU8 v;
+        MadU8 *p;
+    } arg;
 } msg_t;
 
-extern MadBool loop_init(void);
-extern MadU8 loop_msg_send(MadVptr msg);
+extern MadBool loop_init    (void);
+extern MadU8   loop_msg_send(MadVptr msg);
 
 #endif

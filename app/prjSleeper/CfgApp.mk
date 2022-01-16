@@ -13,5 +13,3 @@ export PRJ_LDFLAGS  = --specs=nano.specs
 
 export DrvUartChar = yes
 export DrvI2C      = yes
-
-export LIB_CJSON   = yes

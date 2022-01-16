@@ -74,9 +74,9 @@ static void key_handler(MadVptr exData)
             msg->type = MSG_KEY;
         }
         if(i < 600) {
-            msg->arg = (MadVptr)MSG_KEY_SHORT;
+            msg->arg.v = MSG_KEY_SHORT;
         } else {
-            msg->arg = (MadVptr)MSG_KEY_LONG;
+            msg->arg.v = MSG_KEY_LONG;
         }
         loop_msg_send(msg);
     }
