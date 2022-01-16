@@ -1,6 +1,8 @@
 #include "CfgUser.h"
 #include "stabilivolt.h"
 
+#define LEVEL_MAX 5
+
 static MadU8 level;
 
 static void sv_pwm1_init(void);
@@ -28,13 +30,16 @@ inline static void __sv_set(MadU8 value)
 
 void sv_set(MadU8 value)
 {
+    if(value > LEVEL_MAX) {
+        value = LEVEL_MAX;
+    }
     level = value;
     __sv_set(level);
 }
 
 void sv_add(void)
 {
-    if (level < 5) {
+    if (level < LEVEL_MAX) {
         level += 1;
     } else {
         level = 0;
