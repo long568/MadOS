@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "ble_cmd.h"
 #include "CfgUser.h"
+#include "cJSON.h"
 
 #define BUF_SIZE 128
 
@@ -97,6 +98,6 @@ BLE_ERR:
 }
 
 static void ble_interpreter(int dev, char *buf, int size)
-{   
+{
     write(dev, buf, size);
 }
