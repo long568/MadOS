@@ -146,15 +146,15 @@ int mI2C_Write(mI2C_t *port, const char *dat, size_t len)
 
 int mI2C_Read(mI2C_t *port, char *dat, size_t len)
 {
-    madCSInit();
-    madCSLock();
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     if(len < port->dev->rxBuffCnt) {
         len = 0;
     } else {
         len = port->dev->rxBuffCnt;
         port->dev->rxBuffCnt = 0;
     }
-    madCSUnlock();
+    madCSUnlock(cpsr);
     madMemCpy(dat, port->dev->rxBuff, len);
     return len;
 }

@@ -5,9 +5,10 @@
 
 typedef enum {
     MSG_KEY,
+    MSG_BLE_SYNC,
     MSG_BLE_SLEEP,
     MSG_BLE_HR,
-    MSG_BLE_EQ,
+    MSG_BLE_SHUT
 } msg_type_t;
 
 typedef enum {

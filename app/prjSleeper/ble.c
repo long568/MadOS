@@ -7,10 +7,12 @@
 #include "ble_cmd.h"
 #include "CfgUser.h"
 #include "loop.h"
+#include "stabilivolt.h"
 
 #define BUF_SIZE 64
 
 static int dev = -1;
+static MadBool isConnected = MFALSE;
 
 static void    ble_reset      (void);
 static void    ble_handler    (MadVptr exData);
@@ -37,13 +39,22 @@ MadBool ble_init(void)
 
 int ble_send(const ble_cmd_t *c)
 {
-    int rc;
-    int i = 0;
-    int len = c->len + 6;
-    char *buf = (char*)malloc(len);
+    int rc, i, len;
+    char *buf;
+    MadBool conn;
+
+    MAD_CS_OPT(conn = isConnected);
+    if(conn == MFALSE) {
+        return -1;
+    }
+
+    i = 0;
+    len = c->len + 6;
+    buf = (char*)malloc(len);
     if(!buf) {
         return -1;
     }
+
     buf[i++] = 0xA5;
     buf[i++] = 0x5A;
     buf[i++] = c->cmd;
@@ -54,8 +65,9 @@ int ble_send(const ble_cmd_t *c)
         memcpy(buf+i, c->arg.p, c->len);
         i += c->len;
     }
-    buf[i++] = 0xFE;
-    buf[i++] = 0xEF;
+    buf[i++] = 0xFF;
+    buf[i++] = 0xFF;
+
     rc = write(dev, buf, len);
     free(buf);
     return rc;
@@ -71,9 +83,8 @@ static void ble_reset(void)
 
 static void ble_handler(MadVptr exData)
 {
-    int rst, cnt;
-    char buf[BUF_SIZE];
-    MadBool isConnected;
+    int rst, cnt, rc;
+    char buf[BUF_SIZE] = {0};
 
     rst = 0;
     cnt = 0;
@@ -95,18 +106,22 @@ static void ble_handler(MadVptr exData)
         AT_RD_NONE();
 
         while(1) {
-            cnt = read(dev, buf, BUF_SIZE);
-            if(cnt > 0) {
-                buf[cnt] = 0;
-            } else {
+            rc = read(dev, buf+cnt, BUF_SIZE);
+            if(rc < 0) {
                 break;
             }
-            if(0 == strncmp(buf, MSG_CONN, sizeof(MSG_CONN)-1)) {
-                isConnected = MTRUE;
-            } else if(0 == strncmp(buf, MSG_DISCONN, sizeof(MSG_DISCONN)-1)) {
-                isConnected = MFALSE;
+            if(0 == strncmp(buf+cnt, MSG_CONN, sizeof(MSG_CONN)-1)) {
+                MAD_CS_OPT(isConnected = MTRUE);
+                cnt = 0;
+            } else if(0 == strncmp(buf+cnt, MSG_DISCONN, sizeof(MSG_DISCONN)-1)) {
+                MAD_CS_OPT(isConnected = MFALSE);
+                cnt = 0;
             } else if(isConnected) {
-                ble_interpreter(buf, cnt);
+                cnt += rc;
+                if(buf[cnt-1] == 0xFF && buf[cnt-2] == 0xFF) {
+                    ble_interpreter(buf, cnt);
+                    cnt = 0;
+                }
             }
         }
 
@@ -123,18 +138,7 @@ static MadBool ble_interpreter(const char *buf, int size)
     msg_t *msg;
     ble_cmd_t c = {0};
     
-#if 0
-    for(i=0; i<size; i++) {
-        if(buf[i] == 0xA5) {
-            break;
-        }
-    }
-    if(i == size) {
-        return MFALSE;
-    }
-#else
     i = 0;
-#endif
 
     if(buf[i++] != 0xA5 || buf[i++] != 0x5A) {
         return MFALSE;
@@ -147,9 +151,6 @@ static MadBool ble_interpreter(const char *buf, int size)
         c.arg.p = (MadU8*)(buf + i);
         i += c.len;
     }
-    if(buf[i++] != 0xFE || buf[i++] != 0xEF) {
-        return MFALSE;
-    }
 
     msg = malloc(sizeof(msg_t));
     if(!msg) {
@@ -157,6 +158,12 @@ static MadBool ble_interpreter(const char *buf, int size)
     }
     
     switch(c.cmd) {
+        case BLE_CMD_SYNC: {
+            msg->type  = MSG_BLE_SYNC;
+            msg->arg.v = 0;
+            break;
+        }
+
         case BLE_CMD_SLEEP: {
             msg->type  = MSG_BLE_SLEEP;
             msg->arg.v = c.arg.v;
@@ -169,8 +176,8 @@ static MadBool ble_interpreter(const char *buf, int size)
             break;
         }
 
-        case BLE_CMD_EQ: {
-            msg->type  = MSG_BLE_EQ;
+        case BLE_CMD_SHUT: {
+            msg->type  = MSG_BLE_SHUT;
             msg->arg.v = 0;
             break;
         }

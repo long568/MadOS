@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include "CfgUser.h"
 #include "loop.h"
+#include "ble.h"
 #include "stabilivolt.h"
 
 static MadMsgQCB_t *msgq;
 
+static void shutdown();
 static void loop_handler(MadVptr exData);
 
 MadBool loop_init(void)
@@ -26,6 +28,17 @@ MadU8 loop_msg_send(MadVptr msg)
     return rc;
 }
 
+static void shutdown()
+{
+    ble_cmd_t c;
+    sv_clr();
+    c.cmd   = BLE_CMD_SHUT;
+    c.len   = 0;
+    c.arg.v = 0;
+    ble_send(&c);
+    hw_shutdown();
+}
+
 static void loop_handler(MadVptr exData)
 {
     msg_t *msg;
@@ -36,13 +49,17 @@ static void loop_handler(MadVptr exData)
             case MSG_KEY: {
                 switch (msg->arg.v) {
                     case MSG_KEY_SHORT: {
+                        ble_cmd_t c;
                         sv_add();
+                        c.cmd   = BLE_CMD_SLEEP;
+                        c.len   = 1;
+                        c.arg.v = sv_get();
+                        ble_send(&c);
                         break;
                     }
 
                     case MSG_KEY_LONG: {
-                        sv_clr();
-                        hw_shutdown();
+                        shutdown();
                         break;
                     }
 
@@ -50,9 +67,26 @@ static void loop_handler(MadVptr exData)
                 }
                 break;
             }
+
+            case MSG_BLE_SYNC: {
+                MadU8 arg[2];
+                ble_cmd_t c;
+                arg[0] = 80;
+                arg[1] = sv_get();
+                c.cmd   = BLE_CMD_SYNC;
+                c.len   = 2;
+                c.arg.p = arg;
+                ble_send(&c);
+                break;
+            }
             
             case MSG_BLE_SLEEP: {
+                ble_cmd_t c;
                 sv_set(msg->arg.v);
+                c.cmd   = BLE_CMD_SLEEP;
+                c.len   = 1;
+                c.arg.v = sv_get();
+                ble_send(&c);
                 break;
             }
 
@@ -60,10 +94,11 @@ static void loop_handler(MadVptr exData)
                 break;
             }
 
-            case MSG_BLE_EQ: {
+            case MSG_BLE_SHUT: {
+                shutdown();
                 break;
             }
-            
+
             default: break;
         }
 

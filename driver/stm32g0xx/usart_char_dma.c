@@ -182,7 +182,7 @@ void mUsartChar_GetInfo(mUsartChar_t *port, struct termios *tp)
 
 static void set_info(mUsartChar_t *port, const struct termios *tp)
 {
-    madCSInit();
+    madCSDecl(cpsr);
     LL_USART_InitTypeDef tmp = { 0 };
 
     LL_USART_DeInit(port->p);

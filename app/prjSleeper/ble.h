@@ -4,9 +4,10 @@
 #include "MadOS.h"
 
 typedef enum {
-    BLE_CMD_SLEEP = 1,
+    BLE_CMD_SYNC = 1,
+    BLE_CMD_SLEEP,
     BLE_CMD_HR,
-    BLE_CMD_EQ
+    BLE_CMD_SHUT
 } ble_cmd_enum;
 
 typedef struct {

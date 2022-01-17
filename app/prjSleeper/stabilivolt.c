@@ -3,7 +3,7 @@
 
 #define LEVEL_MAX 5
 
-static MadU8 level;
+static MadU8 level = 0;
 
 static void sv_pwm1_init(void);
 static void sv_pwm2_init(void);
