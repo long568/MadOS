@@ -7,7 +7,6 @@
 #include "ble_cmd.h"
 #include "CfgUser.h"
 #include "loop.h"
-#include "stabilivolt.h"
 
 #define BUF_SIZE 64
 
