@@ -2,6 +2,7 @@
 #include "CfgUser.h"
 #include "loop.h"
 #include "ble.h"
+#include "max.h"
 #include "stabilivolt.h"
 
 static MadMsgQCB_t *msgq;
@@ -15,7 +16,7 @@ MadBool loop_init(void)
     if(!msgq) {
         return MFALSE;
     }
-    madThreadCreate(loop_handler, 0, 256, THREAD_PRIO_LOOP);
+    madThreadCreate(loop_handler, 0, 360, THREAD_PRIO_LOOP);
     return MTRUE;
 }
 
@@ -42,6 +43,7 @@ static void shutdown()
 static void loop_handler(MadVptr exData)
 {
     msg_t *msg;
+
     while (1) {
         madMsgWait(&msgq, (void**)(&msg), 0);
         
@@ -91,6 +93,20 @@ static void loop_handler(MadVptr exData)
             }
 
             case MSG_BLE_HR: {
+                ble_cmd_t c;
+                c.cmd   = BLE_CMD_HR;
+                c.len   = 1;
+                c.arg.v = max_hr_get();
+                ble_send(&c);
+                break;
+            }
+
+            case MSG_BLE_SPO2: {
+                ble_cmd_t c;
+                c.cmd   = BLE_CMD_SPO2;
+                c.len   = 1;
+                c.arg.v = max_spo2_get();
+                ble_send(&c);
                 break;
             }
 

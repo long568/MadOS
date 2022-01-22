@@ -5,7 +5,7 @@ MadTime_t MadTicksPerSec;
 static MadTime_t MadSysTickFreq;
 static MadTime_t MadTicksPerMS;
 static MadTime_t MadTimeCntMS;
-static MadU64   MadTimeNowMS;
+static MadU64    MadTimeNowMS;
 
 void madTimeInit(MadTime_t freq, MadTime_t ticks)
 {

@@ -7,6 +7,7 @@ typedef enum {
     BLE_CMD_SYNC = 1,
     BLE_CMD_SLEEP,
     BLE_CMD_HR,
+    BLE_CMD_SPO2,
     BLE_CMD_SHUT
 } ble_cmd_enum;
 

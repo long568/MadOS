@@ -23,7 +23,7 @@ static const mI2C_InitData_t LowArgs = {
 static const MadDevArgs_t Args = {
     MAD_WAITQ_DEFAULT_SIZE / 2,
     4,
-    4,
+    288,
     &LowArgs
 };
 

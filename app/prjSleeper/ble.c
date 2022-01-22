@@ -175,6 +175,12 @@ static MadBool ble_interpreter(const char *buf, int size)
             break;
         }
 
+        case BLE_CMD_SPO2: {
+            msg->type  = MSG_BLE_SPO2;
+            msg->arg.v = 0;
+            break;
+        }
+
         case BLE_CMD_SHUT: {
             msg->type  = MSG_BLE_SHUT;
             msg->arg.v = 0;

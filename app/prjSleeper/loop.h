@@ -8,6 +8,7 @@ typedef enum {
     MSG_BLE_SYNC,
     MSG_BLE_SLEEP,
     MSG_BLE_HR,
+    MSG_BLE_SPO2,
     MSG_BLE_SHUT
 } msg_type_t;
 

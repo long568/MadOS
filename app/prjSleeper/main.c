@@ -4,7 +4,7 @@
 
 #include "key.h"
 #include "ble.h"
-#include "heartrate.h"
+#include "max.h"
 #include "stabilivolt.h"
 #include "loop.h"
 
@@ -18,7 +18,7 @@ int main(void)
     hw_init();
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, 256, 0);
+    madThreadCreate(madStartup, 0, 300, 0);
     madOSRun();
 	while(1);
 }
@@ -27,7 +27,7 @@ void hw_shutdown(void)
 {
     madCSInit();
     madCSLock();
-    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
     LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
     LL_GPIO_LockPin(GPIO_LED, GPIN_LED);
     LL_GPIO_LockPin(GPIO_PWR, GPIN_PWR);
@@ -66,7 +66,7 @@ static void madStartup(MadVptr exData)
         LL_GPIO_InitTypeDef pin = { 0 };
 
         LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
-        LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+        LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
         LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_NO);
         LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
 
@@ -89,17 +89,17 @@ static void madStartup(MadVptr exData)
 
     // madTimeDly(3000);
     // LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
-    // LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
+    // LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
     // while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
     //     madTimeDly(20);
     // }
 
     Newlib_Init();
 
+    // sv_init();
     // key_init();
     ble_init();
-    // sv_init();
-    hr_init();
+    max_init();
     loop_init();
 
     while(1) {

@@ -65,18 +65,20 @@ void mI2C_Irq_Handler(mI2C_t *port)
 {
     switch(port->sta) {
         case I2C_STA_WRITE: {
-            if(LL_I2C_IsActiveFlag_STOP(port->p)) {
+            if(LL_I2C_IsActiveFlag_TXIS(port->p)) {
+                LL_I2C_TransmitData8(port->p, *port->dat++);
+            } else if(LL_I2C_IsActiveFlag_STOP(port->p)) {
                 LL_I2C_ClearFlag_STOP(port->p);
                 port->dev->eCall(port->dev, MAD_WAIT_EVENT_WRITE);
                 port->sta = I2C_STA_IDLE;
-            } else if(LL_I2C_IsActiveFlag_TXIS(port->p)) {
-                LL_I2C_TransmitData8(port->p, *port->dat++);
             }
             break;
         }
 
         case I2C_STA_READ_REG: {
-            if(LL_I2C_IsActiveFlag_TC(port->p)) {
+            if(LL_I2C_IsActiveFlag_TXIS(port->p)) {
+                LL_I2C_TransmitData8(port->p, port->reg);
+            } else if(LL_I2C_IsActiveFlag_TC(port->p)) {
                 LL_I2C_HandleTransfer(port->p,
                                       port->addr,
                                       LL_I2C_ADDRSLAVE_7BIT,
@@ -84,8 +86,8 @@ void mI2C_Irq_Handler(mI2C_t *port)
                                       LL_I2C_MODE_AUTOEND,
                                       LL_I2C_GENERATE_RESTART_7BIT_READ);
                 port->sta = I2C_STA_READ_DAT;
-            } else if(LL_I2C_IsActiveFlag_TXIS(port->p)) {
-                LL_I2C_TransmitData8(port->p, port->reg);
+            } else if(LL_I2C_IsActiveFlag_STOP(port->p)) { //Err
+                LL_I2C_ClearFlag_STOP(port->p);
             }
             break;
         }
