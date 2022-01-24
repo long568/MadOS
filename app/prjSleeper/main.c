@@ -87,17 +87,17 @@ static void madStartup(MadVptr exData)
         LL_GPIO_Init(GPIO_LED, &pin);
     } while(0);
 
-    // madTimeDly(3000);
-    // LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
-    // LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
-    // while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
-    //     madTimeDly(20);
-    // }
+    madTimeDly(3000);
+    LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+        madTimeDly(20);
+    }
 
     Newlib_Init();
 
-    // sv_init();
-    // key_init();
+    sv_init();
+    key_init();
     ble_init();
     max_init();
     loop_init();

@@ -16,7 +16,7 @@ MadBool loop_init(void)
     if(!msgq) {
         return MFALSE;
     }
-    madThreadCreate(loop_handler, 0, 360, THREAD_PRIO_LOOP);
+    madThreadCreate(loop_handler, 0, 512, THREAD_PRIO_LOOP);
     return MTRUE;
 }
 
@@ -96,7 +96,7 @@ static void loop_handler(MadVptr exData)
                 ble_cmd_t c;
                 c.cmd   = BLE_CMD_HR;
                 c.len   = 1;
-                c.arg.v = max_hr_get();
+                c.arg.v = max_hr();
                 ble_send(&c);
                 break;
             }
@@ -105,7 +105,7 @@ static void loop_handler(MadVptr exData)
                 ble_cmd_t c;
                 c.cmd   = BLE_CMD_SPO2;
                 c.len   = 1;
-                c.arg.v = max_spo2_get();
+                c.arg.v = 98;
                 ble_send(&c);
                 break;
             }

@@ -23,13 +23,13 @@ enum {
 #define ISR_PRIO_HR        ISR_PRIO_OTHER
 
 #define SYS_RUNNING_INTERVAL_MSECS (500)
-#define MAD_OS_STACK_SIZE          (3 * 1024)
+#define MAD_OS_STACK_SIZE          (4 * 1024)
 
 #define GPIO_PWR        GPIOA
 #define GPIN_PWR        LL_GPIO_PIN_5
 
 #define GPIO_LED        GPIOA
-#define GPIN_LED        LL_GPIO_PIN_4
+#define GPIN_LED        LL_GPIO_PIN_1
 
 #define GPIO_BLE_RST    GPIOB
 #define GPIN_BLE_RST    LL_GPIO_PIN_3

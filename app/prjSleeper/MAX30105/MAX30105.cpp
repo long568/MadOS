@@ -710,7 +710,7 @@ bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
         if(check() == true) {
             return true;
         }
-        madTimeDly(1);
+        madTimeDly(10);
     }
     return false;
 }

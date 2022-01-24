@@ -1,10 +1,10 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "CfgUser.h"
 
 #include "MAX30105/MAX30105.h"
 #include "MAX30105/heartRate.h"
-#include "MAX30105/spo2_algorithm.h"
 #include "max.h"
 
 static MAX30105 max;
@@ -60,7 +60,7 @@ static void hr_check(void)
     }
 }
 
-int max_hr_get(void)
+int max_hr(void)
 {
     int i;
     max.setup(); //Configure sensor with default settings
@@ -74,63 +74,68 @@ int max_hr_get(void)
 }
 
 // SPO2
-#define MAX_BRIGHTNESS 255
+#if 0
+#define SPO2_BUF_SIZE 25
 
-static uint32_t irBuffer[100]; //infrared LED sensor data
-static uint32_t redBuffer[100];  //red LED sensor data
-
-static int32_t bufferLength; //data length
-static int32_t spo2; //SPO2 value
-static int8_t validSPO2; //indicator to show if the SPO2 calculation is valid
-static int32_t heartRate; //heart rate value
-static int8_t validHeartRate; //indicator to show if the heart rate calculation is valid
-
-static void spo2_check(void)
+static float spo2_calc(uint32_t *ir_input_data, uint32_t *red_input_data, uint16_t cache_nums)
 {
-    int cnt;
-    bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
+    uint32_t ir_max  = *ir_input_data , ir_min  = *ir_input_data;
+    uint32_t red_max = *red_input_data, red_min = *red_input_data;
+    float R;
+    uint16_t i;
+    for(i=1;i<cache_nums;i++) {
 
-    //read the first 100 samples, and determine the signal range
-    for (byte i = 0 ; i < bufferLength ; i++)
+    }
+    for(i=1;i<cache_nums;i++)
+    {
+        if(ir_max<*(ir_input_data+i)) {
+            ir_max=*(ir_input_data+i);
+        }
+        if(ir_min>*(ir_input_data+i)) {
+            ir_min=*(ir_input_data+i);
+        }
+        if(red_max<*(red_input_data+i)) {
+            red_max=*(red_input_data+i);
+        }
+        if(red_min>*(red_input_data+i)) {
+            red_min=*(red_input_data+i);
+        }
+    }
+    R=((ir_max+ir_min)*(red_max-red_min))/(float)((red_max+red_min)*(ir_max-ir_min));
+    return ((-45.060)*R*R + 30.354*R + 94.845);
+}
+
+static int32_t spo2_check(void)
+{
+    uint32_t *_buf;
+    uint32_t *ir_dat, *red_dat;
+    int32_t rc;
+
+    _buf = (uint32_t*)malloc(sizeof(uint32_t) * SPO2_BUF_SIZE * 2);
+    if(!_buf) {
+        return -1;
+    }
+
+    red_dat = _buf;
+    ir_dat  = _buf + SPO2_BUF_SIZE;
+
+    for (byte i = 0 ; i < SPO2_BUF_SIZE ; i++)
     {
         while (max.available() == false) //do we have new data?
             max.check(); //Check the sensor for new data
-        redBuffer[i] = max.getRed();
-        irBuffer[i] = max.getIR();
+        red_dat[i] = max.getRed();
+        ir_dat[i]  = max.getIR();
         max.nextSample(); //We're finished with this sample so move to next sample
     }
 
-    //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-
-    //Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
-    cnt = 4;
-    while (cnt--)
-    {
-        //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
-        for (byte i = 25; i < 100; i++)
-        {
-            redBuffer[i - 25] = redBuffer[i];
-            irBuffer[i - 25] = irBuffer[i];
-        }
-
-        //take 25 sets of samples before calculating the heart rate.
-        for (byte i = 75; i < 100; i++)
-        {
-            while (max.available() == false) //do we have new data?
-                max.check(); //Check the sensor for new data
-            redBuffer[i] = max.getRed();
-            irBuffer[i] = max.getIR();
-            max.nextSample(); //We're finished with this sample so move to next sample
-        }
-
-        //After gathering 25 new samples recalculate HR and SP02
-        maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-    }
+    rc = (int32_t)spo2_calc(ir_dat, red_dat, SPO2_BUF_SIZE);
+    free(_buf);
+    return rc;
 }
 
-int max_spo2_get(void)
+int max_spo2(void)
 {
+    volatile int32_t rc;
     byte ledBrightness = 60; //Options: 0=Off to 255=50mA
     byte sampleAverage = 4; //Options: 1, 2, 4, 8, 16, 32
     byte ledMode = 2; //Options: 1 = Red only, 2 = Red + IR, 3 = Red + IR + Green
@@ -138,13 +143,11 @@ int max_spo2_get(void)
     int pulseWidth = 411; //Options: 69, 118, 215, 411
     int adcRange = 4096; //Options: 2048, 4096, 8192, 16384
     max.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
-    spo2_check();
+    rc = spo2_check();
     max.softReset();
-    if(!validSPO2) {
-        spo2 = 0;
-    }
-    return spo2;
+    return rc;
 }
+#endif
 
 #if 0
 #define MAX_ADDR   0x57
