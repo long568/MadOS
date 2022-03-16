@@ -4,7 +4,7 @@ export MCU_PREFIX   = stm32g0xx
 export MCU_SUFFIX   =
 export MCU_NAME     = STM32G030xx
 export MCU_RAM_SIZE = 0x2000
-export MCU_FLS_SIZE = 32K
+export MCU_FLS_SIZE = 64K
 
 export PRJ_CFLAGS   = -Os
 export PRJ_CFLAGS  += -DFD_SETSIZE=6

@@ -28,8 +28,8 @@ enum {
 #define GPIO_PWR        GPIOA
 #define GPIN_PWR        LL_GPIO_PIN_5
 
-#define GPIO_LED        GPIOA
-#define GPIN_LED        LL_GPIO_PIN_1
+#define GPIO_LED        GPIOC
+#define GPIN_LED        LL_GPIO_PIN_13
 
 #define GPIO_BLE_RST    GPIOB
 #define GPIN_BLE_RST    LL_GPIO_PIN_3

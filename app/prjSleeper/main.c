@@ -54,6 +54,7 @@ static void hw_init(void)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
+    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
 }
 
 static void madStartup(MadVptr exData)
@@ -67,7 +68,7 @@ static void madStartup(MadVptr exData)
 
         LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
         LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
-        LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_NO);
+        LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_UP);
         LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
 
         pin.Pin        = GPIN_PWR;
@@ -87,12 +88,12 @@ static void madStartup(MadVptr exData)
         LL_GPIO_Init(GPIO_LED, &pin);
     } while(0);
 
-    madTimeDly(3000);
-    LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
-    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
-    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
-        madTimeDly(20);
-    }
+    // madTimeDly(3000);
+    // LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
+    // LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    // while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+    //     madTimeDly(20);
+    // }
 
     Newlib_Init();
 

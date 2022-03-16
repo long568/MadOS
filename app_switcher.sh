@@ -3,8 +3,8 @@
 # export MADOS_WORKING_APP=prjMM000
 # export MADOS_WORKING_APP=prjYCSD_ShengAn
 # export MADOS_WORKING_APP=prjYCSD_Bosch
-# export MADOS_WORKING_APP=prjSleeper
+export MADOS_WORKING_APP=prjSleeper
 # export MADOS_WORKING_APP=tstGD32E23x
-export MADOS_WORKING_APP=tstSTM32G030
+# export MADOS_WORKING_APP=tstSTM32G030
 # export MADOS_WORKING_APP=lesson001
 # export MADOS_WORKING_APP=lesson002
