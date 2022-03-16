@@ -33,19 +33,19 @@ static void madStartup(MadVptr exData)
     buf = malloc(1024);
     if(!buf) { while (1); }
 
-    LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_4);
-    led.Pin        = LL_GPIO_PIN_4;
+    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    led.Pin        = GPIN_LED;
     led.Mode       = LL_GPIO_MODE_OUTPUT;
     led.Speed      = LL_GPIO_SPEED_LOW;
     led.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
     led.Pull       = LL_GPIO_PULL_NO;
     led.Alternate  = LL_GPIO_AF_0;
-    LL_GPIO_Init(GPIOA, &led);
-    LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4);
+    LL_GPIO_Init(GPIO_LED, &led);
+    LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
 
     while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
-        LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_4);
+        LL_GPIO_TogglePin(GPIO_LED, GPIN_LED);
         memset(buf, 0xA5, 1024);
         printf("Hello World !\n");
 	}
@@ -70,5 +70,6 @@ static void cfgHW(void)
 
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-    LL_SYSCFG_EnablePinRemap(LL_SYSCFG_PIN_RMP_PA11 | LL_SYSCFG_PIN_RMP_PA12);
+    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
+    // LL_SYSCFG_EnablePinRemap(LL_SYSCFG_PIN_RMP_PA11 | LL_SYSCFG_PIN_RMP_PA12);
 }

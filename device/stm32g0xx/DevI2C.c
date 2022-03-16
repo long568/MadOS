@@ -15,7 +15,7 @@ static const mI2C_InitData_t LowArgs = {
         { GPIOA, LL_GPIO_PIN_11 },
         { GPIOA, LL_GPIO_PIN_12 }
     },
-    ISR_PRIO_HR,
+    ISR_PRIO_I2C,
     0,
     Dev_Irq_Handler
 };

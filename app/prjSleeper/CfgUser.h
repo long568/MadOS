@@ -20,7 +20,7 @@ enum {
 #define ISR_PRIO_TTY_USART ISR_PRIO_OTHER
 #define ISR_PRIO_TIM       ISR_PRIO_OTHER
 #define ISR_PRIO_KEY       ISR_PRIO_OTHER
-#define ISR_PRIO_HR        ISR_PRIO_OTHER
+#define ISR_PRIO_I2C       ISR_PRIO_OTHER
 
 #define SYS_RUNNING_INTERVAL_MSECS (500)
 #define MAD_OS_STACK_SIZE          (4 * 1024)
