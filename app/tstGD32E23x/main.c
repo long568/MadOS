@@ -16,14 +16,13 @@ int main()
 
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
+    madThreadCreate(madStartup, 0, 512, 0);
     madOSRun();
 	while(1);
 }
 
 static void madStartup(MadVptr exData)
 {
-    // int fd;
     char *buf;
 
     (void)exData;
@@ -38,17 +37,15 @@ static void madStartup(MadVptr exData)
     gpio_bit_set(GPIOC, GPIO_PIN_13);
 
     // printf("Hello World !\n");
-    // fd = open("/dev/tty", 0);
-    // close(fd);
     buf = malloc(1024);
     if(!buf) {
         while(1);
     }
-
+    
     while(1) {
         madTimeDly(500);
-        // write(fd, "Hello", 5);
-        memset(buf, 0xA5, 1024);
+        // memset(buf, 0xA5, 512);
+        memset(buf, 0xA5, 1024); // Bug in DMA
         gpio_bit_toggle(GPIOC, GPIO_PIN_13);
 	}
 }

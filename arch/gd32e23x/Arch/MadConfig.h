@@ -7,13 +7,15 @@
  * MadThread
  */
 #define MAD_THREAD_NUM_MAX   (256)
-#define MAD_IDLE_STK_SIZE    (128)     // byte
-#define MAD_STATIST_STK_SIZE (96)      // byte
+// #define MAD_IDLE_STK_SIZE    (128)     // byte
+// #define MAD_STATIST_STK_SIZE (96)      // byte
+#define MAD_IDLE_STK_SIZE    (256)     // byte
+#define MAD_STATIST_STK_SIZE (256)      // byte
 
 /*
  * madArchMemCpy, madArchMemSet based on DMA of hardward.
  */
-// #define MAD_CPY_MEM_BY_DMA
+#define MAD_CPY_MEM_BY_DMA
 
 /*
  * Print debug information
