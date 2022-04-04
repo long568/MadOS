@@ -230,6 +230,11 @@ typedef enum
  #include "stm32g0xx_hal.h"
 #endif /* USE_HAL_DRIVER */
 
+/*
+ * Added by long 20220405
+ */
+#define __RAM_FUNC __attribute__((section(".RamFunc")))
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

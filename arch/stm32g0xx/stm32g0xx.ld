@@ -85,6 +85,7 @@ SECTIONS
     *(.data*)          /* .data* sections */
 
     . = ALIGN(4);
+    *(.RamFunc)        /* Added by long 20220405 */
     _edata = .;        /* define a global symbol at data end */
   } >RAM AT> FLASH
 

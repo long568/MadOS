@@ -5,6 +5,7 @@
 #include "key.h"
 #include "ble.h"
 #include "max.h"
+#include "flash.h"
 #include "stabilivolt.h"
 #include "loop.h"
 
@@ -18,7 +19,7 @@ int main(void)
     hw_init();
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
-    madThreadCreate(madStartup, 0, 300, 0);
+    madThreadCreate(madStartup, 0, 256, 0);
     madOSRun();
 	while(1);
 }
@@ -100,7 +101,8 @@ static void madStartup(MadVptr exData)
     sv_init();
     key_init();
     ble_init();
-    max_init();
+    // max_init();
+    flash_init();
     loop_init();
 
     while(1) {

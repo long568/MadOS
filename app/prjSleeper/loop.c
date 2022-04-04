@@ -96,7 +96,7 @@ static void loop_handler(MadVptr exData)
                 ble_cmd_t c;
                 c.cmd   = BLE_CMD_HR;
                 c.len   = 1;
-                c.arg.v = max_hr();
+                c.arg.v = 75; // max_hr();
                 ble_send(&c);
                 break;
             }

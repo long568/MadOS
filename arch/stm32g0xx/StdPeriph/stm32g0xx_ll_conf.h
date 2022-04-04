@@ -52,6 +52,7 @@
 // #include "stm32g0xx_ll_usb.h"
 #include "stm32g0xx_ll_utils.h"
 #include "stm32g0xx_ll_wwdg.h"
+#include "stm32g0xx_ll_flash.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
