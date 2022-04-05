@@ -27,7 +27,7 @@ MadBool flash_init(void)
     erase.Page      = (addr - 0x08000000) / 2048;
     erase.NbPages   = 1;
 
-    for (size_t i = 0; i < 64; i++) {
+    for (uint8_t i = 0; i < 64; i++) {
         ConfigTmp[i] = 0xA5A50000 + i;
     }
 
@@ -37,7 +37,7 @@ MadBool flash_init(void)
     status[2] = LL_FLASH_Program_Fast(ConfigPage, ConfigTmp);
     LL_FLASH_Lock();
 
-    for (size_t i = 0; i < 64; i++) {
+    for (uint8_t i = 0; i < 64; i++) {
         if (cfg[i] != ConfigTmp[i]) {
             while (1) {
                 __NOP();

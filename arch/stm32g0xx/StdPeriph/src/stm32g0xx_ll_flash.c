@@ -8,8 +8,8 @@
 #endif /* USE_FULL_ASSERT */
 
 static ErrorStatus FLASH_WaitForLastOperation(void);
-static void FLASH_MassErase(uint32_t Banks);
-static void FLASH_PageErase(uint32_t Banks, uint32_t Page);
+static void        FLASH_MassErase           (uint32_t Banks);
+static void        FLASH_PageErase           (uint32_t Banks, uint32_t Page);
 
 static ErrorStatus FLASH_WaitForLastOperation(void)
 {
@@ -108,10 +108,9 @@ ErrorStatus LL_FLASH_Program_DoubleWord(const uint32_t *Address, uint64_t Data)
 ErrorStatus __RAM_FUNC LL_FLASH_Program_Fast(const uint32_t *Address, uint32_t *DataAddress)
 {
     ErrorStatus status = ERROR;
-    uint8_t index = 0;
+    uint32_t primask_bit;
     uint32_t *dest = (uint32_t *)Address;
     uint32_t *src = DataAddress;
-    uint32_t primask_bit;
 
     status = FLASH_WaitForLastOperation();
     if (status == ERROR) {
@@ -126,15 +125,13 @@ ErrorStatus __RAM_FUNC LL_FLASH_Program_Fast(const uint32_t *Address, uint32_t *
     __disable_irq();
 
     /* Fast Program : 64 words */
-    while (index < 64U) {
+    for (uint8_t i = 0; i < 64; i++) {
         *dest++ = *src++;
-        index++;
     }
 
     /* wait for BSY1 in order to be sure that flash operation is ended befoire
         allowing prefetch in flash. Timeout does not return status, as it will
         be anyway done later */
-
 #if defined(FLASH_DBANK_SUPPORT)
     while ((FLASH->SR & (FLASH_SR_BSY1 | FLASH_SR_BSY2)) != 0x00U)
 #else
