@@ -39,6 +39,15 @@ static void loop_handler(MadVptr exData)
 {
     msg_t *msg;
 
+#if 0
+    do {
+        volatile uint32_t mem_unused_size;
+        mem_unused_size = madMemUnusedSize();
+        mem_unused_size = mem_unused_size;
+        __NOP();
+    } while(0);
+#endif
+
     flash_recover();
 
     while (1) {
