@@ -206,7 +206,7 @@ static const uint32_t *find_new_row(void)
     return rc;
 }
 
-#if 0
+#if 1
 MadBool flash_key_w(uint8_t *arg)
 {
     MadBool ok;
@@ -216,7 +216,7 @@ MadBool flash_key_w(uint8_t *arg)
     if (MTRUE == ok) {
         uint8_t *wallet = find_wallet(arg + 16);
         if(!wallet) {
-            uint8_t *new_row = find_new_row();
+            const uint32_t *new_row = find_new_row();
             if(!new_row) {
                 ok = MFALSE;
             } else {
@@ -233,7 +233,7 @@ MadBool flash_key_w(uint8_t *arg)
                         const uint8_t  *pdata = (const  uint8_t*)(_CfgData);
                         const uint32_t *ptmp  = (const uint32_t*)(_CfgTmp);
                         for (uint8_t i = 0; i < 8; i++) {
-                            if(new_row == pdata) {
+                            if((uint8_t*)new_row == pdata) {
                                 break;
                             } else {
                                 memcpy(buf, pdata, 256);
@@ -254,7 +254,7 @@ MadBool flash_key_w(uint8_t *arg)
                         const uint32_t *pdata = (const uint32_t*)(_CfgData);
                         const uint8_t  *ptmp  = (const  uint8_t*)(_CfgTmp);
                         for (uint8_t i = 0; i < 8; i++) {
-                            if(new_row == (uint8_t*)pdata) {
+                            if(new_row == pdata) {
                                 if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)(arg + 16))) {
                                     ok = MFALSE;
                                 }
