@@ -139,7 +139,7 @@ BLE_ERR:
 
 static MadBool ble_interpreter(const char *buf, int size)
 {
-    int i;
+    uint8_t i;
     msg_t *msg;
     ble_cmd_t c;
     
@@ -235,9 +235,7 @@ static MadBool ble_interpreter(const char *buf, int size)
     }
 
     if(c.len > 1) {
-        for(i=0; i<c.len; i++) {
-            msg->arg.p[i] = c.arg.p[i];
-        }
+        memcpy(msg->arg.p, c.arg.p, c.len);
     }
 
     loop_msg_send(msg);
