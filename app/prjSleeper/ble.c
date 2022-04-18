@@ -8,7 +8,7 @@
 #include "CfgUser.h"
 #include "loop.h"
 
-#define BUF_SIZE 64
+#define BUF_SIZE 200
 
 static int dev = -1;
 static MadBool isConnected = MFALSE;
@@ -31,7 +31,7 @@ MadBool ble_init(void)
         LL_GPIO_Init(GPIO_BLE_RST, &pin);
     } while(0);
 
-    madThreadCreate(ble_handler, 0, 512, THREAD_PRIO_BLE);
+    madThreadCreate(ble_handler, 0, 680, THREAD_PRIO_BLE);
 
     return MTRUE;
 }
@@ -116,10 +116,16 @@ static void ble_handler(MadVptr exData)
                 MAD_CS_OPT(isConnected = MFALSE);
                 cnt = 0;
             } else if(isConnected) {
-                cnt += rc;
-                if(buf[cnt-1] == 0xFF && buf[cnt-2] == 0xFF) {
-                    ble_interpreter(buf, cnt);
-                    cnt = 0;
+                if(cnt == 0 && buf[0] == 0xA5 && buf[1] == 0x5A) {
+                    cnt = rc;
+                } else if(cnt > 0) {
+                    cnt += rc;
+                }
+                if(cnt >= 6) {
+                    if(buf[cnt-1] == 0xFF && buf[cnt-2] == 0xFF && buf[3] == cnt - 6) {
+                        ble_interpreter(buf+2, buf[3]+2);
+                        cnt = 0;
+                    }
                 }
             }
         }
@@ -135,13 +141,9 @@ static MadBool ble_interpreter(const char *buf, int size)
 {
     int i;
     msg_t *msg;
-    ble_cmd_t c = {0};
+    ble_cmd_t c;
     
     i = 0;
-
-    if(buf[i++] != 0xA5 || buf[i++] != 0x5A) {
-        return MFALSE;
-    }
     c.cmd = buf[i++];
     c.len = buf[i++];
     if(c.len == 1) {
@@ -151,7 +153,11 @@ static MadBool ble_interpreter(const char *buf, int size)
         i += c.len;
     }
 
-    msg = malloc(sizeof(msg_t));
+    if(c.len > 1) {
+        msg = malloc(sizeof(msg_t) + c.len);
+    } else {
+        msg = malloc(sizeof(msg_t));
+    }
     if(!msg) {
         return MFALSE;
     }
@@ -187,9 +193,51 @@ static MadBool ble_interpreter(const char *buf, int size)
             break;
         }
 
+        case BLE_CMD_ID: {
+            msg->type  = MSG_BLE_ID;
+            msg->arg.v = 0;
+            break;
+        }
+
+        case BLE_CMD_TID: {
+            msg->type  = MSG_BLE_TID;
+            msg->arg.v = 0;
+            break;
+        }
+
+        case BLE_CMD_VERIFY: {
+            msg->type  = MSG_BLE_VERIFY;
+            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
+        case BLE_CMD_KEY_W: {
+            msg->type  = MSG_BLE_KEY_W;
+            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
+        case BLE_CMD_KEY_R: {
+            msg->type  = MSG_BLE_KEY_R;
+            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
+        case BLE_CMD_KEY_D: {
+            msg->type  = MSG_BLE_KEY_D;
+            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
         default:
             free(msg);
             return MFALSE;
+    }
+
+    if(c.len > 1) {
+        for(i=0; i<c.len; i++) {
+            msg->arg.p[i] = c.arg.p[i];
+        }
     }
 
     loop_msg_send(msg);

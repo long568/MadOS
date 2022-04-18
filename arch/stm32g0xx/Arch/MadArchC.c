@@ -3,7 +3,7 @@
 
 MadCpsr_t MAD_IRQ_SW;
 
-#define CHIP_ID_BASE 0x1FFFF7E8
+#define CHIP_ID_BASE UID_BASE_ADDRESS
 static MadU8 mad_chip_id[12];
 
 MadStk_t * madThreadStkInit(MadVptr pStk, MadThread_t act, MadVptr exData)

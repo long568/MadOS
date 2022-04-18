@@ -9,7 +9,14 @@ typedef enum {
     MSG_BLE_SLEEP,
     MSG_BLE_HR,
     MSG_BLE_SPO2,
-    MSG_BLE_SHUT
+    MSG_BLE_SHUT,
+    MSG_BLE_ID,
+    MSG_BLE_TID,
+    MSG_BLE_VERIFY,
+    MSG_BLE_KEY_W,
+    MSG_BLE_KEY_R,
+    MSG_BLE_KEY_D,
+    MSG_BLE_NUM
 } msg_type_t;
 
 typedef enum {
@@ -23,7 +30,7 @@ typedef struct __msg_t {
         MadU8 v;
         MadU8 *p;
     } arg;
-} msg_t;
+} msg_t __attribute__((aligned (4)));
 
 extern MadBool loop_init    (void);
 extern MadU8   loop_msg_send(MadVptr msg);

@@ -26,3 +26,5 @@
 // gd32e23x.cfg
 // stm32f1x.cfg
 // stm32g0x.cfg
+
+// "showDevDebugOutput": "raw"

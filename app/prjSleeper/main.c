@@ -108,5 +108,13 @@ static void madStartup(MadVptr exData)
     while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
         LL_GPIO_TogglePin(GPIO_LED, GPIN_LED);
+#if 1
+    do {
+        volatile uint32_t t;
+        t = madMemUnusedSize();
+        t = t;
+        __NOP();
+    } while(0);
+#endif
 	}
 }
