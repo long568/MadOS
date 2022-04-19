@@ -5,6 +5,7 @@
 #include "key.h"
 #include "ble.h"
 #include "max.h"
+#include "power.h"
 #include "flash.h"
 #include "stabilivolt.h"
 #include "loop.h"
@@ -89,18 +90,21 @@ static void madStartup(MadVptr exData)
         LL_GPIO_Init(GPIO_LED, &pin);
     } while(0);
 
-    // madTimeDly(3000);
-    // LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
-    // LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
-    // while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
-    //     madTimeDly(20);
-    // }
+#ifndef DEV_BOARD
+    madTimeDly(3000);
+    LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+        madTimeDly(20);
+    }
+#endif
 
     Newlib_Init();
 
     sv_init();
     key_init();
     ble_init();
+    pwr_init();
     // max_init();
     flash_init();
     loop_init();

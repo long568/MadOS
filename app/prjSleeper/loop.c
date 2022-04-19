@@ -3,6 +3,7 @@
 #include "loop.h"
 #include "ble.h"
 #include "max.h"
+#include "power.h"
 #include "flash.h"
 #include "stabilivolt.h"
 
@@ -79,7 +80,7 @@ static void loop_handler(MadVptr exData)
             case MSG_BLE_SYNC: {
                 MadU8 arg[2];
                 ble_cmd_t c;
-                arg[0] = 80;
+                arg[0] = pwr_quantity();
                 arg[1] = sv_get();
                 c.cmd   = BLE_CMD_SYNC;
                 c.len   = 2;
@@ -102,7 +103,7 @@ static void loop_handler(MadVptr exData)
                 ble_cmd_t c;
                 c.cmd   = BLE_CMD_HR;
                 c.len   = 1;
-                c.arg.v = 75; // max_hr();
+                c.arg.v = 75;
                 ble_send(&c);
                 break;
             }

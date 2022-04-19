@@ -1,6 +1,8 @@
 #ifndef __CFG_USER_H__
 #define __CFG_USER_H__
 
+#define DEV_BOARD
+
 enum {
     THREAD_PRIO_SYS_RUNNING = 1,
     THREAD_PRIO_HR,
@@ -28,13 +30,23 @@ enum {
 #define GPIO_PWR        GPIOA
 #define GPIN_PWR        LL_GPIO_PIN_5
 
+#ifndef DEV_BOARD
+#define GPIO_LED        GPIOA
+#define GPIN_LED        LL_GPIO_PIN_1
+#else
 #define GPIO_LED        GPIOC
 #define GPIN_LED        LL_GPIO_PIN_13
-// #define GPIO_LED        GPIOA
-// #define GPIN_LED        LL_GPIO_PIN_1
+#endif
 
 #define GPIO_BLE_RST    GPIOB
 #define GPIN_BLE_RST    LL_GPIO_PIN_3
+
+#define GPIO_ADC        GPIOA
+#define GPIN_ADC        LL_GPIO_PIN_7
+#define ADCn            ADC1
+#define ADC_CHL         LL_ADC_CHANNEL_7
+#define ADC_DMA         DMA1
+#define ADC_DMA_CHL     LL_DMA_CHANNEL_2
 
 #define GPIO_KEY        GPIOA
 #define GPIN_KEY        LL_GPIO_PIN_0
