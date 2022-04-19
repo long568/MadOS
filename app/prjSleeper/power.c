@@ -128,24 +128,17 @@ static uint16_t adc_sampl(void)
     return rc;
 }
 
-/*
- * 3.3 = 4096
- * 4.2 = 5213
- * 2.6 = 2607 -- 100%
- * 1.6 = 1986 -- 0%
- * 2.6 ~ 1.6 = 621
- */
 uint8_t pwr_quantity(void)
 {
     uint8_t rc;
     uint32_t sampl = (uint32_t)adc_sampl();
 
-    if(sampl > 2606) {
+    if(sampl > PWR_N_FULL - 1) {
         rc = 100;
-    } else if(sampl < 1987) {
+    } else if(sampl < PWR_N_ZERO + 1) {
         rc = 0;
     } else {
-        rc = (sampl - 1986) * 100 / 621;
+        rc = (sampl - PWR_N_ZERO) * 100 / (PWR_N_FULL - PWR_N_ZERO);
     }
 
     return rc;

@@ -166,6 +166,8 @@ static uint8_t *find_wallet(uint8_t *wallet)
 {
     uint8_t i, j;
     uint8_t *rc = 0;
+
+#if 0
     uint8_t *inx = (uint8_t*)CfgData + 256;
 
     for (i = 0; i < 7; i++) {
@@ -180,6 +182,23 @@ static uint8_t *find_wallet(uint8_t *wallet)
         }
         inx += 256;
     }
+#else
+    uint32_t *inx = (uint32_t*)CfgData + 64;
+    uint32_t *w   = (uint32_t*)wallet;
+
+    for (i = 0; i < 7; i++) {
+        for (j = 0; j < 4; j++) {
+            if (w[j] != inx[j]) {
+                break;
+            }
+        }
+        if (j == 4) {
+            rc = (uint8_t*)inx;
+            break;
+        }
+        inx += 64;
+    }
+#endif
 
     return rc;
 }
