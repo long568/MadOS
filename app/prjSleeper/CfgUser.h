@@ -1,7 +1,7 @@
 #ifndef __CFG_USER_H__
 #define __CFG_USER_H__
 
-#define DEV_BOARD
+// #define DEV_BOARD
 
 enum {
     THREAD_PRIO_SYS_RUNNING = 1,
@@ -26,6 +26,8 @@ enum {
 
 #define SYS_RUNNING_INTERVAL_MSECS (500)
 #define MAD_OS_STACK_SIZE          (4 * 1024)
+
+#define AUTO_SHUT_TIM   (1000 * 60 * 15)
 
 #define GPIO_PWR        GPIOA
 #define GPIN_PWR        LL_GPIO_PIN_5

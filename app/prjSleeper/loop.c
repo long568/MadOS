@@ -38,6 +38,7 @@ MadU8 loop_msg_send(MadVptr msg)
 
 static void loop_handler(MadVptr exData)
 {
+    MadU8 rc;
     msg_t *msg;
 
 #if 0
@@ -49,10 +50,20 @@ static void loop_handler(MadVptr exData)
     } while(0);
 #endif
 
+#if 0
+    while (1) {
+        madTimeDly(100);
+        pwr_quantity();
+    }
+#endif
+
     flash_recover();
 
     while (1) {
-        madMsgWait(&msgq, (void**)(&msg), 0);
+        rc = madMsgWait(&msgq, (void**)(&msg), AUTO_SHUT_TIM);
+        if(rc != MAD_ERR_OK) {
+            shutdown();
+        }
         
         switch (msg->type) {
             case MSG_KEY: {
