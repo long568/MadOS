@@ -2,6 +2,7 @@
 #include "CfgUser.h"
 #include "mod_Newlib.h"
 
+#include "wdg.h"
 #include "key.h"
 #include "ble.h"
 #include "max.h"
@@ -64,6 +65,7 @@ static void madStartup(MadVptr exData)
 	(void)exData;
 
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
+    madInitStatist();
 
     do {
         LL_GPIO_InitTypeDef pin = { 0 };
@@ -108,9 +110,11 @@ static void madStartup(MadVptr exData)
     // max_init();
     flash_init();
     loop_init();
+    wdg_init();
 
     while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
         LL_GPIO_TogglePin(GPIO_LED, GPIN_LED);
+        wdg_feed();
 	}
 }

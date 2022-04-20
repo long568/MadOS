@@ -30,11 +30,11 @@ enum {
 #endif /* (MAD_THREAD_NUM_MAX % 16 != 0) */
 #define MAD_ACT_IDLE_PRIO (MAD_THREAD_NUM_MAX - 1)
 
-extern  void    madOSInit      (MadVptr heap_head, MadSize_t heap_size);
-extern  void    madOSRun       (void);
+extern  void   madOSInit      (MadVptr heap_head, MadSize_t heap_size);
+extern  void   madOSRun       (void);
 #if MAD_STATIST_STK_SIZE
-extern  void    madInitStatist (void);
-extern  MadInt  madIdleRate    (void);
+extern  void   madInitStatist (void);
+extern  MadU8  madIdleRate    (void);
 #endif
 
 #endif

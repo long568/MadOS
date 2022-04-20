@@ -12,8 +12,8 @@
 
 extern void madPendSVHandler(void);
 extern void madSysTickHandler(void);
+extern void madHardFaultHandler(void);
 
-static void madHardFaultHandler(void);
 static void madEXTI9_5_Handler(void);
 static void madEXTI15_10_Handler(void);
 static void madInstallIrq(xIRQ_Handler irq, MadU32 irqn);
@@ -21,7 +21,7 @@ static void madInstallIrq(xIRQ_Handler irq, MadU32 irqn);
 static xIRQ_Handler EXTI9_5_Handler[5];
 static xIRQ_Handler EXTI15_10_Handler[6];
 
-static void madHardFaultHandler(void)
+__WEAK void madHardFaultHandler(void)
 {
     volatile int opps = 0;
 	while(1) {

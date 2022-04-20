@@ -95,13 +95,13 @@ static void madActStatist(MadVptr exData)
     }
 }
 
-MadInt madIdleRate(void)
+MadU8 madIdleRate(void)
 {
-    MadInt res;
+    MadU8 rc;
     madCSDecl(cpsr);
     madCSLock(cpsr);
-    res = mad_sys_cnt_res * 100 / mad_sys_cnt_max;
+    rc = (MadU8)(mad_sys_cnt_res * 100 / mad_sys_cnt_max);
     madCSUnlock(cpsr);
-    return res;
+    return rc;
 }
 #endif /* MAD_STATIST_STK_SIZE */

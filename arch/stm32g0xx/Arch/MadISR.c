@@ -12,8 +12,8 @@
 
 extern void madPendSVHandler(void);
 extern void madSysTickHandler(void);
+extern void madHardFaultHandler(void);
 
-static void madHardFaultHandler(void);
 static void madEXTI0_1_Handler(void);
 static void madEXTI2_3_Handler(void);
 static void madEXTI4_15_Handler(void);
@@ -23,7 +23,7 @@ static xIRQ_Handler EXTI0_1_Handler[2];
 static xIRQ_Handler EXTI2_3_Handler[2];
 static xIRQ_Handler EXTI4_15_Handler[12];
 
-static void madHardFaultHandler(void)
+__WEAK void madHardFaultHandler(void)
 {
     volatile int opps = 0;
 	while(1) {
