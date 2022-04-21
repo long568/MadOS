@@ -15,7 +15,11 @@ typedef struct {
     uint8_t key[240];
 } FlashKey_t;
 
+#ifndef DEV_BOARD
 static FlashPage_t _CfgData = { 0xFFFFFFFF };
+#else
+#include "dgb/flash_cfgdata.h"
+#endif
 static FlashPage_t _CfgTmp  = { 0xFFFFFFFF };
 
 volatile uint32_t *CfgData = (uint32_t *)_CfgData;
@@ -83,7 +87,7 @@ static MadBool recover(void)
     return ok;
 }
 
-MadBool flash_recover(void)
+inline MadBool flash_recover(void)
 {
 #if 1
     return recover();
@@ -115,7 +119,11 @@ MadBool flash_id(uint8_t **id)
         uint64_t uuid[2];
         uint8_t *chip_id = madChipId();
         memcpy((uint8_t*)uuid, chip_id, 12);
+#ifndef DEV_BOARD
         ((uint32_t*)uuid)[3] = (uint32_t)madTimeNow();
+#else
+        ((uint32_t*)uuid)[3] = 0xAA556688;
+#endif
 
         if(SUCCESS != LL_FLASH_Unlock()) {
             ok = MFALSE;
@@ -166,23 +174,6 @@ static uint8_t *find_wallet(uint8_t *wallet)
 {
     uint8_t i, j;
     uint8_t *rc = 0;
-
-#if 0
-    uint8_t *inx = (uint8_t*)CfgData + 256;
-
-    for (i = 0; i < 7; i++) {
-        for (j = 0; j < 16; j++) {
-            if (wallet[j] != inx[j]) {
-                break;
-            }
-        }
-        if (j == 16) {
-            rc = inx;
-            break;
-        }
-        inx += 256;
-    }
-#else
     uint32_t *inx = (uint32_t*)CfgData + 64;
     uint32_t *w   = (uint32_t*)wallet;
 
@@ -198,8 +189,7 @@ static uint8_t *find_wallet(uint8_t *wallet)
         }
         inx += 64;
     }
-#endif
-
+    
     return rc;
 }
 

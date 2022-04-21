@@ -82,11 +82,13 @@ static void ble_reset(void)
 
 static void ble_handler(MadVptr exData)
 {
-    int rst, cnt, rc;
+    int rc;
+    uint8_t len, cnt, siz;
     char buf[BUF_SIZE] = {0};
 
-    rst = 0;
+    len = 0;
     cnt = 0;
+    siz = BUF_SIZE;
     isConnected = MFALSE;
 
     while (1)
@@ -105,33 +107,50 @@ static void ble_handler(MadVptr exData)
         AT_RD_NONE();
 
         while(1) {
-            rc = read(dev, buf+cnt, BUF_SIZE);
+            rc = read(dev, buf+cnt, siz);
             if(rc < 0) {
                 break;
             }
             if(0 == strncmp(buf+cnt, MSG_CONN, sizeof(MSG_CONN)-1)) {
                 MAD_CS_OPT(isConnected = MTRUE);
+                len = 0;
                 cnt = 0;
+                siz = BUF_SIZE;
             } else if(0 == strncmp(buf+cnt, MSG_DISCONN, sizeof(MSG_DISCONN)-1)) {
                 MAD_CS_OPT(isConnected = MFALSE);
+                len = 0;
                 cnt = 0;
+                siz = BUF_SIZE;
             } else if(isConnected) {
-                if(cnt == 0 && buf[0] == 0xA5 && buf[1] == 0x5A) {
-                    cnt = rc;
-                } else if(cnt > 0) {
-                    cnt += rc;
+                cnt += (uint8_t)rc;
+                siz -= (uint8_t)rc;
+
+                if(cnt < 6) {
+                    continue;
                 }
-                if(cnt >= 6) {
-                    if(buf[cnt-1] == 0xFF && buf[cnt-2] == 0xFF && buf[3] == cnt - 6) {
-                        ble_interpreter(buf+2, buf[3]+2);
+
+                if(len == 0) {
+                    if(buf[0] == 0xA5 && buf[1] == 0x5A && buf[3] <= BUF_SIZE - 6) {
+                        len = buf[3];
+                    } else {
                         cnt = 0;
+                        siz = BUF_SIZE;
+                        continue;
                     }
+                }
+
+                if(len <= cnt - 6) {
+                    if(buf[len+4] == 0xFF && buf[len+5] == 0xFF) {
+                        ble_interpreter(buf+2, len+2);
+                    }
+                    len = 0;
+                    cnt = 0;
+                    siz = BUF_SIZE;
                 }
             }
         }
 
 BLE_ERR:
-        rst++;
         close(dev);
         madTimeDly(1000);
     }
@@ -151,6 +170,57 @@ static MadBool ble_interpreter(const char *buf, int size)
     } else if(c.len > 1) {
         c.arg.p = (MadU8*)(buf + i);
         i += c.len;
+    }
+
+    switch(c.cmd) {
+        case BLE_CMD_SYNC:
+        case BLE_CMD_HR:
+        case BLE_CMD_SPO2:
+        case BLE_CMD_SHUT:
+        case BLE_CMD_ID:
+        case BLE_CMD_TID: {
+            if(c.len != 0) {
+                return MFALSE;
+            } else {
+                break;
+            }
+        }
+
+        case BLE_CMD_SLEEP: {
+            if(c.len != 1) {
+                return MFALSE;
+            } else {
+                break;
+            }
+        }
+
+        case BLE_CMD_VERIFY: {
+            if(c.len != 16) {
+                return MFALSE;
+            } else {
+                break;
+            }
+        }
+
+        case BLE_CMD_KEY_W: {
+            if(c.len < 32) {
+                return MFALSE;
+            } else {
+                break;
+            }
+        }
+
+        case BLE_CMD_KEY_R:
+        case BLE_CMD_KEY_D: {
+            if(c.len != 32) {
+                return MFALSE;
+            } else {
+                break;
+            }
+        }
+
+        default:
+            return MFALSE;
     }
 
     if(c.len > 1) {
