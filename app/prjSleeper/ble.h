@@ -14,10 +14,12 @@ typedef enum {
     BLE_CMD_ID = 10,
     BLE_CMD_TID,
     BLE_CMD_VERIFY,
+    BLE_CMD_CLEAR,
     // Wallet
     BLE_CMD_KEY_W = 20,
     BLE_CMD_KEY_R,
-    BLE_CMD_KEY_D
+    BLE_CMD_KEY_D,
+    BLE_CMD_KEY_L,
 } ble_cmd_enum;
 
 typedef struct {

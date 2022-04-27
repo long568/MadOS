@@ -10,12 +10,14 @@ typedef enum {
     MSG_BLE_HR,
     MSG_BLE_SPO2,
     MSG_BLE_SHUT,
+    MSG_BLE_CLEAR,
     MSG_BLE_ID,
     MSG_BLE_TID,
     MSG_BLE_VERIFY,
     MSG_BLE_KEY_W,
     MSG_BLE_KEY_R,
     MSG_BLE_KEY_D,
+    MSG_BLE_KEY_L,
     MSG_BLE_NUM
 } msg_type_t;
 

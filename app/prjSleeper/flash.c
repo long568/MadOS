@@ -15,11 +15,7 @@ typedef struct {
     uint8_t key[240];
 } FlashKey_t;
 
-#ifndef DEV_BOARD
 static FlashPage_t _CfgData = { 0xFFFFFFFF };
-#else
-#include "dgb/flash_cfgdata.h"
-#endif
 static FlashPage_t _CfgTmp  = { 0xFFFFFFFF };
 
 volatile uint32_t *CfgData = (uint32_t *)_CfgData;
@@ -119,11 +115,7 @@ MadBool flash_id(uint8_t **id)
         uint64_t uuid[2];
         uint8_t *chip_id = madChipId();
         memcpy((uint8_t*)uuid, chip_id, 12);
-#ifndef DEV_BOARD
         ((uint32_t*)uuid)[3] = (uint32_t)madTimeNow();
-#else
-        ((uint32_t*)uuid)[3] = 0xAA556688;
-#endif
 
         if(SUCCESS != LL_FLASH_Unlock()) {
             ok = MFALSE;
@@ -147,6 +139,11 @@ MadBool flash_id(uint8_t **id)
     return ok;
 }
 
+MadBool flash_tid(void)
+{
+    return MFALSE;
+}
+
 MadBool flash_verify(uint8_t *id)
 {
     MadBool ok;
@@ -164,6 +161,25 @@ MadBool flash_verify(uint8_t *id)
                 ok = MFALSE;
                 break;
             }
+        }
+    }
+
+    return ok;
+}
+
+MadBool flash_clear(uint8_t *id)
+{
+    MadBool ok;
+
+    ok = flash_verify(id);
+
+    if (MTRUE == ok) {
+        if(SUCCESS != LL_FLASH_Unlock()) {
+            ok = MFALSE;
+        } else {
+            eraseData();
+            eraseTmp();
+            LL_FLASH_Lock();
         }
     }
 
@@ -420,4 +436,42 @@ MadBool flash_key_d(uint8_t *arg)
     }
 
     return ok;
+}
+
+uint8_t flash_key_l(uint8_t *id, uint8_t **list)
+{
+    uint8_t  cnt, siz;
+    uint8_t  *buf, *dst, *src;
+    uint32_t first_r, new_r;
+
+    first_r = (uint32_t)(_CfgData + 64);
+    new_r = (uint32_t)find_new_row();
+    if(!new_r) {
+        cnt = 7;
+    } else {
+        cnt = (new_r - first_r) >> 8; // /256;
+    }
+
+    if(cnt == 0) {
+        *list = 0;
+        return 0;
+    }
+
+    siz = cnt << 4; // *16
+    buf = (uint8_t*)malloc(siz);
+    if(!buf) { 
+        *list = 0;
+        return 0;
+    }
+
+    dst = buf;
+    src = (uint8_t*)first_r;
+    for(uint8_t i = 0; i < cnt; i++) {
+        memcpy(dst, src, 16);
+        dst += 16;
+        src += 256;
+    }
+
+    *list = buf;
+    return siz;
 }

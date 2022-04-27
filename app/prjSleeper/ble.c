@@ -194,7 +194,9 @@ static MadBool ble_interpreter(const char *buf, int size)
             }
         }
 
-        case BLE_CMD_VERIFY: {
+        case BLE_CMD_VERIFY:
+        case BLE_CMD_CLEAR:
+        case BLE_CMD_KEY_L: {
             if(c.len != 16) {
                 return MFALSE;
             } else {
@@ -277,25 +279,31 @@ static MadBool ble_interpreter(const char *buf, int size)
 
         case BLE_CMD_VERIFY: {
             msg->type  = MSG_BLE_VERIFY;
-            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
+        case BLE_CMD_CLEAR: {
+            msg->type  = MSG_BLE_CLEAR;
             break;
         }
 
         case BLE_CMD_KEY_W: {
             msg->type  = MSG_BLE_KEY_W;
-            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
             break;
         }
 
         case BLE_CMD_KEY_R: {
             msg->type  = MSG_BLE_KEY_R;
-            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
             break;
         }
 
         case BLE_CMD_KEY_D: {
             msg->type  = MSG_BLE_KEY_D;
-            msg->arg.p = (MadU8*)msg + sizeof(msg_t);
+            break;
+        }
+
+        case BLE_CMD_KEY_L: {
+            msg->type  = MSG_BLE_KEY_L;
             break;
         }
 
@@ -305,6 +313,7 @@ static MadBool ble_interpreter(const char *buf, int size)
     }
 
     if(c.len > 1) {
+        msg->arg.p = (MadU8*)msg + sizeof(msg_t);
         memcpy(msg->arg.p, c.arg.p, c.len);
     }
 
