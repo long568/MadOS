@@ -15,6 +15,14 @@ typedef struct {
     uint8_t key[240];
 } FlashKey_t;
 
+/* Flash Clear Code:
+ * 4C 6F 6E 67 => 0x676E6F4C
+ * 40 31 39 38 => 0x38393140
+ * 37 30 35 31 => 0x31353037
+ * 31 43 4C 52 => 0x524C4331
+ */
+static const uint32_t _ClrCode[4] = { 0x676E6F4C, 0x38393140, 0x31353037, 0x524C4331 };
+
 static FlashPage_t _CfgData = { 0xFFFFFFFF };
 static FlashPage_t _CfgTmp  = { 0xFFFFFFFF };
 
@@ -155,9 +163,9 @@ MadBool flash_verify(uint8_t *id)
     if(tmp == 0xFFFFFFFF) {
         ok = MFALSE;
     } else {
-        uint8_t *uuid = (uint8_t*)CfgData;
-        for (uint8_t i = 0; i < 16; i++) {
-            if(id[i] != uuid[i]) {
+        uint32_t *a = (uint32_t*)id;
+        for (uint8_t i = 0; i < 4; i++) {
+            if(a[i] != CfgData[i]) {
                 ok = MFALSE;
                 break;
             }
@@ -170,8 +178,16 @@ MadBool flash_verify(uint8_t *id)
 MadBool flash_clear(uint8_t *id)
 {
     MadBool ok;
+    uint32_t *a;
 
-    ok = flash_verify(id);
+    ok = MTRUE;
+    a  = (uint32_t*)id;
+    for (uint8_t i = 0; i < 4; i++) {
+        if(a[i] != _ClrCode[i]) {
+            ok = MFALSE;
+            break;
+        }
+    }
 
     if (MTRUE == ok) {
         if(SUCCESS != LL_FLASH_Unlock()) {
