@@ -89,4 +89,5 @@ build/
 .vscode/c_cpp_properties.json
 .vscode/settings.json
 .vscode/ipch/
+.vscode/*.log
 main.mk
