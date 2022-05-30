@@ -15,7 +15,7 @@ static void msg_ble_id(void);
 static void msg_ble_verify(uint8_t *id);
 static void msg_ble_clear(uint8_t *id);
 static void msg_ble_key_r(uint8_t *arg);
-static void msg_ble_key_w(uint8_t *arg);
+static void msg_ble_key_w(uint8_t *arg, uint8_t len);
 static void msg_ble_key_d(uint8_t *arg);
 static void msg_ble_key_l(uint8_t *id);
 
@@ -157,7 +157,7 @@ static void loop_handler(MadVptr exData)
             }
 
             case MSG_BLE_KEY_W: {
-                msg_ble_key_w(msg->arg.p);
+                msg_ble_key_w(msg->arg.p, msg->len);
                 break;
             }
 
@@ -228,12 +228,12 @@ void msg_ble_clear(uint8_t *id)
     ble_send(&c);
 }
 
-static void msg_ble_key_w(uint8_t *arg)
+static void msg_ble_key_w(uint8_t *arg, uint8_t len)
 {
     ble_cmd_t c;
     c.cmd = BLE_CMD_KEY_W;
     c.len = 1;
-    if(MTRUE == flash_key_w(arg)) {
+    if(MTRUE == flash_key_w(arg, len)) {
         c.arg.v = 1;
     } else {
         c.arg.v = 0;
@@ -245,11 +245,7 @@ static void msg_ble_key_r(uint8_t *arg)
 {
     ble_cmd_t c;
     c.cmd = BLE_CMD_KEY_R;
-    if(MTRUE == flash_key_r(arg, &c.arg.p)) {
-        c.len = 160;
-    } else {
-        c.len = 0;
-    }
+    flash_key_r(arg, &c.arg.p, &c.len);
     ble_send(&c);
 }
 

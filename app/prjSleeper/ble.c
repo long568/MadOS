@@ -108,7 +108,7 @@ static void ble_handler(MadVptr exData)
 
         while(1) {
             rc = read(dev, buf+cnt, siz);
-            if(rc < 0) {
+            if(rc <= 0) {
                 break;
             }
             if(0 == strncmp(buf+cnt, MSG_CONN, sizeof(MSG_CONN)-1)) {
@@ -237,43 +237,36 @@ static MadBool ble_interpreter(const char *buf, int size)
     switch(c.cmd) {
         case BLE_CMD_SYNC: {
             msg->type  = MSG_BLE_SYNC;
-            msg->arg.v = 0;
             break;
         }
 
         case BLE_CMD_SLEEP: {
             msg->type  = MSG_BLE_SLEEP;
-            msg->arg.v = c.arg.v;
             break;
         }
 
         case BLE_CMD_HR: {
             msg->type  = MSG_BLE_HR;
-            msg->arg.v = 0;
             break;
         }
 
         case BLE_CMD_SPO2: {
             msg->type  = MSG_BLE_SPO2;
-            msg->arg.v = 0;
             break;
         }
 
         case BLE_CMD_SHUT: {
             msg->type  = MSG_BLE_SHUT;
-            msg->arg.v = 0;
             break;
         }
 
         case BLE_CMD_ID: {
             msg->type  = MSG_BLE_ID;
-            msg->arg.v = 0;
             break;
         }
 
         case BLE_CMD_TID: {
             msg->type  = MSG_BLE_TID;
-            msg->arg.v = 0;
             break;
         }
 
@@ -312,10 +305,16 @@ static MadBool ble_interpreter(const char *buf, int size)
             return MFALSE;
     }
 
-    if(c.len > 1) {
+    if(c.len == 0) {
+        msg->arg.v = 0;
+    } else if(c.len == 1) {
+        msg->arg.v = c.arg.v;
+    } else {
         msg->arg.p = (MadU8*)msg + sizeof(msg_t);
         memcpy(msg->arg.p, c.arg.p, c.len);
     }
+
+    msg->len = c.len;
 
     loop_msg_send(msg);
     return MTRUE;

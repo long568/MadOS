@@ -248,7 +248,7 @@ static const uint32_t *find_new_row(void)
 }
 
 #if 1
-MadBool flash_key_w(uint8_t *arg)
+MadBool flash_key_w(uint8_t *arg, uint8_t len)
 {
     MadBool ok;
 
@@ -296,7 +296,12 @@ MadBool flash_key_w(uint8_t *arg)
                         const uint8_t  *ptmp  = (const  uint8_t*)(_CfgTmp);
                         for (uint8_t i = 0; i < 8; i++) {
                             if(new_row == pdata) {
-                                if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)(arg + 16))) {
+                                uint8_t *item = arg + 16;
+                                uint8_t  ilen = len - 16;
+                                memcpy(buf,      item,     ilen);
+                                memset(buf+ilen, 0xFF, 256-ilen);
+                                buf[255] = ilen;
+                                if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
                                     ok = MFALSE;
                                 }
                                 break;
@@ -328,6 +333,7 @@ MadBool flash_key_w(uint8_t *arg)
     return ok;
 }
 #else
+// Do NOT use this
 MadBool flash_key_w(uint8_t *arg)
 {
     MadBool ok;
@@ -357,7 +363,7 @@ MadBool flash_key_w(uint8_t *arg)
 }
 #endif
 
-MadBool flash_key_r(uint8_t *arg, uint8_t **key)
+MadBool flash_key_r(uint8_t *arg, uint8_t **key, uint8_t *len)
 {
     MadBool ok;
 
@@ -367,8 +373,10 @@ MadBool flash_key_r(uint8_t *arg, uint8_t **key)
         uint8_t *wallet = find_wallet(arg + 16);
         if(!wallet) {
             ok = MFALSE;
+            *len = 0;
         } else {
             *key = wallet + 16;
+            *len = wallet[255] - 16;
         }
     }
 

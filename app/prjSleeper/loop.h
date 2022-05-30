@@ -32,6 +32,7 @@ typedef struct __msg_t {
         MadU8 v;
         MadU8 *p;
     } arg;
+    MadU8 len;
 } msg_t __attribute__((aligned (4)));
 
 extern MadBool loop_init    (void);
