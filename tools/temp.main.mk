@@ -13,6 +13,7 @@ export SET   = @set -e
 export MKDIR = @mkdir -p
 export RM    = @rm -f
 export CD    = @cd
+export SH    = @bash
 
 export ROOT      = $(patsubst %/, %, $(shell pwd))
 export BUILD_DIR = $(ROOT)/build

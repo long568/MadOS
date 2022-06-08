@@ -6,7 +6,7 @@ PEXT = $(ROOT)/arch/$(MCU_PREFIX)/kernel-ext
 export TEMP = $(BUILD_DIR)/kernel
 
 all: prebuild
-	@$(ROOT)/arch/$(MCU_PREFIX)/gen_ldscript.sh
+	$(SH) $(ROOT)/arch/$(MCU_PREFIX)/gen_ldscript.sh
 
 prebuild:
 	$(MAKE) -C $(PACH)
