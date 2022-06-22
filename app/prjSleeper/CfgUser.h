@@ -1,7 +1,7 @@
 #ifndef __CFG_USER_H__
 #define __CFG_USER_H__
 
-#define DEV_BOARD
+// #define DEV_BOARD
 
 enum {
     THREAD_PRIO_SYS_RUNNING = 1,
