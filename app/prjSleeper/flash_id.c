@@ -3,17 +3,10 @@
 #include "CfgUser.h"
 #include "flash.h"
 
-typedef const uint8_t  FlashRow_t[256]  __attribute__((aligned (256)));
-typedef const uint32_t FlashPage_t[512] __attribute__((aligned (2048)));
-
-typedef struct {
-    uint8_t id[16];
-} FlashCfg_t;
-
-typedef struct {
-    uint8_t id[16];
-    uint8_t key[240];
-} FlashKey_t;
+/* Row
+ * key    | value    | len
+ * [0:15] | [16:254] | [255]
+ */
 
 /* Flash Clear Code:
  * 4C 6F 6E 67 => 0x676E6F4C
@@ -51,6 +44,11 @@ static ErrorStatus erase(uint32_t addr)
     erase.NbPages   = 1;
 
     return LL_FLASH_Erase(&erase, &erase_err);
+}
+
+inline ErrorStatus flash_erase(uint32_t addr)
+{
+    return erase(addr);
 }
 
 static MadBool recover(void)

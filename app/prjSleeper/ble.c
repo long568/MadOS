@@ -187,7 +187,7 @@ static MadBool ble_interpreter(const char *buf, int size)
         }
 
         case BLE_CMD_SLEEP: {
-            if(c.len != 1) {
+            if(c.len != 2) {
                 return MFALSE;
             } else {
                 break;

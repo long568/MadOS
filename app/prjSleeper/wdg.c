@@ -47,6 +47,5 @@ inline void wdg_feed(void)
 
 void madHardFaultHandler(void)
 {
-    sv_clr();
     hw_shutdown();
 }
