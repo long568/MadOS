@@ -22,29 +22,10 @@ static FlashPage_t _CfgTmp  = { 0xFFFFFFFF };
 static volatile uint32_t *CfgData = (uint32_t *)_CfgData;
 static volatile uint32_t *CfgTmp  = (uint32_t *)_CfgTmp;
 
-static MadBool     recover(void);
-static ErrorStatus erase  (uint32_t addr);
+static MadBool recover(void);
 
-inline static ErrorStatus eraseData(void) { return erase((uint32_t)CfgData); }
-inline static ErrorStatus eraseTmp(void)  { return erase((uint32_t)CfgTmp);  }
-
-static ErrorStatus erase(uint32_t addr)
-{
-    FLASH_EraseInitTypeDef erase;
-    uint32_t erase_err;
-
-    erase.TypeErase = FLASH_TYPEERASE_PAGES;
-    erase.Banks     = FLASH_BANK_1;
-    erase.Page      = ((uint32_t)addr - 0x08000000) / 2048;
-    erase.NbPages   = 1;
-
-    return LL_FLASH_Erase(&erase, &erase_err);
-}
-
-inline ErrorStatus flash_erase(uint32_t addr)
-{
-    return erase(addr);
-}
+inline static ErrorStatus eraseData(void) { return flash_erase((uint32_t)CfgData); }
+inline static ErrorStatus eraseTmp(void)  { return flash_erase((uint32_t)CfgTmp);  }
 
 static MadBool recover(void)
 {
