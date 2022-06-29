@@ -186,8 +186,10 @@ static MadBool ble_interpreter(const char *buf, int size)
             }
         }
 
-        case BLE_CMD_SLEEP: {
-            if(c.len != 2) {
+        case BLE_CMD_ES_LEVEL:
+        case BLE_CMD_ES_FREQ:
+        case BLE_CMD_SYS_TOUT: {
+            if(c.len != 1) {
                 return MFALSE;
             } else {
                 break;
@@ -240,8 +242,8 @@ static MadBool ble_interpreter(const char *buf, int size)
             break;
         }
 
-        case BLE_CMD_SLEEP: {
-            msg->type  = MSG_BLE_SLEEP;
+        case BLE_CMD_ES_LEVEL: {
+            msg->type  = MSG_BLE_ES_LEVEL;
             break;
         }
 
@@ -257,6 +259,16 @@ static MadBool ble_interpreter(const char *buf, int size)
 
         case BLE_CMD_SHUT: {
             msg->type  = MSG_BLE_SHUT;
+            break;
+        }
+
+        case BLE_CMD_ES_FREQ: {
+            msg->type  = MSG_BLE_ES_FREQ;
+            break;
+        }
+
+        case BLE_CMD_SYS_TOUT: {
+            msg->type  = MSG_BLE_SYS_TOUT;
             break;
         }
 

@@ -7,9 +7,12 @@ typedef const uint8_t  FlashRow_t[256]  __attribute__((aligned (256)));
 typedef const uint32_t FlashPage_t[512] __attribute__((aligned (2048)));
 
 typedef struct {
-    uint8_t es_freq; // ticks per min. 1~255
-    uint8_t es_str;  // 0~3
+    uint8_t es_level;  // 0~3
+    uint8_t es_freq;   // 1~254 ticks per min
+    uint8_t sys_tout;  // 1~254 min
 } flash_cfg_t; //__attribute__((packed));
+
+extern flash_cfg_t flash_cfg;
 
 // Common
 extern MadBool     flash_init(void);
@@ -25,7 +28,7 @@ extern MadBool flash_key_r(uint8_t *arg, uint8_t **key, uint8_t *len);
 extern MadBool flash_key_d(uint8_t *arg);
 extern uint8_t flash_key_l(uint8_t *id, uint8_t **list);
 // Cfg
-extern MadBool flash_cfg_load(flash_cfg_t *cfg);
-extern MadBool flash_cfg_save(flash_cfg_t *cfg);
+extern MadBool flash_cfg_load();
+extern MadBool flash_cfg_save();
 
 #endif

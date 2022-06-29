@@ -62,7 +62,7 @@ static void loop_handler(MadVptr exData)
 
     while (1) {
 #ifndef DEV_BOARD
-        if(MAD_ERR_OK != madMsgWait(&msgq, (void**)(&msg), AUTO_SHUT_TIM)) {
+        if(MAD_ERR_OK != madMsgWait(&msgq, (void**)(&msg), SYS_TOUT_CNT(flash_cfg.sys_tout))) {
             shutdown();
         }
 #else
@@ -74,10 +74,10 @@ static void loop_handler(MadVptr exData)
                 switch (msg->arg.v) {
                     case MSG_KEY_SHORT: {
                         ble_cmd_t c;
-                        sv_add();
-                        c.cmd   = BLE_CMD_SLEEP;
+                        sv_add_level();
+                        c.cmd   = BLE_CMD_ES_LEVEL;
                         c.len   = 1;
-                        c.arg.v = sv_get_level();
+                        c.arg.v = flash_cfg.es_level;
                         ble_send(&c);
                         break;
                     }
@@ -93,27 +93,25 @@ static void loop_handler(MadVptr exData)
             }
 
             case MSG_BLE_SYNC: {
-                MadU8 arg[3];
+                MadU8 arg[4];
                 ble_cmd_t c;
                 arg[0] = pwr_quantity();
-                arg[1] = sv_get_level();
-                arg[2] = sv_get_freq();
+                arg[1] = flash_cfg.es_level;
+                arg[2] = flash_cfg.es_freq;
+                arg[3] = flash_cfg.sys_tout;
                 c.cmd   = BLE_CMD_SYNC;
-                c.len   = 3;
+                c.len   = 4;
                 c.arg.p = arg;
                 ble_send(&c);
                 break;
             }
             
-            case MSG_BLE_SLEEP: {
-                MadU8 arg[2];
+            case MSG_BLE_ES_LEVEL: {
                 ble_cmd_t c;
-                sv_set(msg->arg.p[0], msg->arg.p[1]);
-                arg[0]  = sv_get_level();
-                arg[1]  = sv_get_freq();
-                c.cmd   = BLE_CMD_SLEEP;
-                c.len   = 2;
-                c.arg.p = arg;
+                sv_set_level(msg->arg.v);
+                c.cmd   = BLE_CMD_ES_LEVEL;
+                c.len   = 1;
+                c.arg.v = msg->arg.v;
                 ble_send(&c);
                 break;
             }
@@ -138,6 +136,26 @@ static void loop_handler(MadVptr exData)
 
             case MSG_BLE_SHUT: {
                 shutdown();
+                break;
+            }
+
+            case MSG_BLE_ES_FREQ: {
+                ble_cmd_t c;
+                sv_set_freq(msg->arg.v);
+                c.cmd   = BLE_CMD_ES_FREQ;
+                c.len   = 1;
+                c.arg.v = msg->arg.v;
+                ble_send(&c);
+                break;
+            }
+
+            case MSG_BLE_SYS_TOUT: {
+                ble_cmd_t c;
+                flash_cfg.sys_tout = msg->arg.v;
+                c.cmd   = BLE_CMD_SYS_TOUT;
+                c.len   = 1;
+                c.arg.v = msg->arg.v;
+                ble_send(&c);
                 break;
             }
 
@@ -189,19 +207,12 @@ static void loop_handler(MadVptr exData)
 
 static void shutdown()
 {
-
     ble_cmd_t c;
-    flash_cfg_t cfg;
-
-    cfg.es_str  = sv_get_level();
-    cfg.es_freq = sv_get_freq();
-    flash_cfg_save(&cfg);
-    
     c.cmd   = BLE_CMD_SHUT;
     c.len   = 0;
     c.arg.v = 0;
     ble_send(&c);
-    
+    flash_cfg_save();
     hw_shutdown();
 }
 

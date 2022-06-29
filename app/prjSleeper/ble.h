@@ -6,10 +6,12 @@
 typedef enum {
     // Base
     BLE_CMD_SYNC = 1,
-    BLE_CMD_SLEEP,
+    BLE_CMD_ES_LEVEL,
     BLE_CMD_HR,
     BLE_CMD_SPO2,
     BLE_CMD_SHUT,
+    BLE_CMD_ES_FREQ,
+    BLE_CMD_SYS_TOUT,
     // ID
     BLE_CMD_ID = 10,
     BLE_CMD_TID,

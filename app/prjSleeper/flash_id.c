@@ -19,19 +19,14 @@ static const uint32_t _ClrCode[4] = { 0x676E6F4C, 0x38393140, 0x31353037, 0x524C
 static FlashPage_t _CfgData = { 0xFFFFFFFF };
 static FlashPage_t _CfgTmp  = { 0xFFFFFFFF };
 
-volatile uint32_t *CfgData = (uint32_t *)_CfgData;
-volatile uint32_t *CfgTmp  = (uint32_t *)_CfgTmp;
+static volatile uint32_t *CfgData = (uint32_t *)_CfgData;
+static volatile uint32_t *CfgTmp  = (uint32_t *)_CfgTmp;
 
 static MadBool     recover(void);
 static ErrorStatus erase  (uint32_t addr);
 
 inline static ErrorStatus eraseData(void) { return erase((uint32_t)CfgData); }
 inline static ErrorStatus eraseTmp(void)  { return erase((uint32_t)CfgTmp);  }
-
-MadBool flash_init(void)
-{
-    return MTRUE;
-}
 
 static ErrorStatus erase(uint32_t addr)
 {

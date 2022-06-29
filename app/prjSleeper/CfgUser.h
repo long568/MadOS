@@ -27,8 +27,6 @@ enum {
 #define SYS_RUNNING_INTERVAL_MSECS (500)
 #define MAD_OS_STACK_SIZE          (4 * 1024)
 
-#define AUTO_SHUT_TIM   (1000 * 60 * 15)
-
 #define GPIO_PWR        GPIOA
 #define GPIN_PWR        LL_GPIO_PIN_5
 

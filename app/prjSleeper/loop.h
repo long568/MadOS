@@ -6,10 +6,12 @@
 typedef enum {
     MSG_KEY,
     MSG_BLE_SYNC,
-    MSG_BLE_SLEEP,
+    MSG_BLE_ES_LEVEL,
     MSG_BLE_HR,
     MSG_BLE_SPO2,
     MSG_BLE_SHUT,
+    MSG_BLE_ES_FREQ,
+    MSG_BLE_SYS_TOUT,
     MSG_BLE_CLEAR,
     MSG_BLE_ID,
     MSG_BLE_TID,
@@ -34,6 +36,9 @@ typedef struct __msg_t {
     } arg;
     MadU8 len;
 } msg_t __attribute__((aligned (4)));
+
+#define SYS_TOUT_DFT    15
+#define SYS_TOUT_CNT(x) (MadTime_t)((x) * 60 * 1000)
 
 extern MadBool loop_init    (void);
 extern MadU8   loop_msg_send(MadVptr msg);

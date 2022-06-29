@@ -103,12 +103,12 @@ static void madStartup(MadVptr exData)
 
     Newlib_Init();
 
+    flash_init(); // Load cfgs first.
     sv_init();
     key_init();
     ble_init();
     pwr_init();
     // max_init();
-    flash_init();
     loop_init();
     wdg_init();
 

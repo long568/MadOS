@@ -3,11 +3,13 @@
 
 #include "MadOS.h"
 
+#define SV_LEVEL_MAX  3
+#define SV_FREQ_DFT   75
+
 extern MadBool sv_init(void);
-extern MadU8   sv_get_level (void);
-extern MadU8   sv_get_freq(void);
-extern void    sv_set(MadU8 l, MadU8 f);
-extern void    sv_add (void);
+extern void    sv_add_level (void);
+extern void    sv_set_level(MadU8 l);
+extern void    sv_set_freq(MadU8 f);
 extern void    sv_clr (void);
 
 #endif

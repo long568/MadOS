@@ -2,44 +2,14 @@
 #include "stabilivolt.h"
 #include "flash.h"
 
-#define LEVEL_MAX    3
-#define FREQ_DEFAULT 60
-
-static MadU8 level = 0;
-static MadU8 freq  = 0;
-
 static void sv_pwm1_init(void);
 static void sv_pwm2_init(void);
 
 MadBool sv_init(void)
 {
-    flash_cfg_t cfg;
-
-    flash_cfg_load(&cfg);
-    level = cfg.es_str;
-    freq  = cfg.es_freq;
-
-    if(level > LEVEL_MAX) {
-        level = 0;
-    }
-    
-    if(freq == 0) {
-        freq = FREQ_DEFAULT;
-    }
-
     sv_pwm1_init();
     sv_pwm2_init();
     return MTRUE;
-}
-
-MadU8 sv_get_level(void)
-{
-    return level;
-}
-
-MadU8 sv_get_freq(void)
-{
-    return freq;
 }
 
 inline static void __sv_set_level(MadU8 l)
@@ -60,38 +30,43 @@ inline static void __sv_set_freq(MadU8 f)
     LL_TIM_SetAutoReload(SV_PWM2_TIM, timxPeriod);
 }
 
-void sv_set(MadU8 l, MadU8 f)
+void sv_add_level(void)
 {
-    if(l > LEVEL_MAX) {
-        l = LEVEL_MAX;
+    MadU8 l;
+    l = flash_cfg.es_level;
+    if (l < SV_LEVEL_MAX) {
+        l += 1;
+    } else {
+        l = 0;
     }
-    level = l;
-
-    if(f == 0) {
-        f = FREQ_DEFAULT;
-    }
-    freq = f;
-
-    __sv_set_level(level);
-    __sv_set_freq(freq);
+    __sv_set_level(l);
+    flash_cfg.es_level = l;
 }
 
-void sv_add(void)
+void sv_set_level(MadU8 l)
 {
-    if (level < LEVEL_MAX) {
-        level += 1;
-    } else {
-        level = 0;
+    if(l > SV_LEVEL_MAX) {
+        l = SV_LEVEL_MAX;
     }
-    __sv_set_level(level);
+    flash_cfg.es_level = l;
+    __sv_set_level(flash_cfg.es_level);
+}
+
+void sv_set_freq(MadU8 f)
+{
+    if(f == 0 || f == 0xFF) {
+        f = SV_FREQ_DFT;
+    }
+    flash_cfg.es_freq = f;
+     __sv_set_freq(flash_cfg.es_freq);
 }
 
 void sv_clr(void)
 {
-    level = 0;
-    freq  = FREQ_DEFAULT;
-    __sv_set_level(level);
-    __sv_set_freq(freq);
+    flash_cfg.es_level = 0;
+    flash_cfg.es_freq  = SV_FREQ_DFT;
+    __sv_set_level(flash_cfg.es_level);
+    __sv_set_freq(flash_cfg.es_freq);
 }
 
 static void sv_pwm1_init(void)
@@ -153,7 +128,7 @@ static void sv_pwm2_init(void)
 
     timOutClock   = SystemCoreClock/1;
     timxPrescaler = __LL_TIM_CALC_PSC(SystemCoreClock, 20000);
-    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, (float)freq/60);
+    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, (float)flash_cfg.es_freq/60);
 
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM14);
     TIM_InitStruct.Prescaler = timxPrescaler;
