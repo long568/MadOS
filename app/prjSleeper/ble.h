@@ -35,5 +35,6 @@ typedef struct {
 
 extern MadBool ble_init(void);
 extern int     ble_send(const ble_cmd_t *c);
+extern MadU8*  ble_mac_adr(void);
 
 #endif

@@ -12,10 +12,12 @@
 
 static int dev = -1;
 static MadBool isConnected = MFALSE;
+static MadU8   DevMacAddr[6] = {0};
 
 static void    ble_reset      (void);
 static void    ble_handler    (MadVptr exData);
 static MadBool ble_interpreter(const char *buf, int size);
+static void    ble_chk_mac_adr(char *buf);
 
 MadBool ble_init(void)
 {
@@ -72,6 +74,32 @@ int ble_send(const ble_cmd_t *c)
     return rc;
 }
 
+MadU8* ble_mac_adr(void)
+{
+    return DevMacAddr;
+}
+
+static void ble_chk_mac_adr(char *buf)
+{
+    MadU8 i, j;
+
+    for(i=0; i<12; i++) {
+        if(buf[i] >= '0' &&  buf[i] <= '9') {
+            buf[i] -= '0';
+        } else if (buf[i] >= 'A' && buf[i] <= 'F') {
+            buf[i] -= 'A';
+            buf[i] += 10;
+        } else {
+            return;
+        }
+    }
+
+    for(i=0; i<6; i++) {
+        j = i << 1;
+        DevMacAddr[5-i] = (buf[j] << 4) | buf[j+1];
+    }
+}
+
 static void ble_reset(void)
 {
     LL_GPIO_SetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
@@ -102,6 +130,10 @@ static void ble_handler(MadVptr exData)
 
         AT_CMD(SET_NAME, "Pong");
         AT_RD_NONE();
+
+        AT_CMD(CHK_MAC_ADR);
+        AT_RD_NONE();
+        ble_chk_mac_adr(buf+sizeof(MSG_MAC_ADR)-1);
 
         AT_CMD(SET_AUTO_TT, 'Y');
         AT_RD_NONE();

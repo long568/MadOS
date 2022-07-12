@@ -8,10 +8,12 @@
 #define  MSG_DATA    "\r\n+DATA"
 #define  MSG_CONN    "\r\n+CONN"
 #define  MSG_DISCONN "\r\n+DISCONN"
+#define  MSG_MAC_ADR "\r\n+MAC:" //"\r\n+MAC:%s\r\nOK\r\n"
 
 #define  SET_TT      "+++\r\n"
 #define  EXT_TT      "+++"
 #define  SET_AUTO_TT "AUTO+++=%c\r\n"
+#define  CHK_MAC_ADR "MAC?\r\n"
 
 #define  CHK_NAME    "NAME?\r\n"
 #define  SET_NAME    "NAME=%s\r\n"

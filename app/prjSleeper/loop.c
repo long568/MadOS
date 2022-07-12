@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "CfgUser.h"
 #include "loop.h"
 #include "ble.h"
@@ -93,14 +94,15 @@ static void loop_handler(MadVptr exData)
             }
 
             case MSG_BLE_SYNC: {
-                MadU8 arg[4];
+                MadU8 arg[10];
                 ble_cmd_t c;
                 arg[0] = pwr_quantity();
                 arg[1] = flash_cfg.es_level;
                 arg[2] = flash_cfg.es_freq;
                 arg[3] = flash_cfg.sys_tout;
+                memcpy(arg+4, ble_mac_adr(), 6);
                 c.cmd   = BLE_CMD_SYNC;
-                c.len   = 4;
+                c.len   = 10;
                 c.arg.p = arg;
                 ble_send(&c);
                 break;
