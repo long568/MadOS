@@ -4,6 +4,7 @@
 #define  HELLO       "Hello Pong!\r\n"
 
 #define  AT          "\r\nAT+"
+
 #define  MSG         "\r\n+"
 #define  MSG_DATA    "\r\n+DATA"
 #define  MSG_CONN    "\r\n+CONN"
@@ -14,9 +15,9 @@
 #define  EXT_TT      "+++"
 #define  SET_AUTO_TT "AUTO+++=%c\r\n"
 #define  CHK_MAC_ADR "MAC?\r\n"
-
 #define  CHK_NAME    "NAME?\r\n"
 #define  SET_NAME    "NAME=%s\r\n"
+#define  SAVE_CFG    "FLASH\r\n"
 
 #define  AT_CMD(cmd, args...)  \
 do {                                    \

@@ -131,6 +131,9 @@ static void ble_handler(MadVptr exData)
         AT_CMD(SET_NAME, "Pong");
         AT_RD_NONE();
 
+        AT_CMD(SAVE_CFG);
+        AT_RD_NONE();
+
         AT_CMD(CHK_MAC_ADR);
         AT_RD_NONE();
         ble_chk_mac_adr(buf+sizeof(MSG_MAC_ADR)-1);
