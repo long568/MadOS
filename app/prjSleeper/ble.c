@@ -213,7 +213,8 @@ static MadBool ble_interpreter(const char *buf, int size)
         case BLE_CMD_SPO2:
         case BLE_CMD_SHUT:
         case BLE_CMD_ID:
-        case BLE_CMD_TID: {
+        case BLE_CMD_TID:
+        case BLE_CMD_SYS_TT: {
             if(c.len != 0) {
                 return MFALSE;
             } else {
@@ -305,6 +306,10 @@ static MadBool ble_interpreter(const char *buf, int size)
         case BLE_CMD_SYS_TOUT: {
             msg->type  = MSG_BLE_SYS_TOUT;
             break;
+        }
+
+        case BLE_CMD_SYS_TT: {
+            msg->type  = MSG_BLE_SYS_TT;
         }
 
         case BLE_CMD_ID: {

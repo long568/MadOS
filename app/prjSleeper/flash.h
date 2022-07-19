@@ -23,9 +23,10 @@ extern uint8_t flash_key_l(uint8_t *id, uint8_t **list);
 
 /********************* Cfg *********************/
 typedef struct {
-    uint8_t es_level;  // 0~3
-    uint8_t es_freq;   // 1~254 ticks per min
-    uint8_t sys_tout;  // 1~254 min
+    uint8_t  es_level;  // 0~3
+    uint8_t  es_freq;   // 1~254 ticks per min
+    uint8_t  sys_tout;  // 1~254 min
+    uint32_t sys_tt;    // system running time(min);
 } flash_cfg_t; //__attribute__((packed));
 
 extern flash_cfg_t flash_cfg;

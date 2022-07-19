@@ -12,6 +12,7 @@ typedef enum {
     BLE_CMD_SHUT,
     BLE_CMD_ES_FREQ,
     BLE_CMD_SYS_TOUT,
+    BLE_CMD_SYS_TT,
     // ID
     BLE_CMD_ID = 10,
     BLE_CMD_TID,

@@ -12,6 +12,7 @@ typedef enum {
     MSG_BLE_SHUT,
     MSG_BLE_ES_FREQ,
     MSG_BLE_SYS_TOUT,
+    MSG_BLE_SYS_TT,
     MSG_BLE_CLEAR,
     MSG_BLE_ID,
     MSG_BLE_TID,

@@ -42,6 +42,7 @@ MadU8 loop_msg_send(MadVptr msg)
 static void loop_handler(MadVptr exData)
 {
     msg_t *msg;
+    MadTime_t to;
 
 #if 0
     do {
@@ -61,9 +62,11 @@ static void loop_handler(MadVptr exData)
 
     flash_recover();
 
+    to = SYS_TOUT_CNT(flash_cfg.sys_tout);
+
     while (1) {
 #ifndef DEV_BOARD
-        if(MAD_ERR_OK != madMsgWait(&msgq, (void**)(&msg), SYS_TOUT_CNT(flash_cfg.sys_tout))) {
+        if(MAD_ERR_OK != madMsgWait(&msgq, (void**)(&msg), to)) {
             shutdown();
         }
 #else
@@ -154,9 +157,27 @@ static void loop_handler(MadVptr exData)
             case MSG_BLE_SYS_TOUT: {
                 ble_cmd_t c;
                 flash_cfg.sys_tout = msg->arg.v;
+                to = SYS_TOUT_CNT(msg->arg.v);
                 c.cmd   = BLE_CMD_SYS_TOUT;
                 c.len   = 1;
                 c.arg.v = msg->arg.v;
+                ble_send(&c);
+                break;
+            }
+
+            case MSG_BLE_SYS_TT: {
+                MadU8  arg[4];
+                MadU32 tmp;
+                ble_cmd_t c;
+                flash_cfg_save();
+                tmp = flash_cfg.sys_tt;
+                arg[0] = (MadU8)((tmp      ) & 0xFF);
+                arg[1] = (MadU8)((tmp >>  8) & 0xFF);
+                arg[2] = (MadU8)((tmp >> 16) & 0xFF);
+                arg[3] = (MadU8)((tmp >> 24) & 0xFF);
+                c.cmd   = BLE_CMD_SYS_TT;
+                c.len   = 4;
+                c.arg.p = arg;
                 ble_send(&c);
                 break;
             }
@@ -210,11 +231,11 @@ static void loop_handler(MadVptr exData)
 static void shutdown()
 {
     ble_cmd_t c;
+    flash_cfg_save();
     c.cmd   = BLE_CMD_SHUT;
     c.len   = 0;
     c.arg.v = 0;
     ble_send(&c);
-    flash_cfg_save();
     hw_shutdown();
 }
 

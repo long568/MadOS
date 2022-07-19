@@ -10,6 +10,7 @@
 #include "flash.h"
 #include "stabilivolt.h"
 #include "loop.h"
+#include "sys_tt.h"
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 
@@ -115,6 +116,7 @@ static void madStartup(MadVptr exData)
     while(1) {
         madTimeDly(SYS_RUNNING_INTERVAL_MSECS);
         LL_GPIO_TogglePin(GPIO_LED, GPIN_LED);
+        sys_tt_tick();
         wdg_feed();
 	}
 }

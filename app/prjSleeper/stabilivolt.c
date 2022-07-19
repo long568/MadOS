@@ -48,8 +48,8 @@ void sv_set_level(MadU8 l)
     if(l > SV_LEVEL_MAX) {
         l = SV_LEVEL_MAX;
     }
+    __sv_set_level(l);
     flash_cfg.es_level = l;
-    __sv_set_level(flash_cfg.es_level);
 }
 
 void sv_set_freq(MadU8 f)
@@ -57,16 +57,16 @@ void sv_set_freq(MadU8 f)
     if(f == 0 || f == 0xFF) {
         f = SV_FREQ_DFT;
     }
+    __sv_set_freq(f);
     flash_cfg.es_freq = f;
-     __sv_set_freq(flash_cfg.es_freq);
 }
 
 void sv_clr(void)
 {
+    __sv_set_level(0);
+    __sv_set_freq(SV_FREQ_DFT);
     flash_cfg.es_level = 0;
     flash_cfg.es_freq  = SV_FREQ_DFT;
-    __sv_set_level(flash_cfg.es_level);
-    __sv_set_freq(flash_cfg.es_freq);
 }
 
 static void sv_pwm1_init(void)
