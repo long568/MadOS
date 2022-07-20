@@ -31,7 +31,7 @@ typedef struct {
 
 extern flash_cfg_t flash_cfg;
 
-extern MadBool flash_cfg_load();
-extern MadBool flash_cfg_save();
+extern MadBool flash_cfg_load(void);
+extern MadBool flash_cfg_save(void);
 
 #endif

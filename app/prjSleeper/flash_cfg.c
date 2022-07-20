@@ -8,7 +8,6 @@
 
 flash_cfg_t flash_cfg;
 
-static          uint8_t     CfgBuf[256] = { 0 };
 static          FlashPage_t _Cfg        = { 0 };
 static volatile uint32_t    *Cfg        = (uint32_t *)_Cfg;
 
@@ -45,26 +44,32 @@ MadBool flash_cfg_load()
     return MTRUE;
 }
 
-MadBool flash_cfg_save()
+MadBool flash_cfg_save(void)
 {
+    MadU8   *buf;
     MadBool ok;
     
+    buf = (MadU8*)malloc(256);
+    if(!buf) {
+        return MFALSE;
+    }
+
     ok = MTRUE;
-    
     if(SUCCESS != LL_FLASH_Unlock()) {
         ok = MFALSE;
     } else {
         eraseCfg();
         MAD_CS_OPT(flash_cfg.sys_tt += sys_tt_cnt);
-        ((flash_cfg_t *)CfgBuf)->es_level = flash_cfg.es_level;
-        ((flash_cfg_t *)CfgBuf)->es_freq  = flash_cfg.es_freq;
-        ((flash_cfg_t *)CfgBuf)->sys_tout = flash_cfg.sys_tout;
-        ((flash_cfg_t *)CfgBuf)->sys_tt   = flash_cfg.sys_tt;
-        if(SUCCESS != LL_FLASH_Program_Fast(_Cfg, (uint32_t*)CfgBuf)) {
+        ((flash_cfg_t *)buf)->es_level = flash_cfg.es_level;
+        ((flash_cfg_t *)buf)->es_freq  = flash_cfg.es_freq;
+        ((flash_cfg_t *)buf)->sys_tout = flash_cfg.sys_tout;
+        ((flash_cfg_t *)buf)->sys_tt   = flash_cfg.sys_tt;
+        if(SUCCESS != LL_FLASH_Program_Fast(_Cfg, (uint32_t*)buf)) {
             ok = MFALSE;
         }
         LL_FLASH_Lock();
     }
 
+    free(buf);
     return ok;
 }

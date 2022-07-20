@@ -49,9 +49,11 @@ enum {
 #define ADC_DMA_CHL     LL_DMA_CHANNEL_2
 
 #define GPIO_KEY        GPIOA
-#define GPIN_KEY        LL_GPIO_PIN_0
-#define EXTI_KEY_LINE   LL_EXTI_LINE_0
+#define GPIN_KEY        LL_GPIO_PIN_1
+#define EXTI_KEY_LINE   LL_EXTI_LINE_1
 #define EXTI_KEY_IRQn   EXTI0_1_IRQn
+#define WAKEUP_KEY_LINE LL_PWR_WAKEUP_PIN1
+#define WAKEUP_KEY_PULL LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_1
 
 #define GPIO_PWM1       GPIOA
 #define GPIN_PWM1       LL_GPIO_PIN_6

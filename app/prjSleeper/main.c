@@ -12,10 +12,13 @@
 #include "loop.h"
 #include "sys_tt.h"
 
+#define STARTUP_TICKS 125
+
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 
 static void hw_init(void);
 static void madStartup(MadVptr exData);
+static void check_startup(void);
 
 int main(void)
 {
@@ -29,13 +32,16 @@ int main(void)
 
 void hw_shutdown(void)
 {
-    madCSInit();
-    madCSLock();
+    madCSDecl(cpsr);
+    madCSLock(cpsr);
     LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
     LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
     LL_GPIO_LockPin(GPIO_LED, GPIN_LED);
     LL_GPIO_LockPin(GPIO_PWR, GPIN_PWR);
-    while (1);
+    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+        __NOP();
+    }
+    NVIC_SystemReset();
 }
 
 static void hw_init(void)
@@ -93,14 +99,7 @@ static void madStartup(MadVptr exData)
         LL_GPIO_Init(GPIO_LED, &pin);
     } while(0);
 
-#ifndef DEV_BOARD
-    madTimeDly(3000);
-    LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
-    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
-    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
-        madTimeDly(20);
-    }
-#endif
+    check_startup();
 
     Newlib_Init();
 
@@ -119,4 +118,36 @@ static void madStartup(MadVptr exData)
         sys_tt_tick();
         wdg_feed();
 	}
+}
+
+static void check_startup(void)
+{
+    MadU8 cnt = 0;
+    LL_EXTI_InitTypeDef EXTI_InitStruct = {0};
+
+    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+        madTimeDly(20);
+        if(++cnt >= STARTUP_TICKS) {
+            break;
+        }
+    }
+
+    if(cnt < STARTUP_TICKS) {
+        EXTI_InitStruct.Line_0_31   = EXTI_KEY_LINE;
+        EXTI_InitStruct.LineCommand = ENABLE;
+        EXTI_InitStruct.Mode        = LL_EXTI_MODE_EVENT;
+        EXTI_InitStruct.Trigger     = LL_EXTI_TRIGGER_FALLING;
+        LL_EXTI_Init(&EXTI_InitStruct);
+        LL_PWR_EnableWakeUpPin(WAKEUP_KEY_LINE);
+        LL_PWR_SetWakeUpPinPolarityHigh(WAKEUP_KEY_LINE);
+        LL_PWR_EnableGPIOPullUp(WAKEUP_KEY_PULL);
+        __WFE();
+        NVIC_SystemReset();
+    }
+
+    LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+    while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
+        madTimeDly(20);
+    }
 }
