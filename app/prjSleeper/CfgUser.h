@@ -40,6 +40,7 @@ enum {
 
 #define GPIO_BLE_SIG    GPIOB
 #define GPIN_BLE_SIG    LL_GPIO_PIN_2
+#define PWR_BLE_SIG     LL_PWR_GPIO_B, LL_PWR_GPIO_BIT_2
 #define GPIO_BLE_RST    GPIOB
 #define GPIN_BLE_RST    LL_GPIO_PIN_3
 
@@ -51,11 +52,10 @@ enum {
 #define ADC_DMA_CHL     LL_DMA_CHANNEL_2
 
 #define GPIO_KEY        GPIOA
-#define GPIN_KEY        LL_GPIO_PIN_1
-#define EXTI_KEY_LINE   LL_EXTI_LINE_1
+#define GPIN_KEY        LL_GPIO_PIN_0
+#define EXTI_KEY_LINE   LL_EXTI_LINE_0
 #define EXTI_KEY_IRQn   EXTI0_1_IRQn
-#define WAKEUP_KEY_LINE LL_PWR_WAKEUP_PIN1
-#define PWR_KEY_PULL    LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_1
+#define PWR_KEY         LL_PWR_GPIO_A, LL_PWR_GPIO_BIT_0
 
 #define GPIO_PWM1       GPIOA
 #define GPIN_PWM1       LL_GPIO_PIN_6

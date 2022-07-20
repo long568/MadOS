@@ -16,12 +16,15 @@
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
 
+static void clk_init(void);
 static void hw_init(void);
 static void madStartup(MadVptr exData);
 static void check_startup(void);
+static void key_irq_handler(void);
 
 int main(void)
 {
+    clk_init();
     hw_init();
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
@@ -46,7 +49,7 @@ void hw_shutdown(void)
     NVIC_SystemReset();
 }
 
-static void hw_init(void)
+static void clk_init(void)
 {
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR); 
@@ -62,11 +65,23 @@ static void hw_init(void)
     LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
 
     LL_SetSystemCoreClock(16000000);
+}
 
+static void hw_init(void)
+{
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
+
+    if (LL_PWR_IsActiveFlag_SB() != 0) {
+        LL_PWR_ClearFlag_SB();
+        LL_PWR_DisablePUPDCfg();
+    }
+    if (LL_PWR_IsActiveFlag_WU1() != 0) {
+        LL_PWR_ClearFlag_WU1();
+    }
 }
 
 static void madStartup(MadVptr exData)
@@ -79,12 +94,12 @@ static void madStartup(MadVptr exData)
     do {
         LL_GPIO_InitTypeDef pin = { 0 };
 
+        LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_UP);
+        LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
+
         LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
         LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
         LL_GPIO_ResetOutputPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
-
-        LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_UP);
-        LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
 
         pin.Pin        = GPIN_PWR;
         pin.Mode       = LL_GPIO_MODE_OUTPUT;
@@ -147,13 +162,22 @@ static void check_startup(void)
     if(cnt < STARTUP_TICKS) {
         EXTI_InitStruct.Line_0_31   = EXTI_KEY_LINE;
         EXTI_InitStruct.LineCommand = ENABLE;
-        EXTI_InitStruct.Mode        = LL_EXTI_MODE_EVENT;
+        EXTI_InitStruct.Mode        = LL_EXTI_MODE_IT;
         EXTI_InitStruct.Trigger     = LL_EXTI_TRIGGER_FALLING;
         LL_EXTI_Init(&EXTI_InitStruct);
-        LL_PWR_EnableWakeUpPin(WAKEUP_KEY_LINE);
-        LL_PWR_SetWakeUpPinPolarityHigh(WAKEUP_KEY_LINE);
-        LL_PWR_EnableGPIOPullUp(PWR_KEY_PULL);
-        __WFE();
+        madInstallExIrq(key_irq_handler, EXTI_KEY_IRQn, EXTI_KEY_LINE);
+        NVIC_SetPriority(EXTI_KEY_IRQn, ISR_PRIO_KEY);
+        NVIC_EnableIRQ(EXTI_KEY_IRQn);
+
+        LL_PWR_EnableGPIOPullUp(PWR_KEY);
+        LL_PWR_EnablePUPDCfg();
+        LL_PWR_SetWakeUpPinPolarityLow(LL_PWR_WAKEUP_PIN1);
+        LL_PWR_EnableWakeUpPin(LL_PWR_WAKEUP_PIN1);
+        LL_PWR_ClearFlag_WU();
+        LL_PWR_SetPowerMode(LL_PWR_MODE_STOP0);
+        LL_LPM_EnableDeepSleep();
+        __WFI();
+
         NVIC_SystemReset();
     }
 
@@ -165,4 +189,11 @@ static void check_startup(void)
     }
 
     LL_GPIO_SetOutputPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
+}
+
+static void key_irq_handler(void)
+{
+    if (LL_EXTI_IsActiveFallingFlag_0_31(EXTI_KEY_LINE) != RESET) {
+        LL_EXTI_ClearFallingFlag_0_31(EXTI_KEY_LINE);
+    }
 }
