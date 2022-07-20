@@ -24,7 +24,6 @@ static void key_irq_handler(void);
 
 int main(void)
 {
-    clk_init();
     hw_init();
     madCopyVectorTab();
     madOSInit(MadStack, MAD_OS_STACK_SIZE);
@@ -69,19 +68,11 @@ static void clk_init(void)
 
 static void hw_init(void)
 {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+    clk_init();
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
-
-    if (LL_PWR_IsActiveFlag_SB() != 0) {
-        LL_PWR_ClearFlag_SB();
-        LL_PWR_DisablePUPDCfg();
-    }
-    if (LL_PWR_IsActiveFlag_WU1() != 0) {
-        LL_PWR_ClearFlag_WU1();
-    }
 }
 
 static void madStartup(MadVptr exData)
@@ -169,6 +160,7 @@ static void check_startup(void)
         NVIC_SetPriority(EXTI_KEY_IRQn, ISR_PRIO_KEY);
         NVIC_EnableIRQ(EXTI_KEY_IRQn);
 
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
         LL_PWR_EnableGPIOPullUp(PWR_KEY);
         LL_PWR_EnablePUPDCfg();
         LL_PWR_SetWakeUpPinPolarityLow(LL_PWR_WAKEUP_PIN1);
