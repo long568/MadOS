@@ -23,11 +23,13 @@ MadBool ble_init(void)
 {
     do {
         LL_GPIO_InitTypeDef pin = { 0 };
+
         LL_GPIO_ResetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
+
         pin.Pin        = GPIN_BLE_RST;
         pin.Mode       = LL_GPIO_MODE_OUTPUT;
         pin.Speed      = LL_GPIO_SPEED_LOW;
-        pin.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+        pin.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
         pin.Pull       = LL_GPIO_PULL_NO;
         pin.Alternate  = LL_GPIO_AF_0;
         LL_GPIO_Init(GPIO_BLE_RST, &pin);

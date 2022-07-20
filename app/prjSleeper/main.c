@@ -36,8 +36,10 @@ void hw_shutdown(void)
     madCSLock(cpsr);
     LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
     LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_ResetOutputPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
     LL_GPIO_LockPin(GPIO_LED, GPIN_LED);
     LL_GPIO_LockPin(GPIO_PWR, GPIN_PWR);
+    LL_GPIO_LockPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
     while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
         __NOP();
     }
@@ -79,6 +81,8 @@ static void madStartup(MadVptr exData)
 
         LL_GPIO_SetOutputPin(GPIO_PWR, GPIN_PWR);
         LL_GPIO_SetOutputPin(GPIO_LED, GPIN_LED);
+        LL_GPIO_ResetOutputPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
+
         LL_GPIO_SetPinPull(GPIO_KEY, GPIN_KEY, LL_GPIO_PULL_UP);
         LL_GPIO_SetPinMode(GPIO_KEY, GPIN_KEY, LL_GPIO_MODE_INPUT);
 
@@ -97,6 +101,14 @@ static void madStartup(MadVptr exData)
         pin.Pull       = LL_GPIO_PULL_NO;
         pin.Alternate  = LL_GPIO_AF_0;
         LL_GPIO_Init(GPIO_LED, &pin);
+
+        pin.Pin        = GPIN_BLE_SIG;
+        pin.Mode       = LL_GPIO_MODE_OUTPUT;
+        pin.Speed      = LL_GPIO_SPEED_LOW;
+        pin.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+        pin.Pull       = LL_GPIO_PULL_NO;
+        pin.Alternate  = LL_GPIO_AF_0;
+        LL_GPIO_Init(GPIO_BLE_SIG, &pin);
     } while(0);
 
     check_startup();
@@ -140,14 +152,17 @@ static void check_startup(void)
         LL_EXTI_Init(&EXTI_InitStruct);
         LL_PWR_EnableWakeUpPin(WAKEUP_KEY_LINE);
         LL_PWR_SetWakeUpPinPolarityHigh(WAKEUP_KEY_LINE);
-        LL_PWR_EnableGPIOPullUp(WAKEUP_KEY_PULL);
+        LL_PWR_EnableGPIOPullUp(PWR_KEY_PULL);
         __WFE();
         NVIC_SystemReset();
     }
 
     LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
     LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);
+
     while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
         madTimeDly(20);
     }
+
+    LL_GPIO_SetOutputPin(GPIO_BLE_SIG, GPIN_BLE_SIG);
 }

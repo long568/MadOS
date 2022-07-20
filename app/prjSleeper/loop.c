@@ -70,6 +70,7 @@ static void loop_handler(MadVptr exData)
             shutdown();
         }
 #else
+        (void)to;
         madMsgWait(&msgq, (void**)(&msg), 0);
 #endif
         
