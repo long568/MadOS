@@ -4,7 +4,7 @@
 #include "flash.h"
 
 /* Row
- * key    | value    | len
+ * key    | value    | v.len
  * [0:15] | [16:254] | [255]
  */
 
@@ -225,147 +225,19 @@ static const uint32_t *find_new_row(void)
 MadBool flash_key_w(uint8_t *arg, uint8_t len)
 {
     MadBool ok;
+    uint8_t *wallet;
 
     ok = flash_verify(arg);
-
-    if (MTRUE == ok) {
-        uint8_t *wallet = find_wallet(arg + 16);
-        if(!wallet) {
-            const uint32_t *new_row = find_new_row();
-            if(!new_row) {
-                ok = MFALSE;
-            } else {
-                uint8_t *buf = (uint8_t*)malloc(256);
-                if(!buf) {
-                    return MFALSE;
-                }
-
-                if(SUCCESS != LL_FLASH_Unlock()) {
-                    ok = MFALSE;
-                } else {
-                    eraseTmp();
-                    do {
-                        const uint8_t  *pdata = (const  uint8_t*)(_CfgData);
-                        const uint32_t *ptmp  = (const uint32_t*)(_CfgTmp);
-                        for (uint8_t i = 0; i < 8; i++) {
-                            if((uint8_t*)new_row == pdata) {
-                                break;
-                            } else {
-                                memcpy(buf, pdata, 256);
-                                if(SUCCESS != LL_FLASH_Program_Fast(ptmp, (uint32_t*)buf)) {
-                                    ok = MFALSE;
-                                    break;
-                                }
-                            }
-                            pdata += 256;
-                            ptmp  += 64;
-                        }
-                    } while (0);
-
-                    if(MFALSE == ok) {
-                        eraseTmp();
-                    } else {
-                        eraseData();
-                        const uint32_t *pdata = (const uint32_t*)(_CfgData);
-                        const uint8_t  *ptmp  = (const  uint8_t*)(_CfgTmp);
-                        for (uint8_t i = 0; i < 8; i++) {
-                            if(new_row == pdata) {
-                                uint8_t *item = arg + 16;
-                                uint8_t  ilen = len - 16;
-                                memcpy(buf,      item,     ilen);
-                                memset(buf+ilen, 0xFF, 256-ilen);
-                                buf[255] = ilen;
-                                if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
-                                    ok = MFALSE;
-                                }
-                                break;
-                            } else {
-                                memcpy(buf, ptmp, 256);
-                                if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
-                                    ok = MFALSE;
-                                    break;
-                                }
-                            }
-                            pdata += 64;
-                            ptmp  += 256;
-                        }
-                        if(MTRUE == ok) {
-                            eraseTmp();
-                        } else {
-                            hw_shutdown();
-                        }
-                    }
-
-                    LL_FLASH_Lock();
-                }
-
-                free(buf);
-            }
-        }
+    if(MFALSE == ok) {
+        return MFALSE;
     }
 
-    return ok;
-}
-#else
-// Do NOT use this
-MadBool flash_key_w(uint8_t *arg)
-{
-    MadBool ok;
-
-    ok = flash_verify(arg);
-
-    if (MTRUE == ok) {
-        uint8_t *wallet = find_wallet(arg + 16);
-        if(!wallet) {
-            const uint32_t *new_row = find_new_row();
-            if(!new_row) {
-                ok = MFALSE;
-            } else {
-                if(SUCCESS != LL_FLASH_Unlock()) {
-                    ok = MFALSE;
-                } else {
-                    if(SUCCESS != LL_FLASH_Program_Fast(new_row, (uint32_t*)(arg + 16))) {
-                        ok = MFALSE;
-                    }
-                    LL_FLASH_Lock();
-                }
-            }
-        }
-    }
-
-    return ok;
-}
-#endif
-
-MadBool flash_key_r(uint8_t *arg, uint8_t **key, uint8_t *len)
-{
-    MadBool ok;
-
-    ok = flash_verify(arg);
-
-    if (MTRUE == ok) {
-        uint8_t *wallet = find_wallet(arg + 16);
-        if(!wallet) {
+    wallet = find_wallet(arg + 16);
+    if(!wallet) {
+        const uint32_t *new_row = find_new_row();
+        if(!new_row) {
             ok = MFALSE;
-            *len = 0;
         } else {
-            *key = wallet + 16;
-            *len = wallet[255] - 16;
-        }
-    }
-
-    return ok;
-}
-
-MadBool flash_key_d(uint8_t *arg)
-{
-    MadBool ok;
-
-    ok = flash_verify(arg);
-
-    if (MTRUE == ok) {
-        uint8_t *wallet = find_wallet(arg + 16);
-        if(wallet) {
             uint8_t *buf = (uint8_t*)malloc(256);
             if(!buf) {
                 return MFALSE;
@@ -374,23 +246,13 @@ MadBool flash_key_d(uint8_t *arg)
             if(SUCCESS != LL_FLASH_Unlock()) {
                 ok = MFALSE;
             } else {
-                uint8_t cnt;
-                const uint32_t *new_row = find_new_row();
-
-                if(!new_row) {
-                    cnt = 8;
-                } else {
-                    cnt = ((uint32_t)new_row - (uint32_t)_CfgData) >> 8; // /256
-                }
-
                 eraseTmp();
                 do {
                     const uint8_t  *pdata = (const  uint8_t*)(_CfgData);
                     const uint32_t *ptmp  = (const uint32_t*)(_CfgTmp);
-                    for (uint8_t i = 0; i < cnt; i++) {
-                        if(wallet == pdata) {
-                            pdata += 256;
-                            continue;
+                    for (uint8_t i = 0; i < 8; i++) {
+                        if((uint8_t*)new_row == pdata) {
+                            break;
                         } else {
                             memcpy(buf, pdata, 256);
                             if(SUCCESS != LL_FLASH_Program_Fast(ptmp, (uint32_t*)buf)) {
@@ -401,8 +263,7 @@ MadBool flash_key_d(uint8_t *arg)
                         pdata += 256;
                         ptmp  += 64;
                     }
-                    cnt--;
-                } while(0);
+                } while (0);
 
                 if(MFALSE == ok) {
                     eraseTmp();
@@ -410,11 +271,23 @@ MadBool flash_key_d(uint8_t *arg)
                     eraseData();
                     const uint32_t *pdata = (const uint32_t*)(_CfgData);
                     const uint8_t  *ptmp  = (const  uint8_t*)(_CfgTmp);
-                    for (uint8_t i = 0; i < cnt; i++) {
-                        memcpy(buf, ptmp, 256);
-                        if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
-                            ok = MFALSE;
+                    for (uint8_t i = 0; i < 8; i++) {
+                        if(new_row == pdata) {
+                            uint8_t *item = arg + 16;
+                            uint8_t  ilen = len - 16;
+                            memcpy(buf,      item,     ilen);
+                            memset(buf+ilen, 0xFF, 256-ilen);
+                            buf[255] = ilen - 16;
+                            if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
+                                ok = MFALSE;
+                            }
                             break;
+                        } else {
+                            memcpy(buf, ptmp, 256);
+                            if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
+                                ok = MFALSE;
+                                break;
+                            }
                         }
                         pdata += 64;
                         ptmp  += 256;
@@ -435,12 +308,151 @@ MadBool flash_key_d(uint8_t *arg)
 
     return ok;
 }
+#else
+// NOT Working
+MadBool flash_key_w(uint8_t *arg)
+{
+    MadBool ok;
+
+    ok = flash_verify(arg);
+    if(MFALSE == ok) {
+        return MFALSE;
+    }
+
+    uint8_t *wallet = find_wallet(arg + 16);
+    if(!wallet) {
+        const uint32_t *new_row = find_new_row();
+        if(!new_row) {
+            ok = MFALSE;
+        } else {
+            if(SUCCESS != LL_FLASH_Unlock()) {
+                ok = MFALSE;
+            } else {
+                if(SUCCESS != LL_FLASH_Program_Fast(new_row, (uint32_t*)(arg + 16))) {
+                    ok = MFALSE;
+                }
+                LL_FLASH_Lock();
+            }
+        }
+    }
+
+    return ok;
+}
+#endif
+
+MadBool flash_key_r(uint8_t *arg, uint8_t **key, uint8_t *len)
+{
+    MadBool ok;
+
+    ok = flash_verify(arg);
+    if(MFALSE == ok) {
+        return MFALSE;
+    }
+
+    uint8_t *wallet = find_wallet(arg + 16);
+    if(!wallet) {
+        ok = MFALSE;
+        *len = 0;
+    } else {
+        *key = wallet + 16;
+        *len = wallet[255];
+    }
+
+    return ok;
+}
+
+MadBool flash_key_d(uint8_t *arg)
+{
+    MadBool ok;
+
+    ok = flash_verify(arg);
+    if(MFALSE == ok) {
+        return MFALSE;
+    }
+
+    uint8_t *wallet = find_wallet(arg + 16);
+    if(wallet) {
+        uint8_t *buf = (uint8_t*)malloc(256);
+        if(!buf) {
+            return MFALSE;
+        }
+
+        if(SUCCESS != LL_FLASH_Unlock()) {
+            ok = MFALSE;
+        } else {
+            uint8_t cnt;
+            const uint32_t *new_row = find_new_row();
+
+            if(!new_row) {
+                cnt = 8;
+            } else {
+                cnt = ((uint32_t)new_row - (uint32_t)_CfgData) >> 8; // /256
+            }
+
+            eraseTmp();
+            do {
+                const uint8_t  *pdata = (const  uint8_t*)(_CfgData);
+                const uint32_t *ptmp  = (const uint32_t*)(_CfgTmp);
+                for (uint8_t i = 0; i < cnt; i++) {
+                    if(wallet == pdata) {
+                        pdata += 256;
+                        continue;
+                    } else {
+                        memcpy(buf, pdata, 256);
+                        if(SUCCESS != LL_FLASH_Program_Fast(ptmp, (uint32_t*)buf)) {
+                            ok = MFALSE;
+                            break;
+                        }
+                    }
+                    pdata += 256;
+                    ptmp  += 64;
+                }
+                cnt--;
+            } while(0);
+
+            if(MFALSE == ok) {
+                eraseTmp();
+            } else {
+                eraseData();
+                const uint32_t *pdata = (const uint32_t*)(_CfgData);
+                const uint8_t  *ptmp  = (const  uint8_t*)(_CfgTmp);
+                for (uint8_t i = 0; i < cnt; i++) {
+                    memcpy(buf, ptmp, 256);
+                    if(SUCCESS != LL_FLASH_Program_Fast(pdata, (uint32_t*)buf)) {
+                        ok = MFALSE;
+                        break;
+                    }
+                    pdata += 64;
+                    ptmp  += 256;
+                }
+                if(MTRUE == ok) {
+                    eraseTmp();
+                } else {
+                    hw_shutdown();
+                }
+            }
+
+            LL_FLASH_Lock();
+        }
+
+        free(buf);
+    }
+
+    return ok;
+}
 
 uint8_t flash_key_l(uint8_t *id, uint8_t **list)
 {
+    MadBool ok;
     uint8_t  cnt, siz;
     uint8_t  *buf, *dst, *src;
     uint32_t first_r, new_r;
+
+    ok = flash_verify(id);
+    if(ok == MFALSE) {
+        *list = 0;
+        return 0;
+    }
 
     first_r = (uint32_t)(_CfgData + 64);
     new_r = (uint32_t)find_new_row();
