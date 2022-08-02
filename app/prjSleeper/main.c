@@ -143,6 +143,11 @@ static void check_startup(void)
     MadU8 cnt = 0;
     LL_EXTI_InitTypeDef EXTI_InitStruct = {0};
 
+#ifdef DEV_BOARD
+    (void)cnt;
+    (void)EXTI_InitStruct;
+    (void)key_irq_handler;
+#else
     while(!LL_GPIO_IsInputPinSet(GPIO_KEY, GPIN_KEY)) {
         madTimeDly(20);
         if(++cnt >= STARTUP_TICKS) {
@@ -172,6 +177,7 @@ static void check_startup(void)
 
         NVIC_SystemReset();
     }
+#endif
 
     LL_GPIO_ResetOutputPin(GPIO_PWR, GPIN_PWR);
     LL_GPIO_ResetOutputPin(GPIO_LED, GPIN_LED);

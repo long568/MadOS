@@ -8,22 +8,18 @@
 
 flash_cfg_t flash_cfg;
 
-static          FlashPage_t _Cfg        = { 0 };
-static volatile uint32_t    *Cfg        = (uint32_t *)_Cfg;
+static FlashPage_t _Cfg = { 0 };
 
 static ErrorStatus eraseCfg(void);
 
 static ErrorStatus eraseCfg(void)
 {
-    return flash_erase((uint32_t)Cfg);
+    return flash_erase((uint32_t)_Cfg);
 }
 
 MadBool flash_cfg_load()
 {
-    flash_cfg.es_level = ((flash_cfg_t *)Cfg)->es_level;
-    flash_cfg.es_freq  = ((flash_cfg_t *)Cfg)->es_freq;
-    flash_cfg.sys_tout = ((flash_cfg_t *)Cfg)->sys_tout;
-    flash_cfg.sys_tt   = ((flash_cfg_t *)Cfg)->sys_tt;
+    memcpy(&flash_cfg, _Cfg, sizeof(flash_cfg_t));
 
     if(flash_cfg.es_level > SV_LEVEL_MAX) {
         flash_cfg.es_level = 0;
@@ -54,19 +50,17 @@ MadBool flash_cfg_save(void)
         return MFALSE;
     }
 
+    MAD_CS_OPT(
+        flash_cfg.sys_tt += sys_tt_cnt;
+        sys_tt_cnt = 0;
+    );
+    memcpy(buf, &flash_cfg, sizeof(flash_cfg_t));
+
     ok = MTRUE;
     if(SUCCESS != LL_FLASH_Unlock()) {
         ok = MFALSE;
     } else {
         eraseCfg();
-        MAD_CS_OPT(
-            flash_cfg.sys_tt += sys_tt_cnt;
-            sys_tt_cnt = 0;
-            );
-        ((flash_cfg_t *)buf)->es_level = flash_cfg.es_level;
-        ((flash_cfg_t *)buf)->es_freq  = flash_cfg.es_freq;
-        ((flash_cfg_t *)buf)->sys_tout = flash_cfg.sys_tout;
-        ((flash_cfg_t *)buf)->sys_tt   = flash_cfg.sys_tt;
         if(SUCCESS != LL_FLASH_Program_Fast(_Cfg, (uint32_t*)buf)) {
             ok = MFALSE;
         }
