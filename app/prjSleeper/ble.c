@@ -314,6 +314,7 @@ static MadBool ble_interpreter(const char *buf, int size)
 
         case BLE_CMD_SYS_TT: {
             msg->type  = MSG_BLE_SYS_TT;
+            break;
         }
 
         case BLE_CMD_ID: {

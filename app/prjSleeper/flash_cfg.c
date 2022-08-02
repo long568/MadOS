@@ -59,7 +59,10 @@ MadBool flash_cfg_save(void)
         ok = MFALSE;
     } else {
         eraseCfg();
-        MAD_CS_OPT(flash_cfg.sys_tt += sys_tt_cnt);
+        MAD_CS_OPT(
+            flash_cfg.sys_tt += sys_tt_cnt;
+            sys_tt_cnt = 0;
+            );
         ((flash_cfg_t *)buf)->es_level = flash_cfg.es_level;
         ((flash_cfg_t *)buf)->es_freq  = flash_cfg.es_freq;
         ((flash_cfg_t *)buf)->sys_tout = flash_cfg.sys_tout;
