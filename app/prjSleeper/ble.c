@@ -104,10 +104,12 @@ static void ble_chk_mac_adr(char *buf)
 
 static void ble_reset(void)
 {
-    LL_GPIO_SetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
-    madTimeDly(350);
-    LL_GPIO_ResetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
-    madTimeDly(650);
+    // Bug of chip FR8012HA
+    // Resetting the chip will make LDO_OUT invalid.
+    // LL_GPIO_SetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
+    // madTimeDly(350);
+    // LL_GPIO_ResetOutputPin(GPIO_BLE_RST, GPIN_BLE_RST);
+    // madTimeDly(650);
 }
 
 static void ble_handler(MadVptr exData)
