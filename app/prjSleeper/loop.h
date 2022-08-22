@@ -7,8 +7,7 @@ typedef enum {
     MSG_KEY,
     MSG_BLE_SYNC,
     MSG_BLE_ES_LEVEL,
-    MSG_BLE_HR,
-    MSG_BLE_SPO2,
+    MSG_BLE_PRODUCT_VER,
     MSG_BLE_SHUT,
     MSG_BLE_ES_FREQ,
     MSG_BLE_SYS_TOUT,
@@ -21,6 +20,7 @@ typedef enum {
     MSG_BLE_KEY_R,
     MSG_BLE_KEY_D,
     MSG_BLE_KEY_L,
+    MSG_BLE_KEY_C,
     MSG_BLE_NUM
 } msg_type_t;
 

@@ -213,8 +213,7 @@ static MadBool ble_interpreter(const char *buf, int size)
 
     switch(c.cmd) {
         case BLE_CMD_SYNC:
-        case BLE_CMD_HR:
-        case BLE_CMD_SPO2:
+        case BLE_CMD_PRODUCT_VER:
         case BLE_CMD_SHUT:
         case BLE_CMD_ID:
         case BLE_CMD_TID:
@@ -238,7 +237,8 @@ static MadBool ble_interpreter(const char *buf, int size)
 
         case BLE_CMD_VERIFY:
         case BLE_CMD_CLEAR:
-        case BLE_CMD_KEY_L: {
+        case BLE_CMD_KEY_L:
+        case BLE_CMD_KEY_C: {
             if(c.len != 16) {
                 return MFALSE;
             } else {
@@ -287,13 +287,8 @@ static MadBool ble_interpreter(const char *buf, int size)
             break;
         }
 
-        case BLE_CMD_HR: {
-            msg->type  = MSG_BLE_HR;
-            break;
-        }
-
-        case BLE_CMD_SPO2: {
-            msg->type  = MSG_BLE_SPO2;
+        case BLE_CMD_PRODUCT_VER: {
+            msg->type  = MSG_BLE_PRODUCT_VER;
             break;
         }
 
@@ -354,6 +349,11 @@ static MadBool ble_interpreter(const char *buf, int size)
 
         case BLE_CMD_KEY_L: {
             msg->type  = MSG_BLE_KEY_L;
+            break;
+        }
+
+        case BLE_CMD_KEY_C: {
+            msg->type  = MSG_BLE_KEY_C;
             break;
         }
 

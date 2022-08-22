@@ -3,7 +3,6 @@
 #include "CfgUser.h"
 #include "loop.h"
 #include "ble.h"
-#include "max.h"
 #include "power.h"
 #include "flash.h"
 #include "stabilivolt.h"
@@ -19,6 +18,7 @@ static void msg_ble_key_r(uint8_t *arg);
 static void msg_ble_key_w(uint8_t *arg, uint8_t len);
 static void msg_ble_key_d(uint8_t *arg);
 static void msg_ble_key_l(uint8_t *id);
+static void msg_ble_key_c(uint8_t *id);
 
 MadBool loop_init(void)
 {
@@ -122,20 +122,11 @@ static void loop_handler(MadVptr exData)
                 break;
             }
 
-            case MSG_BLE_HR: {
+            case MSG_BLE_PRODUCT_VER: {
                 ble_cmd_t c;
-                c.cmd   = BLE_CMD_HR;
-                c.len   = 1;
-                c.arg.v = 75;
-                ble_send(&c);
-                break;
-            }
-
-            case MSG_BLE_SPO2: {
-                ble_cmd_t c;
-                c.cmd   = BLE_CMD_SPO2;
-                c.len   = 1;
-                c.arg.v = 98;
+                c.cmd   = BLE_CMD_PRODUCT_VER;
+                c.len   = sizeof(PRODUCT_VER_t);
+                c.arg.p = (uint8_t *)&PRODUCT_VER;
                 ble_send(&c);
                 break;
             }
@@ -219,6 +210,11 @@ static void loop_handler(MadVptr exData)
 
             case MSG_BLE_KEY_L: {
                 msg_ble_key_l(msg->arg.p);
+                break;
+            }
+
+            case MSG_BLE_KEY_C: {
+                msg_ble_key_c(msg->arg.p);
                 break;
             }
 
@@ -315,4 +311,17 @@ static void msg_ble_key_l(uint8_t *id)
     c.len = flash_key_l(id, &c.arg.p);
     ble_send(&c);
     free(c.arg.p);
+}
+
+static void msg_ble_key_c(uint8_t *id)
+{
+    ble_cmd_t c;
+    c.cmd = BLE_CMD_KEY_C;
+    c.len = 1;
+    if(MTRUE == flash_key_c(id)) {
+        c.arg.v = 1;
+    } else {
+        c.arg.v = 0;
+    }
+    ble_send(&c);
 }

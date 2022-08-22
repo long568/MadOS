@@ -5,7 +5,6 @@
 #include "wdg.h"
 #include "key.h"
 #include "ble.h"
-#include "max.h"
 #include "power.h"
 #include "flash.h"
 #include "stabilivolt.h"
@@ -15,6 +14,14 @@
 #define STARTUP_TICKS 125
 
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
+PRODUCT_VER_t PRODUCT_VER = {
+    PRODUCT_VER_Name,
+    PRODUCT_VER_Date,
+    PRODUCT_VER_Major,
+    PRODUCT_VER_Minor,
+    PRODUCT_VER_Sub,
+    PRODUCT_VER_Release
+};
 
 static void clk_init(void);
 static void hw_init(void);

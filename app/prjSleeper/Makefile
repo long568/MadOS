@@ -11,4 +11,4 @@ after_all: gen_depend
 	$(OCPY) -O ihex $(TARGET).elf $(TARGET).hex
 
 gen_depend:
-	$(MAKE) -C $(ROOT)/app/$(APP)/MAX30105
+#	$(MAKE) -C $(ROOT)/app/$(APP)/MAX30105

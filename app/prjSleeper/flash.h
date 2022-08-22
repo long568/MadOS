@@ -20,6 +20,7 @@ extern MadBool flash_key_w(uint8_t *arg, uint8_t len);
 extern MadBool flash_key_r(uint8_t *arg, uint8_t **key, uint8_t *len);
 extern MadBool flash_key_d(uint8_t *arg);
 extern uint8_t flash_key_l(uint8_t *id, uint8_t **list);
+extern MadBool flash_key_c(uint8_t *id);
 
 /********************* Cfg *********************/
 typedef struct {

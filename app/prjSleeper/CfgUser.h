@@ -3,6 +3,26 @@
 
 // #define DEV_BOARD
 
+#include "MadOS.h"
+
+#define PRODUCT_VER_Name    "OpenID"
+#define PRODUCT_VER_Date    "20220821"
+#define PRODUCT_VER_Major   0
+#define PRODUCT_VER_Minor   17
+#define PRODUCT_VER_Sub     5
+#define PRODUCT_VER_Release 3
+
+typedef const struct __attribute__((__packed__)) {
+    uint8_t name[8];
+    uint8_t date[8];
+    uint8_t major;
+    uint8_t minor;
+    uint8_t sub;
+    uint8_t release;
+} PRODUCT_VER_t;
+
+extern PRODUCT_VER_t PRODUCT_VER;
+
 enum {
     THREAD_PRIO_SYS_RUNNING = 1,
     THREAD_PRIO_HR,

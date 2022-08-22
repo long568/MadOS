@@ -485,3 +485,33 @@ uint8_t flash_key_l(uint8_t *id, uint8_t **list)
     *list = buf;
     return siz;
 }
+
+MadBool flash_key_c(uint8_t *id)
+{
+    MadBool ok;
+    uint8_t *buf;
+
+    ok = flash_verify(id);
+    if(ok == MFALSE) {
+        return MFALSE;
+    }
+
+    buf = (uint8_t*)malloc(256);
+    if(!buf) {
+        return MFALSE;
+    }
+
+    memcpy(buf, (const uint8_t *)_CfgData, 256);
+
+    if(SUCCESS != LL_FLASH_Unlock()) {
+        ok = MFALSE;
+    } else {
+        eraseData();
+        if(SUCCESS != LL_FLASH_Program_Fast(_CfgData, (uint32_t*)buf)) {
+            ok = MFALSE;
+        }
+        LL_FLASH_Lock();
+    }
+
+    return ok;
+}

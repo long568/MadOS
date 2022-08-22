@@ -7,8 +7,8 @@ typedef enum {
     // Base
     BLE_CMD_SYNC = 1,
     BLE_CMD_ES_LEVEL,
-    BLE_CMD_HR,
-    BLE_CMD_SPO2,
+    BLE_CMD_PRODUCT_VER,
+    BLE_DUMMY_0,
     BLE_CMD_SHUT,
     BLE_CMD_ES_FREQ,
     BLE_CMD_SYS_TOUT,
@@ -23,6 +23,7 @@ typedef enum {
     BLE_CMD_KEY_R,
     BLE_CMD_KEY_D,
     BLE_CMD_KEY_L,
+    BLE_CMD_KEY_C
 } ble_cmd_enum;
 
 typedef struct {
