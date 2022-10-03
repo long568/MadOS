@@ -63,11 +63,13 @@ XFLAGS += $(DEFS) $(INCS) $(PRJ_CFLAGS) \
           -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
           -ffunction-sections -fdata-sections \
           -fno-builtin
-export CFLAGS   += $(XFLAGS) -std=c99
-export CXXFLAGS += $(XFLAGS) -std=c++11
+export CFLAGS   += $(XFLAGS) -std=c11
+export CXXFLAGS += $(XFLAGS) -std=c++20
 export LDFLAGS  += $(LIBS) $(PRJ_LDFLAGS) \
-                   -Bstatic -Wl,--gc-sections \
-                   -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+                   -Bstatic -march=$(MCU_ARCH) -mtune=$(MCU_VER) \
+                   -Wl,--gc-sections \
+                   -Wl,--no-warn-rwx-segments \
+                   -Wl,--no-warn-execstack \
                    -T$(BUILD_DIR)/HiMadOS.ld
 
 all:
@@ -79,10 +81,10 @@ all:
 	$(MKDIR) $(BUILD_DIR)/app
 	$(CD) $(BUILD_DIR)/app && $(AR) x $(BUILD_DIR)/libnewlib.a
 	$(MAKE) -C $(ROOT)/app/$(APP)
-	$(ECHO) 'Building ... Done.'
+	$(ECHO) '$(APP) Building ... Done.'
 
 clean:
 	$(RM) -r $(BUILD_DIR)
-	$(ECHO) 'Cleaning ... Done.'
+	$(ECHO) '$(APP) Cleaning ... Done.'
 
 rebuild: clean all
