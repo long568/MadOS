@@ -6,10 +6,10 @@
 #include "MadOS.h"
 
 #define PRODUCT_VER_Name    "OpenID"
-#define PRODUCT_VER_Date    "20221104"
+#define PRODUCT_VER_Date    "20221130"
 #define PRODUCT_VER_Major   0
-#define PRODUCT_VER_Minor   17
-#define PRODUCT_VER_Sub     7
+#define PRODUCT_VER_Minor   20
+#define PRODUCT_VER_Sub     0
 #define PRODUCT_VER_Release 0
 
 typedef const struct __attribute__((__packed__)) {

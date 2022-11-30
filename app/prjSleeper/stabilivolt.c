@@ -17,7 +17,7 @@ MadBool sv_init(void)
 inline static void __sv_set_level(MadU8 l)
 {
     uint32_t timxPeriod = LL_TIM_GetAutoReload(SV_PWM1_TIM);
-    uint32_t comp = (timxPeriod + 1) * (l + 2) / 20;
+    uint32_t comp = (timxPeriod + 1) * (l * 2) / 20;
     SV_PWM1_SET(SV_PWM1_TIM, comp);
 }
 
@@ -28,8 +28,9 @@ inline static void __sv_set_freq(MadU8 f)
     uint32_t timxPeriod;
     timOutClock   = SystemCoreClock/1;
     timxPrescaler = __LL_TIM_CALC_PSC(SystemCoreClock, 20000);
-    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, (float)f/60);
+    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, f);
     LL_TIM_SetAutoReload(SV_PWM2_TIM, timxPeriod);
+    SV_PWM2_SET(SV_PWM2_TIM, (timxPeriod + 1 ) / 1000);
 }
 
 inline static void __sv_clr_level()
@@ -39,7 +40,7 @@ inline static void __sv_clr_level()
 
 inline static void __sv_clr_freq()
 {
-    LL_TIM_SetAutoReload(SV_PWM2_TIM, 0);
+    SV_PWM2_SET(SV_PWM2_TIM, 0);
 }
 
 static void __sv_set_arg(MadU8 l, MadU8 f)
@@ -77,7 +78,7 @@ void sv_set_level(MadU8 l)
 
 void sv_set_freq(MadU8 f)
 {
-    if(f == 0 || f == 0xFF) {
+    if(f < SV_FREQ_MIN || f > SV_FREQ_MAX) {
         f = SV_FREQ_DFT;
     }
     flash_cfg.es_freq = f;
@@ -132,18 +133,22 @@ static void sv_pwm1_init(void)
 
 static void sv_pwm2_init(void)
 {   // TIM14_CH1
+    uint32_t timOutClock;
     uint32_t timxPrescaler;
+    uint32_t timxPeriod;
 
     LL_TIM_InitTypeDef    TIM_InitStruct    = {0};
     LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
     LL_GPIO_InitTypeDef   GPIO_InitStruct   = {0};
 
+    timOutClock   = SystemCoreClock/1;
     timxPrescaler = __LL_TIM_CALC_PSC(SystemCoreClock, 20000);
+    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, 2);
 
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM14);
     TIM_InitStruct.Prescaler = timxPrescaler;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-    TIM_InitStruct.Autoreload = 0;
+    TIM_InitStruct.Autoreload = timxPeriod;
     TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
     LL_TIM_Init(SV_PWM2_TIM, &TIM_InitStruct);
     LL_TIM_EnableARRPreload(SV_PWM2_TIM);
@@ -152,7 +157,7 @@ static void sv_pwm2_init(void)
     TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
     TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
     TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-    TIM_OC_InitStruct.CompareValue = 6;
+    TIM_OC_InitStruct.CompareValue = ((timxPeriod + 1 ) / 1000);
     TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
     LL_TIM_OC_Init(SV_PWM2_TIM, SV_PWM2_TIM_CH, &TIM_OC_InitStruct);
     LL_TIM_OC_DisableFast(SV_PWM2_TIM, SV_PWM2_TIM_CH);

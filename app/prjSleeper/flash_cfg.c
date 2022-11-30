@@ -25,7 +25,7 @@ MadBool flash_cfg_load()
         flash_cfg.es_level = 0;
     }
 
-    if(flash_cfg.es_freq == 0 || flash_cfg.es_freq == 0xFF) {
+    if(flash_cfg.es_freq < SV_FREQ_MIN || flash_cfg.es_freq > SV_FREQ_MAX) {
         flash_cfg.es_freq = SV_FREQ_DFT;
     }
 
