@@ -143,7 +143,7 @@ static void sv_pwm2_init(void)
 
     timOutClock   = SystemCoreClock/1;
     timxPrescaler = __LL_TIM_CALC_PSC(SystemCoreClock, 20000);
-    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, 2);
+    timxPeriod    = __LL_TIM_CALC_ARR(timOutClock, timxPrescaler, SV_FREQ_DFT);
 
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM14);
     TIM_InitStruct.Prescaler = timxPrescaler;
@@ -157,7 +157,7 @@ static void sv_pwm2_init(void)
     TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
     TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
     TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-    TIM_OC_InitStruct.CompareValue = ((timxPeriod + 1 ) / 1000);
+    TIM_OC_InitStruct.CompareValue = 0; // ((timxPeriod + 1 ) / 1000);
     TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
     LL_TIM_OC_Init(SV_PWM2_TIM, SV_PWM2_TIM_CH, &TIM_OC_InitStruct);
     LL_TIM_OC_DisableFast(SV_PWM2_TIM, SV_PWM2_TIM_CH);
