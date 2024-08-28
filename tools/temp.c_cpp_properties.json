@@ -3,8 +3,8 @@
         {
             "name": "MadOS",
             "includePath": [
-                "${env.MADOS_TOOLS_HOME}/arm-none-eabi/include",
-                "${env.MADOS_TOOLS_HOME}/lib/gcc/arm-none-eabi/${env.MADOS_TOOLS_VER}/include",
+                "${env.MADOS_TOOLS_GCC}/arm-none-eabi/include",
+                "${env.MADOS_TOOLS_GCC}/lib/gcc/arm-none-eabi/${env.MADOS_TOOLS_VER}/include",
                 "${workspaceFolder}/kernel/inc",
                 "${workspaceFolder}/arch/stm32f10x/kernel-ext",
                 "${workspaceFolder}/arch/stm32f10x/Arch",
