@@ -88,6 +88,7 @@ $RECYCLE.BIN/
 .vscode/c_cpp_properties.json
 .vscode/*.log
 .vscode/ipch
+.vscode/settings.json
 .vscode/launch.json
 build
 cross-build
