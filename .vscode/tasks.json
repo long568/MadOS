@@ -1,37 +1,40 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "config",
+            "label": "clear",
             "type": "shell",
-            "command": "bash ${workspaceRoot}/tools/config.sh ${workspaceRoot}",
-            "auto": true
+            "command": "rm -rf cross-build",
+            "problemMatcher": [ "$gcc" ],
+            "group": "build"
+        },
+        {
+            "label": "setup",
+            "type": "shell",
+            "command": "meson setup cross-build --cross-file cross-build.txt",
+            "problemMatcher": [ "$gcc" ],
+            "group": "build"
         },
         {
             "label": "build",
             "type": "shell",
-            "command": "make all",
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "command": "meson compile -C cross-build",
+            "problemMatcher": [ "$gcc" ],
+            "group": "build"
         },
         {
-            "label": "clean",
-            "type": "shell",
-            "command": "make clean",
+            "label": "resetup",
+            "dependsOn": ["clear", "setup"],
+            "dependsOrder": "sequence",
+            "problemMatcher": [ "$gcc" ],
             "group": "build"
         },
         {
             "label": "rebuild",
-            "type": "shell",
-            "command": "make rebuild",
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "dependsOn": ["clear", "setup", "build"],
+            "dependsOrder": "sequence",
+            "problemMatcher": [ "$gcc" ],
+            "group": "build"
         }
     ]
 }

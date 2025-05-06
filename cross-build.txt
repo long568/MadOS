@@ -1,0 +1,25 @@
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+ar = 'arm-none-eabi-ar'
+strip = 'arm-none-eabi-strip'
+as = 'arm-none-eabi-as'
+ld = 'arm-none-eabi-ld'
+size = 'arm-none-eabi-size'
+objcopy = 'arm-none-eabi-objcopy'
+objdump = 'arm-none-eabi-objdump'
+
+[host_machine]
+system = 'none'
+cpu_family = 'arm'
+cpu = 'cortex-mx'
+endian = 'little'
+
+[properties]
+needs_exe_wrapper = true
+
+[built-in options]
+c_args = [ '-Wall', '-Wshadow', '-Wpointer-arith', '-ffunction-sections', '-fdata-sections', '-fno-builtin' ]
+cpp_args = c_args
+c_link_args = [ '-Bstatic', '-nostartfiles', '-Wl,--gc-sections', '-Wl,--no-warn-rwx-segments', '-Wl,--no-warn-execstack' ]
+cpp_link_args = c_link_args

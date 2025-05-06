@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/cross-build/app/@APP@/app",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "@MCU_NO_PACKAGE@",
+            "interface": "swd",
+            "configFiles": [
+                "interface/@INTERFACE@.cfg",
+                "target/@MCU_FAMILY@.cfg"
+            ],
+            "runToEntryPoint": "main",
+            "preLaunchTask": "build",
+            "postRestartCommands": [
+                "load"
+            ]
+        }
+    ]
+}

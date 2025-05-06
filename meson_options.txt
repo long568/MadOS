@@ -1,0 +1,11 @@
+# option('app', type: 'string', value: 'lesson001', description: 'Which project to build')
+# option('mcu', type: 'string', value: 'stm32f103rct6', description: 'Target MCU model')
+
+# option('app', type: 'string', value: 'lesson002', description: 'Which project to build')
+# option('mcu', type: 'string', value: 'stm32g070rbt6', description: 'Target MCU model')
+
+option('app', type: 'string', value: 'lesson003', description: 'Which project to build')
+option('mcu', type: 'string', value: 'stm32f103rct6', description: 'Target MCU model')
+
+option('stack_size', type: 'integer', value: 512, description: 'Minimum stack size for interrupts')
+option('debugger', type: 'string', value: 'cmsis-dap', description: 'Debugger for connecting to MCU')

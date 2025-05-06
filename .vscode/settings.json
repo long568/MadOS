@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "cross-build.txt": "meson",
+        "meson_options.txt": "meson",
+    },
+    "cortex-debug.variableUseNaturalFormat": false,
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/cross-build/compile_commands.json",
+    "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+    "C_Cpp.default.intelliSenseMode": "gcc-arm",
+    "mesonbuild.buildFolder": "cross-build",
+    "mesonbuild.configureOptions": [
+        "--cross-file", "cross-build.txt"
+    ]
+}
