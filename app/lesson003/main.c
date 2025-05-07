@@ -1,5 +1,3 @@
-/* 第1课 - 初识源码 */
-
 #include <stdlib.h>
 #include <string.h>
 #include "MadOS.h"

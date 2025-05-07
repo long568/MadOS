@@ -20,7 +20,7 @@ endian = 'little'
 needs_exe_wrapper = true
 
 [built-in options]
-pkg_config_path = [ '/Users/lo/Documents/DevTools/vcpkg/installed/arm-cortex-m3-mados/lib/pkgconfig' ]
+pkg_config_path = [ '' ]
 c_args = [ '-Wall', '-Wshadow', '-Wpointer-arith', '-ffunction-sections', '-fdata-sections', '-fno-builtin' ]
 cpp_args = c_args
 c_link_args = [ '-Bstatic', '-nostartfiles', '-Wl,--gc-sections', '-Wl,--no-warn-rwx-segments', '-Wl,--no-warn-execstack' ]

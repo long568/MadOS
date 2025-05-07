@@ -91,4 +91,4 @@ cross-build
 .vscode/*.log
 .vscode/ipch
 .vscode/launch.json
-./cross-build.txt
+/cross-build.txt
