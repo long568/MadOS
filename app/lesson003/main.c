@@ -1,46 +1,82 @@
 /* 第1课 - 初识源码 */
 
 #include <stdlib.h>
-#include "MadOS.h"                              // MadOS核心头文件
+#include <string.h>
+#include "MadOS.h"
+#include "cjson/cJSON.h"
 
-// 定义运行时堆栈 (8Bytes-Align for Float)
+#define LED_GCLK RCC_APB2Periph_GPIOB
+#define LED_GPIO GPIOB
+#define LED_GPIN GPIO_Pin_4
+
 #define MAD_OS_STACK_SIZE (45 * 1024)
 MadAligned_t MadStack[MAD_OS_STACK_SIZE / MAD_MEM_ALIGN] = { 0 };
-static void madStartup(MadVptr exData);         // 函数声明
+static void madStartup(MadVptr exData);
+static void madSetupHW(void);
 
 int main()
 {
-    madCopyVectorTab();                         // 将中断向量表复制到RAM中
-    madOSInit(MadStack, MAD_OS_STACK_SIZE);     // MadOS初始化
-    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0); // 新建线程
-    madOSRun();                                 // 启动MadOS
-	while(1);                                   // !永远不该运行至此!
-} // 以上是MadOS的启动过程，初学者不必深究，随后的学习中会逐步了解其原理
+    madCopyVectorTab();
+    madOSInit(MadStack, MAD_OS_STACK_SIZE);
+    madThreadCreate(madStartup, 0, MAD_OS_STACK_SIZE / 2, 0);
+    madOSRun();
+	while(1);
+}
 
 static void madStartup(MadVptr exData)
 {
-    GPIO_InitTypeDef pin;  // GPIO临时变量
-    MadBool flag = MFALSE; // LED状态标志
-	(void)exData; // 防止编译器产生警告
-    // 初始化GPIOC-0，用于控制LED开关。
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-    pin.GPIO_Mode  = GPIO_Mode_Out_PP;
-	pin.GPIO_Pin   = GPIO_Pin_0;
-	pin.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOC, &pin);
-    GPIO_SetBits(GPIOC, GPIO_Pin_0);
-    // 初始化SysTick，脉动间隔1ms。
+    
+    MadBool flag = MFALSE;
+	(void)exData;
+
+    madSetupHW();
     madInitSysTick(DEF_SYS_TICK_FREQ, DEF_TICKS_PER_SEC);
 
     {
-        volatile u8 *p = (u8*)malloc(30);
-        p++;
+        volatile cJSON *obj = cJSON_CreateObject();
+        obj = obj;
+        cJSON_Delete((cJSON*)obj);
+    }
+
+    {
+        volatile u32 cnt1, cnt2, cnt3;
+        volatile u8 *p = 0;
+
+        cnt1 = madMemUnusedSize();
+        p = (u8*)malloc(128);
+        cnt2 = madMemUnusedSize();
+        memset((void*)p, 0x11, 128);
+        memset((void*)p, 0x56, 128);
+        free((void*)p);
+        cnt3 = madMemUnusedSize();
+        cnt1 = cnt1;
+        cnt2 = cnt2;
+        cnt3 = cnt3;
     }
     
-    while(1) { // 线程主循环
-        madTimeDly(500); // 延时500ms
-        flag = !flag;    // LED状态取反
-        if(flag) GPIO_ResetBits(GPIOC, GPIO_Pin_0); // 开灯
-        else     GPIO_SetBits(GPIOC, GPIO_Pin_0);   // 关灯
+    while(1) {
+        madTimeDly(500);
+        flag = !flag;
+        if(flag) GPIO_ResetBits(LED_GPIO, LED_GPIN);
+        else     GPIO_SetBits(LED_GPIO, LED_GPIN);
 	}
+}
+
+static void madSetupHW(void)
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    RCC_APB2PeriphClockCmd(LED_GCLK, ENABLE);
+
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+
+    do {
+        GPIO_InitTypeDef pin;
+        pin.GPIO_Mode  = GPIO_Mode_Out_PP;
+        pin.GPIO_Pin   = LED_GPIN;
+        pin.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(LED_GPIO, &pin);
+        GPIO_ResetBits(LED_GPIO, LED_GPIN);
+    } while(0);
 }

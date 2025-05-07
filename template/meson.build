@@ -6,7 +6,7 @@ mcu_np = mcu.substring(0, -2)
 mcu_family = mcu.substring(0, -6) + 'x'
 
 launch = configure_file(
-    input: 'template_launch.json',
+    input: 'launch.json',
     output: 'launch.json',
     configuration: {
         'APP': app,

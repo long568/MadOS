@@ -6,7 +6,7 @@ app = get_option('app')
 mcu = get_option('mcu')
 message('Build ' + app + ' based on ' + mcu)
 
-subdir('.vscode')
+subdir('template')
 subdir('os')
 
 subdir(join_paths('app', app))

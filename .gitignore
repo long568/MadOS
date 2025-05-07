@@ -84,11 +84,11 @@ $RECYCLE.BIN/
 
 # MadOS
 # =========================
+build
+cross-build
 .vscode/.cortex-debug.*.state.json
 .vscode/c_cpp_properties.json
 .vscode/*.log
 .vscode/ipch
-.vscode/settings.json
 .vscode/launch.json
-build
-cross-build
+./cross-build.txt

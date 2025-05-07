@@ -9,6 +9,13 @@
             "group": "build"
         },
         {
+            "label": "set-cross-build",
+            "type": "shell",
+            "command": "${workspaceFolder}/template/set-cross-build.sh ${workspaceFolder}",
+            "problemMatcher": [ "$gcc" ],
+            "group": "build"
+        },
+        {
             "label": "setup",
             "type": "shell",
             "command": "meson setup cross-build --cross-file cross-build.txt",
@@ -24,14 +31,14 @@
         },
         {
             "label": "resetup",
-            "dependsOn": ["clear", "setup"],
+            "dependsOn": ["set-cross-build", "clear", "setup"],
             "dependsOrder": "sequence",
             "problemMatcher": [ "$gcc" ],
             "group": "build"
         },
         {
             "label": "rebuild",
-            "dependsOn": ["clear", "setup", "build"],
+            "dependsOn": ["resetup", "build"],
             "dependsOrder": "sequence",
             "problemMatcher": [ "$gcc" ],
             "group": "build"

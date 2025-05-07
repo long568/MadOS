@@ -24,7 +24,7 @@ linker_script = configure_file(
 global_config += {
     'startup.s': join_paths(meson.current_source_dir(), 'Libraries/Startup', startup_file)
 }
-message('startup.s: ', global_config['startup.s'])
+message('startup.s:', global_config['startup.s'])
 
 add_project_arguments(
     [mcu_density, '-DUSE_STDPERIPH_DRIVER', '-DVECT_TAB_SRAM', '-mcpu=cortex-m3', '-mthumb'],
